@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Sav PDF Viewer</string>
+    <string name="title_activity_main2">Sav PDF Viewer</string>
+    <string name="title_home">Home</string>
+    <string name="title_open">Open</string>
+    <string name="title_settings">Settings</string>
+
+    <string name="title_recents">Recents</string>
+    <string name="title_favourites">Favourites</string>
+</resources>
