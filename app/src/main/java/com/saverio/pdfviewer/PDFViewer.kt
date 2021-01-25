@@ -1,25 +1,35 @@
 package com.saverio.pdfviewer
 
+import RealPathUtil
 import android.app.Activity
+import android.content.ContentResolver
+import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
+import android.database.Cursor
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
-import android.widget.Button
+import android.os.Environment
+import android.provider.DocumentsContract
+import android.provider.MediaStore
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toolbar
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isGone
 import com.github.barteksc.pdfviewer.PDFView
-import org.json.JSONObject
-import java.lang.Exception
+import org.w3c.dom.Text
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 class PDFViewer : AppCompatActivity() {
     lateinit var pdfViewer: PDFView
     val PDF_SELECTION_CODE = 100
+
+    var fileOpened: String? = ""
+    var uriOpened: Uri? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,10 +67,15 @@ class PDFViewer : AppCompatActivity() {
             openFromStorage(Uri.parse(uriToUse))
         }
 
-        var backButton: ImageView = findViewById(R.id.buttonGoBackToolbar)
+        val backButton: ImageView = findViewById(R.id.buttonGoBackToolbar)
         backButton.setOnClickListener {
             updateLastFileOpened("")
             finish()
+        }
+
+        val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
+        shareButton.setOnClickListener {
+            setShareButton()
         }
     }
 
@@ -105,10 +120,20 @@ class PDFViewer : AppCompatActivity() {
             val selectedPdf = data.data
             selectPdfFromURI(selectedPdf)
 
+            val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
+            shareButton.isGone = true
+            uriOpened = selectedPdf
+            if (uriOpened != null) {
+                fileOpened = RealPathUtil.getRealPath(this, uriOpened!!)
+                shareButton.isGone = false
+            }
+            val pagesNumber: TextView = findViewById(R.id.totalPagesToolbar)
+            pagesNumber.isGone = true
+
             //checkRecentFiles(selectedPdf)
 
             updateLastFileOpened(selectedPdf.toString())
-            setTitle(getTheFileName(selectedPdf.toString(), -1))
+            //setTitle(getTheFileName(selectedPdf.toString(), -1))
         } else {
             //file not selected
             finish()
@@ -139,6 +164,7 @@ class PDFViewer : AppCompatActivity() {
 
         val totalPages: TextView = findViewById(R.id.totalPagesToolbar)
         totalPages.text = "#" + (currentPage + 1).toString()
+        totalPages.isGone = false
     }
 
     private fun getPdfPage(pathName: String): Int {
@@ -261,7 +287,7 @@ class PDFViewer : AppCompatActivity() {
         ).getString("last_opened_file", "")
     }
 
-    fun updateLastFileOpened(uri: String) {
+    fun updateLastFileOpened(uri: String?) {
         getSharedPreferences("last_opened_file", Context.MODE_PRIVATE).edit()
             .putString("last_opened_file", uri).apply()
     }
@@ -273,5 +299,17 @@ class PDFViewer : AppCompatActivity() {
 
     fun ByteArray.toHex(): String {
         return joinToString("") { "%02x".format(it) }
+    }
+
+    fun setShareButton() {
+        intent.getStringExtra("iName")
+        val shareIntent = Intent(Intent.ACTION_SEND)
+        shareIntent.putExtra(
+            Intent.EXTRA_STREAM,
+            uriOpened
+        )
+        shareIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+        shareIntent.type = "application/pdf"
+        startActivity(Intent.createChooser(shareIntent, "Share"))
     }
 }

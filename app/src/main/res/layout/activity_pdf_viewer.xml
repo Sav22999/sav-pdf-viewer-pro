@@ -4,25 +4,43 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/spacingPage"
     tools:context=".PDFViewer">
 
     <View
         android:id="@+id/toolbar"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="60sp"
         android:background="@color/dark_red"
         android:elevation="4dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/buttonGoBackToolbar"
-        android:layout_width="60sp"
+        android:id="@+id/buttonShareToolbar"
+        android:layout_width="56sp"
         android:layout_height="60sp"
         android:background="@color/dark_red"
         android:elevation="5dp"
-        android:padding="18dp"
+        android:padding="18sp"
+        android:scaleType="fitCenter"
+        android:tint="@color/white"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/totalPagesToolbar"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:srcCompat="?attr/actionModeShareDrawable"
+        tools:ignore="VectorDrawableCompat"
+        tools:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/buttonGoBackToolbar"
+        android:layout_width="56sp"
+        android:layout_height="60sp"
+        android:background="@color/dark_red"
+        android:elevation="5dp"
+        android:padding="18sp"
         android:scaleType="fitCenter"
         android:tint="@color/white"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,7 +52,6 @@
         android:id="@+id/titleToolbar"
         android:layout_width="0dp"
         android:layout_height="60sp"
-        android:layout_marginStart="60sp"
         android:background="@color/dark_red"
         android:elevation="5dp"
         android:gravity="left|center_vertical"
@@ -43,8 +60,8 @@
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="normal"
-        app:layout_constraintEnd_toStartOf="@+id/totalPagesToolbar"
-        app:layout_constraintStart_toStartOf="@+id/toolbar"
+        app:layout_constraintEnd_toStartOf="@+id/buttonShareToolbar"
+        app:layout_constraintStart_toEndOf="@+id/buttonGoBackToolbar"
         app:layout_constraintTop_toTopOf="@+id/toolbar"
         tools:ignore="RtlCompat" />
 
@@ -60,18 +77,23 @@
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="normal"
-        app:layout_constraintEnd_toEndOf="@+id/toolbar"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/toolbar"
-        tools:ignore="RtlCompat" />
+        tools:ignore="RtlCompat"
+        tools:text="#1"
+        tools:visibility="visible" />
 
     <com.github.barteksc.pdfviewer.PDFView
         android:id="@+id/pdfView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:background="@color/spacingPage"
+        android:forceDarkAllowed="false"
+        android:padding="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonGoBackToolbar" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
