@@ -13,9 +13,12 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.DocumentsContract
 import android.provider.MediaStore
+import android.widget.Button
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isGone
 import com.github.barteksc.pdfviewer.PDFView
 import org.w3c.dom.Text
@@ -31,6 +34,8 @@ class PDFViewer : AppCompatActivity() {
     var fileOpened: String? = ""
     var uriOpened: Uri? = null
 
+    val timesAfterOpenReviewMessage = 1000
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdf_viewer)
@@ -43,7 +48,7 @@ class PDFViewer : AppCompatActivity() {
 
         try {
             val intent = intent
-            if (intent != null && intent.data.toString() != null && intent.data.toString()
+            if (intent != null && intent.data != null && intent.data.toString()
                     .contains("content://")
             ) {
                 uriToUse = intent.data.toString()
@@ -66,6 +71,8 @@ class PDFViewer : AppCompatActivity() {
             //open a recent file
             openFromStorage(Uri.parse(uriToUse))
         }
+
+        checkReviewApp()
 
         val backButton: ImageView = findViewById(R.id.buttonGoBackToolbar)
         backButton.setOnClickListener {
@@ -311,5 +318,65 @@ class PDFViewer : AppCompatActivity() {
         shareIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         shareIntent.type = "application/pdf"
         startActivity(Intent.createChooser(shareIntent, "Share"))
+    }
+
+    fun checkReviewApp() {
+        var timesOpened = getSharedPreferences(
+            "app_opened_times",
+            Context.MODE_PRIVATE
+        ).getInt("app_opened_times", 0)
+
+        val alreadyReviewed = getSharedPreferences(
+            "already_reviewed_app",
+            Context.MODE_PRIVATE
+        ).getBoolean("already_reviewed_app", false)
+
+        val buttonReviewNow: TextView = findViewById(R.id.buttonReviewNow)
+        val messageContainer: ConstraintLayout = findViewById(R.id.messageContainer)
+        val buttonHideMessage: ImageView = findViewById(R.id.buttonHideMessageDialog)
+
+        buttonReviewNow.setOnClickListener {
+            if (openOnGooglePlay()) {
+                messageContainer.isGone = true
+                getSharedPreferences("already_reviewed_app", Context.MODE_PRIVATE).edit()
+                    .putBoolean("already_reviewed_app", true).apply()
+            }
+        }
+
+        buttonHideMessage.setOnClickListener {
+            messageContainer.isGone = true
+        }
+
+        if (!alreadyReviewed) {
+            if ((timesOpened % timesAfterOpenReviewMessage) == 0 && timesOpened >= timesAfterOpenReviewMessage) {
+                messageContainer.isGone = false
+            } else {
+                messageContainer.isGone = true
+            }
+        } else {
+            messageContainer.isGone = true
+        }
+
+
+        timesOpened++
+        getSharedPreferences("app_opened_times", Context.MODE_PRIVATE).edit()
+            .putInt("app_opened_times", timesOpened).apply()
+    }
+
+    fun openOnGooglePlay(): Boolean {
+        var valueToReturn = true
+        try {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("http://bit.ly/372k26g")
+                )
+            )
+        } catch (e: Exception) {
+            println("Exception 3: " + e.toString())
+            valueToReturn = false
+        }
+
+        return valueToReturn
     }
 }

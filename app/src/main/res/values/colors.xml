@@ -9,6 +9,8 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dark_white">#CCCCCC</color>
 
+    <color name="transparent">@color/transparent</color>
+
     <color name="spacingPage">#EEEEEE</color>
 
     <color name="gray">#666666</color>

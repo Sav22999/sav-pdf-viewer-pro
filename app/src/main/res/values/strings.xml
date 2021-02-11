@@ -7,4 +7,8 @@
 
     <string name="title_recents">Recents</string>
     <string name="title_favourites">Favourites</string>
+
+    <string name="text_review_the_app">Do you like this app?\nPlease, leave a review on Google Play.\nIt\'s just a few seconds for you 😊</string>
+    <string name="button_review_the_app_now">Review now</string>
+    <string name="text_review_the_app_later">Review later</string>
 </resources>
