@@ -13,12 +13,13 @@ import android.text.TextUtils
 object RealPathUtil {
 
     fun getRealPath(context: Context, fileUri: Uri): String? {
-        // SDK >= 11 && SDK < 19
         return if (Build.VERSION.SDK_INT < 19) {
+            // SDK >= 11 && SDK < 19
             getRealPathFromURIAPI11to18(context, fileUri)
         } else {
+            // SDK > 19 (Android 4.4) and up
             getRealPathFromURIAPI19(context, fileUri)
-        }// SDK > 19 (Android 4.4) and up
+        }
     }
 
     @SuppressLint("NewApi")
