@@ -131,7 +131,11 @@ class PDFViewer : AppCompatActivity() {
             shareButton.isGone = true
             uriOpened = selectedPdf
             if (uriOpened != null) {
-                fileOpened = RealPathUtil.getRealPath(this, uriOpened!!)
+                try {
+                    fileOpened = RealPathUtil.getRealPath(this, uriOpened!!)
+                } catch (e: Exception) {
+                    //println("!! Exception 01 !!")
+                }
                 shareButton.isGone = false
             }
             val pagesNumber: TextView = findViewById(R.id.totalPagesToolbar)
