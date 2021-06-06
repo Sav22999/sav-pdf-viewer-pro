@@ -1,6 +1,10 @@
-
-
-#  <img src="images/icon.png" width="40px" alt=""></img> Sav PDF Viewer Pro
+<h1 align="center">
+    <br>
+    <img width="70" src="images/icon.png" alt="CV Project icon" />
+    <br>
+    Sav PDF Viewer Pro
+    <br>
+</h1>
 
 This app is developed by Saverio Morelli, using the Android Studio IDE.
 
@@ -20,7 +24,7 @@ If you like this project, leave a *Star* ⭐ to receive updates on your *GitHub 
 
 You can leave also a ⭐⭐⭐⭐⭐ *stars* review on Google Play it's very important for me.
 
-To support me, you can do a donation :smile: with PayPal, LiberaPay or Ko-Fi:
+To support me, you can do a donation :smile: with **PayPal**, **LiberaPay** or **Ko-Fi**:
 
 <a href="https://liberapay.com/Sav22999/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a> [<img src="images/paypal.svg" width="160px"></img>](https://paypal.me/pools/c/8yl6auiU6e) [<img src="https://cdn.ko-fi.com/cdn/kofi1.png?v=2" width="120px"></img>](https://ko-fi.com/R5R31UQ8G)
 
