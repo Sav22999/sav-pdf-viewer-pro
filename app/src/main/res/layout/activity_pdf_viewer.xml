@@ -9,6 +9,18 @@
     android:background="@color/spacingPage"
     tools:context=".PDFViewer">
 
+    <com.github.barteksc.pdfviewer.PDFView
+        android:id="@+id/pdfView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="@color/spacingPage"
+        android:forceDarkAllowed="false"
+        android:padding="18sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonGoBackToolbar" />
+
     <View
         android:id="@+id/toolbar"
         android:layout_width="wrap_content"
@@ -86,7 +98,7 @@
         android:id="@+id/totalPagesToolbar"
         android:layout_width="wrap_content"
         android:layout_height="60sp"
-        android:background="@color/dark_red"
+        android:background="@color/transparent"
         android:contentDescription="Current page number"
         android:gravity="right|center_vertical"
         android:paddingStart="10dp"
@@ -98,20 +110,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/toolbar"
         tools:ignore="RtlCompat"
-        tools:text="#1"
+        tools:text="1/1"
         tools:visibility="visible" />
-
-    <com.github.barteksc.pdfviewer.PDFView
-        android:id="@+id/pdfView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:background="@color/spacingPage"
-        android:forceDarkAllowed="false"
-        android:padding="18sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/buttonGoBackToolbar" />
 
     <View
         android:id="@+id/toolbarInvisible"
