@@ -34,6 +34,8 @@ class PDFViewer : AppCompatActivity() {
     var isFullscreenEnabled = false
     var showingTopBar = true
 
+    var isSupportedShareFeature = false
+
     var totalPages = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -139,6 +141,7 @@ class PDFViewer : AppCompatActivity() {
                 }
                 .onRender { nbPages, pageWidth, pageHeight ->
                     pdfViewer.fitToWidth()
+                    showTopBar()
                 }
                 .load()
         } catch (e: Exception) {
@@ -176,6 +179,7 @@ class PDFViewer : AppCompatActivity() {
                 }
                 shareButton.isGone = false
                 fullscreenButton.isGone = false
+                isSupportedShareFeature = true
             }
             val pagesNumber: TextView = findViewById(R.id.totalPagesToolbar)
             pagesNumber.isGone = true
@@ -399,7 +403,7 @@ class PDFViewer : AppCompatActivity() {
 
         toolbar.isGone = false
         buttonClose.isGone = false
-        buttonShare.isGone = false
+        if (isSupportedShareFeature) buttonShare.isGone = false
         buttonFullscreen.isGone = false
         //currentPage.isGone = false
         currentPage.setTextColor(ContextCompat.getColor(applicationContext, R.color.white))
