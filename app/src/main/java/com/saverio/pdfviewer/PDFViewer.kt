@@ -2,26 +2,17 @@ package com.saverio.pdfviewer
 
 import RealPathUtil
 import android.app.Activity
-import android.content.ContentResolver
-import android.content.ContentUris
 import android.content.Context
 import android.content.Intent
-import android.database.Cursor
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Environment
-import android.provider.DocumentsContract
-import android.provider.MediaStore
-import android.widget.Button
-import android.widget.EditText
+import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isGone
 import com.github.barteksc.pdfviewer.PDFView
-import org.w3c.dom.Text
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
@@ -34,7 +25,9 @@ class PDFViewer : AppCompatActivity() {
     var fileOpened: String? = ""
     var uriOpened: Uri? = null
 
-    val timesAfterOpenReviewMessage = 1000
+    val timesAfterOpenReviewMessage = 500
+
+    var isFullscreenEnabled = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -83,6 +76,11 @@ class PDFViewer : AppCompatActivity() {
         val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
         shareButton.setOnClickListener {
             setShareButton()
+        }
+
+        val fullScreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
+        fullScreenButton.setOnClickListener {
+            setFullscreenButton(fullScreenButton)
         }
     }
 
@@ -322,6 +320,26 @@ class PDFViewer : AppCompatActivity() {
         shareIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         shareIntent.type = "application/pdf"
         startActivity(Intent.createChooser(shareIntent, "Share"))
+    }
+
+    fun setFullscreenButton(button: ImageView) {
+        if (!isFullscreenEnabled) {
+            //show fullscreen
+            getWindow().setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+            button.setImageResource(R.drawable.ic_exit_fullscreen)
+            isFullscreenEnabled = true
+        } else {
+            //hide fullscreen
+            getWindow().clearFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN
+            )
+            button.setImageResource(R.drawable.ic_fullscreen)
+            isFullscreenEnabled = false
+
+        }
     }
 
     fun checkReviewApp() {
