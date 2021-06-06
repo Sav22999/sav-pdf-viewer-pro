@@ -1,11 +1,13 @@
 package com.saverio.pdfviewer
 
 import RealPathUtil
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.TextView
@@ -28,6 +30,7 @@ class PDFViewer : AppCompatActivity() {
     val timesAfterOpenReviewMessage = 500
 
     var isFullscreenEnabled = false
+    var showingTopBar = true
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,6 +85,8 @@ class PDFViewer : AppCompatActivity() {
         fullScreenButton.setOnClickListener {
             setFullscreenButton(fullScreenButton)
         }
+
+        setupGestures()
     }
 
     private fun openFromStorage(uri: Uri? = null) {
@@ -112,6 +117,13 @@ class PDFViewer : AppCompatActivity() {
                 .scrollHandle(null)
                 .enableAntialiasing(true) // improve rendering a little bit on low-res screens
                 .onPageChange { page, pageCount -> updatePdfPage(uri.toString(), page) }
+                .onPageScroll { page, positionOffset ->
+                    if (!showingTopBar) {
+                        hideTopBar()
+                    } else {
+                        showingTopBar = false
+                    }
+                }
                 .load()
         } catch (e: Exception) {
             println("Exception 1")
@@ -126,7 +138,9 @@ class PDFViewer : AppCompatActivity() {
             selectPdfFromURI(selectedPdf)
 
             val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
+            val fullscreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
             shareButton.isGone = true
+            fullscreenButton.isGone = true
             uriOpened = selectedPdf
             if (uriOpened != null) {
                 try {
@@ -135,6 +149,7 @@ class PDFViewer : AppCompatActivity() {
                     //println("!! Exception 01 !!")
                 }
                 shareButton.isGone = false
+                fullscreenButton.isGone = false
             }
             val pagesNumber: TextView = findViewById(R.id.totalPagesToolbar)
             pagesNumber.isGone = true
@@ -323,12 +338,15 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun setFullscreenButton(button: ImageView) {
+        showingTopBar = true
         if (!isFullscreenEnabled) {
             //show fullscreen
             getWindow().setFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
             )
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN
             button.setImageResource(R.drawable.ic_exit_fullscreen)
             isFullscreenEnabled = true
         } else {
@@ -336,9 +354,72 @@ class PDFViewer : AppCompatActivity() {
             getWindow().clearFlags(
                 WindowManager.LayoutParams.FLAG_FULLSCREEN
             )
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
             button.setImageResource(R.drawable.ic_fullscreen)
             isFullscreenEnabled = false
 
+        }
+    }
+
+    fun showTopBar() {
+        showingTopBar = true
+
+        val toolbar: View = findViewById(R.id.toolbar)
+        val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
+        val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
+        val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
+        val buttonFullscreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
+        val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
+
+        toolbar.isGone = false
+        buttonClose.isGone = false
+        buttonShare.isGone = false
+        buttonFullscreen.isGone = false
+        currentPage.isGone = false
+
+        toolbarInvisible.isGone = true
+
+
+        val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+        val arrow: View = findViewById(R.id.arrow)
+        if (!message.isGone || !arrow.isGone) {
+            message.isGone = true
+            arrow.isGone = true
+        }
+    }
+
+    fun hideTopBar() {
+        if (!showingTopBar) {
+            val toolbar: View = findViewById(R.id.toolbar)
+            val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
+            val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
+            val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
+            val buttonFullscreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
+            val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
+
+            toolbar.isGone = true
+            buttonClose.isGone = true
+            buttonShare.isGone = true
+            buttonFullscreen.isGone = true
+            currentPage.isGone = true
+
+            toolbarInvisible.isGone = false
+
+            if (getBooleanData("firstTimeHideTopBar", true)) {
+                val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+                val arrow: View = findViewById(R.id.arrow)
+                message.isGone = false
+                arrow.isGone = false
+                toolbarInvisible.setBackgroundResource(R.color.transparent_red_2)
+
+                val button: TextView = findViewById(R.id.buttonHideGuide1)
+                button.setOnClickListener {
+                    message.isGone = true
+                    arrow.isGone = true
+                    saveBooleanData("firstTimeHideTopBar", false)
+                    toolbarInvisible.setBackgroundResource(R.color.transparent_red)
+                }
+            }
         }
     }
 
@@ -400,5 +481,27 @@ class PDFViewer : AppCompatActivity() {
         }
 
         return valueToReturn
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    fun setupGestures() {
+        //conflict with PDFView class
+        val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
+        toolbarInvisible.setOnTouchListener(object :
+            OnSwipeTouchListener(this@PDFViewer) {
+
+            override fun onSingleTapUp() {
+                showTopBar()
+            }
+        })
+    }
+
+    fun getBooleanData(variable: String, default: Boolean = false): Boolean {
+        return getSharedPreferences(variable, Context.MODE_PRIVATE).getBoolean(variable, default)
+    }
+
+    fun saveBooleanData(variable: String, value: Boolean) {
+        getSharedPreferences(variable, Context.MODE_PRIVATE).edit().putBoolean(variable, value)
+            .apply()
     }
 }

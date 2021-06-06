@@ -11,4 +11,7 @@
     <string name="text_review_the_app">Do you like this app?\nPlease, leave a review on Google Play.\nIt\'s just a few seconds for you 😊</string>
     <string name="button_review_the_app_now">Review now</string>
     <string name="text_review_the_app_later">Review later</string>
+
+    <string name="text_tap_here_to_show_the_top_bar">Tap the transparent red section to show the top bar again, which disappears when you scroll.</string>
+    <string name="button_ok">Ok</string>
 </resources>
