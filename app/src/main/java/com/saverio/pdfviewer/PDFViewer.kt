@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
@@ -13,6 +14,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import com.github.barteksc.pdfviewer.PDFView
 import java.security.MessageDigest
@@ -32,14 +34,16 @@ class PDFViewer : AppCompatActivity() {
     var isFullscreenEnabled = false
     var showingTopBar = true
 
+    var totalPages = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdf_viewer)
 
         pdfViewer = findViewById(R.id.pdfView)
+        var uriToUse: String? = ""
 
         val parameters = intent.extras
-        var uriToUse: String = ""
         if (parameters != null) uriToUse = parameters.getString("uri", "")
 
         try {
@@ -53,20 +57,20 @@ class PDFViewer : AppCompatActivity() {
         } catch (e: Exception) {
             uriToUse = ""
         }
-
         if (uriToUse == null || uriToUse == "") {
             //if (getLastFileOpened() == "") {
             //open a new file
             openFromStorage()
             /*} else {
-                //open the last file opened
-                println(getLastFileOpened())
-                openFromStorage(Uri.parse(getLastFileOpened()))
-            }*/
+            //open the last file opened
+            println(getLastFileOpened())
+            openFromStorage(Uri.parse(getLastFileOpened()))
+        }*/
         } else {
             //open a recent file
             openFromStorage(Uri.parse(uriToUse))
         }
+
 
         checkReviewApp()
 
@@ -84,6 +88,11 @@ class PDFViewer : AppCompatActivity() {
         val fullScreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
         fullScreenButton.setOnClickListener {
             setFullscreenButton(fullScreenButton)
+        }
+
+        val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
+        currentPage.setOnClickListener {
+            //TODO: goto
         }
 
         setupGestures()
@@ -124,10 +133,27 @@ class PDFViewer : AppCompatActivity() {
                         showingTopBar = false
                     }
                 }
+                .onLoad {
+                    pdfViewer.positionOffset = 1F
+                    totalPages = pdfViewer.currentPage + 1
+                }
+                .onRender { nbPages, pageWidth, pageHeight ->
+                    pdfViewer.fitToWidth()
+                }
                 .load()
         } catch (e: Exception) {
             println("Exception 1")
         }
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            //LANDSCAPE
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            //PORTRAIT
+        }
+        showTopBar()
+        super.onConfigurationChanged(newConfig)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -186,9 +212,9 @@ class PDFViewer : AppCompatActivity() {
         getSharedPreferences(pathNameTemp, Context.MODE_PRIVATE).edit()
             .putInt(pathNameTemp, currentPage).apply()
 
-        val totalPages: TextView = findViewById(R.id.totalPagesToolbar)
-        totalPages.text = "#" + (currentPage + 1).toString()
-        totalPages.isGone = false
+        val currentPageText: TextView = findViewById(R.id.totalPagesToolbar)
+        currentPageText.text = (currentPage + 1).toString() + "/" + totalPages.toString()
+        currentPageText.isGone = false
     }
 
     private fun getPdfPage(pathName: String): Int {
@@ -375,7 +401,8 @@ class PDFViewer : AppCompatActivity() {
         buttonClose.isGone = false
         buttonShare.isGone = false
         buttonFullscreen.isGone = false
-        currentPage.isGone = false
+        //currentPage.isGone = false
+        currentPage.setTextColor(ContextCompat.getColor(applicationContext, R.color.white))
 
         toolbarInvisible.isGone = true
 
@@ -401,7 +428,8 @@ class PDFViewer : AppCompatActivity() {
             buttonClose.isGone = true
             buttonShare.isGone = true
             buttonFullscreen.isGone = true
-            currentPage.isGone = true
+            //currentPage.isGone = true
+            currentPage.setTextColor(ContextCompat.getColor(applicationContext, R.color.dark_red))
 
             toolbarInvisible.isGone = false
 
