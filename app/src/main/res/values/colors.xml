@@ -11,6 +11,8 @@
 
     <color name="transparent">#00000000</color>
 
+    <color name="transparentPassword">#AA000000</color>
+
     <color name="spacingPage">#EEEEEE</color>
 
     <color name="gray">#666666</color>

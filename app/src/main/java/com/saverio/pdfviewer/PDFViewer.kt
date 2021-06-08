@@ -21,6 +21,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.widget.addTextChangedListener
 import com.github.barteksc.pdfviewer.PDFView
+import com.github.barteksc.pdfviewer.listener.OnErrorListener
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
@@ -40,6 +41,9 @@ class PDFViewer : AppCompatActivity() {
 
     var isSupportedShareFeature = false
     var isSupportedGoTop = true
+
+    var passwordRequired = false
+    var passwordToUse = ""
 
     var totalPages = 0
 
@@ -129,13 +133,13 @@ class PDFViewer : AppCompatActivity() {
         try {
             var lastPosition = 0
             pdfViewer.fromUri(uri)
-                //.enableSwipe(true) // allows to block changing pages using swipe
-                .swipeHorizontal(false)
+                .enableSwipe(false) //disable swipe
+                .swipeHorizontal(false) //horizontal scrolling disable
                 .enableDoubletap(true)
                 //.defaultPage(getPdfPage(uri.toString()))
                 .spacing(10)
                 .enableAnnotationRendering(true) // render annotations (such as comments, colors or forms)
-                .password(null) //TODO
+                .password(passwordToUse)
                 .scrollHandle(null)
                 .enableAntialiasing(true) // improve rendering a little bit on low-res screens
                 .onPageChange { page, pageCount -> updatePdfPage(uri.toString(), page) }
@@ -176,10 +180,101 @@ class PDFViewer : AppCompatActivity() {
                         hideTopBar()
                     }
                 }
+                .onError(OnErrorListener {
+                    if (it.message.toString()
+                            .contains("Password required or incorrect password.")
+                    ) {
+                        var passwordWrong = false
+                        if (passwordRequired) passwordWrong = true
+                        passwordRequired = true
+                        askThePassword(uri, passwordWrong)
+                    }
+                    //PdfPasswordException
+                })
                 .load()
         } catch (e: Exception) {
             println("Exception 1")
         }
+    }
+
+    fun askThePassword(uri: Uri?, passwordWrong: Boolean = false) {
+        showMessagePassword(passwordWrong)
+
+        val buttonOpen: TextView = findViewById(R.id.buttonOpenPassword)
+        val buttonClose: TextView = findViewById(R.id.buttonClosePassword)
+
+        val textboxPassword: EditText = findViewById(R.id.textboxPassword)
+
+        textboxPassword.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+            } else {
+                hideKeyboard(v)
+            }
+        }
+        textboxPassword.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                hideMessagePassword()
+                passwordToUse = textboxPassword.text.toString()
+                selectPdfFromURI(uri)
+                return@OnKeyListener true
+            }
+            false
+        })
+
+        buttonOpen.setOnClickListener {
+            hideMessagePassword()
+            passwordToUse = textboxPassword.text.toString()
+            selectPdfFromURI(uri)
+        }
+
+        buttonClose.setOnClickListener {
+            finishAffinity()
+        }
+    }
+
+    fun showMessagePassword(passwordWrong: Boolean = false) {
+        hideGoToDialog()
+        hideMessageGuide1()
+        val toolbar: View = findViewById(R.id.toolbar)
+        val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
+        val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
+        val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
+        val buttonFullscreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
+        val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
+        val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
+        toolbar.isGone = true
+        buttonClose.isGone = true
+        buttonShare.isGone = true
+        buttonFullscreen.isGone = true
+        buttonGoTop.isGone = true
+        currentPage.isGone = true
+        toolbarInvisible.isGone = true
+
+
+        val background: View = findViewById(R.id.passwordBackgroundScreen)
+        val message: ConstraintLayout = findViewById(R.id.messagePassword)
+
+        background.isGone = false
+        message.isGone = false
+
+        val textboxPassword: EditText = findViewById(R.id.textboxPassword)
+        textboxPassword.setText(passwordToUse)
+
+        val labelPasswordInsertedWrong: TextView = findViewById(R.id.messageTextPasswordWrong)
+        if (passwordWrong) {
+            labelPasswordInsertedWrong.isGone = false
+        } else {
+            labelPasswordInsertedWrong.isGone = true
+        }
+    }
+
+    fun hideMessagePassword() {
+        val background: View = findViewById(R.id.passwordBackgroundScreen)
+        val message: ConstraintLayout = findViewById(R.id.messagePassword)
+
+        background.isGone = true
+        message.isGone = true
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
@@ -197,33 +292,37 @@ class PDFViewer : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == PDF_SELECTION_CODE && resultCode == Activity.RESULT_OK && data != null) {
-            val selectedPdf = data.data
-            selectPdfFromURI(selectedPdf)
+            try {
+                val selectedPdf = data.data
+                selectPdfFromURI(selectedPdf)
 
-            val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
-            val fullscreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
-            val goTopButton: ImageView = findViewById(R.id.buttonGoTopToolbar)
-            shareButton.isGone = true
-            fullscreenButton.isGone = true
-            uriOpened = selectedPdf
-            if (uriOpened != null) {
-                try {
-                    fileOpened = RealPathUtil.getRealPath(this, uriOpened!!)
-                } catch (e: Exception) {
-                    //println("!! Exception 01 !!")
+                val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
+                val fullscreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
+                val goTopButton: ImageView = findViewById(R.id.buttonGoTopToolbar)
+                shareButton.isGone = true
+                fullscreenButton.isGone = true
+                uriOpened = selectedPdf
+                if (uriOpened != null) {
+                    try {
+                        fileOpened = RealPathUtil.getRealPath(this, uriOpened!!)
+                    } catch (e: Exception) {
+                        //println("!! Exception 01 !!")
+                    }
+                    shareButton.isGone = false
+                    fullscreenButton.isGone = false
+                    if (isSupportedGoTop) goTopButton.isGone = false
+                    isSupportedShareFeature = true
                 }
-                shareButton.isGone = false
-                fullscreenButton.isGone = false
-                if (isSupportedGoTop) goTopButton.isGone = false
-                isSupportedShareFeature = true
+                val pagesNumber: TextView = findViewById(R.id.totalPagesToolbar)
+                pagesNumber.isGone = true
+
+                //checkRecentFiles(selectedPdf)
+
+                updateLastFileOpened(selectedPdf.toString())
+                //setTitle(getTheFileName(selectedPdf.toString(), -1))
+            } catch (e: Exception) {
+                println("Exception 4: Loading failed")
             }
-            val pagesNumber: TextView = findViewById(R.id.totalPagesToolbar)
-            pagesNumber.isGone = true
-
-            //checkRecentFiles(selectedPdf)
-
-            updateLastFileOpened(selectedPdf.toString())
-            //setTitle(getTheFileName(selectedPdf.toString(), -1))
         } else {
             //file not selected
             finish()
@@ -340,7 +439,8 @@ class PDFViewer : AppCompatActivity() {
     fun getTheFileName(path: String, type: Int = 0): String {
         try {
             var pathTemp = path
-            pathTemp = pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
+            pathTemp =
+                pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
 
             val pathName = pathTemp.split(":/")[1]
             val paths = pathName.split("/")
@@ -443,7 +543,7 @@ class PDFViewer : AppCompatActivity() {
         if (isSupportedShareFeature) buttonShare.isGone = false
         buttonFullscreen.isGone = false
         if (isSupportedGoTop && showGoTop) buttonGoTop.isGone = false
-        //currentPage.isGone = false
+        currentPage.isGone = false
         currentPage.setTextColor(ContextCompat.getColor(applicationContext, R.color.white))
 
         toolbarInvisible.isGone = true
@@ -482,8 +582,13 @@ class PDFViewer : AppCompatActivity() {
             buttonShare.isGone = true
             buttonFullscreen.isGone = true
             buttonGoTop.isGone = true
-            //currentPage.isGone = true
-            currentPage.setTextColor(ContextCompat.getColor(applicationContext, R.color.dark_red))
+            currentPage.isGone = false
+            currentPage.setTextColor(
+                ContextCompat.getColor(
+                    applicationContext,
+                    R.color.dark_red
+                )
+            )
 
             toolbarInvisible.isGone = false
 
@@ -497,7 +602,12 @@ class PDFViewer : AppCompatActivity() {
                 message.isGone = false
                 arrow.isGone = false
                 toolbarInvisible.setBackgroundResource(R.color.transparent_red_2)
-                currentPage.setTextColor(ContextCompat.getColor(applicationContext, R.color.white))
+                currentPage.setTextColor(
+                    ContextCompat.getColor(
+                        applicationContext,
+                        R.color.white
+                    )
+                )
 
                 val button: TextView = findViewById(R.id.buttonHideGuide1)
                 button.setOnClickListener {
@@ -607,16 +717,21 @@ class PDFViewer : AppCompatActivity() {
         arrow.isGone = false
 
         textbox.requestFocus()
-        showKeyboard()
+        textbox.hasFocus()
+        textbox.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+            } else {
+                hideKeyboard(v)
+            }
+        }
 
         buttonGoTo.setOnClickListener {
             goToFeature(textbox)
-            hideKeyboard()
             hideGoToDialog()
         }
 
         buttonHide.setOnClickListener {
-            hideKeyboard()
             hideGoToDialog()
         }
 
@@ -631,7 +746,7 @@ class PDFViewer : AppCompatActivity() {
         textbox.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                 goToFeature(textbox)
-                hideKeyboard()
+                //hideKeyboard()
                 return@OnKeyListener true
             }
             false
@@ -660,14 +775,9 @@ class PDFViewer : AppCompatActivity() {
         }
     }
 
-    fun hideKeyboard() {
+    fun hideKeyboard(view: View) {
         val manager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        if (manager.isActive) manager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0)
-    }
-
-    fun showKeyboard() {
-        val manager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-        manager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0)
+        if (manager.isActive) manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     fun hideGoToDialog() {
@@ -691,7 +801,10 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun getBooleanData(variable: String, default: Boolean = false): Boolean {
-        return getSharedPreferences(variable, Context.MODE_PRIVATE).getBoolean(variable, default)
+        return getSharedPreferences(variable, Context.MODE_PRIVATE).getBoolean(
+            variable,
+            default
+        )
     }
 
     fun saveBooleanData(variable: String, value: Boolean) {
