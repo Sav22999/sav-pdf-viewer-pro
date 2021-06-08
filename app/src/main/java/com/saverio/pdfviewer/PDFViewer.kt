@@ -117,13 +117,14 @@ class PDFViewer : AppCompatActivity() {
 
     fun selectPdfFromURI(uri: Uri?) {
         try {
+            var lastPosition = 0
             pdfViewer.fromUri(uri)
                 //.enableSwipe(true) // allows to block changing pages using swipe
                 .swipeHorizontal(false)
                 .enableDoubletap(true)
-                .defaultPage(getPdfPage(uri.toString()))
+                //.defaultPage(getPdfPage(uri.toString()))
                 .spacing(10)
-                .enableAnnotationRendering(false) // render annotations (such as comments, colors or forms)
+                .enableAnnotationRendering(true) // render annotations (such as comments, colors or forms)
                 .password(null)
                 .scrollHandle(null)
                 .enableAntialiasing(true) // improve rendering a little bit on low-res screens
@@ -136,12 +137,25 @@ class PDFViewer : AppCompatActivity() {
                     }
                 }
                 .onLoad {
+                    lastPosition = getPdfPage(uri.toString())
                     pdfViewer.positionOffset = 1F
                     totalPages = pdfViewer.currentPage + 1
+                    /*
+                    println("title: " + pdfViewer.documentMeta.title)
+                    println("author: " + pdfViewer.documentMeta.author)
+                    println("keywords: " + pdfViewer.documentMeta.keywords)
+                    println("creationDate: " + pdfViewer.documentMeta.creationDate)
+                    */
                 }
                 .onRender { nbPages, pageWidth, pageHeight ->
+                    if (lastPosition > 1) {
+                        showTopBar()
+                    } else {
+                        hideTopBar()
+                    }
+                    updatePdfPage(uri.toString(), lastPosition)
                     pdfViewer.fitToWidth()
-                    showTopBar()
+                    pdfViewer.jumpTo(lastPosition)
                 }
                 .load()
         } catch (e: Exception) {
