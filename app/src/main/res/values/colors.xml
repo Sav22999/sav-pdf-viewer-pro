@@ -25,4 +25,5 @@
     <color name="dark_dark_red">#BA2A2A</color>
     <color name="transparent_red">#11FF0000</color>
     <color name="transparent_red_2">#99FF0000</color>
+    <color name="transparent_red_3">#33FF0000</color>
 </resources>
