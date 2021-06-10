@@ -26,7 +26,7 @@
     <View
         android:id="@+id/toolbar"
         android:layout_width="wrap_content"
-        android:layout_height="60sp"
+        android:layout_height="60dp"
         android:background="@color/dark_red"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
@@ -34,9 +34,25 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
+        android:id="@+id/buttonOpenToolbar"
+        android:layout_width="56dp"
+        android:layout_height="60dp"
+        android:background="@color/transparent"
+        android:contentDescription="Open a new document"
+        android:padding="18sp"
+        android:scaleType="fitCenter"
+        android:tint="@color/white"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/buttonGoTopToolbar"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:srcCompat="@drawable/ic_open_file"
+        tools:ignore="VectorDrawableCompat"
+        tools:visibility="visible" />
+
+    <ImageView
         android:id="@+id/buttonGoTopToolbar"
-        android:layout_width="56sp"
-        android:layout_height="60sp"
+        android:layout_width="56dp"
+        android:layout_height="60dp"
         android:background="@color/transparent"
         android:contentDescription="Go to the top of the document"
         android:padding="18sp"
@@ -51,8 +67,8 @@
 
     <ImageView
         android:id="@+id/buttonGoBackToolbar"
-        android:layout_width="56sp"
-        android:layout_height="60sp"
+        android:layout_width="56dp"
+        android:layout_height="60dp"
         android:background="@color/transparent"
         android:contentDescription="Close the app"
         android:padding="18sp"
@@ -66,7 +82,7 @@
     <TextView
         android:id="@+id/titleToolbar"
         android:layout_width="0dp"
-        android:layout_height="60sp"
+        android:layout_height="60dp"
         android:background="@color/dark_red"
         android:gravity="left|center_vertical"
         android:paddingStart="10dp"
@@ -82,8 +98,8 @@
 
     <ImageView
         android:id="@+id/buttonFullScreenToolbar"
-        android:layout_width="56sp"
-        android:layout_height="60sp"
+        android:layout_width="56dp"
+        android:layout_height="60dp"
         android:background="@color/transparent"
         android:contentDescription="Enter / Exit fullscreen mode"
         android:padding="18sp"
@@ -98,8 +114,8 @@
 
     <ImageView
         android:id="@+id/buttonShareToolbar"
-        android:layout_width="56sp"
-        android:layout_height="60sp"
+        android:layout_width="56dp"
+        android:layout_height="60dp"
         android:background="@color/transparent"
         android:contentDescription="Share file"
         android:padding="18sp"
@@ -115,7 +131,7 @@
     <View
         android:id="@+id/toolbarInvisible"
         android:layout_width="wrap_content"
-        android:layout_height="60sp"
+        android:layout_height="60dp"
         android:background="@color/transparent_red"
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
@@ -126,7 +142,7 @@
     <TextView
         android:id="@+id/totalPagesToolbar"
         android:layout_width="wrap_content"
-        android:layout_height="60sp"
+        android:layout_height="60dp"
         android:background="@color/transparent"
         android:contentDescription="Current page number"
         android:gravity="right|center_vertical"
