@@ -117,6 +117,19 @@ class PDFViewer : AppCompatActivity() {
             openFromStorage()
         }
 
+        val lightButton: ImageView = findViewById(R.id.buttonNightDayToolbar)
+        val comfortView: View = findViewById(R.id.nightThemeBackground)
+        lightButton.setOnClickListener {
+            if (!comfortView.isGone) {
+                comfortView.isGone = true
+                lightButton.setImageResource(R.drawable.ic_light_on)
+            } else {
+                comfortView.isGone = false
+                lightButton.setImageResource(R.drawable.ic_light_off)
+            }
+        }
+        lightButton.isGone = false
+
         setupGestures()
     }
 
@@ -291,7 +304,7 @@ class PDFViewer : AppCompatActivity() {
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             //PORTRAIT
         }
-        if (pdfViewer.currentPage == 0) showTopBar()
+        if (pdfViewer.currentPage == 0) showTopBar(showGoTop = false)
         else hideTopBar()
         super.onConfigurationChanged(newConfig)
     }
@@ -548,6 +561,7 @@ class PDFViewer : AppCompatActivity() {
         val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
         val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
+        val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
 
         toolbar.isGone = false
         buttonClose.isGone = false
@@ -557,6 +571,7 @@ class PDFViewer : AppCompatActivity() {
         currentPage.isGone = false
         currentPage.setTextColor(ContextCompat.getColor(applicationContext, R.color.white))
         buttonOpen.isGone = false
+        buttonNightDay.isGone = false
 
         toolbarInvisible.isGone = true
 
@@ -589,6 +604,7 @@ class PDFViewer : AppCompatActivity() {
             val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
             val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
             val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
+            val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
 
             toolbar.isGone = true
             buttonClose.isGone = true
@@ -603,6 +619,7 @@ class PDFViewer : AppCompatActivity() {
                 )
             )
             buttonOpen.isGone = true
+            buttonNightDay.isGone = true
 
             toolbarInvisible.isGone = false
 
