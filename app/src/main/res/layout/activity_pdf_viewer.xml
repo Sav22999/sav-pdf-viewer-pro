@@ -43,9 +43,25 @@
         android:scaleType="fitCenter"
         android:tint="@color/white"
         android:visibility="gone"
-        app:layout_constraintEnd_toStartOf="@+id/buttonGoTopToolbar"
+        app:layout_constraintEnd_toStartOf="@+id/buttonNightDayToolbar"
         app:layout_constraintTop_toTopOf="@+id/toolbar"
         app:srcCompat="@drawable/ic_open_file"
+        tools:ignore="VectorDrawableCompat"
+        tools:visibility="visible" />
+
+    <ImageView
+        android:id="@+id/buttonNightDayToolbar"
+        android:layout_width="56dp"
+        android:layout_height="60dp"
+        android:background="@color/transparent"
+        android:contentDescription="Turn on / off the comfort view"
+        android:padding="18sp"
+        android:scaleType="fitCenter"
+        android:tint="@color/white"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/buttonGoTopToolbar"
+        app:layout_constraintTop_toTopOf="@+id/toolbar"
+        app:srcCompat="@drawable/ic_light_on"
         tools:ignore="VectorDrawableCompat"
         tools:visibility="visible" />
 
@@ -127,6 +143,18 @@
         app:srcCompat="@drawable/ic_share"
         tools:ignore="VectorDrawableCompat"
         tools:visibility="visible" />
+
+    <View
+        android:id="@+id/nightThemeBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/backgroundNightTheme"
+        android:elevation="100dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <View
         android:id="@+id/toolbarInvisible"
@@ -300,7 +328,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
         android:layout_marginLeft="5dp"
-        android:layout_marginTop="60dp"
+        android:layout_marginTop="65dp"
         android:layout_marginEnd="5dp"
         android:layout_marginRight="5dp"
         android:background="@drawable/border_rounded"
