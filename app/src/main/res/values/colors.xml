@@ -12,6 +12,7 @@
     <color name="transparent">#00000000</color>
 
     <color name="transparentPassword">#AA000000</color>
+    <color name="backgroundNightTheme">#44FF9800</color>
 
     <color name="spacingPage">#EEEEEE</color>
 
@@ -25,4 +26,5 @@
     <color name="dark_dark_red">#BA2A2A</color>
     <color name="transparent_red">#11FF0000</color>
     <color name="transparent_red_2">#99FF0000</color>
+    <color name="transparent_red_3">#33FF0000</color>
 </resources>
