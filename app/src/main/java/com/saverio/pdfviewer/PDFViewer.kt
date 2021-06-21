@@ -300,6 +300,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
+        beta
         Handler().postDelayed({
             if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
                 //LANDSCAPE
