@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
 import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
@@ -152,7 +153,7 @@ class PDFViewer : AppCompatActivity() {
         try {
             var lastPosition = 0
             pdfViewer.fromUri(uri)
-                .enableSwipe(false) //disable swipe
+                .enableSwipe(true) //leave as "true" (it causes a bug with scrolling when zoom is "100%")
                 .swipeHorizontal(false) //horizontal scrolling disable
                 .enableDoubletap(true)
                 //.defaultPage(getPdfPage(uri.toString()))
@@ -299,13 +300,25 @@ class PDFViewer : AppCompatActivity() {
     }
 
     override fun onConfigurationChanged(newConfig: Configuration) {
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            //LANDSCAPE
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            //PORTRAIT
-        }
+        Handler().postDelayed({
+            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                //LANDSCAPE
+            } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+                //PORTRAIT
+            }
+            val startZoom = pdfViewer.zoom
+            pdfViewer.fitToWidth()
+            val endZoom = pdfViewer.zoom
+            pdfViewer.zoomTo(startZoom)
+            pdfViewer.zoomWithAnimation(endZoom)
+            pdfViewer.isEnabled = true
+        }, 100)
+
+        pdfViewer.isEnabled = false
+
         if (pdfViewer.currentPage == 0) showTopBar(showGoTop = false)
         else hideTopBar()
+
         super.onConfigurationChanged(newConfig)
     }
 
@@ -465,7 +478,12 @@ class PDFViewer : AppCompatActivity() {
             pathTemp =
                 pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
 
-            val pathName = pathTemp.split(":/")[1]
+            var pathName = ""
+            if (pathTemp.contains(":/")) {
+                pathName = pathTemp.split(":/")[1]
+            } else {
+                pathName = pathTemp
+            }
             val paths = pathName.split("/")
             val fileName = paths[paths.size - 1]
 
@@ -488,7 +506,7 @@ class PDFViewer : AppCompatActivity() {
                 }
             }
         } catch (e: Exception) {
-            println("Exception 2")
+            println("Exception 2 : ${e.toString()}")
         }
         return ""
     }
