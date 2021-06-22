@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_home">Hjem</string>
+    <string name="title_open">Åpne</string>
+    <string name="title_settings">Innstillinger</string>
+    <string name="title_recents">Recents</string>
+    <string name="title_favourites">Favoritter</string>
+    <string name="text_review_the_app">Liker du denne appen?\nVennligst legg til en vurdering på Google Play.\nDet er bare noen få sekunder for deg 😊</string>
+    <string name="button_review_the_app_now">Gjennomgå nå</string>
+    <string name="text_review_the_app_later">Gjennomgå senere</string>
+    <string name="text_tap_here_to_show_the_top_bar">Trykk på den gjennomsiktige røde delen for å vise den øverste linjen igjen, som forsvinner når du ruller ut.</string>
+    <string name="text_tap_here_to_show_go_to_dialog">Trykk her for å vise \"Gå til\"-panelet, slik at du kan raskt gå til en bestemt side.</string>
+    <string name="text_password_required">Passord kreves</string>
+    <string name="text_password_inserted_wrong">Passord satt inn feil</string>
+    <string name="button_ok">OK</string>
+    <string name="button_go">Gå</string>
+    <string name="button_close">Lukk</string>
+    <string name="button_open">Åpne</string>
+    <string name="tooltip_full_screen_on">Gå til fullskjerm</string>
+    <string name="tooltip_full_screen_off">Avslutt fullskjerm</string>
+    <string name="tooltip_night_light_on">Vis nattlys</string>
+    <string name="tooltip_night_light_off">Skjul nattlys</string>
+    <string name="tooltip_go_to_feature">Åpne \"Gå til\" funksjonen</string>
+    <string name="tooltip_go_to_top">Gå til den første siden i filen</string>
+    <string name="tooltip_open_new_file">Åpne en ny fil</string>
+    <string name="tooltip_share_file">Del denne filen</string>
+    <string name="tooltip_close_app">Lukk app</string>
+    <string name="tooltip_go_to_the_page">Gå til den innlagte siden</string>
+    <string name="tooltip_close_panel">Lukk dette panelet</string>
+    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_open_file_password">Åpne denne filen</string>
+    <string name="tooltip_review_now">Gå til appbutikken din og se gjennom nå</string>
+</resources>

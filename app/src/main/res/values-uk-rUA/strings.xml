@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_home">Головна</string>
+    <string name="title_open">Відкриті</string>
+    <string name="title_settings">Налаштунки</string>
+    <string name="title_recents">Recents</string>
+    <string name="title_favourites">Закладки</string>
+    <string name="text_review_the_app">Вам подобається цей додаток?\nБудь ласка, залиште відгук у Google Play.\nЦе всього кілька секунд для вас 😊</string>
+    <string name="button_review_the_app_now">Переглянути</string>
+    <string name="text_review_the_app_later">Рецензія пізніше</string>
+    <string name="text_tap_here_to_show_the_top_bar">Торкніться прозорої червоної секції, щоб показати верхню панель, яка зникає під час прокручування.</string>
+    <string name="text_tap_here_to_show_go_to_dialog">Натисніть тут щоб показати панель \"Перейти до\", щоб швидко перейти на іншу сторінку.</string>
+    <string name="text_password_required">Потрібен пароль</string>
+    <string name="text_password_inserted_wrong">Пароль встановлено неправильно</string>
+    <string name="button_ok">Гаразд</string>
+    <string name="button_go">Вперед</string>
+    <string name="button_close">Закрити</string>
+    <string name="button_open">Відкриті</string>
+    <string name="tooltip_full_screen_on">Повноекранний режим</string>
+    <string name="tooltip_full_screen_off">Вийти з повноекранного режиму</string>
+    <string name="tooltip_night_light_on">Показувати світловий екран</string>
+    <string name="tooltip_night_light_off">Приховати нічну лампу</string>
+    <string name="tooltip_go_to_feature">Відкрити функцію \"Перейти до\"</string>
+    <string name="tooltip_go_to_top">Перейти на першу сторінку файлу</string>
+    <string name="tooltip_open_new_file">Відкрити новий файл</string>
+    <string name="tooltip_share_file">Поділитися цим файлом</string>
+    <string name="tooltip_close_app">Закрити додаток</string>
+    <string name="tooltip_go_to_the_page">Перейти на додану сторінку</string>
+    <string name="tooltip_close_panel">Закрити цю панель</string>
+    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_open_file_password">Відкрити цей файл</string>
+    <string name="tooltip_review_now">Перейти до вашого магазину додатків і перегляньте зараз</string>
+</resources>

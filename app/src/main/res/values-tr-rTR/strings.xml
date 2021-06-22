@@ -1,28 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">Sav PDF Viewer</string>
-    <string name="title_activity_main2" translatable="false">Sav PDF Viewer</string>
-    <string name="title_home">Home</string>
+    <string name="title_home">Ana Sayfa</string>
     <string name="title_open">Open</string>
-    <string name="title_settings">Settings</string>
-
+    <string name="title_settings">Ayarlar</string>
     <string name="title_recents">Recents</string>
     <string name="title_favourites">Favourites</string>
-
     <string name="text_review_the_app">Do you like this app?\nPlease, leave a review on Google Play.\nIt\'s just a few seconds for you 😊</string>
-    <string name="button_review_the_app_now">Review now</string>
+    <string name="button_review_the_app_now">Hemen incele</string>
     <string name="text_review_the_app_later">Review later</string>
-
     <string name="text_tap_here_to_show_the_top_bar">Tap the transparent red section to show the top bar again, which disappears when you scroll.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tap here to show the \"Go to\" panel, so you can quickly go to a specific page.</string>
-
     <string name="text_password_required">Password required</string>
     <string name="text_password_inserted_wrong">Password inserted wrong</string>
-
-    <string name="button_ok">Ok</string>
+    <string name="button_ok">Tamam</string>
     <string name="button_go">Go</string>
-    <string name="button_close">Close</string>
+    <string name="button_close">Kapat</string>
     <string name="button_open">Open</string>
-
     <string name="tooltip_full_screen_on">Enter full screen</string>
     <string name="tooltip_full_screen_off">Exit full screen</string>
     <string name="tooltip_night_light_on">Show night light</string>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_home">Главная</string>
+    <string name="title_open">Открыть</string>
+    <string name="title_settings">Настройки</string>
+    <string name="title_recents">Recents</string>
+    <string name="title_favourites">Избранное</string>
+    <string name="text_review_the_app">Вам нравится это приложение?\nПожалуйста, оставьте отзыв на Google Play.\nЭто всего лишь несколько секунд для вас 😊</string>
+    <string name="button_review_the_app_now">Обучение</string>
+    <string name="text_review_the_app_later">Отзыв позже</string>
+    <string name="text_tap_here_to_show_the_top_bar">Коснитесь прозрачной секции, чтобы снова показать верхнюю панель, которая исчезает при прокрутке.</string>
+    <string name="text_tap_here_to_show_go_to_dialog">Нажмите здесь, чтобы отобразить панель \"Перейти к\", чтобы быстро перейти на конкретную страницу.</string>
+    <string name="text_password_required">Требуется пароль</string>
+    <string name="text_password_inserted_wrong">Неверный пароль</string>
+    <string name="button_ok">Хорошо</string>
+    <string name="button_go">Идти</string>
+    <string name="button_close">Закрыть</string>
+    <string name="button_open">Открыть</string>
+    <string name="tooltip_full_screen_on">Вход на весь экран</string>
+    <string name="tooltip_full_screen_off">Выйти из полноэкранного режима</string>
+    <string name="tooltip_night_light_on">Показывать ночное освещение</string>
+    <string name="tooltip_night_light_off">Скрыть ночной свет</string>
+    <string name="tooltip_go_to_feature">Открыть функцию \'Перейти к\'</string>
+    <string name="tooltip_go_to_top">Перейти на первую страницу файла</string>
+    <string name="tooltip_open_new_file">Открыть новый файл</string>
+    <string name="tooltip_share_file">Поделиться файлом</string>
+    <string name="tooltip_close_app">Закрыть приложение</string>
+    <string name="tooltip_go_to_the_page">Перейти на вставленную страницу</string>
+    <string name="tooltip_close_panel">Закрыть эту панель</string>
+    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_open_file_password">Открыть этот файл</string>
+    <string name="tooltip_review_now">Перейти в магазин приложений и оставить отзыв</string>
+</resources>
