@@ -16,6 +16,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
@@ -91,20 +92,37 @@ class PDFViewer : AppCompatActivity() {
             updateLastFileOpened("")
             finish()
         }
+        backButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_close_app)
+            true
+        }
 
         val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
         shareButton.setOnClickListener {
             setShareButton()
+        }
+        shareButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_share_file)
+            true
         }
 
         val fullScreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
         fullScreenButton.setOnClickListener {
             setFullscreenButton(fullScreenButton)
         }
+        fullScreenButton.setOnLongClickListener {
+            if (isFullscreenEnabled) showTooltip(R.string.tooltip_full_screen_off)
+            else showTooltip(R.string.tooltip_full_screen_on)
+            true
+        }
 
         val goTopButton: ImageView = findViewById(R.id.buttonGoTopToolbar)
         goTopButton.setOnClickListener {
             pdfViewer.jumpTo(0, true)
+        }
+        goTopButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_go_to_top)
+            true
         }
 
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
@@ -112,10 +130,18 @@ class PDFViewer : AppCompatActivity() {
             if (findViewById<ConstraintLayout>(R.id.messageGoTo).isGone) showGoToDialog()
             else hideGoToDialog()
         }
+        currentPage.setOnLongClickListener {
+            showTooltip(R.string.tooltip_go_to_feature)
+            true
+        }
 
         val openButton: ImageView = findViewById(R.id.buttonOpenToolbar)
         openButton.setOnClickListener {
             openFromStorage()
+        }
+        openButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_open_new_file)
+            true
         }
 
         val lightButton: ImageView = findViewById(R.id.buttonNightDayToolbar)
@@ -129,9 +155,18 @@ class PDFViewer : AppCompatActivity() {
                 lightButton.setImageResource(R.drawable.ic_light_off)
             }
         }
+        lightButton.setOnLongClickListener {
+            if (comfortView.isGone) showTooltip(R.string.tooltip_night_light_on)
+            else showTooltip(R.string.tooltip_night_light_off)
+            true
+        }
         lightButton.isGone = false
 
         setupGestures()
+    }
+
+    private fun showTooltip(string: Int) {
+        Toast.makeText(this, string, Toast.LENGTH_LONG).show()
     }
 
     private fun openFromStorage(uri: Uri? = null) {
@@ -247,9 +282,17 @@ class PDFViewer : AppCompatActivity() {
             passwordToUse = textboxPassword.text.toString()
             selectPdfFromURI(uri)
         }
+        buttonOpen.setOnLongClickListener {
+            showTooltip(R.string.tooltip_open_file_password)
+            true
+        }
 
         buttonClose.setOnClickListener {
             finishAffinity()
+        }
+        buttonClose.setOnLongClickListener {
+            showTooltip(R.string.tooltip_close_app)
+            true
         }
     }
 

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_home">ホーム</string>
+    <string name="title_open">開く</string>
+    <string name="title_settings">設定</string>
+    <string name="title_recents">Recents</string>
+    <string name="title_favourites">お気に入り</string>
+    <string name="text_review_the_app">このアプリは気に入っていただけましたか？\nGoogle Playにレビューを残してください。\nあなたには数秒しかありません😊</string>
+    <string name="button_review_the_app_now">今すぐレビュー</string>
+    <string name="text_review_the_app_later">後で確認</string>
+    <string name="text_tap_here_to_show_the_top_bar">透明な赤いセクションをタップすると、スクロールすると消えるバーが再び表示されます。</string>
+    <string name="text_tap_here_to_show_go_to_dialog">「移動」パネルを表示するには、ここをタップしてください。これにより、特定のページにすばやく移動できます。</string>
+    <string name="text_password_required">パスワードが必要です</string>
+    <string name="text_password_inserted_wrong">パスワードが間違って挿入されました</string>
+    <string name="button_ok">OK</string>
+    <string name="button_go">移動</string>
+    <string name="button_close">閉じる</string>
+    <string name="button_open">開く</string>
+    <string name="tooltip_full_screen_on">全画面表示にする</string>
+    <string name="tooltip_full_screen_off">全画面表示を終了</string>
+    <string name="tooltip_night_light_on">夜間ライトを表示</string>
+    <string name="tooltip_night_light_off">夜間ライトを隠す</string>
+    <string name="tooltip_go_to_feature">「移動先」機能を開く</string>
+    <string name="tooltip_go_to_top">ファイルの最初のページに移動</string>
+    <string name="tooltip_open_new_file">新しいファイルを開く</string>
+    <string name="tooltip_share_file">このファイルを共有</string>
+    <string name="tooltip_close_app">アプリを閉じる</string>
+    <string name="tooltip_go_to_the_page">挿入されたページに移動</string>
+    <string name="tooltip_close_panel">このパネルを閉じる</string>
+    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_open_file_password">このファイルを開く</string>
+    <string name="tooltip_review_now">App Storeに移動して今すぐレビュー</string>
+</resources>

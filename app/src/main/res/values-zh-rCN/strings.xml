@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_home">主页</string>
+    <string name="title_open">打开</string>
+    <string name="title_settings">设置</string>
+    <string name="title_recents">Recents</string>
+    <string name="title_favourites">收藏夹</string>
+    <string name="text_review_the_app">你喜欢这个应用吗？\n请在Google Play上留下评论。\n这只是给你 :smiling_face_with_smiling_eyes：</string>
+    <string name="button_review_the_app_now">现在检查</string>
+    <string name="text_review_the_app_later">稍后审核</string>
+    <string name="text_tap_here_to_show_the_top_bar">点击透明的红色部分再次显示顶部栏，滚动时会消失。</string>
+    <string name="text_tap_here_to_show_go_to_dialog">点击此处显示\"转到\"面板，您可以快速转到一个特定页面。</string>
+    <string name="text_password_required">需要密码</string>
+    <string name="text_password_inserted_wrong">密码输入错误</string>
+    <string name="button_ok">好的</string>
+    <string name="button_go">转至</string>
+    <string name="button_close">关闭</string>
+    <string name="button_open">打开</string>
+    <string name="tooltip_full_screen_on">输入全屏</string>
+    <string name="tooltip_full_screen_off">退出全屏</string>
+    <string name="tooltip_night_light_on">显示夜间指示灯</string>
+    <string name="tooltip_night_light_off">隐藏夜间指示灯</string>
+    <string name="tooltip_go_to_feature">打开“转到”功能</string>
+    <string name="tooltip_go_to_top">转到文件的第一页</string>
+    <string name="tooltip_open_new_file">打开一个新文件</string>
+    <string name="tooltip_share_file">分享这个文件</string>
+    <string name="tooltip_close_app">关闭应用</string>
+    <string name="tooltip_go_to_the_page">转到已插入的页面</string>
+    <string name="tooltip_close_panel">关闭此面板</string>
+    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_open_file_password">打开此文件</string>
+    <string name="tooltip_review_now">转到您的应用商店并立即审核</string>
+</resources>

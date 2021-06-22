@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title_home">Domů</string>
+    <string name="title_open">Otevřít</string>
+    <string name="title_settings">Nastavení</string>
+    <string name="title_recents">Recents</string>
+    <string name="title_favourites">Oblíbené</string>
+    <string name="text_review_the_app">Líbí se vám tato aplikace?\nProsím, zanechte recenzi na Google Play.\nJe to jen pár sekund pro vás 😊</string>
+    <string name="button_review_the_app_now">Zkontrolovat nyní</string>
+    <string name="text_review_the_app_later">Zkontrolovat později</string>
+    <string name="text_tap_here_to_show_the_top_bar">Klepnutím na průhlednou červenou sekci zobrazíte opět horní pruh, který zmizí, když se posouváte.</string>
+    <string name="text_tap_here_to_show_go_to_dialog">Klepnutím sem zobrazíte panel \"Přejít na\", abyste mohli rychle přejít na konkrétní stránku.</string>
+    <string name="text_password_required">Heslo je vyžadováno</string>
+    <string name="text_password_inserted_wrong">Chybné heslo</string>
+    <string name="button_ok">Ok</string>
+    <string name="button_go">Přejít</string>
+    <string name="button_close">Zavřít</string>
+    <string name="button_open">Otevřít</string>
+    <string name="tooltip_full_screen_on">Zadejte celou obrazovku</string>
+    <string name="tooltip_full_screen_off">Ukončit celou obrazovku</string>
+    <string name="tooltip_night_light_on">Zobrazit noční světlo</string>
+    <string name="tooltip_night_light_off">Skrýt noční světlo</string>
+    <string name="tooltip_go_to_feature">Otevřít funkci \'Přejít na\'</string>
+    <string name="tooltip_go_to_top">Přejít na první stránku souboru</string>
+    <string name="tooltip_open_new_file">Otevřít nový soubor</string>
+    <string name="tooltip_share_file">Sdílet tento soubor</string>
+    <string name="tooltip_close_app">Zavřít aplikaci</string>
+    <string name="tooltip_go_to_the_page">Přejít na vloženou stránku</string>
+    <string name="tooltip_close_panel">Zavřít tento panel</string>
+    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_open_file_password">Otevřít tento soubor</string>
+    <string name="tooltip_review_now">Přejděte do vašeho obchodu s aplikacemi a zkontrolujte</string>
+</resources>
