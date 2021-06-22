@@ -22,4 +22,19 @@
     <string name="button_go">Go</string>
     <string name="button_close">Close</string>
     <string name="button_open">Open</string>
+
+    <string name="tooltip_full_screen_on">Enter full screen</string>
+    <string name="tooltip_full_screen_off">Exit full screen</string>
+    <string name="tooltip_night_light_on">Show night light</string>
+    <string name="tooltip_night_light_off">Hide night light</string>
+    <string name="tooltip_go_to_feature">Open \'Go to\' feature</string>
+    <string name="tooltip_go_to_top">Go to the first page of the file</string>
+    <string name="tooltip_open_new_file">Open a new file</string>
+    <string name="tooltip_share_file">Share this file</string>
+    <string name="tooltip_close_app">Close app</string>
+    <string name="tooltip_go_to_the_page">Go to the inserted page</string>
+    <string name="tooltip_close_panel">Close this panel</string>
+    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_open_file_password">Open this file</string>
+    <string name="tooltip_review_now">Go to your app store and review now</string>
 </resources>
