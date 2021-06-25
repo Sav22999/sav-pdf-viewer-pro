@@ -576,12 +576,10 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun setShareButton() {
-        intent.getStringExtra("iName")
-        val shareIntent = Intent(Intent.ACTION_SEND)
-        shareIntent.putExtra(
-            Intent.EXTRA_STREAM,
-            uriOpened
-        )
+        //intent.getStringExtra("iName")
+        val shareIntent = Intent()
+        shareIntent.action = Intent.ACTION_SEND
+        shareIntent.putExtra(Intent.EXTRA_STREAM, uriOpened)
         shareIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         shareIntent.type = "application/pdf"
         startActivity(Intent.createChooser(shareIntent, "Share"))
