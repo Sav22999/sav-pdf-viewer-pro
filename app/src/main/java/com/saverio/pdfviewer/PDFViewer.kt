@@ -48,6 +48,8 @@ class PDFViewer : AppCompatActivity() {
     var passwordToUse = ""
 
     var totalPages = 0
+    var savedCurrentPageOld = 0
+    var savedCurrentPage = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -349,11 +351,16 @@ class PDFViewer : AppCompatActivity() {
             } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 //PORTRAIT
             }
+            println("______>" + savedCurrentPageOld)
             val startZoom = pdfViewer.zoom
             pdfViewer.fitToWidth()
             val endZoom = pdfViewer.zoom
             pdfViewer.zoomTo(startZoom)
             pdfViewer.zoomWithAnimation(endZoom)
+            Handler().postDelayed({
+                //restore the visited page
+                pdfViewer.jumpTo(savedCurrentPageOld, false)
+            }, 100)
             pdfViewer.isEnabled = true
         }, 100)
 
@@ -433,6 +440,9 @@ class PDFViewer : AppCompatActivity() {
         val currentPageText: TextView = findViewById(R.id.totalPagesToolbar)
         currentPageText.text = (currentPage + 1).toString() + "/" + totalPages.toString()
         currentPageText.isGone = false
+        savedCurrentPageOld = savedCurrentPage
+        savedCurrentPage = currentPage
+        println("current page: $savedCurrentPage")
     }
 
     private fun getPdfPage(pathName: String): Int {
