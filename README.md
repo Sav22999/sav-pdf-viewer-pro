@@ -34,7 +34,7 @@ If you want to help to develop this app, you can open an `Issue` an send feedbac
 
 ### Screenshots
 
-<img src="images/screenshots/1.png" width="200px"></img><img src="images/screenshots/2.png" width="200px"></img><img src="images/screenshots/3.png" width="200px"></img>
+<img src="images/screenshots/1.png" width="200px"></img><img src="images/screenshots/2.png" width="200px"></img><img src="images/screenshots/3.png" width="200px"></img><img src="images/screenshots/4.png" width="200px"></img>
 
 
 ![Generic badge](https://img.shields.io/badge/built%20in-Android%20Studio-green.svg) ![Generic badge](https://img.shields.io/badge/developed%20in-Kotlin-blue.svg) ![GitHub last commit](https://img.shields.io/github/last-commit/Sav22999/sav-pdf-viewer-pro) [![Generic badge](https://img.shields.io/badge/developed%20by-Sav22999-lightgrey.svg)](https://saveriomorelli.com)
