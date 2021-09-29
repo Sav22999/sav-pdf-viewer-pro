@@ -21,12 +21,14 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
+import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.listener.OnErrorListener
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
+import androidx.constraintlayout.widget.ConstraintSet
 
 
 class PDFViewer : AppCompatActivity() {
@@ -66,7 +68,7 @@ class PDFViewer : AppCompatActivity() {
         try {
             val intent = intent
             if (intent != null && intent.data != null && intent.data.toString()
-                    .contains("content://")
+                            .contains("content://")
             ) {
                 uriToUse = intent.data.toString()
                 //println(uriToUse)
@@ -94,16 +96,19 @@ class PDFViewer : AppCompatActivity() {
         val backButton: ImageView = findViewById(R.id.buttonGoBackToolbar)
         backButton.setOnClickListener {
             updateLastFileOpened("")
+            resetHideTopBarCounter()
             finish()
         }
         backButton.setOnLongClickListener {
             showTooltip(R.string.tooltip_close_app)
+            resetHideTopBarCounter()
             true
         }
 
         val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
         shareButton.setOnClickListener {
             setShareButton()
+            resetHideTopBarCounter()
         }
         shareButton.setOnLongClickListener {
             showTooltip(R.string.tooltip_share_file)
@@ -113,6 +118,7 @@ class PDFViewer : AppCompatActivity() {
         val fullScreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
         fullScreenButton.setOnClickListener {
             setFullscreenButton(fullScreenButton)
+            resetHideTopBarCounter()
         }
         fullScreenButton.setOnLongClickListener {
             if (isFullscreenEnabled) showTooltip(R.string.tooltip_full_screen_off)
@@ -123,6 +129,7 @@ class PDFViewer : AppCompatActivity() {
         val goTopButton: ImageView = findViewById(R.id.buttonGoTopToolbar)
         goTopButton.setOnClickListener {
             pdfViewer.jumpTo(0, true)
+            resetHideTopBarCounter()
         }
         goTopButton.setOnLongClickListener {
             showTooltip(R.string.tooltip_go_to_top)
@@ -133,6 +140,7 @@ class PDFViewer : AppCompatActivity() {
         currentPage.setOnClickListener {
             if (findViewById<ConstraintLayout>(R.id.messageGoTo).isGone) showGoToDialog()
             else hideGoToDialog()
+            resetHideTopBarCounter()
         }
         currentPage.setOnLongClickListener {
             showTooltip(R.string.tooltip_go_to_feature)
@@ -142,6 +150,7 @@ class PDFViewer : AppCompatActivity() {
         val openButton: ImageView = findViewById(R.id.buttonOpenToolbar)
         openButton.setOnClickListener {
             openFromStorage()
+            resetHideTopBarCounter()
         }
         openButton.setOnLongClickListener {
             showTooltip(R.string.tooltip_open_new_file)
@@ -158,6 +167,7 @@ class PDFViewer : AppCompatActivity() {
                 comfortView.isGone = false
                 lightButton.setImageResource(R.drawable.ic_light_off)
             }
+            resetHideTopBarCounter()
         }
         lightButton.setOnLongClickListener {
             if (comfortView.isGone) showTooltip(R.string.tooltip_night_light_on)
@@ -183,8 +193,8 @@ class PDFViewer : AppCompatActivity() {
         browserStorage.type = "application/pdf"
         browserStorage.addCategory(Intent.CATEGORY_OPENABLE)
         startActivityForResult(
-            Intent.createChooser(browserStorage, "Select the file"),
-            PDF_SELECTION_CODE
+                Intent.createChooser(browserStorage, "Select the file"),
+                PDF_SELECTION_CODE
         )
     }
 
@@ -198,83 +208,75 @@ class PDFViewer : AppCompatActivity() {
         }, 1000)
     }
 
+    fun resetHideTopBarCounter() {
+        hideTopBarCounter = 0
+    }
+
     fun selectPdfFromURI(uri: Uri?) {
         try {
             incrementHideTopBarCounter()
             var lastPosition = 0
             pdfViewer.fromUri(uri)
-                .enableSwipe(true) //leave as "true" (it causes a bug with scrolling when zoom is "100%")
-                .swipeHorizontal(false) //horizontal scrolling disable
-                .enableDoubletap(true)
-                //.defaultPage(getPdfPage(uri.toString()))
-                .spacing(10)
-                .enableAnnotationRendering(true) // render annotations (such as comments, colors or forms)
-                .password(passwordToUse)
-                .scrollHandle(null)
-                .enableAntialiasing(true) // improve rendering a little bit on low-res screens
-                .onPageChange { page, pageCount -> updatePdfPage(uri.toString(), page) }
-                .onPageScroll { page, positionOffset ->
-                    hideTopBarCounter = 0
-                    if (!showingTopBar && (page > 0 || positionOffset > 0F)) {
-                        hideTopBar()
-                    } else if (positionOffset == 0F) {
-                        showTopBar()
-                        findViewById<ImageView>(R.id.buttonGoTopToolbar).isGone = true
-                    } else {
-                        showingTopBar = false
+                    .enableSwipe(true) //leave as "true" (it causes a bug with scrolling when zoom is "100%")
+                    .swipeHorizontal(false) //horizontal scrolling disable
+                    .enableDoubletap(true)
+                    //.defaultPage(getPdfPage(uri.toString()))
+                    .spacing(10)
+                    .enableAnnotationRendering(true) // render annotations (such as comments, colors or forms)
+                    .password(passwordToUse)
+                    .scrollHandle(null)
+                    .enableAntialiasing(true) // improve rendering a little bit on low-res screens
+                    .onPageChange { page, pageCount -> updatePdfPage(uri.toString(), page) }
+                    .onPageScroll { page, positionOffset ->
+                        hideTopBarCounter = 0
+                        if (!showingTopBar && (page > 0 || positionOffset > 0F)) {
+                            hideTopBar()
+                        } else if (positionOffset == 0F) {
+                            showTopBar()
+                            findViewById<ImageView>(R.id.buttonGoTopToolbar).isGone = true
+                        } else {
+                            showingTopBar = false
+                        }
+                        hideGoToDialog()
                     }
-                    hideGoToDialog()
-                }
-                .onLoad {
-                    lastPosition = getPdfPage(uri.toString())
-                    /*pdfViewer.positionOffset = 1F
-                    totalPages = pdfViewer.currentPage + 1*/
-                    /*
-                    println("title: " + pdfViewer.documentMeta.title)
-                    println("author: " + pdfViewer.documentMeta.author)
-                    println("keywords: " + pdfViewer.documentMeta.keywords)
-                    println("creationDate: " + pdfViewer.documentMeta.creationDate)
-                    */
-                }
-                .onRender { nbPages, pageWidth, pageHeight ->
-                    totalPages = nbPages
-                    updatePdfPage(uri.toString(), lastPosition)
-                    if (totalPages == 1) {
-                        isSupportedGoTop = false
-                        findViewById<ImageView>(R.id.buttonGoTopToolbar).isGone = true
+                    .onLoad {
+                        lastPosition = getPdfPage(uri.toString())
+                        /*pdfViewer.positionOffset = 1F
+                        totalPages = pdfViewer.currentPage + 1*/
+                        /*
+                        println("title: " + pdfViewer.documentMeta.title)
+                        println("author: " + pdfViewer.documentMeta.author)
+                        println("keywords: " + pdfViewer.documentMeta.keywords)
+                        println("creationDate: " + pdfViewer.documentMeta.creationDate)
+                        */
                     }
-                    pdfViewer.fitToWidth()
-                    pdfViewer.jumpTo(lastPosition, false)
-                    if (lastPosition.toString() == "0") {
-                        showTopBar(showGoTop = false)
-                    } else {
-                        hideTopBar()
+                    .onRender { nbPages, pageWidth, pageHeight ->
+                        totalPages = nbPages
+                        updatePdfPage(uri.toString(), lastPosition)
+                        if (totalPages == 1) {
+                            isSupportedGoTop = false
+                            findViewById<ImageView>(R.id.buttonGoTopToolbar).isGone = true
+                        }
+                        pdfViewer.fitToWidth()
+                        pdfViewer.jumpTo(lastPosition, false)
+                        if (lastPosition.toString() == "0") {
+                            showTopBar(showGoTop = false)
+                        } else {
+                            hideTopBar()
+                        }
                     }
-
-                    val pdfViewElement: PDFView = findViewById(R.id.pdfView)
-                    val toolbarContainer: ConstraintLayout = findViewById(R.id.toolbarContainer)
-                    val params = pdfViewElement.layoutParams as ConstraintLayout.LayoutParams
-                    if (totalPages == 1) {
-                        params.topToBottom = toolbarContainer.id
-                        println("One page")
-                    } else {
-                        params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
-                        println("More pages")
-                    }
-                    pdfViewElement.requestLayout()
-                }
-                .onError(OnErrorListener {
-                    if (it.message.toString()
-                            .contains("Password required or incorrect password.")
-                    ) {
-                        var passwordWrong = false
-                        if (passwordRequired) passwordWrong = true
-                        passwordRequired = true
-                        askThePassword(uri, passwordWrong)
-                    }
-                    //PdfPasswordException
-                })
-                .load()
+                    .onError(OnErrorListener {
+                        if (it.message.toString()
+                                        .contains("Password required or incorrect password.")
+                        ) {
+                            var passwordWrong = false
+                            if (passwordRequired) passwordWrong = true
+                            passwordRequired = true
+                            askThePassword(uri, passwordWrong)
+                        }
+                        //PdfPasswordException
+                    })
+                    .load()
         } catch (e: Exception) {
             println("Exception 1")
         }
@@ -309,17 +311,21 @@ class PDFViewer : AppCompatActivity() {
             hideMessagePassword()
             passwordToUse = textboxPassword.text.toString()
             selectPdfFromURI(uri)
+            resetHideTopBarCounter()
         }
         buttonOpen.setOnLongClickListener {
             showTooltip(R.string.tooltip_open_file_password)
+            resetHideTopBarCounter()
             true
         }
 
         buttonClose.setOnClickListener {
             finishAffinity()
+            resetHideTopBarCounter()
         }
         buttonClose.setOnLongClickListener {
             showTooltip(R.string.tooltip_close_app)
+            resetHideTopBarCounter()
             true
         }
     }
@@ -446,8 +452,8 @@ class PDFViewer : AppCompatActivity() {
         var titleTemp = title
         if (titleTemp.length > 40) {
             titleTemp = titleTemp.substring(0, 15) + " ... " + titleTemp.substring(
-                titleTemp.length - 16,
-                titleTemp.length - 1
+                    titleTemp.length - 16,
+                    titleTemp.length - 1
             )
         }
         titleElement.text = titleTemp
@@ -461,7 +467,7 @@ class PDFViewer : AppCompatActivity() {
     private fun updatePdfPage(pathName: String, currentPage: Int) {
         val pathNameTemp = getTheFileName(pathName, 0).toMD5()
         getSharedPreferences(pathNameTemp, Context.MODE_PRIVATE).edit()
-            .putInt(pathNameTemp, currentPage).apply()
+                .putInt(pathNameTemp, currentPage).apply()
 
         val currentPageText: TextView = findViewById(R.id.totalPagesToolbar)
         currentPageText.text = (currentPage + 1).toString() + "/" + totalPages.toString()
@@ -482,7 +488,7 @@ class PDFViewer : AppCompatActivity() {
         //println(uriToUse)
         val RECENT_FILES = "recents"
         val recentFiles: String? =
-            getSharedPreferences(RECENT_FILES, Context.MODE_PRIVATE).getString(RECENT_FILES, "")
+                getSharedPreferences(RECENT_FILES, Context.MODE_PRIVATE).getString(RECENT_FILES, "")
         var recentFilesToSave = ""
 
         var recentFilesParts = recentFiles?.split("/:::/")
@@ -518,10 +524,10 @@ class PDFViewer : AppCompatActivity() {
             } else {
                 //it's necessary
                 recentFilesToSave =
-                    "${currentDate}:::${uriToUse}:::false/:::/" + getRecentFilesWithoutIndex(
-                        found_i,
-                        recentFilesParts
-                    )
+                        "${currentDate}:::${uriToUse}:::false/:::/" + getRecentFilesWithoutIndex(
+                                found_i,
+                                recentFilesParts
+                        )
             }
         } else if (recentFiles == null || added_i == 0) {
             //add to the recent files: no other elements --> first element in the list
@@ -533,7 +539,7 @@ class PDFViewer : AppCompatActivity() {
             recentFilesToSave = "${currentDate}:::${uriToUse}:::false/:::/" + recentFilesToSave
         }
         getSharedPreferences(RECENT_FILES, Context.MODE_PRIVATE).edit()
-            .putString(RECENT_FILES, recentFilesToSave).apply()
+                .putString(RECENT_FILES, recentFilesToSave).apply()
     }
 
     fun getRecentFilesWithoutIndex(index: Int, recentFiles: List<String>): String {
@@ -555,7 +561,7 @@ class PDFViewer : AppCompatActivity() {
         try {
             var pathTemp = path
             pathTemp =
-                pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
+                    pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
 
             var pathName = ""
             if (pathTemp.contains(":/")) {
@@ -592,14 +598,14 @@ class PDFViewer : AppCompatActivity() {
 
     fun getLastFileOpened(): String? {
         return getSharedPreferences(
-            "last_opened_file",
-            Context.MODE_PRIVATE
+                "last_opened_file",
+                Context.MODE_PRIVATE
         ).getString("last_opened_file", "")
     }
 
     fun updateLastFileOpened(uri: String?) {
         getSharedPreferences("last_opened_file", Context.MODE_PRIVATE).edit()
-            .putString("last_opened_file", uri).apply()
+                .putString("last_opened_file", uri).apply()
     }
 
     fun String.toMD5(): String {
@@ -626,17 +632,17 @@ class PDFViewer : AppCompatActivity() {
         if (!isFullscreenEnabled) {
             //show fullscreen
             getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN,
             )
             window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN
+                    View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN
             button.setImageResource(R.drawable.ic_exit_fullscreen)
             isFullscreenEnabled = true
         } else {
             //hide fullscreen
             getWindow().clearFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN
             )
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
             button.setImageResource(R.drawable.ic_fullscreen)
@@ -647,6 +653,7 @@ class PDFViewer : AppCompatActivity() {
 
     fun showTopBar(showGoTop: Boolean = true) {
         showingTopBar = true
+        hideTopBarCounter = 0
 
         val toolbar: View = findViewById(R.id.toolbar)
         val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
@@ -691,6 +698,7 @@ class PDFViewer : AppCompatActivity() {
 
     fun hideTopBar(fullHiding: Boolean = false) {
         val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+        val messageGoTo: ConstraintLayout = findViewById(R.id.messageGoTo)
         val toolbar: View = findViewById(R.id.toolbar)
         val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
         val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
@@ -700,47 +708,68 @@ class PDFViewer : AppCompatActivity() {
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
         val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
         val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
-        if (totalPages > 1) {
-            if (!showingTopBar) {
-                currentPage.setTextColor(
+
+        if (!showingTopBar) {
+            currentPage.setTextColor(
                     ContextCompat.getColor(
-                        applicationContext,
-                        R.color.dark_red
+                            applicationContext,
+                            R.color.dark_red
                     )
+            )
+
+            hideMessageGuide1()
+
+            if (getBooleanData("firstTimeHideTopBar", true)) {
+                val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+                val arrow: View = findViewById(R.id.arrowLeft)
+                val messageText: TextView = findViewById(R.id.messageTextGuide1)
+                messageText.setText(getString(R.string.text_tap_here_to_show_the_top_bar))
+                message.isGone = false
+                arrow.isGone = false
+                toolbarInvisible.setBackgroundResource(R.color.transparent_red_2)
+                currentPage.setTextColor(
+                        ContextCompat.getColor(
+                                applicationContext,
+                                R.color.white
+                        )
                 )
 
-                hideMessageGuide1()
-
-                if (getBooleanData("firstTimeHideTopBar", true)) {
-                    val message: ConstraintLayout = findViewById(R.id.messageGuide1)
-                    val arrow: View = findViewById(R.id.arrowLeft)
-                    val messageText: TextView = findViewById(R.id.messageTextGuide1)
-                    messageText.setText(getString(R.string.text_tap_here_to_show_the_top_bar))
-                    message.isGone = false
-                    arrow.isGone = false
-                    toolbarInvisible.setBackgroundResource(R.color.transparent_red_2)
+                val button: TextView = findViewById(R.id.buttonHideGuide1)
+                button.setOnClickListener {
+                    message.isGone = true
+                    arrow.isGone = true
+                    saveBooleanData("firstTimeHideTopBar", false)
+                    toolbarInvisible.setBackgroundResource(R.color.transparent_red)
                     currentPage.setTextColor(
-                        ContextCompat.getColor(
-                            applicationContext,
-                            R.color.white
-                        )
-                    )
-
-                    val button: TextView = findViewById(R.id.buttonHideGuide1)
-                    button.setOnClickListener {
-                        message.isGone = true
-                        arrow.isGone = true
-                        saveBooleanData("firstTimeHideTopBar", false)
-                        toolbarInvisible.setBackgroundResource(R.color.transparent_red)
-                        currentPage.setTextColor(
                             ContextCompat.getColor(
-                                applicationContext,
-                                R.color.dark_red
+                                    applicationContext,
+                                    R.color.dark_red
                             )
-                        )
-                    }
+                    )
                 }
+            }
 
+            toolbar.isGone = true
+            buttonClose.isGone = true
+            buttonShare.isGone = true
+            buttonFullscreen.isGone = true
+            buttonGoTop.isGone = true
+            buttonOpen.isGone = true
+            buttonNightDay.isGone = true
+
+            if (message.isGone && messageGoTo.isGone) {
+                toolbarInvisible.isGone = fullHiding
+                currentPage.isGone = fullHiding
+
+                if (fullHiding) {
+                    showHideAfterFiveSeconds()
+                }
+            } else {
+                toolbarInvisible.isGone = false
+                currentPage.isGone = false
+            }
+        } else {
+            if (message.isGone && messageGoTo.isGone && fullHiding) {
                 toolbar.isGone = true
                 buttonClose.isGone = true
                 buttonShare.isGone = true
@@ -748,32 +777,10 @@ class PDFViewer : AppCompatActivity() {
                 buttonGoTop.isGone = true
                 buttonOpen.isGone = true
                 buttonNightDay.isGone = true
+                toolbarInvisible.isGone = true
+                currentPage.isGone = true
 
-                if (message.isGone) {
-                    toolbarInvisible.isGone = fullHiding
-                    currentPage.isGone = fullHiding
-
-                    if (fullHiding) {
-                        showHideAfterFiveSeconds()
-                    }
-                } else {
-                    toolbarInvisible.isGone = false
-                    currentPage.isGone = false
-                }
-            } else {
-                if (message.isGone && fullHiding) {
-                    toolbar.isGone = true
-                    buttonClose.isGone = true
-                    buttonShare.isGone = true
-                    buttonFullscreen.isGone = true
-                    buttonGoTop.isGone = true
-                    buttonOpen.isGone = true
-                    buttonNightDay.isGone = true
-                    toolbarInvisible.isGone = true
-                    currentPage.isGone = true
-
-                    showHideAfterFiveSeconds()
-                }
+                showHideAfterFiveSeconds()
             }
         }
     }
@@ -809,13 +816,13 @@ class PDFViewer : AppCompatActivity() {
 
     fun checkReviewApp() {
         var timesOpened = getSharedPreferences(
-            "app_opened_times",
-            Context.MODE_PRIVATE
+                "app_opened_times",
+                Context.MODE_PRIVATE
         ).getInt("app_opened_times", 0)
 
         val alreadyReviewed = getSharedPreferences(
-            "already_reviewed_app",
-            Context.MODE_PRIVATE
+                "already_reviewed_app",
+                Context.MODE_PRIVATE
         ).getBoolean("already_reviewed_app", false)
 
         val buttonReviewNow: TextView = findViewById(R.id.buttonReviewNow)
@@ -826,7 +833,7 @@ class PDFViewer : AppCompatActivity() {
             if (openOnGooglePlay()) {
                 messageContainer.isGone = true
                 getSharedPreferences("already_reviewed_app", Context.MODE_PRIVATE).edit()
-                    .putBoolean("already_reviewed_app", true).apply()
+                        .putBoolean("already_reviewed_app", true).apply()
             }
         }
 
@@ -847,17 +854,17 @@ class PDFViewer : AppCompatActivity() {
 
         timesOpened++
         getSharedPreferences("app_opened_times", Context.MODE_PRIVATE).edit()
-            .putInt("app_opened_times", timesOpened).apply()
+                .putInt("app_opened_times", timesOpened).apply()
     }
 
     fun openOnGooglePlay(): Boolean {
         var valueToReturn = true
         try {
             startActivity(
-                Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=com.saverio.pdfviewer")
-                )
+                    Intent(
+                            Intent.ACTION_VIEW,
+                            Uri.parse("market://details?id=com.saverio.pdfviewer")
+                    )
             )
         } catch (e: Exception) {
             println("Exception 3: " + e.toString())
@@ -899,10 +906,12 @@ class PDFViewer : AppCompatActivity() {
         buttonGoTo.setOnClickListener {
             goToFeature(textbox)
             hideGoToDialog()
+            resetHideTopBarCounter()
         }
 
         buttonHide.setOnClickListener {
             hideGoToDialog()
+            resetHideTopBarCounter()
         }
 
         textbox.addTextChangedListener {
@@ -962,7 +971,7 @@ class PDFViewer : AppCompatActivity() {
         //conflict with PDFView class
         val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
         toolbarInvisible.setOnTouchListener(object :
-            OnSwipeTouchListener(this@PDFViewer) {
+                OnSwipeTouchListener(this@PDFViewer) {
 
             override fun onSingleTapUp() {
                 showTopBar()
@@ -972,13 +981,13 @@ class PDFViewer : AppCompatActivity() {
 
     fun getBooleanData(variable: String, default: Boolean = false): Boolean {
         return getSharedPreferences(variable, Context.MODE_PRIVATE).getBoolean(
-            variable,
-            default
+                variable,
+                default
         )
     }
 
     fun saveBooleanData(variable: String, value: Boolean) {
         getSharedPreferences(variable, Context.MODE_PRIVATE).edit().putBoolean(variable, value)
-            .apply()
+                .apply()
     }
 }
