@@ -8,11 +8,11 @@
     <string name="text_review_the_app">Líbí se vám tato aplikace?\nProsím, zanechte recenzi na Google Play.\nJe to jen pár sekund pro vás 😊</string>
     <string name="button_review_the_app_now">Zkontrolovat nyní</string>
     <string name="text_review_the_app_later">Zkontrolovat později</string>
-    <string name="text_tap_here_to_show_the_top_bar">Klepnutím na průhlednou červenou sekci zobrazíte opět horní pruh, který zmizí, když se posouváte.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Klepnutím na průhlednou červenou sekci zobrazíte opět horní pruh, který zmizí, když se posouváte.\nPo 5 sekundách se lišta také skryje a znovu ji zobrazí.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Klepnutím sem zobrazíte panel \"Přejít na\", abyste mohli rychle přejít na konkrétní stránku.</string>
     <string name="text_password_required">Heslo je vyžadováno</string>
     <string name="text_password_inserted_wrong">Chybné heslo</string>
-    <string name="button_ok">Ok</string>
+    <string name="button_ok">OK</string>
     <string name="button_go">Přejít</string>
     <string name="button_close">Zavřít</string>
     <string name="button_open">Otevřít</string>

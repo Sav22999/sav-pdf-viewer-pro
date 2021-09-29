@@ -51,6 +51,8 @@ class PDFViewer : AppCompatActivity() {
     var savedCurrentPageOld = 0
     var savedCurrentPage = 0
 
+    var hideTopBarCounter = 0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pdf_viewer)
@@ -186,8 +188,19 @@ class PDFViewer : AppCompatActivity() {
         )
     }
 
+    fun incrementHideTopBarCounter() {
+        Handler().postDelayed({
+            hideTopBarCounter++
+            incrementHideTopBarCounter()
+            if (hideTopBarCounter >= 5) {
+                hideTopBar(fullHiding = true)
+            }
+        }, 1000)
+    }
+
     fun selectPdfFromURI(uri: Uri?) {
         try {
+            incrementHideTopBarCounter()
             var lastPosition = 0
             pdfViewer.fromUri(uri)
                 .enableSwipe(true) //leave as "true" (it causes a bug with scrolling when zoom is "100%")
@@ -201,6 +214,7 @@ class PDFViewer : AppCompatActivity() {
                 .enableAntialiasing(true) // improve rendering a little bit on low-res screens
                 .onPageChange { page, pageCount -> updatePdfPage(uri.toString(), page) }
                 .onPageScroll { page, positionOffset ->
+                    hideTopBarCounter = 0
                     if (!showingTopBar && (page > 0 || positionOffset > 0F)) {
                         hideTopBar()
                     } else if (positionOffset == 0F) {
@@ -236,6 +250,18 @@ class PDFViewer : AppCompatActivity() {
                     } else {
                         hideTopBar()
                     }
+
+                    val pdfViewElement: PDFView = findViewById(R.id.pdfView)
+                    val toolbarContainer: ConstraintLayout = findViewById(R.id.toolbarContainer)
+                    val params = pdfViewElement.layoutParams as ConstraintLayout.LayoutParams
+                    if (totalPages == 1) {
+                        params.topToBottom = toolbarContainer.id
+                        println("One page")
+                    } else {
+                        params.topToBottom = ConstraintLayout.LayoutParams.PARENT_ID
+                        println("More pages")
+                    }
+                    pdfViewElement.requestLayout()
                 }
                 .onError(OnErrorListener {
                     if (it.message.toString()
@@ -351,7 +377,7 @@ class PDFViewer : AppCompatActivity() {
             } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
                 //PORTRAIT
             }
-            println("______>" + savedCurrentPageOld)
+            //println("______>" + savedCurrentPageOld)
             val startZoom = pdfViewer.zoom
             pdfViewer.fitToWidth()
             val endZoom = pdfViewer.zoom
@@ -442,7 +468,7 @@ class PDFViewer : AppCompatActivity() {
         currentPageText.isGone = false
         savedCurrentPageOld = savedCurrentPage
         savedCurrentPage = currentPage
-        println("current page: $savedCurrentPage")
+        //println("current page: $savedCurrentPage")
     }
 
     private fun getPdfPage(pathName: String): Int {
@@ -663,65 +689,109 @@ class PDFViewer : AppCompatActivity() {
         }
     }
 
-    fun hideTopBar() {
-        if (!showingTopBar) {
-            val toolbar: View = findViewById(R.id.toolbar)
-            val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
-            val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
-            val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
-            val buttonFullscreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
-            val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
-            val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
-            val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
-            val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
-
-            toolbar.isGone = true
-            buttonClose.isGone = true
-            buttonShare.isGone = true
-            buttonFullscreen.isGone = true
-            buttonGoTop.isGone = true
-            currentPage.isGone = false
-            currentPage.setTextColor(
-                ContextCompat.getColor(
-                    applicationContext,
-                    R.color.dark_red
-                )
-            )
-            buttonOpen.isGone = true
-            buttonNightDay.isGone = true
-
-            toolbarInvisible.isGone = false
-
-            hideMessageGuide1()
-
-            if (getBooleanData("firstTimeHideTopBar", true)) {
-                val message: ConstraintLayout = findViewById(R.id.messageGuide1)
-                val arrow: View = findViewById(R.id.arrowLeft)
-                val messageText: TextView = findViewById(R.id.messageTextGuide1)
-                messageText.setText(getString(R.string.text_tap_here_to_show_the_top_bar))
-                message.isGone = false
-                arrow.isGone = false
-                toolbarInvisible.setBackgroundResource(R.color.transparent_red_2)
+    fun hideTopBar(fullHiding: Boolean = false) {
+        val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+        val toolbar: View = findViewById(R.id.toolbar)
+        val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
+        val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
+        val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
+        val buttonFullscreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
+        val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
+        val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
+        val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
+        val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
+        if (totalPages > 1) {
+            if (!showingTopBar) {
                 currentPage.setTextColor(
                     ContextCompat.getColor(
                         applicationContext,
-                        R.color.white
+                        R.color.dark_red
                     )
                 )
 
-                val button: TextView = findViewById(R.id.buttonHideGuide1)
-                button.setOnClickListener {
-                    message.isGone = true
-                    arrow.isGone = true
-                    saveBooleanData("firstTimeHideTopBar", false)
-                    toolbarInvisible.setBackgroundResource(R.color.transparent_red)
+                hideMessageGuide1()
+
+                if (getBooleanData("firstTimeHideTopBar", true)) {
+                    val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+                    val arrow: View = findViewById(R.id.arrowLeft)
+                    val messageText: TextView = findViewById(R.id.messageTextGuide1)
+                    messageText.setText(getString(R.string.text_tap_here_to_show_the_top_bar))
+                    message.isGone = false
+                    arrow.isGone = false
+                    toolbarInvisible.setBackgroundResource(R.color.transparent_red_2)
                     currentPage.setTextColor(
                         ContextCompat.getColor(
                             applicationContext,
-                            R.color.dark_red
+                            R.color.white
                         )
                     )
+
+                    val button: TextView = findViewById(R.id.buttonHideGuide1)
+                    button.setOnClickListener {
+                        message.isGone = true
+                        arrow.isGone = true
+                        saveBooleanData("firstTimeHideTopBar", false)
+                        toolbarInvisible.setBackgroundResource(R.color.transparent_red)
+                        currentPage.setTextColor(
+                            ContextCompat.getColor(
+                                applicationContext,
+                                R.color.dark_red
+                            )
+                        )
+                    }
                 }
+
+                toolbar.isGone = true
+                buttonClose.isGone = true
+                buttonShare.isGone = true
+                buttonFullscreen.isGone = true
+                buttonGoTop.isGone = true
+                buttonOpen.isGone = true
+                buttonNightDay.isGone = true
+
+                if (message.isGone) {
+                    toolbarInvisible.isGone = fullHiding
+                    currentPage.isGone = fullHiding
+
+                    if (fullHiding) {
+                        showHideAfterFiveSeconds()
+                    }
+                } else {
+                    toolbarInvisible.isGone = false
+                    currentPage.isGone = false
+                }
+            } else {
+                if (message.isGone && fullHiding) {
+                    toolbar.isGone = true
+                    buttonClose.isGone = true
+                    buttonShare.isGone = true
+                    buttonFullscreen.isGone = true
+                    buttonGoTop.isGone = true
+                    buttonOpen.isGone = true
+                    buttonNightDay.isGone = true
+                    toolbarInvisible.isGone = true
+                    currentPage.isGone = true
+
+                    showHideAfterFiveSeconds()
+                }
+            }
+        }
+    }
+
+    fun showHideAfterFiveSeconds() {
+        hideMessageGuide1()
+        if (getBooleanData("firstTimeHideTotallyTopBar", true)) {
+            val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+            val arrow: View = findViewById(R.id.arrowLeft)
+            val messageText: TextView = findViewById(R.id.messageTextGuide1)
+            messageText.setText(getString(R.string.text_scroll_to_show_the_top_bar_again))
+            message.isGone = false
+            arrow.isGone = true
+
+            val button: TextView = findViewById(R.id.buttonHideGuide1)
+            button.setOnClickListener {
+                message.isGone = true
+                saveBooleanData("firstTimeHideTotallyTopBar", false)
             }
         }
     }

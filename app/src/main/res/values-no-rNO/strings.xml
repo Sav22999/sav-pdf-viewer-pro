@@ -8,11 +8,11 @@
     <string name="text_review_the_app">Liker du denne appen?\nVennligst legg til en vurdering på Google Play.\nDet er bare noen få sekunder for deg 😊</string>
     <string name="button_review_the_app_now">Gjennomgå nå</string>
     <string name="text_review_the_app_later">Gjennomgå senere</string>
-    <string name="text_tap_here_to_show_the_top_bar">Trykk på den gjennomsiktige røde delen for å vise den øverste linjen igjen, som forsvinner når du ruller ut.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Trykk på den gjennomsiktige røde delen for å vise den øverste linjen igjen, som forsvinner når du ruller ut.\nEtter 5 sekunder gjemmes baren også for å vise den igjen scroll.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Trykk her for å vise \"Gå til\"-panelet, slik at du kan raskt gå til en bestemt side.</string>
     <string name="text_password_required">Passord kreves</string>
     <string name="text_password_inserted_wrong">Passord satt inn feil</string>
-    <string name="button_ok">OK</string>
+    <string name="button_ok">Ok</string>
     <string name="button_go">Gå</string>
     <string name="button_close">Lukk</string>
     <string name="button_open">Åpne</string>

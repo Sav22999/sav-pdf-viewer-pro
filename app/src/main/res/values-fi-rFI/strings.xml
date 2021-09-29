@@ -8,11 +8,11 @@
     <string name="text_review_the_app">Pidätkö tästä sovelluksesta?\nJätä arvostelu Google Playhin.\nSe vie vain muutaman sekunnin 😊</string>
     <string name="button_review_the_app_now">Arvostele nyt</string>
     <string name="text_review_the_app_later">Arvostele myöhemmin</string>
-    <string name="text_tap_here_to_show_the_top_bar">Napauta läpinäkyvää punaista osiota näyttääksesi yläpalkin, joka häviää vierittäessäsi.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Napauta läpinäkyvää punaista oitusta näyttääksesi taas yläpalkin, joka häviää vierittäessäsi.\n5 sekunnin kuluttua palkki on myös piilotettu ja näyttää sen uudelleen vierittää.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Napauta tätä näyttääksesi \"Mene kohtaan\"-paneelin, jotta voit siirtyä nopeasti tietylle sivulle.</string>
     <string name="text_password_required">Salasana tarvitaan</string>
     <string name="text_password_inserted_wrong">Salasana syötetty väärin</string>
-    <string name="button_ok">Ok</string>
+    <string name="button_ok">OK</string>
     <string name="button_go">Mene</string>
     <string name="button_close">Sulje</string>
     <string name="button_open">Avaa</string>

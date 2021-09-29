@@ -8,7 +8,7 @@
     <string name="text_review_the_app">Czy podoba Ci się ta aplikacja?\nPozostaw recenzję w Google Play.\nTo tylko kilka sekund dla Ciebie 😊</string>
     <string name="button_review_the_app_now">Przejrzyj teraz</string>
     <string name="text_review_the_app_later">Przejrzyj później</string>
-    <string name="text_tap_here_to_show_the_top_bar">Dotknij przezroczystej czerwonej sekcji, aby ponownie pokazać górny pasek, co zniknie po przewijaniu.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Dotknij przezroczystej czerwonej sekcji, aby ponownie pokazać górny pasek, co zniknie po przewijaniu.\nPo 5 sekundach pasek jest również ukryty i aby ponownie pokazać przewijanie.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Dotknij tutaj, aby wyświetlić panel \"Idź do\", aby szybko przejść do konkretnej strony.</string>
     <string name="text_password_required">Wymagane hasło</string>
     <string name="text_password_inserted_wrong">Hasło wstawione niepoprawnie</string>

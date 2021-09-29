@@ -8,7 +8,7 @@
     <string name="text_review_the_app">Σας αρέσει αυτή η εφαρμογή?\nΠαρακαλώ, αφήστε μια κριτική στο Google Play.\nΕίναι μόλις λίγα δευτερόλεπτα για εσάς 😊</string>
     <string name="button_review_the_app_now">Επανεξέταση τώρα</string>
     <string name="text_review_the_app_later">Επανεξέταση αργότερα</string>
-    <string name="text_tap_here_to_show_the_top_bar">Πατήστε το διαφανές κόκκινο τμήμα για να εμφανιστεί ξανά η επάνω γραμμή, η οποία εξαφανίζεται όταν κυλήσετε.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Πατήστε το διαφανές κόκκινο τμήμα για να εμφανιστεί ξανά η επάνω γραμμή, η οποία εξαφανίζεται όταν κυλήσετε.\nΜετά από 5 δευτερόλεπτα, η μπάρα είναι επίσης κρυμμένη και για να την εμφανίσετε ξανά κύλιση.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Πατήστε εδώ για να δείτε τον πίνακα \"Πηγαίνετε στο\", ώστε να μπορείτε γρήγορα να μεταβείτε σε μια συγκεκριμένη σελίδα.</string>
     <string name="text_password_required">Απαιτείται κωδικός πρόσβασης</string>
     <string name="text_password_inserted_wrong">Ο κωδικός εισήχθη λάθος</string>

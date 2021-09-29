@@ -8,7 +8,7 @@
     <string name="text_review_the_app">Gefällt Ihnen diese App?\nBitte hinterlassen Sie eine Bewertung bei Google Play.\nEs ist nur ein paar Sekunden für Sie 😊</string>
     <string name="button_review_the_app_now">Jetzt prüfen</string>
     <string name="text_review_the_app_later">Später überprüfen</string>
-    <string name="text_tap_here_to_show_the_top_bar">Tippen Sie auf den transparenten roten Bereich, um die obere Leiste wieder anzuzeigen, die beim Scrollen verschwindet.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Tippen Sie auf den transparenten roten Bereich, um die obere Leiste wieder anzuzeigen, die beim Scrollen verschwindet.\nNach 5 Sekunden wird auch die Leiste ausgeblendet und wieder scrollen.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tippen Sie hier, um das \"Gehe zu\" Panel anzuzeigen, so dass Sie schnell zu einer bestimmten Seite gehen können.</string>
     <string name="text_password_required">Passwort erforderlich</string>
     <string name="text_password_inserted_wrong">Passwort falsch eingegeben</string>
