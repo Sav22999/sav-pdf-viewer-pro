@@ -14,9 +14,9 @@ The app permits to open all PDF files, in the simplest way you ever seen. The ap
 
 ### Where download the app
 
-[<img src="images/googlePlayBadge.png" width="200px"></img>](https://bit.ly/372k26g)
+[<img src="images/googlePlayBadge.png" width="200px"></img>](https://play.google.com/store/apps/details?id=com.saverio.pdfviewer) [<img src="images/huaweiAppGalleryBadge.png" width="200px"></img>](https://appgallery.huawei.com/#/app/C104418743) [<img src="images/amazonAppStoreBadge.png" width="200px"></img>](https://www.amazon.com/gp/product/B0974TV679)
 
-You can download the app from the Google Play.
+You can download the app from Google Play, Huawei AppGallery or Amazon AppStore.
 
 ### Support me and my work
 
