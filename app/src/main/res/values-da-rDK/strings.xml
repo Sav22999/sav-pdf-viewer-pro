@@ -10,6 +10,8 @@
     <string name="text_review_the_app_later">Gennemgå senere</string>
     <string name="text_tap_here_to_show_the_top_bar">Tryk på den gennemsigtige røde sektion for at vise den øverste bar igen, hvilket forsvinder, når du ruller.\nEfter 5 sekunder er bjælken også skjult og for at vise den igen rulle.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tryk her for at vise panelet \"Gå til\", så du hurtigt kan gå til en bestemt side.</string>
+    <string name="text_tap_here_to_show_menu_panel">Tryk her for at vise menupanelet, så du kan tænde eller slukke nogle indstillinger (natlys, fuldskærm osv.).</string>
+    <string name="text_scroll_to_show_the_top_bar_again">Efter 5 sekunder skjules den øverste bjælke automatisk, så det er lettere at læse dit dokument. For at gendanne den øverste bjælke (så, for at vise det igen) skal du bare rulle.</string>
     <string name="text_password_required">Adgangskode påkrævet</string>
     <string name="text_password_inserted_wrong">Adgangskode indsat forkert</string>
     <string name="button_ok">Ok</string>
@@ -23,6 +25,8 @@
     <string name="tooltip_go_to_feature">Åbn funktionen \'Gå til\'</string>
     <string name="tooltip_go_to_top">Gå til den første side af filen</string>
     <string name="tooltip_open_new_file">Åbn en ny fil</string>
+    <string name="tooltip_open_menu_panel">Åbn menupanel</string>
+    <string name="tooltip_hide_menu_panel">Skjul menupanel</string>
     <string name="tooltip_share_file">Del denne fil</string>
     <string name="tooltip_close_app">Luk app</string>
     <string name="tooltip_go_to_the_page">Gå til den indsatte side</string>

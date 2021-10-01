@@ -10,6 +10,8 @@
     <string name="text_review_the_app_later">Рецензія пізніше</string>
     <string name="text_tap_here_to_show_the_top_bar">Торкніться прозорої червоної секції, щоб показати верхню панель, яка зникає під час прокручування.\nЧерез 5 секунд бар також прихований і з\'являється його знову прокрутку.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Натисніть тут щоб показати панель \"Перейти до\", щоб швидко перейти на іншу сторінку.</string>
+    <string name="text_tap_here_to_show_menu_panel">Натисніть тут, щоб показати панель меню, щоб увімкнути або вимкнути деякі параметри (світло, повноекранний режим і т. д.).</string>
+    <string name="text_scroll_to_show_the_top_bar_again">Після 5 секунд верхня панель автоматично прихована, тому легше читати ваш документ. Щоб відновити верхню панель (щоб показати її знову) потрібно лише прокрутити.</string>
     <string name="text_password_required">Потрібен пароль</string>
     <string name="text_password_inserted_wrong">Пароль встановлено неправильно</string>
     <string name="button_ok">ОК</string>
@@ -23,6 +25,8 @@
     <string name="tooltip_go_to_feature">Відкрити функцію \"Перейти до\"</string>
     <string name="tooltip_go_to_top">Перейти на першу сторінку файлу</string>
     <string name="tooltip_open_new_file">Відкрити новий файл</string>
+    <string name="tooltip_open_menu_panel">Відкрити панель меню</string>
+    <string name="tooltip_hide_menu_panel">Сховати панель меню</string>
     <string name="tooltip_share_file">Поділитися цим файлом</string>
     <string name="tooltip_close_app">Закрити додаток</string>
     <string name="tooltip_go_to_the_page">Перейти на додану сторінку</string>

@@ -10,6 +10,8 @@
     <string name="text_review_the_app_later">Zkontrolovat později</string>
     <string name="text_tap_here_to_show_the_top_bar">Klepnutím na průhlednou červenou sekci zobrazíte opět horní pruh, který zmizí, když se posouváte.\nPo 5 sekundách se lišta také skryje a znovu ji zobrazí.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Klepnutím sem zobrazíte panel \"Přejít na\", abyste mohli rychle přejít na konkrétní stránku.</string>
+    <string name="text_tap_here_to_show_menu_panel">Klepnutím sem zobrazíte panel nabídek, takže můžete zapnout nebo vypnout některé možnosti (noční světlo, celá obrazovka, atd.).</string>
+    <string name="text_scroll_to_show_the_top_bar_again">Po 5 sekundách je horní panel automaticky skrytý, takže je snazší číst váš dokument. Chcete-li obnovit horní lištu (tak ji znovu zobrazit), stačí jen posouvat.</string>
     <string name="text_password_required">Heslo je vyžadováno</string>
     <string name="text_password_inserted_wrong">Chybné heslo</string>
     <string name="button_ok">OK</string>
@@ -23,6 +25,8 @@
     <string name="tooltip_go_to_feature">Otevřít funkci \'Přejít na\'</string>
     <string name="tooltip_go_to_top">Přejít na první stránku souboru</string>
     <string name="tooltip_open_new_file">Otevřít nový soubor</string>
+    <string name="tooltip_open_menu_panel">Otevřít panel nabídky</string>
+    <string name="tooltip_hide_menu_panel">Skrýt panel nabídky</string>
     <string name="tooltip_share_file">Sdílet tento soubor</string>
     <string name="tooltip_close_app">Zavřít aplikaci</string>
     <string name="tooltip_go_to_the_page">Přejít na vloženou stránku</string>

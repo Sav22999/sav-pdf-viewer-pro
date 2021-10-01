@@ -10,6 +10,8 @@
     <string name="text_review_the_app_later">稍后审核</string>
     <string name="text_tap_here_to_show_the_top_bar">点击透明的红色部分再次显示顶部栏，滚动时会消失。\n5秒后，条也被隐藏并再次显示滚动。</string>
     <string name="text_tap_here_to_show_go_to_dialog">点击此处显示\"转到\"面板，您可以快速转到一个特定页面。</string>
+    <string name="text_tap_here_to_show_menu_panel">点击此处显示菜单面板，您可以打开或关闭某些选项 (夜光、全屏等)。</string>
+    <string name="text_scroll_to_show_the_top_bar_again">5秒后，顶部栏自动隐藏，这样就更容易阅读您的文档。 要恢复顶部栏 (所以再次显示) 您只需滚动即可。</string>
     <string name="text_password_required">需要密码</string>
     <string name="text_password_inserted_wrong">密码输入错误</string>
     <string name="button_ok">好的</string>
@@ -23,6 +25,8 @@
     <string name="tooltip_go_to_feature">打开“转到”功能</string>
     <string name="tooltip_go_to_top">转到文件的第一页</string>
     <string name="tooltip_open_new_file">打开一个新文件</string>
+    <string name="tooltip_open_menu_panel">打开菜单面板</string>
+    <string name="tooltip_hide_menu_panel">隐藏菜单面板</string>
     <string name="tooltip_share_file">分享这个文件</string>
     <string name="tooltip_close_app">关闭应用</string>
     <string name="tooltip_go_to_the_page">转到已插入的页面</string>
