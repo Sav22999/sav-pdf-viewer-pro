@@ -13,22 +13,17 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
-import androidx.core.view.updateLayoutParams
 import androidx.core.widget.addTextChangedListener
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.listener.OnErrorListener
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
-import androidx.constraintlayout.widget.ConstraintSet
 
 
 class PDFViewer : AppCompatActivity() {
@@ -42,6 +37,7 @@ class PDFViewer : AppCompatActivity() {
 
     var isFullscreenEnabled = false
     var showingTopBar = true
+    var menuOpened = false
 
     var isSupportedShareFeature = false
     var isSupportedGoTop = true
@@ -109,6 +105,7 @@ class PDFViewer : AppCompatActivity() {
         shareButton.setOnClickListener {
             setShareButton()
             resetHideTopBarCounter()
+            hideMenuPanel()
         }
         shareButton.setOnLongClickListener {
             showTooltip(R.string.tooltip_share_file)
@@ -119,6 +116,7 @@ class PDFViewer : AppCompatActivity() {
         fullScreenButton.setOnClickListener {
             setFullscreenButton(fullScreenButton)
             resetHideTopBarCounter()
+            hideMenuPanel()
         }
         fullScreenButton.setOnLongClickListener {
             if (isFullscreenEnabled) showTooltip(R.string.tooltip_full_screen_off)
@@ -151,6 +149,7 @@ class PDFViewer : AppCompatActivity() {
         openButton.setOnClickListener {
             openFromStorage()
             resetHideTopBarCounter()
+            hideMenuPanel()
         }
         openButton.setOnLongClickListener {
             showTooltip(R.string.tooltip_open_new_file)
@@ -168,6 +167,7 @@ class PDFViewer : AppCompatActivity() {
                 lightButton.setImageResource(R.drawable.ic_light_off)
             }
             resetHideTopBarCounter()
+            hideMenuPanel()
         }
         lightButton.setOnLongClickListener {
             if (comfortView.isGone) showTooltip(R.string.tooltip_night_light_on)
@@ -175,6 +175,19 @@ class PDFViewer : AppCompatActivity() {
             true
         }
         lightButton.isGone = false
+
+        val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
+        buttonMenu.setOnClickListener {
+            if (menuOpened) hideMenuPanel()
+            else showMenuPanel()
+            resetHideTopBarCounter()
+        }
+        buttonMenu.setOnLongClickListener {
+            if (menuOpened) showTooltip(R.string.tooltip_hide_menu_panel)
+            else showTooltip(R.string.tooltip_open_menu_panel)
+            true
+        }
+        buttonMenu.isGone = false
 
         setupGestures()
     }
@@ -238,6 +251,7 @@ class PDFViewer : AppCompatActivity() {
                         showingTopBar = false
                     }
                     hideGoToDialog()
+                    hideMenuPanel()
                 }
                 .onLoad {
                     lastPosition = getPdfPage(uri.toString())
@@ -332,6 +346,7 @@ class PDFViewer : AppCompatActivity() {
 
     fun showMessagePassword(passwordWrong: Boolean = false) {
         hideGoToDialog()
+        hideMenuPanel()
         hideMessageGuide1()
         val toolbar: View = findViewById(R.id.toolbar)
         val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
@@ -341,6 +356,7 @@ class PDFViewer : AppCompatActivity() {
         val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
         val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
+        val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
         toolbar.isGone = true
         buttonClose.isGone = true
         buttonShare.isGone = true
@@ -349,6 +365,7 @@ class PDFViewer : AppCompatActivity() {
         currentPage.isGone = true
         toolbarInvisible.isGone = true
         buttonOpen.isGone = true
+        buttonMenu.isGone = true
 
 
         val background: View = findViewById(R.id.passwordBackgroundScreen)
@@ -416,7 +433,9 @@ class PDFViewer : AppCompatActivity() {
                 val fullscreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
                 val goTopButton: ImageView = findViewById(R.id.buttonGoTopToolbar)
                 val openButton: ImageView = findViewById(R.id.buttonOpenToolbar)
+                val menuButton: ImageView = findViewById(R.id.buttonMenuToolbar)
                 shareButton.isGone = true
+                menuButton.isGone = true
                 fullscreenButton.isGone = true
                 uriOpened = selectedPdf
                 if (uriOpened != null) {
@@ -647,40 +666,49 @@ class PDFViewer : AppCompatActivity() {
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
             button.setImageResource(R.drawable.ic_fullscreen)
             isFullscreenEnabled = false
-
         }
     }
 
     fun showTopBar(showGoTop: Boolean = true, x: Float = 0F, y: Float = 0F) {
+        val toolbar: View = findViewById(R.id.toolbar)
+        val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
+        val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
+        val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
+        val buttonFullscreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
+        val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
+        val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
+        val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
+        val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
+        val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
         if (x == y) {
             showingTopBar = true
             hideTopBarCounter = 0
-
-            val toolbar: View = findViewById(R.id.toolbar)
-            val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
-            val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
-            val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
-            val buttonFullscreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
-            val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
-            val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
-            val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
-            val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
 
             toolbar.isGone = false
             buttonClose.isGone = false
             if (isSupportedShareFeature) buttonShare.isGone = false
             buttonFullscreen.isGone = false
             if (isSupportedGoTop && showGoTop) buttonGoTop.isGone = false
-            currentPage.isGone = false
-            currentPage.setTextColor(ContextCompat.getColor(applicationContext, R.color.white))
             buttonOpen.isGone = false
+            buttonMenu.isGone = false
             buttonNightDay.isGone = false
 
+            currentPage.isGone = false
+            currentPage.setTextColor(ContextCompat.getColor(applicationContext, R.color.white))
             toolbarInvisible.isGone = true
 
             hideMessageGuide1()
 
             if (getBooleanData("firstTimeShowTopBar", true)) {
+                checkFirstTimeShowTopBar()
+            } else if (getBooleanData("firstTimeShowTopBarMenu", true)) {
+                checkFirstTimeShowTopBar()
+            }
+        }
+    }
+
+    fun checkFirstTimeShowTopBar() {
+        if (getBooleanData("firstTimeShowTopBar", true)) {
                 val message: ConstraintLayout = findViewById(R.id.messageGuide1)
                 val arrow: View = findViewById(R.id.arrowRight)
                 val messageText: TextView = findViewById(R.id.messageTextGuide1)
@@ -693,15 +721,33 @@ class PDFViewer : AppCompatActivity() {
                     message.isGone = true
                     arrow.isGone = true
                     saveBooleanData("firstTimeShowTopBar", false)
+
+                    checkFirstTimeShowTopBar()
+                }
+            } else if (getBooleanData("firstTimeShowTopBarMenu", true)) {
+                val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+                val arrow: View = findViewById(R.id.arrowRight2)
+                val messageText: TextView = findViewById(R.id.messageTextGuide1)
+                messageText.setText(getString(R.string.text_tap_here_to_show_menu_panel))
+                message.isGone = false
+                arrow.isGone = false
+
+                val button: TextView = findViewById(R.id.buttonHideGuide1)
+                button.setOnClickListener {
+                    message.isGone = true
+                    arrow.isGone = true
+                    saveBooleanData("firstTimeShowTopBarMenu", false)
+
+                    checkFirstTimeShowTopBar()
                 }
             }
-        }
     }
 
     fun hideTopBar(fullHiding: Boolean = false, x: Float = 0F, y: Float = 0F) {
         if (x == y) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
             val messageGoTo: ConstraintLayout = findViewById(R.id.messageGoTo)
+            val menuPanel: ConstraintLayout = findViewById(R.id.messageMenuPanel)
             val toolbar: View = findViewById(R.id.toolbar)
             val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
             val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
@@ -710,6 +756,7 @@ class PDFViewer : AppCompatActivity() {
             val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
             val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
             val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
+            val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
             val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
 
             if (!showingTopBar) {
@@ -758,9 +805,10 @@ class PDFViewer : AppCompatActivity() {
                 buttonFullscreen.isGone = true
                 buttonGoTop.isGone = true
                 buttonOpen.isGone = true
+                buttonMenu.isGone = true
                 buttonNightDay.isGone = true
 
-                if (message.isGone && messageGoTo.isGone) {
+                if (message.isGone && messageGoTo.isGone && menuPanel.isGone) {
                     toolbarInvisible.isGone = fullHiding
                     currentPage.isGone = fullHiding
 
@@ -772,13 +820,14 @@ class PDFViewer : AppCompatActivity() {
                     currentPage.isGone = false
                 }
             } else {
-                if (message.isGone && messageGoTo.isGone && fullHiding) {
+                if (message.isGone && messageGoTo.isGone && menuPanel.isGone && fullHiding) {
                     toolbar.isGone = true
                     buttonClose.isGone = true
                     buttonShare.isGone = true
                     buttonFullscreen.isGone = true
                     buttonGoTop.isGone = true
                     buttonOpen.isGone = true
+                    buttonMenu.isGone = true
                     buttonNightDay.isGone = true
                     toolbarInvisible.isGone = true
                     currentPage.isGone = true
@@ -811,10 +860,12 @@ class PDFViewer : AppCompatActivity() {
         val message: ConstraintLayout = findViewById(R.id.messageGuide1)
         val arrow: View = findViewById(R.id.arrowLeft)
         val arrow2: View = findViewById(R.id.arrowRight)
+        val arrow3: View = findViewById(R.id.arrowRight2)
         if (!message.isGone || !arrow.isGone) {
             message.isGone = true
             arrow.isGone = true
             arrow2.isGone = true
+            arrow3.isGone = true
         }
     }
 
@@ -883,6 +934,7 @@ class PDFViewer : AppCompatActivity() {
         else showTopBar()
 
         hideMessageGuide1()
+        hideMenuPanel()
 
         val buttonHide: ImageView = findViewById(R.id.buttonHideMessageGoTo)
         val textAllPages: TextView = findViewById(R.id.textAllPagesGoTo)
@@ -893,7 +945,7 @@ class PDFViewer : AppCompatActivity() {
         textbox.setText((pdfViewer.currentPage + 1).toString())
 
         val message: ConstraintLayout = findViewById(R.id.messageGoTo)
-        val arrow: View = findViewById(R.id.arrow2)
+        val arrow: View = findViewById(R.id.arrowMessageGoTo)
         message.isGone = false
         arrow.isGone = false
 
@@ -965,9 +1017,46 @@ class PDFViewer : AppCompatActivity() {
 
     fun hideGoToDialog() {
         val message: ConstraintLayout = findViewById(R.id.messageGoTo)
-        val arrow: View = findViewById(R.id.arrow2)
+        val arrow: View = findViewById(R.id.arrowMessageGoTo)
         message.isGone = true
         arrow.isGone = true
+    }
+
+    fun showMenuPanel() {
+        hideMessageGuide1()
+        hideGoToDialog()
+
+        val message: ConstraintLayout = findViewById(R.id.messageMenuPanel)
+        val arrow: View = findViewById(R.id.arrowMenuPanel)
+        message.isGone = false
+        arrow.isGone = false
+
+        menuOpened = true
+
+        val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
+        val buttonNightLight: ImageView = findViewById(R.id.buttonNightDayToolbar)
+        val buttonFullScreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
+        val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
+        if (isSupportedShareFeature) {
+            (buttonOpen.layoutParams as LinearLayout.LayoutParams).weight = 25F
+            (buttonNightLight.layoutParams as LinearLayout.LayoutParams).weight = 25F
+            (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 25F
+            (buttonShare.layoutParams as LinearLayout.LayoutParams).weight = 25F
+        } else {
+            (buttonOpen.layoutParams as LinearLayout.LayoutParams).weight = 33F
+            (buttonNightLight.layoutParams as LinearLayout.LayoutParams).weight = 34F
+            (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 33F
+        }
+        findViewById<LinearLayout>(R.id.menuPanelSection1).requestLayout()
+    }
+
+    fun hideMenuPanel() {
+        val message: ConstraintLayout = findViewById(R.id.messageMenuPanel)
+        val arrow: View = findViewById(R.id.arrowMenuPanel)
+        message.isGone = true
+        arrow.isGone = true
+
+        menuOpened = false
     }
 
     @SuppressLint("ClickableViewAccessibility")

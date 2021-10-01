@@ -23,6 +23,18 @@
 
     </com.github.barteksc.pdfviewer.PDFView>
 
+    <View
+        android:id="@+id/nightThemeBackground"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/backgroundNightTheme"
+        android:elevation="100dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbarContainer"
         android:layout_width="match_parent"
@@ -35,62 +47,31 @@
         android:elevation="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar"
+        app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible">
 
         <View
             android:id="@+id/toolbar"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_height="56dp"
             android:background="@color/dark_red"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/buttonOpenToolbar"
-            android:layout_width="56dp"
-            android:layout_height="60dp"
-            android:background="@color/transparent"
-            android:contentDescription="@string/tooltip_open_new_file"
-            android:padding="18sp"
-            android:scaleType="fitCenter"
-            android:tint="@color/white"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/buttonNightDayToolbar"
-            app:layout_constraintTop_toTopOf="@+id/toolbar"
-            app:srcCompat="@drawable/ic_open_file"
-            tools:ignore="VectorDrawableCompat"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/buttonNightDayToolbar"
-            android:layout_width="56dp"
-            android:layout_height="60dp"
-            android:background="@color/transparent"
-            android:contentDescription="@string/tooltip_night_light_on"
-            android:padding="18sp"
-            android:scaleType="fitCenter"
-            android:tint="@color/white"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/buttonGoTopToolbar"
-            app:layout_constraintTop_toTopOf="@+id/toolbar"
-            app:srcCompat="@drawable/ic_light_on"
-            tools:ignore="VectorDrawableCompat"
-            tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/buttonGoTopToolbar"
             android:layout_width="56dp"
-            android:layout_height="60dp"
+            android:layout_height="56dp"
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_go_to_top"
             android:padding="18sp"
             android:scaleType="fitCenter"
             android:tint="@color/white"
             android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/buttonFullScreenToolbar"
+            app:layout_constraintEnd_toStartOf="@+id/totalPagesToolbar"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
             app:srcCompat="@drawable/ic_go_to_top"
             tools:ignore="VectorDrawableCompat"
@@ -99,7 +80,7 @@
         <ImageView
             android:id="@+id/buttonGoBackToolbar"
             android:layout_width="56dp"
-            android:layout_height="60dp"
+            android:layout_height="56dp"
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_close_app"
             android:padding="18sp"
@@ -128,48 +109,18 @@
             tools:ignore="RtlCompat" />
 
         <ImageView
-            android:id="@+id/buttonFullScreenToolbar"
+            android:id="@+id/buttonMenuToolbar"
             android:layout_width="56dp"
-            android:layout_height="60dp"
+            android:layout_height="56dp"
             android:background="@color/transparent"
-            android:contentDescription="@string/tooltip_full_screen_on"
+            android:contentDescription="@string/tooltip_open_menu_panel"
             android:padding="18sp"
             android:scaleType="fitCenter"
             android:tint="@color/white"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/buttonShareToolbar"
-            app:layout_constraintTop_toTopOf="@+id/toolbar"
-            app:srcCompat="@drawable/ic_fullscreen"
-            tools:ignore="VectorDrawableCompat"
-            tools:visibility="visible" />
-
-        <ImageView
-            android:id="@+id/buttonShareToolbar"
-            android:layout_width="56dp"
-            android:layout_height="60dp"
-            android:background="@color/transparent"
-            android:contentDescription="@string/tooltip_share_file"
-            android:padding="18sp"
-            android:scaleType="fitCenter"
-            android:tint="@color/white"
-            android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/totalPagesToolbar"
-            app:layout_constraintTop_toTopOf="@+id/toolbar"
-            app:srcCompat="@drawable/ic_share"
-            tools:ignore="VectorDrawableCompat"
-            tools:visibility="visible" />
-
-        <View
-            android:id="@+id/nightThemeBackground"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/backgroundNightTheme"
-            android:elevation="100dp"
-            android:visibility="gone"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_dots"
+            tools:ignore="VectorDrawableCompat" />
 
         <View
             android:id="@+id/toolbarInvisible"
@@ -178,14 +129,13 @@
             android:background="@color/transparent_red"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/totalPagesToolbar"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_height="56dp"
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_go_to_feature"
             android:gravity="right|center_vertical"
@@ -195,7 +145,7 @@
             android:textSize="20sp"
             android:textStyle="normal"
             android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/buttonMenuToolbar"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
             tools:ignore="RtlCompat"
             tools:text="1/1"
@@ -204,16 +154,17 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
-        android:id="@+id/arrow2"
+        android:id="@+id/arrowMessageGoTo"
         android:layout_width="40dp"
         android:layout_height="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
+        android:layout_marginEnd="60dp"
+        android:layout_marginRight="60dp"
         android:background="@drawable/ic_arrow"
         android:elevation="5dp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/messageGoTo"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/messageGoTo"
@@ -229,7 +180,8 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
+        tools:visibility="visible">
 
         <EditText
             android:id="@+id/textboxGoTo"
@@ -317,6 +269,138 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <View
+        android:id="@+id/arrowMenuPanel"
+        android:layout_width="40dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/ic_arrow"
+        android:elevation="5dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/messageMenuPanel"
+        app:layout_constraintEnd_toEndOf="parent"
+        tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/messageMenuPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/border_rounded"
+        android:elevation="5dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
+        tools:visibility="visible">
+
+        <LinearLayout
+            android:id="@+id/menuPanelSection1"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="100"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/buttonOpenToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="25"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_open_new_file"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                android:tint="@color/white"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@+id/buttonNightDayToolbar"
+                app:layout_constraintTop_toTopOf="@+id/toolbar"
+                app:srcCompat="@drawable/ic_open_file"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/buttonNightDayToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="25"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_night_light_on"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                android:tint="@color/white"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@+id/buttonGoTopToolbar"
+                app:layout_constraintTop_toTopOf="@+id/toolbar"
+                app:srcCompat="@drawable/ic_light_on"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/buttonFullScreenToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="25"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_full_screen_on"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                android:tint="@color/white"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@+id/buttonShareToolbar"
+                app:layout_constraintTop_toTopOf="@+id/toolbar"
+                app:srcCompat="@drawable/ic_fullscreen"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/buttonShareToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="25"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_share_file"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                android:tint="@color/white"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@+id/totalPagesToolbar"
+                app:layout_constraintTop_toTopOf="@+id/toolbar"
+                app:srcCompat="@drawable/ic_share"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+        </LinearLayout>
+
+        <!--
+        <LinearLayout
+            android:id="@+id/menuPanelSection2"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="100"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/menuPanelSection1"></LinearLayout>
+            -->
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <View
         android:id="@+id/arrowLeft"
         android:layout_width="40dp"
         android:layout_height="20dp"
@@ -330,6 +414,18 @@
 
     <View
         android:id="@+id/arrowRight"
+        android:layout_width="40dp"
+        android:layout_height="20dp"
+        android:layout_marginEnd="60dp"
+        android:layout_marginRight="60dp"
+        android:background="@drawable/ic_arrow"
+        android:elevation="5dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/messageGuide1"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <View
+        android:id="@+id/arrowRight2"
         android:layout_width="40dp"
         android:layout_height="20dp"
         android:layout_marginEnd="20dp"
@@ -354,8 +450,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
-        tools:visibility="visible">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
 
         <TextView
             android:id="@+id/messageTextGuide1"
