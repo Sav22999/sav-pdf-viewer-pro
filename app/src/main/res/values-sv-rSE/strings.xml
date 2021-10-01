@@ -8,11 +8,13 @@
     <string name="text_review_the_app">Gillar du den här appen?\nLämna en recension på Google Play.\nDet är bara några sekunder för dig 😊</string>
     <string name="button_review_the_app_now">Granska nu</string>
     <string name="text_review_the_app_later">Granska senare</string>
-    <string name="text_tap_here_to_show_the_top_bar">Tryck på den genomskinliga röda sektionen för att visa överstapeln igen, som försvinner när du bläddrar.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Tryck på den genomskinliga röda sektionen för att visa överstapeln igen, som försvinner när du bläddrar.\nEfter 5 sekunder är baren också dold och för att visa den igen bläddra.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tryck här för att visa \"Gå till\" panelen, så att du snabbt kan gå till en specifik sida.</string>
+    <string name="text_tap_here_to_show_menu_panel">Tryck här för att visa menypanelen, så att du kan slå på eller stänga av vissa alternativ (nattljus, helskärm etc.).</string>
+    <string name="text_scroll_to_show_the_top_bar_again">Efter 5 sekunder är översta fältet automatiskt dolt så det är lättare att läsa ditt dokument. För att återställa det översta fältet (så, för att visa det igen) behöver du bara bläddra.</string>
     <string name="text_password_required">Lösenord krävs</string>
     <string name="text_password_inserted_wrong">Fel vid insatt lösenord</string>
-    <string name="button_ok">Ok</string>
+    <string name="button_ok">OK</string>
     <string name="button_go">Kör</string>
     <string name="button_close">Stäng</string>
     <string name="button_open">Öppna</string>
@@ -23,6 +25,8 @@
     <string name="tooltip_go_to_feature">Öppna \'Gå till\' funktionen</string>
     <string name="tooltip_go_to_top">Gå till första sidan i filen</string>
     <string name="tooltip_open_new_file">Öppna en ny fil</string>
+    <string name="tooltip_open_menu_panel">Öppna menypanelen</string>
+    <string name="tooltip_hide_menu_panel">Dölj menypanel</string>
     <string name="tooltip_share_file">Dela denna fil</string>
     <string name="tooltip_close_app">Stäng appen</string>
     <string name="tooltip_go_to_the_page">Gå till den infogade sidan</string>

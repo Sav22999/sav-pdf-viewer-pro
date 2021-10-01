@@ -8,11 +8,13 @@
     <string name="text_review_the_app">Vous aimez cette application ?\nS\'il vous plaît, laisser un avis sur Google Play.\nCe n\'est que quelques secondes pour vous 😊</string>
     <string name="button_review_the_app_now">Vérifier maintenant</string>
     <string name="text_review_the_app_later">Réviser plus tard</string>
-    <string name="text_tap_here_to_show_the_top_bar">Appuyez sur la section rouge transparente pour afficher à nouveau la barre supérieure, qui disparaît lorsque vous faites défiler.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Appuyez sur la section rouge transparente pour afficher à nouveau la barre supérieure, qui disparaît lorsque vous faites défiler.\nAprès 5 secondes, la barre est également cachée et pour la faire défiler à nouveau.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Appuyez ici pour afficher le panneau \"Aller à\", afin que vous puissiez accéder rapidement à une page spécifique.</string>
+    <string name="text_tap_here_to_show_menu_panel">Appuyez ici pour afficher le panneau du menu, afin de pouvoir activer ou désactiver certaines options (lumière de nuit, plein écran, etc.).</string>
+    <string name="text_scroll_to_show_the_top_bar_again">Après 5 secondes, la barre du haut est automatiquement masquée pour qu\'il soit plus facile de lire votre document. Pour restaurer la barre supérieure (donc pour la réafficher), il vous suffit de faire défiler.</string>
     <string name="text_password_required">Mot de passe requis</string>
     <string name="text_password_inserted_wrong">Mot de passe inséré mal</string>
-    <string name="button_ok">Ok</string>
+    <string name="button_ok">OK</string>
     <string name="button_go">Aller</string>
     <string name="button_close">Fermer</string>
     <string name="button_open">Ouvert</string>
@@ -23,6 +25,8 @@
     <string name="tooltip_go_to_feature">Ouvrir la fonction \'Aller à\'</string>
     <string name="tooltip_go_to_top">Aller à la première page du fichier</string>
     <string name="tooltip_open_new_file">Ouvrir un nouveau fichier</string>
+    <string name="tooltip_open_menu_panel">Ouvrir le panneau de menu</string>
+    <string name="tooltip_hide_menu_panel">Masquer le panneau de menu</string>
     <string name="tooltip_share_file">Partager ce fichier</string>
     <string name="tooltip_close_app">Fermer l\'application</string>
     <string name="tooltip_go_to_the_page">Aller à la page insérée</string>

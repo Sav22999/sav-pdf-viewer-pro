@@ -8,11 +8,13 @@
     <string name="text_review_the_app">¿Te gusta esta aplicación?\nPor favor, deja una reseña en Google Play.\nPara ti 😊</string>
     <string name="button_review_the_app_now">Revisar ahora</string>
     <string name="text_review_the_app_later">Revisar más tarde</string>
-    <string name="text_tap_here_to_show_the_top_bar">Pulse la sección rojo transparente para mostrar la barra superior de nuevo, que desaparece cuando se desplaza.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Pulse la sección rojo transparente para mostrar la barra superior de nuevo, que desaparece cuando se desplaza.\nDespués de 5 segundos, la barra también está oculta y para mostrarla de nuevo desplazamiento.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Pulse aquí para mostrar el panel \"Ir a\" para que pueda ir rápidamente a una página específica.</string>
+    <string name="text_tap_here_to_show_menu_panel">Pulse aquí para mostrar el panel del menú, para que pueda activar o desactivar algunas opciones (luz nocturna, pantalla completa, etc.).</string>
+    <string name="text_scroll_to_show_the_top_bar_again">Después de 5 segundos, la barra superior se oculta automáticamente para que sea más fácil leer el documento. Para restaurar la barra superior (así que para mostrarla de nuevo) sólo tiene que desplazarse.</string>
     <string name="text_password_required">Contraseña requerida</string>
     <string name="text_password_inserted_wrong">Contraseña insertada incorrecta</string>
-    <string name="button_ok">Ok</string>
+    <string name="button_ok">OK</string>
     <string name="button_go">Ir</string>
     <string name="button_close">Cerrar</string>
     <string name="button_open">Abrir</string>
@@ -23,6 +25,8 @@
     <string name="tooltip_go_to_feature">Abrir función \'Ir a\'</string>
     <string name="tooltip_go_to_top">Ir a la primera página del archivo</string>
     <string name="tooltip_open_new_file">Abrir un nuevo archivo</string>
+    <string name="tooltip_open_menu_panel">Abrir panel de menú</string>
+    <string name="tooltip_hide_menu_panel">Ocultar panel de menú</string>
     <string name="tooltip_share_file">Compartir este archivo</string>
     <string name="tooltip_close_app">Cerrar app</string>
     <string name="tooltip_go_to_the_page">Ir a la página insertada</string>

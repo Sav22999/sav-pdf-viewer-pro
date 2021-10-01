@@ -8,8 +8,10 @@
     <string name="text_review_the_app">هل تحب هذا التطبيق؟\nمن فضلك، اترك مراجعة على Google Play.\nإنها مجرد بضع ثوان لك 😊</string>
     <string name="button_review_the_app_now">مراجعة الآن</string>
     <string name="text_review_the_app_later">مراجعة لاحقًا</string>
-    <string name="text_tap_here_to_show_the_top_bar">اضغط على القسم الأحمر الشفاف لإظهار الشريط العلوي مرة أخرى، والذي يختفي عند التمرين.</string>
+    <string name="text_tap_here_to_show_the_top_bar">اضغط على القسم الأحمر الشفاف لإظهار الشريط العلوي مرة أخرى، والذي يختفي عند التمرين.\nبعد 5 ثواني يتم إخفاء الشريط أيضا وإظهاره مرة أخرى.</string>
     <string name="text_tap_here_to_show_go_to_dialog">اضغط هنا لإظهار لوحة \"انتقل إلى\"، حتى تتمكن من الذهاب بسرعة إلى صفحة معينة.</string>
+    <string name="text_tap_here_to_show_menu_panel">اضغط هنا لعرض لوحة القائمة، حتى تتمكن من تشغيل أو إيقاف بعض الخيارات (الضوء الليلي، ملء الشاشة، إلخ).</string>
+    <string name="text_scroll_to_show_the_top_bar_again">بعد 5 ثوانٍ يتم إخفاء الشريط العلوي تلقائيًا لذلك فإنه أسهل قراءة مستنداتك. لاستعادة الشريط العلوي (لذلك ، لإظهاره مرة أخرى) تحتاج فقط للتمرير.</string>
     <string name="text_password_required">كلمة المرور مطلوبة</string>
     <string name="text_password_inserted_wrong">كلمة المرور مدرجة خاطئة</string>
     <string name="button_ok">حسناً</string>
@@ -23,6 +25,8 @@
     <string name="tooltip_go_to_feature">فتح ميزة \'الذهاب إلى\'</string>
     <string name="tooltip_go_to_top">الذهاب إلى الصفحة الأولى من الملف</string>
     <string name="tooltip_open_new_file">فتح ملف جديد</string>
+    <string name="tooltip_open_menu_panel">فتح لوحة القائمة</string>
+    <string name="tooltip_hide_menu_panel">إخفاء لوحة القائمة</string>
     <string name="tooltip_share_file">مشاركة هذا الملف</string>
     <string name="tooltip_close_app">إغلاق التطبيق</string>
     <string name="tooltip_go_to_the_page">الذهاب إلى الصفحة المدرجة</string>

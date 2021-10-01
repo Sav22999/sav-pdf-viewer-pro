@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/drawable/ic_close.xml" value="0.2708333333333333" />
+        <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/drawable/ic_dashboard_black_24dp.xml" value="0.2708333333333333" />
+        <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/drawable/ic_dots.xml" value="0.2708333333333333" />
         <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/layout/activity_pdf_viewer.xml" value="0.2546875" />
       </map>
     </option>

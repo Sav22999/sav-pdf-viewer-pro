@@ -8,8 +8,10 @@
     <string name="text_review_the_app">Você gosta desse aplicativo?\nDeixe, por favor, um comentário no Google Play.\nÉ só alguns segundos para você 😊</string>
     <string name="button_review_the_app_now">Revisar agora</string>
     <string name="text_review_the_app_later">Revisar mais tarde</string>
-    <string name="text_tap_here_to_show_the_top_bar">Toque na seção vermelha transparente para mostrar a barra superior novamente, que desaparece quando você rola.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Toque na seção vermelha transparente para mostrar a barra superior novamente, que desaparece quando você rola.\nApós 5 segundos a barra também está oculta e para mostrá-la de novo.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Toque aqui para mostrar o painel \"Ir para\", para que você possa ir rapidamente para uma página específica.</string>
+    <string name="text_tap_here_to_show_menu_panel">Toque aqui para mostrar o painel de menu, para que você possa ativar ou desativar algumas opções (luz noturna, tela cheia, etc.).</string>
+    <string name="text_scroll_to_show_the_top_bar_again">Após 5 segundos a barra superior é escondida automaticamente para que seja mais fácil ler seu documento. Para restaurar a barra superior (então, para mostrá-la novamente), você precisa apenas rolar.</string>
     <string name="text_password_required">Senha requerida</string>
     <string name="text_password_inserted_wrong">Senha inserida incorreta</string>
     <string name="button_ok">OK</string>
@@ -23,6 +25,8 @@
     <string name="tooltip_go_to_feature">Abrir recurso \'Ir Para\'</string>
     <string name="tooltip_go_to_top">Ir para a primeira página do arquivo</string>
     <string name="tooltip_open_new_file">Abrir um novo arquivo</string>
+    <string name="tooltip_open_menu_panel">Abrir painel de menu</string>
+    <string name="tooltip_hide_menu_panel">Ocultar painel de menu</string>
     <string name="tooltip_share_file">Compartilhar este arquivo</string>
     <string name="tooltip_close_app">Fechar aplicativo</string>
     <string name="tooltip_go_to_the_page">Ir para a página inserida</string>

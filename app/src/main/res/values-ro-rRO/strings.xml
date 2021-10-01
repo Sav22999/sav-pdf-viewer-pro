@@ -8,8 +8,10 @@
     <string name="text_review_the_app">Îți place această aplicație?\nTe rugăm să lași o recenzie pe Google Play.\nSunt doar câteva secunde pentru tine 😊</string>
     <string name="button_review_the_app_now">Revizuiește acum</string>
     <string name="text_review_the_app_later">Evaluează mai târziu</string>
-    <string name="text_tap_here_to_show_the_top_bar">Atingeți secțiunea transparentă roșu pentru a afișa din nou bara de sus, care dispare atunci când derulați.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Atingeți secțiunea transparentă roșu pentru a afișa din nou bara de sus, care dispare atunci când derulați.\nDupă 5 secunde, bara este ascunsă și afișează din nou derularea.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Apăsați aici pentru a afișa panoul \"Mergi la\", astfel încât să puteți merge rapid la o anumită pagină.</string>
+    <string name="text_tap_here_to_show_menu_panel">Apăsați aici pentru a afișa panoul de meniu, astfel încât să puteți activa sau dezactiva unele opțiuni (lumina nopții, ecran complet, etc.).</string>
+    <string name="text_scroll_to_show_the_top_bar_again">După 5 secunde, bara de sus este ascunsă automat astfel încât să fie mai ușor de citit documentul. Pentru a restaura bara de sus (așa, pentru a o afișa din nou) trebuie doar să derulați.</string>
     <string name="text_password_required">Parolă necesară</string>
     <string name="text_password_inserted_wrong">Parola introdusă greșit</string>
     <string name="button_ok">Ok</string>
@@ -23,6 +25,8 @@
     <string name="tooltip_go_to_feature">Deschide opțiunea \"Mergi la\"</string>
     <string name="tooltip_go_to_top">Mergeți la prima pagină a fișierului</string>
     <string name="tooltip_open_new_file">Deschide un fișier nou</string>
+    <string name="tooltip_open_menu_panel">Deschide panoul de meniu</string>
+    <string name="tooltip_hide_menu_panel">Ascunde panoul de meniu</string>
     <string name="tooltip_share_file">Distribuie acest fișier</string>
     <string name="tooltip_close_app">Închide aplicația</string>
     <string name="tooltip_go_to_the_page">Mergeți la pagina inserată</string>
