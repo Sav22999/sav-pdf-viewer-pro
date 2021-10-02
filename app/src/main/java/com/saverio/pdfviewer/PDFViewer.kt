@@ -136,7 +136,13 @@ class PDFViewer : AppCompatActivity() {
 
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
         currentPage.setOnClickListener {
-            if (findViewById<ConstraintLayout>(R.id.messageGoTo).isGone) showGoToDialog()
+            if (findViewById<ConstraintLayout>(R.id.messageGoTo).isGone){
+                val currentPosition1 = pdfViewer.positionOffset
+                Handler().postDelayed({
+                    val currentPosition2 = pdfViewer.positionOffset
+                    showGoToDialog(x = currentPosition1, y = currentPosition2)
+                }, 100)
+            }
             else hideGoToDialog()
             resetHideTopBarCounter()
         }
@@ -709,38 +715,38 @@ class PDFViewer : AppCompatActivity() {
 
     fun checkFirstTimeShowTopBar() {
         if (getBooleanData("firstTimeShowTopBar", true)) {
-                val message: ConstraintLayout = findViewById(R.id.messageGuide1)
-                val arrow: View = findViewById(R.id.arrowRight)
-                val messageText: TextView = findViewById(R.id.messageTextGuide1)
-                messageText.setText(getString(R.string.text_tap_here_to_show_go_to_dialog))
-                message.isGone = false
-                arrow.isGone = false
+            val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+            val arrow: View = findViewById(R.id.arrowRight)
+            val messageText: TextView = findViewById(R.id.messageTextGuide1)
+            messageText.setText(getString(R.string.text_tap_here_to_show_go_to_dialog))
+            message.isGone = false
+            arrow.isGone = false
 
-                val button: TextView = findViewById(R.id.buttonHideGuide1)
-                button.setOnClickListener {
-                    message.isGone = true
-                    arrow.isGone = true
-                    saveBooleanData("firstTimeShowTopBar", false)
+            val button: TextView = findViewById(R.id.buttonHideGuide1)
+            button.setOnClickListener {
+                message.isGone = true
+                arrow.isGone = true
+                saveBooleanData("firstTimeShowTopBar", false)
 
-                    checkFirstTimeShowTopBar()
-                }
-            } else if (getBooleanData("firstTimeShowTopBarMenu", true)) {
-                val message: ConstraintLayout = findViewById(R.id.messageGuide1)
-                val arrow: View = findViewById(R.id.arrowRight2)
-                val messageText: TextView = findViewById(R.id.messageTextGuide1)
-                messageText.setText(getString(R.string.text_tap_here_to_show_menu_panel))
-                message.isGone = false
-                arrow.isGone = false
-
-                val button: TextView = findViewById(R.id.buttonHideGuide1)
-                button.setOnClickListener {
-                    message.isGone = true
-                    arrow.isGone = true
-                    saveBooleanData("firstTimeShowTopBarMenu", false)
-
-                    checkFirstTimeShowTopBar()
-                }
+                checkFirstTimeShowTopBar()
             }
+        } else if (getBooleanData("firstTimeShowTopBarMenu", true)) {
+            val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+            val arrow: View = findViewById(R.id.arrowRight2)
+            val messageText: TextView = findViewById(R.id.messageTextGuide1)
+            messageText.setText(getString(R.string.text_tap_here_to_show_menu_panel))
+            message.isGone = false
+            arrow.isGone = false
+
+            val button: TextView = findViewById(R.id.buttonHideGuide1)
+            button.setOnClickListener {
+                message.isGone = true
+                arrow.isGone = true
+                saveBooleanData("firstTimeShowTopBarMenu", false)
+
+                checkFirstTimeShowTopBar()
+            }
+        }
     }
 
     fun hideTopBar(fullHiding: Boolean = false, x: Float = 0F, y: Float = 0F) {
@@ -929,63 +935,65 @@ class PDFViewer : AppCompatActivity() {
         return valueToReturn
     }
 
-    fun showGoToDialog() {
-        if (pdfViewer.currentPage == 0) showTopBar(showGoTop = false)
-        else showTopBar()
+    fun showGoToDialog(x: Float = 0F, y:Float= 0F) {
+        if (x == y) {
+            if (pdfViewer.currentPage == 0) showTopBar(showGoTop = false)
+            else showTopBar()
 
-        hideMessageGuide1()
-        hideMenuPanel()
+            hideMessageGuide1()
+            hideMenuPanel()
 
-        val buttonHide: ImageView = findViewById(R.id.buttonHideMessageGoTo)
-        val textAllPages: TextView = findViewById(R.id.textAllPagesGoTo)
-        val textbox: EditText = findViewById(R.id.textboxGoTo)
-        val buttonGoTo: TextView = findViewById(R.id.buttonGoTo)
+            val buttonHide: ImageView = findViewById(R.id.buttonHideMessageGoTo)
+            val textAllPages: TextView = findViewById(R.id.textAllPagesGoTo)
+            val textbox: EditText = findViewById(R.id.textboxGoTo)
+            val buttonGoTo: TextView = findViewById(R.id.buttonGoTo)
 
-        textAllPages.text = "/ $totalPages"
-        textbox.setText((pdfViewer.currentPage + 1).toString())
+            textAllPages.text = "/ $totalPages"
+            textbox.setText((pdfViewer.currentPage + 1).toString())
 
-        val message: ConstraintLayout = findViewById(R.id.messageGoTo)
-        val arrow: View = findViewById(R.id.arrowMessageGoTo)
-        message.isGone = false
-        arrow.isGone = false
+            val message: ConstraintLayout = findViewById(R.id.messageGoTo)
+            val arrow: View = findViewById(R.id.arrowMessageGoTo)
+            message.isGone = false
+            arrow.isGone = false
 
-        textbox.requestFocus()
-        textbox.hasFocus()
-        textbox.setOnFocusChangeListener { v, hasFocus ->
-            if (hasFocus) {
-                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-            } else {
-                hideKeyboard(v)
-            }
-        }
-
-        buttonGoTo.setOnClickListener {
-            goToFeature(textbox)
-            hideGoToDialog()
-            resetHideTopBarCounter()
-        }
-
-        buttonHide.setOnClickListener {
-            hideGoToDialog()
-            resetHideTopBarCounter()
-        }
-
-        textbox.addTextChangedListener {
-            val valueTemp = textbox.text.toString().replace(" ", "")
-            if (valueTemp != "" && valueTemp != "-") {
-                if (valueTemp.toInt() < 0) {
-                    textbox.setText((valueTemp.toInt() * (-1)).toString())
+            textbox.requestFocus()
+            textbox.hasFocus()
+            textbox.setOnFocusChangeListener { v, hasFocus ->
+                if (hasFocus) {
+                    window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+                } else {
+                    hideKeyboard(v)
                 }
             }
-        }
-        textbox.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+
+            buttonGoTo.setOnClickListener {
                 goToFeature(textbox)
-                //hideKeyboard()
-                return@OnKeyListener true
+                hideGoToDialog()
+                resetHideTopBarCounter()
             }
-            false
-        })
+
+            buttonHide.setOnClickListener {
+                hideGoToDialog()
+                resetHideTopBarCounter()
+            }
+
+            textbox.addTextChangedListener {
+                val valueTemp = textbox.text.toString().replace(" ", "")
+                if (valueTemp != "" && valueTemp != "-") {
+                    if (valueTemp.toInt() < 0) {
+                        textbox.setText((valueTemp.toInt() * (-1)).toString())
+                    }
+                }
+            }
+            textbox.setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+                if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                    goToFeature(textbox)
+                    //hideKeyboard()
+                    return@OnKeyListener true
+                }
+                false
+            })
+        }
     }
 
     fun goToFeature(textbox: EditText) {
@@ -1071,7 +1079,7 @@ class PDFViewer : AppCompatActivity() {
                 Handler().postDelayed({
                     val currentPosition2 = pdfViewer.positionOffset
                     showTopBar(x = currentPosition1, y = currentPosition2)
-                }, 200)
+                }, 100)
             }
         })
     }
