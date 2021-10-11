@@ -103,7 +103,6 @@
             android:textSize="20sp"
             android:textStyle="normal"
             android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/buttonFullScreenToolbar"
             app:layout_constraintStart_toEndOf="@+id/buttonGoBackToolbar"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
             tools:ignore="RtlCompat" />
