@@ -14,7 +14,7 @@ The app permits to open all PDF files, in the simplest way you ever seen. The ap
 
 ### Where download the app
 
-[<img src="images/googlePlayBadge.png" width="200px"></img>](https://play.google.com/store/apps/details?id=com.saverio.pdfviewer) [<img src="images/huaweiAppGalleryBadge.png" width="200px"></img>](https://appgallery.huawei.com/#/app/C104418743) [<img src="images/amazonAppStoreBadge.png" width="200px"></img>](https://www.amazon.com/gp/product/B0974TV679)
+[<img src="images/googlePlayBadge.png" width="200px"></img>](https://play.google.com/store/apps/details?id=com.saverio.pdfviewer) [<img src="images/fDroidBadge.png" width="200px"></img>](https://f-droid.org/it/packages/com.saverio.pdfviewer/) [<img src="images/huaweiAppGalleryBadge.png" width="200px"></img>](https://appgallery.huawei.com/#/app/C104418743) [<img src="images/amazonAppStoreBadge.png" width="200px"></img>](https://www.amazon.com/gp/product/B0974TV679)
 
 You can download the app from Google Play, Huawei AppGallery or Amazon AppStore.
 
@@ -22,9 +22,9 @@ You can download the app from Google Play, Huawei AppGallery or Amazon AppStore.
 
 If you like this project, leave a *Star* ⭐ to receive updates on your *GitHub dashboard*.
 
-You can leave also a ⭐⭐⭐⭐⭐ *stars* review on Google Play it's very important for me.
+You can leave also a ⭐⭐⭐⭐⭐ *stars* review on Google Play, Huawei AppGallery or Amazon AppStore. It's very important for me.
 
-To support me, you can do a donation :smile: with **PayPal**, **LiberaPay** or **Ko-Fi**:
+To support me, you can do a donation :smile: with **PayPal**, **LiberaPay** or **Ko-fi**:
 
 <a href="https://liberapay.com/Sav22999/donate"><img alt="Donate using Liberapay" src="https://liberapay.com/assets/widgets/donate.svg"></a> [<img src="images/paypal.svg" width="160px"></img>](https://paypal.me/pools/c/8yl6auiU6e) [<img src="https://cdn.ko-fi.com/cdn/kofi1.png?v=2" width="120px"></img>](https://ko-fi.com/R5R31UQ8G)
 
