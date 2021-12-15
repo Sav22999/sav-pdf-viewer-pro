@@ -9,7 +9,7 @@
     <string name="button_review_the_app_now">Arvostele nyt</string>
     <string name="text_review_the_app_later">Arvostele myöhemmin</string>
     <string name="text_tap_here_to_show_the_top_bar">Napauta läpinäkyvää punaista oitusta näyttääksesi taas yläpalkin, joka häviää vierittäessäsi.\n5 sekunnin kuluttua palkki on myös piilotettu ja näyttää sen uudelleen vierittää.</string>
-    <string name="text_tap_here_to_show_go_to_dialog">Napauta tätä näyttääksesi \"Mene kohtaan\"-paneelin, jotta voit siirtyä nopeasti tietylle sivulle.</string>
+    <string name="text_tap_here_to_show_go_to_dialog">Paina tätä näyttääksesi \"Mene kohtaan\"-paneelin, jotta voit siirtyä nopeasti tietylle sivulle.</string>
     <string name="text_tap_here_to_show_menu_panel">Napauta tästä näyttääksesi valikkopaneelin, joten voit ottaa käyttöön tai poistaa käytöstä joitakin valintoja (yövalo, kokoruutu jne.).</string>
     <string name="text_scroll_to_show_the_top_bar_again">5 sekunnin kuluttua yläpalkki piilotetaan automaattisesti, joten se on helpompaa lukea dokumentti. Voit palauttaa yläpalkin (niin, näyttää sen uudelleen) sinun tarvitsee vain vierittää.</string>
     <string name="text_password_required">Salasana tarvitaan</string>
