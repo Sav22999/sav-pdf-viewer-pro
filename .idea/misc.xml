@@ -4,6 +4,7 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/drawable/border_rounded.xml" value="0.197" />
+        <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/drawable/border_rounded_top.xml" value="0.197" />
         <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/drawable/button_rounded.xml" value="0.197" />
         <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/drawable/ic_add_bookmark.xml" value="0.197" />
         <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/drawable/ic_all_bookmarks.xml" value="0.197" />
@@ -17,6 +18,7 @@
         <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/drawable/ic_no_bookmark.xml" value="0.197" />
         <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/drawable/ic_remove_bookmark.xml" value="0.197" />
         <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/layout/activity_pdf_viewer.xml" value="0.2546875" />
+        <entry key="..\:/Documents/GitHub/Sav22999/sav-pdf-viewer-pro/app/src/main/res/layout/bottom_sheet_bookmarks.xml" value="0.25052083333333336" />
       </map>
     </option>
   </component>

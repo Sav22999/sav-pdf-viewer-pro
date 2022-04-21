@@ -71,14 +71,14 @@
             android:scaleType="fitCenter"
             android:tint="@color/white"
             android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/buttonAddBookmarkToolbar"
+            app:layout_constraintEnd_toStartOf="@+id/buttonBookmarkToolbar"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
             app:srcCompat="@drawable/ic_go_to_top"
             tools:ignore="VectorDrawableCompat"
             tools:visibility="visible" />
 
         <ImageView
-            android:id="@+id/buttonAddBookmarkToolbar"
+            android:id="@+id/buttonBookmarkToolbar"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:background="@color/transparent"
@@ -521,6 +521,7 @@
         android:layout_marginBottom="5dp"
         android:background="@drawable/border_rounded"
         android:elevation="5dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -596,9 +597,11 @@
         android:layout_marginBottom="5dp"
         android:background="@drawable/border_rounded"
         android:elevation="5dp"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/pdfView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="gone">
 
         <TextView
             android:id="@+id/messageTextInstagram"
@@ -616,7 +619,7 @@
             android:text="@string/text_follow_on_instagram_the_app"
             android:textColor="@color/white"
             android:textSize="20sp"
-            app:layout_constraintBottom_toTopOf="@+id/buttonReviewNowInstagram"
+            app:layout_constraintBottom_toTopOf="@+id/buttonFollowNowInstagram"
             app:layout_constraintEnd_toStartOf="@+id/buttonHideMessageDialogInstagram"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -639,7 +642,7 @@
             tools:ignore="VectorDrawableCompat" />
 
         <TextView
-            android:id="@+id/buttonReviewNowInstagram"
+            android:id="@+id/buttonFollowNowInstagram"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
