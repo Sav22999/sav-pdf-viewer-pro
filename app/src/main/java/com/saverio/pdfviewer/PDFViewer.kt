@@ -6,10 +6,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.res.ColorStateList
 import android.content.res.Configuration
-import android.graphics.Color
-import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -589,7 +586,7 @@ class PDFViewer : AppCompatActivity() {
         val bookmarks = databaseHandler.getBookmarks(fileId = pathNameTemp)
         val dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_bookmarks, null)
-        view.setBackgroundResource(R.drawable.border_rounded_top)
+        view.setBackgroundResource(R.drawable.border_bottomsheet)
         dialog.setContentView(view)
         dialog.dismissWithAnimation = true
         dialog.setCancelable(true)
