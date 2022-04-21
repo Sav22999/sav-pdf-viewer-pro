@@ -31,9 +31,9 @@
         android:elevation="100dp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbarContainer"
@@ -54,7 +54,7 @@
             android:id="@+id/toolbar"
             android:layout_width="wrap_content"
             android:layout_height="56dp"
-            android:background="@color/dark_red"
+            android:background="?attr/colorPrimary"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
@@ -71,9 +71,25 @@
             android:scaleType="fitCenter"
             android:tint="@color/white"
             android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/totalPagesToolbar"
+            app:layout_constraintEnd_toStartOf="@+id/buttonAddBookmarkToolbar"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
             app:srcCompat="@drawable/ic_go_to_top"
+            tools:ignore="VectorDrawableCompat"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/buttonAddBookmarkToolbar"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@color/transparent"
+            android:contentDescription="@string/tooltip_go_to_top"
+            android:padding="18sp"
+            android:scaleType="fitCenter"
+            android:tint="@color/white"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@+id/totalPagesToolbar"
+            app:layout_constraintTop_toTopOf="@+id/toolbar"
+            app:srcCompat="@drawable/ic_no_bookmark"
             tools:ignore="VectorDrawableCompat"
             tools:visibility="visible" />
 
@@ -163,8 +179,7 @@
         android:elevation="5dp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/messageGoTo"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:visibility="visible" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/messageGoTo"
@@ -180,8 +195,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
-        tools:visibility="visible">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
 
         <EditText
             android:id="@+id/textboxGoTo"
@@ -270,11 +284,11 @@
 
     <View
         android:id="@+id/arrowMenuPanel"
-        android:layout_width="40dp"
+        android:layout_width="25dp"
         android:layout_height="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
-        android:background="@drawable/ic_arrow"
+        android:layout_marginEnd="25dp"
+        android:layout_marginRight="25dp"
+        android:background="@drawable/ic_arrow_right"
         android:elevation="5dp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/messageMenuPanel"
@@ -497,7 +511,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/messageContainer"
+        android:id="@+id/messageContainerReview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
@@ -510,10 +524,10 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="visible">
+        tools:visibility="gone">
 
         <TextView
-            android:id="@+id/messageText"
+            android:id="@+id/messageTextReview"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
@@ -528,13 +542,13 @@
             android:text="@string/text_review_the_app"
             android:textColor="@color/white"
             android:textSize="20sp"
-            app:layout_constraintBottom_toTopOf="@+id/buttonReviewNow"
-            app:layout_constraintEnd_toStartOf="@+id/buttonHideMessageDialog"
+            app:layout_constraintBottom_toTopOf="@+id/buttonReviewNowReview"
+            app:layout_constraintEnd_toStartOf="@+id/buttonHideMessageDialogReview"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
-            android:id="@+id/buttonHideMessageDialog"
+            android:id="@+id/buttonHideMessageDialogReview"
             android:layout_width="40sp"
             android:layout_height="40sp"
             android:layout_marginTop="10dp"
@@ -551,7 +565,7 @@
             tools:ignore="VectorDrawableCompat" />
 
         <TextView
-            android:id="@+id/buttonReviewNow"
+            android:id="@+id/buttonReviewNowReview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="5dp"
@@ -563,6 +577,80 @@
             android:paddingStart="20dp"
             android:paddingEnd="20dp"
             android:text="@string/button_review_the_app_now"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="normal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/messageContainerInstagram"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginEnd="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/border_rounded"
+        android:elevation="5dp"
+        app:layout_constraintBottom_toBottomOf="@+id/pdfView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <TextView
+            android:id="@+id/messageTextInstagram"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="@color/transparent"
+            android:paddingLeft="20dp"
+            android:paddingTop="10dp"
+            android:paddingRight="20dp"
+            android:paddingBottom="10dp"
+            android:text="@string/text_follow_on_instagram_the_app"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            app:layout_constraintBottom_toTopOf="@+id/buttonReviewNowInstagram"
+            app:layout_constraintEnd_toStartOf="@+id/buttonHideMessageDialogInstagram"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/buttonHideMessageDialogInstagram"
+            android:layout_width="40sp"
+            android:layout_height="40sp"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="10dp"
+            android:layout_marginRight="10dp"
+            android:background="@color/transparent"
+            android:contentDescription="@string/tooltip_close_panel"
+            android:padding="10sp"
+            android:scaleType="fitCenter"
+            android:tint="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_close"
+            tools:ignore="VectorDrawableCompat" />
+
+        <TextView
+            android:id="@+id/buttonReviewNowInstagram"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="5dp"
+            android:layout_marginRight="5dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/button_rounded"
+            android:contentDescription="@string/tooltip_follow_now"
+            android:padding="10dp"
+            android:paddingStart="20dp"
+            android:paddingEnd="20dp"
+            android:text="@string/button_follow_instagram_the_app_now"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="normal"

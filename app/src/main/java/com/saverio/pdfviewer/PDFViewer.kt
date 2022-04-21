@@ -886,9 +886,9 @@ class PDFViewer : AppCompatActivity() {
             Context.MODE_PRIVATE
         ).getBoolean("already_reviewed_app", false)
 
-        val buttonReviewNow: TextView = findViewById(R.id.buttonReviewNow)
-        val messageContainer: ConstraintLayout = findViewById(R.id.messageContainer)
-        val buttonHideMessage: ImageView = findViewById(R.id.buttonHideMessageDialog)
+        val buttonReviewNow: TextView = findViewById(R.id.buttonReviewNowReview)
+        val messageContainer: ConstraintLayout = findViewById(R.id.messageContainerReview)
+        val buttonHideMessage: ImageView = findViewById(R.id.buttonHideMessageDialogReview)
 
         buttonReviewNow.setOnClickListener {
             if (openOnGooglePlay()) {
