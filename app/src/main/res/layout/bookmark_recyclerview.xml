@@ -34,26 +34,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <TextView
-                    android:id="@+id/textViewBookmarkRemoved"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:layout_marginRight="5dp"
-                    android:gravity="center"
-                    android:padding="10dp"
-                    android:text="@string/toast_bookmark_removed"
-                    android:textColor="@color/white"
-                    android:textStyle="bold|italic"
-                    android:visibility="gone"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    tools:visibility="visible" />
-
                 <ImageView
                     android:id="@+id/imageViewRemoveBookmark"
                     android:layout_width="20dp"
@@ -89,7 +69,7 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/constraintLayoutRecyclerCardBookmarks"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="70dp"
                 android:layout_margin="0dp">
 
                 <TextView

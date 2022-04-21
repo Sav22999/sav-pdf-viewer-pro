@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Handler
 import android.os.ParcelFileDescriptor
 import android.view.LayoutInflater
@@ -23,9 +24,9 @@ import com.saverio.pdfviewer.db.BookmarksModel
 import com.saverio.pdfviewer.db.DatabaseHandler
 import com.shockwave.pdfium.PdfDocument
 import com.shockwave.pdfium.PdfiumCore
-import kotlinx.coroutines.async
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.*
 import java.io.FileDescriptor
+import kotlin.coroutines.CoroutineContext
 import kotlin.math.min
 
 
@@ -94,7 +95,6 @@ class BookmarksItemAdapter(
                             )
                             holder.card.isGone = true
                             holder.imageRemoveBookmark.isGone = true
-                            holder.textBookmarkRemoved.isGone = false
                             holder.cardRemoved.isGone = false
                             holder.constraintLayoutRecyclerBookmark.isGone = true
                             databaseHandler.deleteBookmark(item.id!!) //delete the bookmark
@@ -117,48 +117,55 @@ class BookmarksItemAdapter(
             }
         )
 
-        runBlocking {
-            async {
-                try {
-                    val uri = databaseHandler.getFiles(item.file)[0].path.toUri()
-                    val lastPosition = item.page
+        val uri = databaseHandler.getFiles(item.file)[0].path.toUri()
+        val lastPosition = item.page
 
-                    val pdfiumCore = PdfiumCore(context)
-                    try {
-                        val parcelFileDescriptor: ParcelFileDescriptor? =
-                            context.getContentResolver().openFileDescriptor(uri, "r")
-                        val fileDescriptor: FileDescriptor = parcelFileDescriptor!!.fileDescriptor
-                        val bitmapTemp = BitmapFactory.decodeFileDescriptor(fileDescriptor)
+        Handler().post {
+            loadPreview(
+                lastPosition = lastPosition,
+                uri = uri,
+                holder = holder
+            )
+        }
+    }
 
-                        val pdfDocument: PdfDocument = pdfiumCore.newDocument(parcelFileDescriptor)
-                        pdfiumCore.openPage(pdfDocument, lastPosition)
-                        val width = pdfiumCore.getPageWidthPoint(pdfDocument, lastPosition)
-                        val height = pdfiumCore.getPageHeightPoint(pdfDocument, lastPosition)
+    fun loadPreview(
+        lastPosition: Int,
+        uri: Uri,
+        holder: ItemViewHolder
+    ) {
+        try {
+            val pdfiumCore = PdfiumCore(context)
+            try {
+                val parcelFileDescriptor: ParcelFileDescriptor? =
+                    context.getContentResolver().openFileDescriptor(uri, "r")
+                val pdfDocument: PdfDocument = pdfiumCore.newDocument(parcelFileDescriptor)
+                pdfiumCore.openPage(pdfDocument, lastPosition)
+                val width = pdfiumCore.getPageWidthPoint(pdfDocument, lastPosition)
+                val height = pdfiumCore.getPageHeightPoint(pdfDocument, lastPosition)
 
-                        // ARGB_8888 - best quality, high memory usage, higher possibility of OutOfMemoryError
-                        // RGB_565 - little worse quality, twice less memory usage
-                        val bitmap = Bitmap.createBitmap(
-                            width, height,
-                            Bitmap.Config.RGB_565
-                        )
-                        pdfiumCore.renderPageBitmap(
-                            pdfDocument, bitmap, lastPosition, 0, 0,
-                            width, height, true
-                        )
-                        //if you need to render annotations and form fields, you can use
-                        //the same method above adding 'true' as last param
-                        holder.imagePdfPage.setImageBitmap(bitmap)
-                        holder.imagePdfPage.isGone = false
-                        pdfiumCore.closeDocument(pdfDocument) //very important
-                        parcelFileDescriptor.close()
-                    } catch (e: Exception) {
-                        println("Exception 11: ${e.message}")
-                        holder.imagePdfPage.isGone = true
-                    }
-                } catch (e: Exception) {
-                    println("Exception 12")
-                }
+                // ARGB_8888 - best quality, high memory usage, higher possibility of OutOfMemoryError
+                // RGB_565 - little worse quality, twice less memory usage
+                val bitmap = Bitmap.createBitmap(
+                    width, height,
+                    Bitmap.Config.RGB_565
+                )
+                pdfiumCore.renderPageBitmap(
+                    pdfDocument, bitmap, lastPosition, 0, 0,
+                    width, height, true
+                )
+                //if you need to render annotations and form fields, you can use
+                //the same method above adding 'true' as last param
+                holder.imagePdfPage.setImageBitmap(bitmap)
+                holder.imagePdfPage.isGone = false
+                pdfiumCore.closeDocument(pdfDocument) //very important
+                parcelFileDescriptor?.close()
+            } catch (e: Exception) {
+                println("Exception 11: ${e.message}")
+                holder.imagePdfPage.isGone = true
             }
+        } catch (e: Exception) {
+            println("Exception 12")
         }
     }
 
@@ -171,7 +178,6 @@ class BookmarksItemAdapter(
         val imagePdfPage: ImageView = view.findViewById(R.id.imageViewPDFPage)
         val card: CardView = view.findViewById(R.id.cardViewBookmark)
         val cardRemoved: CardView = view.findViewById(R.id.cardViewBookmarkRemoved)
-        val textBookmarkRemoved: TextView = view.findViewById(R.id.textViewBookmarkRemoved)
         val imageRemoveBookmark: ImageView = view.findViewById(R.id.imageViewRemoveBookmark)
         val constraintLayoutRecyclerBookmark: ConstraintLayout =
             view.findViewById(R.id.constraintLayoutRecyclerBookmark)
