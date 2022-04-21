@@ -25,6 +25,7 @@
     <string name="toast_bookmark_added">Bookmark added</string>
     <string name="toast_bookmark_removed">Bookmark removed</string>
     <string name="no_bookmarks_present_text">No bookmarks present for this PDF file.</string>
+    <string name="loading_preview_of_bookmarks_text">Loading preview of bookmarks…</string>
     <string name="page_number_text">Page number: %d</string>
 
     <string name="text_password_required">Password required</string>

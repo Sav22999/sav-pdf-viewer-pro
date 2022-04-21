@@ -596,6 +596,7 @@ class PDFViewer : AppCompatActivity() {
         dialog.setOnShowListener {
             val bookmarkItemsList: RecyclerView = view.findViewById(R.id.bookmarksList)
             val noBookmarksPresent: TextView = view.findViewById(R.id.noBookmarksPresentText)
+            val loadingBookmarks: TextView = view.findViewById(R.id.loadingPreviewOfBookmarksText)
 
             if (bookmarks.size > 0) {
                 noBookmarksPresent.visibility = View.GONE
@@ -605,9 +606,11 @@ class PDFViewer : AppCompatActivity() {
                 bookmarkItemsList.setHasFixedSize(false)
                 val itemAdapter = BookmarksItemAdapter(this, bookmarks, passwordToUse)
                 bookmarkItemsList.adapter = itemAdapter
+                loadingBookmarks.isGone = true
             } else {
                 noBookmarksPresent.visibility = View.VISIBLE
                 bookmarkItemsList.visibility = View.GONE
+                loadingBookmarks.isGone = true
             }
         }
         dialog.setOnDismissListener {
