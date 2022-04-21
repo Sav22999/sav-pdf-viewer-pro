@@ -22,6 +22,11 @@
     <string name="text_long_tap_here_to_see_all_bookmarks">Tap and hold (long tap) here to see all bookmarks saved for the current PDF file.</string>
     <string name="text_scroll_to_show_the_top_bar_again">After 5 seconds the top bar is automatically hidden so it\'s easier read your document. To restore the top bar (so, to show it again) you need just to scroll.</string>
 
+    <string name="toast_bookmark_added">Bookmark added</string>
+    <string name="toast_bookmark_removed">Bookmark removed</string>
+    <string name="no_bookmarks_present_text">No bookmarks present for this PDF file.</string>
+    <string name="page_number_text">Page number: %d</string>
+
     <string name="text_password_required">Password required</string>
     <string name="text_password_inserted_wrong">Password inserted wrong</string>
 

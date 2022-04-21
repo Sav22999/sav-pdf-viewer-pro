@@ -6,7 +6,10 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.content.res.Configuration
+import android.graphics.Color
+import android.graphics.PorterDuff
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -20,10 +23,15 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.widget.addTextChangedListener
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.listener.OnErrorListener
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.saverio.pdfviewer.db.BookmarksModel
 import com.saverio.pdfviewer.db.DatabaseHandler
 import com.saverio.pdfviewer.db.FilesModel
+import com.saverio.pdfviewer.ui.BookmarksItemAdapter
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
@@ -274,6 +282,7 @@ class PDFViewer : AppCompatActivity() {
                 }
                 .onRender { nbPages, pageWidth, pageHeight ->
                     totalPages = nbPages
+                    if (lastPosition >= totalPages) lastPosition = (totalPages - 1)
                     updatePdfPage(uri.toString(), lastPosition)
                     if (totalPages == 1) {
                         isSupportedGoTop = false
@@ -365,6 +374,7 @@ class PDFViewer : AppCompatActivity() {
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
         val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
         val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
+        val buttonBookmark: ImageView = findViewById(R.id.buttonBookmarkToolbar)
         toolbar.isGone = true
         buttonClose.isGone = true
         buttonShare.isGone = true
@@ -374,6 +384,7 @@ class PDFViewer : AppCompatActivity() {
         toolbarInvisible.isGone = true
         buttonOpen.isGone = true
         buttonMenu.isGone = true
+        buttonBookmark.isGone = true
 
 
         val background: View = findViewById(R.id.passwordBackgroundScreen)
@@ -524,14 +535,88 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun updateButtonBookmark(pathName: String, currentPage: Int) {
-        //TODO
         val pathNameTemp = getTheFileName(pathName, 0).toMD5() //file-id
         val bookmarkButton: ImageView = findViewById(R.id.buttonBookmarkToolbar)
-        //TODO onclicklistener
+
+        val databaseHandler = DatabaseHandler(this)
+
+        if (databaseHandler.checkBookmark(fileId = pathNameTemp, page = currentPage)) {
+            //there is the bookmark
+            bookmarkButton.setImageResource(R.drawable.ic_add_bookmark)
+            bookmarkButton.setOnClickListener {
+                //remove bookmark
+                databaseHandler.deleteBookmark(
+                    databaseHandler.getBookmarks(
+                        fileId = pathNameTemp,
+                        page = currentPage
+                    )[0].id!!
+                )
+                Toast.makeText(this, getString(R.string.toast_bookmark_removed), Toast.LENGTH_SHORT)
+                    .show()
+                updateButtonBookmark(pathName, currentPage)
+            }
+        } else {
+            //no bookmark
+            bookmarkButton.setImageResource(R.drawable.ic_no_bookmark)
+            bookmarkButton.setOnClickListener {
+                //add bookmark
+                val bookmark = BookmarksModel(
+                    id = null,
+                    date = getNow(),
+                    file = pathNameTemp,
+                    page = currentPage,
+                    ""
+                )
+                databaseHandler.add(bookmark = bookmark)
+                Toast.makeText(this, getString(R.string.toast_bookmark_added), Toast.LENGTH_SHORT)
+                    .show()
+                updateButtonBookmark(pathName, currentPage)
+            }
+        }
+
+        bookmarkButton.setOnLongClickListener {
+            showAllBookmarks(pathName)
+            true
+        }
 
         resetHideTopBarCounter()
     }
 
+    fun showAllBookmarks(pathName: String) {
+        //TODO
+        val pathNameTemp = getTheFileName(pathName, 0).toMD5() //file-id
+        val databaseHandler = DatabaseHandler(this)
+        val bookmarks = databaseHandler.getBookmarks(fileId = pathNameTemp)
+        val dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_bookmarks, null)
+        view.setBackgroundResource(R.drawable.border_rounded_top)
+        dialog.setContentView(view)
+        dialog.dismissWithAnimation = true
+        dialog.setCancelable(true)
+        dialog.setOnShowListener {
+            val bookmarkItemsList: RecyclerView = view.findViewById(R.id.bookmarksList)
+            val noBookmarksPresent: TextView = view.findViewById(R.id.noBookmarksPresentText)
+
+            if (bookmarks.size > 0) {
+                noBookmarksPresent.visibility = View.GONE
+                bookmarkItemsList.visibility = View.VISIBLE
+
+                bookmarkItemsList.layoutManager = LinearLayoutManager(this)
+                bookmarkItemsList.setHasFixedSize(false)
+                val itemAdapter = BookmarksItemAdapter(this, bookmarks, passwordToUse)
+                bookmarkItemsList.adapter = itemAdapter
+            } else {
+                noBookmarksPresent.visibility = View.VISIBLE
+                bookmarkItemsList.visibility = View.GONE
+            }
+        }
+        dialog.setOnDismissListener {
+            showTopBar()
+        }
+        dialog.show()
+    }
+
+    @SuppressLint("SimpleDateFormat")
     fun getNow(): String {
         val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
         return sdf.format(Date())
@@ -795,6 +880,7 @@ class PDFViewer : AppCompatActivity() {
                     buttonNightDay.isGone = true
                     toolbarInvisible.isGone = true
                     currentPage.isGone = true
+                    buttonBookmark.isGone = true
 
                     showHideAfterFiveSeconds()
                 }
@@ -874,7 +960,8 @@ class PDFViewer : AppCompatActivity() {
         buttonFollowNowInstagram.setOnClickListener {
             if (openInstagram()) {
                 messageContainerInstagram.isGone = true
-                //getSharedPreferences("already_follow_app", Context.MODE_PRIVATE).edit().putBoolean("already_follow_app", true).apply()
+                getSharedPreferences("already_follow_app", Context.MODE_PRIVATE).edit()
+                    .putBoolean("already_follow_app", true).apply()
             }
         }
 

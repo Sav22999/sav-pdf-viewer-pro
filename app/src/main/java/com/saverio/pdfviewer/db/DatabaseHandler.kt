@@ -191,14 +191,14 @@ class DatabaseHandler(context: Context) :
     }
 
     @SuppressLint("Range")
-    fun getBookmarks(fileId: String?, bookmarkId: Int?): ArrayList<BookmarksModel> {
+    fun getBookmarks(fileId: String, page: Int? = null): ArrayList<BookmarksModel> {
         //get all bookmarks from a specific file (or a specific bookmark-id)
         val filesList = ArrayList<BookmarksModel>()
         var query =
-            "SELECT * FROM `${TABLE_NAME_BOOKMARKS}` WHERE `${COLUMN_FILE_FK_BOOKMARKS}`='$fileId'"
-        if (bookmarkId != null)
+            "SELECT * FROM `${TABLE_NAME_BOOKMARKS}` WHERE `${COLUMN_FILE_FK_BOOKMARKS}`='$fileId' ORDER BY `${COLUMN_PAGE_BOOKMARKS}` ASC"
+        if (page != null)
             query =
-                "SELECT * FROM `${TABLE_NAME_BOOKMARKS}` WHERE `${COLUMN_ID_PK_BOOKMARKS}`='$bookmarkId'"
+                "SELECT * FROM `${TABLE_NAME_BOOKMARKS}` WHERE `${COLUMN_FILE_FK_BOOKMARKS}`='$fileId' AND `${COLUMN_PAGE_BOOKMARKS}`='$page' ORDER BY `${COLUMN_PAGE_BOOKMARKS}` ASC"
 
         val database = readableDatabase
         var cursor: Cursor? = null
@@ -297,7 +297,7 @@ class DatabaseHandler(context: Context) :
     }
 
     @SuppressLint("Range")
-    fun getNewIdBookmarks(): Int {
+    private fun getNewIdBookmarks(): Int {
         //get a new unique id for bookmarks (based to the last one created)
         var valueToReturn = 0
         val query =
