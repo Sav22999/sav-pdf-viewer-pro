@@ -271,6 +271,7 @@ class PDFViewer : AppCompatActivity() {
                     lastPosition = getPdfPage(uri.toString())
                     /*pdfViewer.positionOffset = 1F
                     totalPages = pdfViewer.currentPage + 1*/
+                    //TODO
                     /*
                     println("title: " + pdfViewer.documentMeta.title)
                     println("author: " + pdfViewer.documentMeta.author)
@@ -293,6 +294,8 @@ class PDFViewer : AppCompatActivity() {
                     } else {
                         hideTopBar()
                     }
+
+                    checkFirstTimeShowMessageGuide()
                 }
                 .onError(OnErrorListener {
                     if (it.message.toString()
@@ -318,6 +321,7 @@ class PDFViewer : AppCompatActivity() {
         val buttonClose: TextView = findViewById(R.id.buttonClosePassword)
 
         val textboxPassword: EditText = findViewById(R.id.textboxPassword)
+        showSoftKeyboard(textboxPassword)
 
         textboxPassword.setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
@@ -594,6 +598,9 @@ class PDFViewer : AppCompatActivity() {
             val bookmarkItemsList: RecyclerView = view.findViewById(R.id.bookmarksList)
             val noBookmarksPresent: TextView = view.findViewById(R.id.noBookmarksPresentText)
             val loadingBookmarks: TextView = view.findViewById(R.id.loadingPreviewOfBookmarksText)
+            val constraintMessageGuide: ConstraintLayout =
+                view.findViewById(R.id.constraintMessageGuide)
+            val buttonHideMessageGuide: TextView = view.findViewById(R.id.buttonHideGuideBookmarks)
 
             if (bookmarks.size > 0) {
                 noBookmarksPresent.visibility = View.GONE
@@ -604,6 +611,14 @@ class PDFViewer : AppCompatActivity() {
                 val itemAdapter = BookmarksItemAdapter(this, bookmarks)
                 bookmarkItemsList.adapter = itemAdapter
                 loadingBookmarks.isGone = true
+
+                if (getBooleanData("firstTimeSeeAllBookmarks", true)) {
+                    constraintMessageGuide.isGone = false
+                    buttonHideMessageGuide.setOnClickListener {
+                        saveBooleanData("firstTimeSeeAllBookmarks", false)
+                        constraintMessageGuide.isGone = true
+                    }
+                }
             } else {
                 noBookmarksPresent.visibility = View.VISIBLE
                 bookmarkItemsList.visibility = View.GONE
@@ -755,15 +770,11 @@ class PDFViewer : AppCompatActivity() {
 
             hideMessageGuide1()
 
-            if (getBooleanData("firstTimeShowTopBar", true)) {
-                checkFirstTimeShowTopBar()
-            } else if (getBooleanData("firstTimeShowTopBarMenu", true)) {
-                checkFirstTimeShowTopBar()
-            }
+            checkFirstTimeShowMessageGuide()
         }
     }
 
-    fun checkFirstTimeShowTopBar() {
+    fun checkFirstTimeShowMessageGuide() {
         if (getBooleanData("firstTimeShowTopBar", true)) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
             val arrow: View = findViewById(R.id.arrowRight)
@@ -778,12 +789,21 @@ class PDFViewer : AppCompatActivity() {
                 arrow.isGone = true
                 saveBooleanData("firstTimeShowTopBar", false)
 
-                checkFirstTimeShowTopBar()
+                checkFirstTimeShowMessageGuide()
             }
         } else if (getBooleanData("firstTimeShowTopBarMenu", true)) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
-            val arrow: View = findViewById(R.id.arrowRight2)
+            val arrow: View = findViewById(R.id.arrowRight3)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
+
+            val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
+            pageNumberTextViewToolbar.isGone = false
+            Handler().postDelayed({
+                arrow.animate()
+                    .x(pageNumberTextViewToolbar.x + (pageNumberTextViewToolbar.width / 2) - (arrow.width / 2))
+                    .setDuration(200).start()
+            }, 200)
+
             messageText.setText(getString(R.string.text_tap_here_to_show_menu_panel))
             message.isGone = false
             arrow.isGone = false
@@ -794,7 +814,32 @@ class PDFViewer : AppCompatActivity() {
                 arrow.isGone = true
                 saveBooleanData("firstTimeShowTopBarMenu", false)
 
-                checkFirstTimeShowTopBar()
+                checkFirstTimeShowMessageGuide()
+            }
+        } else if (getBooleanData("firstTimeBookmarks", true)) {
+            val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+            val arrow: View = findViewById(R.id.arrowRight2)
+            val messageText: TextView = findViewById(R.id.messageTextGuide1)
+            messageText.setText(getString(R.string.text_tap_here_to_add_or_remove_the_current_page_to_bookmarks))
+
+            val bookmarkButtonToolbar: ImageView = findViewById(R.id.buttonBookmarkToolbar)
+            bookmarkButtonToolbar.isGone = false
+            Handler().postDelayed({
+                arrow.animate()
+                    .x(bookmarkButtonToolbar.x + (bookmarkButtonToolbar.width / 2) - (arrow.width / 2))
+                    .setDuration(200).start()
+            }, 200)
+
+            message.isGone = false
+            arrow.isGone = false
+
+            val button: TextView = findViewById(R.id.buttonHideGuide1)
+            button.setOnClickListener {
+                message.isGone = true
+                arrow.isGone = true
+                saveBooleanData("firstTimeBookmarks", false)
+
+                checkFirstTimeShowMessageGuide()
             }
         }
     }
@@ -917,15 +962,15 @@ class PDFViewer : AppCompatActivity() {
 
     fun hideMessageGuide1() {
         val message: ConstraintLayout = findViewById(R.id.messageGuide1)
-        val arrow: View = findViewById(R.id.arrowLeft)
-        val arrow2: View = findViewById(R.id.arrowRight)
-        val arrow3: View = findViewById(R.id.arrowRight2)
-        if (!message.isGone || !arrow.isGone) {
-            message.isGone = true
-            arrow.isGone = true
-            arrow2.isGone = true
-            arrow3.isGone = true
-        }
+        val arrow0: View = findViewById(R.id.arrowLeft)
+        val arrow1: View = findViewById(R.id.arrowRight)
+        val arrow2: View = findViewById(R.id.arrowRight2)
+        val arrow3: View = findViewById(R.id.arrowRight3)
+        message.isGone = true
+        arrow0.isGone = true
+        arrow1.isGone = true
+        arrow2.isGone = true
+        arrow3.isGone = true
     }
 
     fun checkReviewFollowApp() {
@@ -1078,8 +1123,17 @@ class PDFViewer : AppCompatActivity() {
             message.isGone = false
             arrow.isGone = false
 
+            val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
+            pageNumberTextViewToolbar.isGone = false
+            Handler().postDelayed({
+                arrow.animate()
+                    .x(pageNumberTextViewToolbar.x + (pageNumberTextViewToolbar.width / 2) - (arrow.width / 2))
+                    .setDuration(200).start()
+            }, 200)
+
             textbox.requestFocus()
             textbox.hasFocus()
+            showSoftKeyboard(textbox)
             textbox.setOnFocusChangeListener { v, hasFocus ->
                 if (hasFocus) {
                     window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
@@ -1148,6 +1202,14 @@ class PDFViewer : AppCompatActivity() {
     fun hideKeyboard(view: View) {
         val manager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         if (manager.isActive) manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    fun showSoftKeyboard(view: View) {
+        if (view.requestFocus()) {
+            val inputMethodManager: InputMethodManager =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+        }
     }
 
     fun hideGoToDialog() {

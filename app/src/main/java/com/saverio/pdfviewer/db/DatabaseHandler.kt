@@ -60,7 +60,7 @@ class DatabaseHandler(context: Context) :
         val success = database.insert(TABLE_NAME_FILES, null, contentValues)
         database.close()
 
-        println("Added ${file.id}")
+        //println("Added ${file.id}")
 
         return success
     }
@@ -100,7 +100,7 @@ class DatabaseHandler(context: Context) :
                     notes = notes
                 )
 
-                println("Get ${id}")
+                //println("Get ${id}")
 
                 filesList.add(fileToAdd)
             } while (cursor.moveToNext())
@@ -129,7 +129,7 @@ class DatabaseHandler(context: Context) :
             ) //we need the primary key to update a record
         database.close()
 
-        println("Updated ${file.id}")
+        //println("Updated ${file.id}")
 
         return success
     }
@@ -165,7 +165,7 @@ class DatabaseHandler(context: Context) :
         if (cursor.moveToFirst()) {
             returnValue = true
         }
-        println("Exist YES/NO: ${returnValue.toString()}")
+        //println("Exist YES/NO: ${returnValue.toString()}")
 
         database.close()
         return returnValue
@@ -185,7 +185,7 @@ class DatabaseHandler(context: Context) :
         val success = database.insert(TABLE_NAME_BOOKMARKS, null, contentValues)
         database.close()
 
-        println("Added ${bookmark.id} || file: ${bookmark.file}")
+        //println("Added ${bookmark.id} || file: ${bookmark.file}")
 
         return success
     }
@@ -226,7 +226,7 @@ class DatabaseHandler(context: Context) :
                     notes = notes
                 )
 
-                println("Get $id from $fileId")
+                //println("Get $id from $fileId")
 
                 filesList.add(fileToAdd)
             } while (cursor.moveToNext())
@@ -254,7 +254,7 @@ class DatabaseHandler(context: Context) :
             ) //we need the primary key to update a record
         database.close()
 
-        println("Updated ${bookmark.id} || file: ${bookmark.file}")
+        //println("Updated ${bookmark.id} || file: ${bookmark.file}")
 
         return success
     }
@@ -290,7 +290,7 @@ class DatabaseHandler(context: Context) :
         if (cursor.moveToFirst()) {
             returnValue = true
         }
-        println("Exist bookmark YES/NO: ${returnValue.toString()}")
+        //println("Exist bookmark YES/NO: ${returnValue.toString()}")
 
         database.close()
         return returnValue

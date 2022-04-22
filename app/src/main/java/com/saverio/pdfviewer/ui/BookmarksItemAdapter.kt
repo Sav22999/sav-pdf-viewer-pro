@@ -106,7 +106,7 @@ class BookmarksItemAdapter(
                             holder.imageRemoveBookmark.isGone = true
                             holder.cardRemoved.isGone = false
 
-                            println(holder.cardRemoved.width.toFloat())
+                            //println(holder.cardRemoved.width.toFloat())
                             val initialX = holder.textViewBookmarkRemoved.x
                             holder.textViewBookmarkRemoved.animate()
                                 .x(holder.cardRemoved.width.toFloat() * 2)
