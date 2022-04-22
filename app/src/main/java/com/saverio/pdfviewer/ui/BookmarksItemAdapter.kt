@@ -3,7 +3,6 @@ package com.saverio.pdfviewer.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Handler
 import android.os.ParcelFileDescriptor
@@ -18,22 +17,20 @@ import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.net.toUri
 import androidx.core.view.isGone
+import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.RecyclerView
+import com.saverio.pdfviewer.PDFViewer
 import com.saverio.pdfviewer.R
 import com.saverio.pdfviewer.db.BookmarksModel
 import com.saverio.pdfviewer.db.DatabaseHandler
 import com.shockwave.pdfium.PdfDocument
 import com.shockwave.pdfium.PdfiumCore
-import kotlinx.coroutines.*
-import java.io.FileDescriptor
-import kotlin.coroutines.CoroutineContext
 import kotlin.math.min
 
 
 class BookmarksItemAdapter(
     private val context: Context,
-    private val items: ArrayList<BookmarksModel>,
-    private val password: String = ""
+    private val items: ArrayList<BookmarksModel>
 ) :
     RecyclerView.Adapter<BookmarksItemAdapter.ItemViewHolder>() {
 
@@ -52,6 +49,8 @@ class BookmarksItemAdapter(
 
         val databaseHandler = DatabaseHandler(context)
 
+        var onlyClicked = false
+
         holder.card.setOnTouchListener(
             View.OnTouchListener { view, event ->
                 val displayMetrics = view.resources.displayMetrics
@@ -62,6 +61,8 @@ class BookmarksItemAdapter(
                 val POSITION_ALL_TO_LEFT = -(cardWidth + cardStart)
                 when (event.action) {
                     MotionEvent.ACTION_MOVE -> {
+                        onlyClicked = false
+
                         // get the new co-ordinate of X-axis
                         val newX = event.rawX
 
@@ -80,6 +81,14 @@ class BookmarksItemAdapter(
                     }
                     MotionEvent.ACTION_UP -> {
                         //when the action is up
+                        //"onClick"
+                        if (onlyClicked) (context as PDFViewer).goToPage(
+                            valueToGo = item.page,
+                            animation = true
+                        )
+
+
+                        //"onActionUp"
                         val POSITION_TO_ARRIVE_WITH_ERROR =
                             POSITION_TO_ARRIVE - (POSITION_TO_ARRIVE / 25)
                         if (view.x <= POSITION_TO_ARRIVE_WITH_ERROR) {
@@ -93,11 +102,33 @@ class BookmarksItemAdapter(
                                     view.animate().x(cardStart).setDuration(100).start()
                                 }, 500
                             )
-                            holder.card.isGone = true
+                            holder.card.isInvisible = true
                             holder.imageRemoveBookmark.isGone = true
                             holder.cardRemoved.isGone = false
-                            holder.constraintLayoutRecyclerBookmark.isGone = true
+
+                            println(holder.cardRemoved.width.toFloat())
+                            val initialX = holder.textViewBookmarkRemoved.x
+                            holder.textViewBookmarkRemoved.animate()
+                                .x(holder.cardRemoved.width.toFloat() * 2)
+                                .setDuration(0).start()
+                            holder.textViewBookmarkRemoved.isGone = false
+                            holder.textViewBookmarkRemoved.animate().x(initialX)
+                                .setDuration(500).start()
+
+                            Handler().postDelayed(
+                                {
+                                    holder.textViewBookmarkRemoved.isGone = true
+                                    holder.card.isGone = true
+                                    holder.constraintLayoutRecyclerBookmark.isGone = true
+                                }, 5000
+                            )
+
                             databaseHandler.deleteBookmark(item.id!!) //delete the bookmark
+                            if (databaseHandler.getBookmarks(item.file).size == 0) {
+                                //no more items
+                                (context as PDFViewer).hideBottomSheet()
+                            }
+
                             Toast.makeText(
                                 context,
                                 holder.deleted_bookmark_text,
@@ -108,6 +139,9 @@ class BookmarksItemAdapter(
                             //Not activated (cancelled)
                             view.animate().x(cardStart).setDuration(500).start()
                         }
+                    }
+                    MotionEvent.ACTION_DOWN -> {
+                        onlyClicked = true
                     }
                 }
 
@@ -179,6 +213,7 @@ class BookmarksItemAdapter(
         val card: CardView = view.findViewById(R.id.cardViewBookmark)
         val cardRemoved: CardView = view.findViewById(R.id.cardViewBookmarkRemoved)
         val imageRemoveBookmark: ImageView = view.findViewById(R.id.imageViewRemoveBookmark)
+        val textViewBookmarkRemoved: TextView = view.findViewById(R.id.textViewBookmarkRemoved)
         val constraintLayoutRecyclerBookmark: ConstraintLayout =
             view.findViewById(R.id.constraintLayoutRecyclerBookmark)
 

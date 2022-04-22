@@ -59,6 +59,7 @@ class PDFViewer : AppCompatActivity() {
     var savedCurrentPage = 0
 
     var hideTopBarCounter = 0
+    var dialog: BottomSheetDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -580,17 +581,16 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun showAllBookmarks(pathName: String) {
-        //TODO
         val pathNameTemp = getTheFileName(pathName, 0).toMD5() //file-id
         val databaseHandler = DatabaseHandler(this)
         val bookmarks = databaseHandler.getBookmarks(fileId = pathNameTemp)
-        val dialog = BottomSheetDialog(this)
+        dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.bottom_sheet_bookmarks, null)
         view.setBackgroundResource(R.drawable.border_bottomsheet)
-        dialog.setContentView(view)
-        dialog.dismissWithAnimation = true
-        dialog.setCancelable(true)
-        dialog.setOnShowListener {
+        dialog!!.setContentView(view)
+        dialog!!.dismissWithAnimation = true
+        dialog!!.setCancelable(true)
+        dialog!!.setOnShowListener {
             val bookmarkItemsList: RecyclerView = view.findViewById(R.id.bookmarksList)
             val noBookmarksPresent: TextView = view.findViewById(R.id.noBookmarksPresentText)
             val loadingBookmarks: TextView = view.findViewById(R.id.loadingPreviewOfBookmarksText)
@@ -601,7 +601,7 @@ class PDFViewer : AppCompatActivity() {
 
                 bookmarkItemsList.layoutManager = LinearLayoutManager(this)
                 bookmarkItemsList.setHasFixedSize(false)
-                val itemAdapter = BookmarksItemAdapter(this, bookmarks, passwordToUse)
+                val itemAdapter = BookmarksItemAdapter(this, bookmarks)
                 bookmarkItemsList.adapter = itemAdapter
                 loadingBookmarks.isGone = true
             } else {
@@ -610,10 +610,19 @@ class PDFViewer : AppCompatActivity() {
                 loadingBookmarks.isGone = true
             }
         }
-        dialog.setOnDismissListener {
+        dialog!!.setOnDismissListener {
             showTopBar()
+            updateButtonBookmark(pathName, pdfViewer.currentPage)
+            dialog = null
         }
-        dialog.show()
+        dialog!!.show()
+    }
+
+    fun hideBottomSheet() {
+        if (dialog != null) {
+            dialog!!.dismiss()
+            dialog = null
+        }
     }
 
     @SuppressLint("SimpleDateFormat")
@@ -1124,11 +1133,16 @@ class PDFViewer : AppCompatActivity() {
             }
         }
         try {
-            pdfViewer.jumpTo(valueToGo, true)
+            goToPage(valueToGo, true)
             textbox.clearFocus()
         } catch (e: Exception) {
 
         }
+    }
+
+    fun goToPage(valueToGo: Int, animation: Boolean = true) {
+        pdfViewer.jumpTo(valueToGo, true)
+        if (dialog != null) dialog!!.dismiss()
     }
 
     fun hideKeyboard(view: View) {

@@ -18,8 +18,7 @@
     <string name="text_tap_here_to_show_the_top_bar">Tap the transparent red section to show the top bar again, which disappears when you scroll.\nAfter 5 seconds the bar is also hidden and to show it again scroll.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tap here to show the \"Go to\" panel, so you can quickly go to a specific page.</string>
     <string name="text_tap_here_to_show_menu_panel">Tap here to show the menu panel, so you can turn on or off some options (night light, fullscreen, etc.).</string>
-    <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">Tap here to add or remove the current page to bookmarks.</string>
-    <string name="text_long_tap_here_to_see_all_bookmarks">Tap and hold (long tap) here to see all bookmarks saved for the current PDF file.</string>
+    <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">Tap (and release) here to add or remove the current page to bookmarks.\nTap and hold ("long tap") here to see all bookmarks saved for the current PDF file.</string>
     <string name="text_scroll_to_show_the_top_bar_again">After 5 seconds the top bar is automatically hidden so it\'s easier read your document. To restore the top bar (so, to show it again) you need just to scroll.</string>
 
     <string name="toast_bookmark_added">Bookmark added</string>
