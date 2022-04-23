@@ -25,6 +25,7 @@ import com.saverio.pdfviewer.db.BookmarksModel
 import com.saverio.pdfviewer.db.DatabaseHandler
 import com.shockwave.pdfium.PdfDocument
 import com.shockwave.pdfium.PdfiumCore
+import kotlin.math.abs
 import kotlin.math.min
 
 
@@ -50,33 +51,34 @@ class BookmarksItemAdapter(
         val databaseHandler = DatabaseHandler(context)
 
         var onlyClicked = false
+        val startX = holder.card.x
 
         holder.card.setOnTouchListener(
             View.OnTouchListener { view, event ->
                 val displayMetrics = view.resources.displayMetrics
                 val cardWidth = view.width
                 val cardStart = (displayMetrics.widthPixels.toFloat() / 2) - (cardWidth / 2)
-                val MAX_SWIPE_LEFT_DISTANCE = 100
-                val POSITION_TO_ARRIVE = MAX_SWIPE_LEFT_DISTANCE.toFloat() - (cardWidth / 2)
+                val POSITION_TO_ARRIVE = 200f
                 val POSITION_ALL_TO_LEFT = -(cardWidth + cardStart)
+
                 when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        onlyClicked = true
+                    }
                     MotionEvent.ACTION_MOVE -> {
                         onlyClicked = false
 
                         // get the new co-ordinate of X-axis
-                        val newX = event.rawX
+                        val newX = event.rawX - (cardWidth / 2)
 
                         // carry out swipe only if newX > MAX_SWIPE_LEFT_DISTANCE, i.e.
                         // the card is swiped to the left side, not to the right
-                        if (newX > MAX_SWIPE_LEFT_DISTANCE) {
+                        if (newX <= startX) {
+                            //left
                             view.animate()
-                                .x(
-                                    min(cardStart, newX - (cardWidth / 2))
-                                )
+                                .x(newX)
                                 .setDuration(0)
                                 .start()
-                        } else {
-                            view.animate().x(POSITION_TO_ARRIVE)
                         }
                     }
                     MotionEvent.ACTION_UP -> {
@@ -87,10 +89,9 @@ class BookmarksItemAdapter(
                             animation = true
                         )
 
-
                         //"onActionUp"
                         val POSITION_TO_ARRIVE_WITH_ERROR =
-                            POSITION_TO_ARRIVE - (POSITION_TO_ARRIVE / 25)
+                            -(POSITION_TO_ARRIVE - (POSITION_TO_ARRIVE / 25))
                         if (view.x <= POSITION_TO_ARRIVE_WITH_ERROR) {
                             //Activated
                             //Go all to left
@@ -117,9 +118,14 @@ class BookmarksItemAdapter(
 
                             Handler().postDelayed(
                                 {
-                                    holder.textViewBookmarkRemoved.isGone = true
-                                    holder.card.isGone = true
-                                    holder.constraintLayoutRecyclerBookmark.isGone = true
+                                    holder.cardRemoved.animate()
+                                        .x(-holder.cardRemoved.width.toFloat())
+                                        .setDuration(500).start()
+                                    Handler().postDelayed({
+                                        holder.textViewBookmarkRemoved.isGone = true
+                                        holder.card.isGone = true
+                                        holder.constraintLayoutRecyclerBookmark.isGone = true
+                                    }, 500)
                                 }, 5000
                             )
 
@@ -139,9 +145,6 @@ class BookmarksItemAdapter(
                             //Not activated (cancelled)
                             view.animate().x(cardStart).setDuration(500).start()
                         }
-                    }
-                    MotionEvent.ACTION_DOWN -> {
-                        onlyClicked = true
                     }
                 }
 

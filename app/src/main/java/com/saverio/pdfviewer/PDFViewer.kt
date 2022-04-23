@@ -276,6 +276,10 @@ class PDFViewer : AppCompatActivity() {
                     println("title: " + pdfViewer.documentMeta.title)
                     println("author: " + pdfViewer.documentMeta.author)
                     println("keywords: " + pdfViewer.documentMeta.keywords)
+                    println("creator: " + pdfViewer.documentMeta.creator)
+                    println("modifiedDate: " + pdfViewer.documentMeta.modDate)
+                    println("producer: " + pdfViewer.documentMeta.producer)
+                    println("subject: " + pdfViewer.documentMeta.subject)
                     println("creationDate: " + pdfViewer.documentMeta.creationDate)
                     */
                 }
