@@ -5,13 +5,22 @@
     <string name="title_settings">Instellingen</string>
     <string name="title_recents">Recents</string>
     <string name="title_favourites">Favorieten</string>
-    <string name="text_review_the_app">Vind je deze app leuk?\nLaat een beoordeling achter op Google Play.\nHet is slechts een paar seconden voor jou 😊</string>
+    <string name="text_review_the_app">Vind je deze app leuk?\nLaat een beoordeling achter ⭐ op Google Play.\nHet is slechts een paar seconden voor jou 😊</string>
     <string name="button_review_the_app_now">Nu beoordelen</string>
     <string name="text_review_the_app_later">Later beoordelen</string>
+    <string name="text_follow_on_instagram_the_app">Ik heb zojuist de Instagram-account van de app gemaakt.\nDaar vind je tips, curiosities en nog iets anders! 😉\nVolg het nu 💙</string>
+    <string name="button_follow_instagram_the_app_now">Volg op Instagram</string>
     <string name="text_tap_here_to_show_the_top_bar">Tik op de transparante rode sectie om de bovenste balk opnieuw te tonen, die verdwijnt wanneer je scrolt.\nNa 5 seconden is de balk ook verborgen en laat hij opnieuw scrollen.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tik hier om het \"Ga naar\" paneel te tonen, zodat je snel naar een specifieke pagina kunt gaan.</string>
     <string name="text_tap_here_to_show_menu_panel">Tik hier om het menu paneel weer te geven, zodat je sommige opties (nachtlicht, volledig scherm, enz.) kunt in- of uitschakelen.</string>
+    <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">Tik hier (en vrijgave) om de huidige pagina aan bladwijzers toe te voegen of te verwijderen.\nTik en houd ingedrukt (\"lang tikken\") om alle opgeslagen bladwijzers voor het huidige PDF-bestand te bekijken.</string>
     <string name="text_scroll_to_show_the_top_bar_again">Na 5 seconden is de bovenste balk automatisch verborgen, zodat het makkelijker uw document te lezen. Om de bovenste balk te herstellen (dus om het opnieuw te tonen) moet je gewoon scrollen.</string>
+    <string name="text_swipe_left_to_remove_tap_to_go_to_the_page_bookmarks">Hier heb je een lijst met alle bladwijzers voor het huidige PDF-bestand.\nU kunt een voorbeeld van de pagina aan de linkerkant zien.\nVeeg naar links om de bladwijzer te verwijderen, terwijl u erop tikt om naar de pagina van de bladwijzer te gaan.</string>
+    <string name="toast_bookmark_added">Bladwijzer toegevoegd</string>
+    <string name="toast_bookmark_removed">Bladwijzer verwijderd</string>
+    <string name="no_bookmarks_present_text">Geen bladwijzers aanwezig voor dit PDF-bestand.</string>
+    <string name="loading_preview_of_bookmarks_text">Voorvertoning van bladwijzers laden…</string>
+    <string name="page_number_text">Paginanummer: %d</string>
     <string name="text_password_required">Wachtwoord vereist</string>
     <string name="text_password_inserted_wrong">Onjuist wachtwoord ingevoerd</string>
     <string name="button_ok">OK</string>
@@ -31,7 +40,12 @@
     <string name="tooltip_close_app">Sluit app</string>
     <string name="tooltip_go_to_the_page">Ga naar de ingevoegd pagina</string>
     <string name="tooltip_close_panel">Sluit dit paneel</string>
-    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_ok_button">OK, continue</string>
     <string name="tooltip_open_file_password">Open dit bestand</string>
     <string name="tooltip_review_now">Ga naar uw app store en beoordeel nu</string>
+    <string name="tooltip_follow_now">Ga naar Instagram en volg het app account</string>
+    <string name="tooltip_add_to_bookmarks">Voeg de huidige pagina toe aan bladwijzers</string>
+    <string name="tooltip_remove_from_bookmarks">De huidige pagina uit de bladwijzers verwijderen</string>
+    <string name="tooltip_see_all_bookmarks">Alle bladwijzers weergeven</string>
+    <string name="tooltip_close_bookmarks">Alle bladwijzers sluiten</string>
 </resources>

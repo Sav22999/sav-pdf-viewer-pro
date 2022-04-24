@@ -5,13 +5,22 @@
     <string name="title_settings">Ajustes</string>
     <string name="title_recents">Recents</string>
     <string name="title_favourites">Favoritos</string>
-    <string name="text_review_the_app">¿Te gusta esta aplicación?\nPor favor, deja una reseña en Google Play.\nPara ti 😊</string>
+    <string name="text_review_the_app">¿Te gusta esta aplicación?\nPor favor, deja una reseña ⭐ en Google Play.\nTe toca unos segundos 😊</string>
     <string name="button_review_the_app_now">Revisar ahora</string>
     <string name="text_review_the_app_later">Revisar más tarde</string>
+    <string name="text_follow_on_instagram_the_app">Acabo de crear la cuenta de Instagrama de la aplicación.\n¡Ahí encontrarás consejos, curiosidades y algo más! 😉\nSíguelo ahora 💙</string>
+    <string name="button_follow_instagram_the_app_now">Seguir en Instagrama</string>
     <string name="text_tap_here_to_show_the_top_bar">Pulse la sección rojo transparente para mostrar la barra superior de nuevo, que desaparece cuando se desplaza.\nDespués de 5 segundos, la barra también está oculta y para mostrarla de nuevo desplazamiento.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Pulse aquí para mostrar el panel \"Ir a\" para que pueda ir rápidamente a una página específica.</string>
     <string name="text_tap_here_to_show_menu_panel">Pulse aquí para mostrar el panel del menú, para que pueda activar o desactivar algunas opciones (luz nocturna, pantalla completa, etc.).</string>
+    <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">Pulse (y publicar) aquí para añadir o eliminar la página actual a marcadores.\nPulsa y mantén pulsado (\"toque largo\") aquí para ver todos los marcadores guardados para el archivo PDF actual.</string>
     <string name="text_scroll_to_show_the_top_bar_again">Después de 5 segundos, la barra superior se oculta automáticamente para que sea más fácil leer el documento. Para restaurar la barra superior (así que para mostrarla de nuevo) sólo tiene que desplazarse.</string>
+    <string name="text_swipe_left_to_remove_tap_to_go_to_the_page_bookmarks">Aquí tiene la lista de todos los marcadores del archivo PDF actual.\nPuede ver una vista previa de la página en el lado izquierdo.\nDesliza a la izquierda para eliminar el marcador, mientras pulsa sobre él para ir a la página del marcador.</string>
+    <string name="toast_bookmark_added">Marcador añadido</string>
+    <string name="toast_bookmark_removed">Marcador eliminado</string>
+    <string name="no_bookmarks_present_text">No hay marcadores presentes para este archivo PDF.</string>
+    <string name="loading_preview_of_bookmarks_text">Cargando vista previa de marcadores…</string>
+    <string name="page_number_text">Número de página: %d</string>
     <string name="text_password_required">Contraseña requerida</string>
     <string name="text_password_inserted_wrong">Contraseña insertada incorrecta</string>
     <string name="button_ok">OK</string>
@@ -31,7 +40,12 @@
     <string name="tooltip_close_app">Cerrar app</string>
     <string name="tooltip_go_to_the_page">Ir a la página insertada</string>
     <string name="tooltip_close_panel">Cerrar este panel</string>
-    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_ok_button">OK, continue</string>
     <string name="tooltip_open_file_password">Abrir este archivo</string>
     <string name="tooltip_review_now">Ir a tu tienda de aplicaciones y revisar ahora</string>
+    <string name="tooltip_follow_now">Ir a Instagrama y seguir la cuenta de la aplicación</string>
+    <string name="tooltip_add_to_bookmarks">Añadir la página actual a marcadores</string>
+    <string name="tooltip_remove_from_bookmarks">Eliminar la página actual de los marcadores</string>
+    <string name="tooltip_see_all_bookmarks">Ver todos los marcadores</string>
+    <string name="tooltip_close_bookmarks">Cerrar todos los marcadores</string>
 </resources>

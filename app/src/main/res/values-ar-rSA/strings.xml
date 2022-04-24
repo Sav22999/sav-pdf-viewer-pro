@@ -5,13 +5,22 @@
     <string name="title_settings">الإعدادات</string>
     <string name="title_recents">Recents</string>
     <string name="title_favourites">المفضلة</string>
-    <string name="text_review_the_app">هل تحب هذا التطبيق؟\nمن فضلك، اترك مراجعة على Google Play.\nإنها مجرد بضع ثوان لك 😊</string>
+    <string name="text_review_the_app">هل تعجبك هذا التطبيق؟\nمن فضلك، اترك مراجعة ⭐ على Google Play.\nإنه مجرد بضع ثوان لك 😊</string>
     <string name="button_review_the_app_now">مراجعة الآن</string>
     <string name="text_review_the_app_later">مراجعة لاحقًا</string>
+    <string name="text_follow_on_instagram_the_app">لقد قمت للتو بإنشاء حساب Instagram في التطبيق.\nهناك، ستجد نصائح، فضوليات وشيء آخر! 😉\nتابعه الآن 💙</string>
+    <string name="button_follow_instagram_the_app_now">تابع على Instagram</string>
     <string name="text_tap_here_to_show_the_top_bar">اضغط على القسم الأحمر الشفاف لإظهار الشريط العلوي مرة أخرى، والذي يختفي عند التمرين.\nبعد 5 ثواني يتم إخفاء الشريط أيضا وإظهاره مرة أخرى.</string>
     <string name="text_tap_here_to_show_go_to_dialog">اضغط هنا لإظهار لوحة \"انتقل إلى\"، حتى تتمكن من الذهاب بسرعة إلى صفحة معينة.</string>
     <string name="text_tap_here_to_show_menu_panel">اضغط هنا لعرض لوحة القائمة، حتى تتمكن من تشغيل أو إيقاف بعض الخيارات (الضوء الليلي، ملء الشاشة، إلخ).</string>
+    <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">انقر هنا لإضافة أو إزالة الصفحة الحالية إلى الإشارات المرجعية.\nاضغط واستمر (\"انقر طويل\") هنا لمشاهدة جميع الإشارات المرجعية المحفوظة لملف PDF الحالي.</string>
     <string name="text_scroll_to_show_the_top_bar_again">بعد 5 ثوانٍ يتم إخفاء الشريط العلوي تلقائيًا لذلك فإنه أسهل قراءة مستنداتك. لاستعادة الشريط العلوي (لذلك ، لإظهاره مرة أخرى) تحتاج فقط للتمرير.</string>
+    <string name="text_swipe_left_to_remove_tap_to_go_to_the_page_bookmarks">هنا لديك قائمة بجميع الإشارات المرجعية لملف PDF الحالي.\nيمكنك رؤية معاينة للصفحة في الجانب الأيسر.\nاسحب لليسار لإزالة العلامة المرجعية، أثناء النقر عليها للذهاب إلى صفحة الإشارات المرجعية.</string>
+    <string name="toast_bookmark_added">تمت إضافة إشارة مرجعية</string>
+    <string name="toast_bookmark_removed">تمت إزالة الإشارة المرجعية</string>
+    <string name="no_bookmarks_present_text">لا توجد إشارات مرجعية لملف PDF هذا.</string>
+    <string name="loading_preview_of_bookmarks_text">جارٍ تحميل معاينة الإشارات المرجعية…</string>
+    <string name="page_number_text">رقم الصفحة: %d</string>
     <string name="text_password_required">كلمة المرور مطلوبة</string>
     <string name="text_password_inserted_wrong">كلمة المرور مدرجة خاطئة</string>
     <string name="button_ok">حسناً</string>
@@ -31,7 +40,12 @@
     <string name="tooltip_close_app">إغلاق التطبيق</string>
     <string name="tooltip_go_to_the_page">الذهاب إلى الصفحة المدرجة</string>
     <string name="tooltip_close_panel">إغلاق هذه اللوحة</string>
-    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_ok_button">OK, continue</string>
     <string name="tooltip_open_file_password">فتح هذا الملف</string>
     <string name="tooltip_review_now">انتقل إلى متجر التطبيقات الخاص بك ومراجعتها الآن</string>
+    <string name="tooltip_follow_now">الذهاب إلى Instagram واتبع حساب التطبيق</string>
+    <string name="tooltip_add_to_bookmarks">إضافة الصفحة الحالية إلى الإشارات المرجعية</string>
+    <string name="tooltip_remove_from_bookmarks">إزالة الصفحة الحالية من الإشارات المرجعية</string>
+    <string name="tooltip_see_all_bookmarks">عرض جميع الإشارات المرجعية</string>
+    <string name="tooltip_close_bookmarks">إغلاق جميع الإشارات المرجعية</string>
 </resources>

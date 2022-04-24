@@ -5,13 +5,22 @@
     <string name="title_settings">Options</string>
     <string name="title_recents">Recents</string>
     <string name="title_favourites">Favoris</string>
-    <string name="text_review_the_app">Vous aimez cette application ?\nS\'il vous plaît, laisser un avis sur Google Play.\nCe n\'est que quelques secondes pour vous 😊</string>
+    <string name="text_review_the_app">Vous aimez cette application ?\nS\'il vous plaît, laissez un commentaire ⭐ sur Google Play.\nCe n\'est que quelques secondes pour vous 😊</string>
     <string name="button_review_the_app_now">Vérifier maintenant</string>
     <string name="text_review_the_app_later">Réviser plus tard</string>
+    <string name="text_follow_on_instagram_the_app">Je viens de créer le compte Instagram de l\'application.\nVous y trouverez des conseils, des curiosités et quelque chose d\'autre ! 😉\nSuivez-le maintenant 💙</string>
+    <string name="button_follow_instagram_the_app_now">Suivre sur Instagram</string>
     <string name="text_tap_here_to_show_the_top_bar">Appuyez sur la section rouge transparente pour afficher à nouveau la barre supérieure, qui disparaît lorsque vous faites défiler.\nAprès 5 secondes, la barre est également cachée et pour la faire défiler à nouveau.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Appuyez ici pour afficher le panneau \"Aller à\", afin que vous puissiez accéder rapidement à une page spécifique.</string>
     <string name="text_tap_here_to_show_menu_panel">Appuyez ici pour afficher le panneau du menu, afin de pouvoir activer ou désactiver certaines options (lumière de nuit, plein écran, etc.).</string>
+    <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">Appuyez (et relâchez) ici pour ajouter ou supprimer la page actuelle aux signets.\nAppuyez et maintenez (\"appui long\") ici pour voir tous les signets enregistrés pour le fichier PDF actuel.</string>
     <string name="text_scroll_to_show_the_top_bar_again">Après 5 secondes, la barre du haut est automatiquement masquée pour qu\'il soit plus facile de lire votre document. Pour restaurer la barre supérieure (donc pour la réafficher), il vous suffit de faire défiler.</string>
+    <string name="text_swipe_left_to_remove_tap_to_go_to_the_page_bookmarks">Vous trouverez ici la liste de tous les signets du fichier PDF courant.\nVous pouvez voir un aperçu de la page dans le côté gauche.\nGlissez vers la gauche pour supprimer le signet, tout en appuyant dessus pour aller à la page du signet.</string>
+    <string name="toast_bookmark_added">Signet ajouté</string>
+    <string name="toast_bookmark_removed">Marque-page supprimé</string>
+    <string name="no_bookmarks_present_text">Aucun favori présent pour ce fichier PDF.</string>
+    <string name="loading_preview_of_bookmarks_text">Chargement de l\'aperçu des signets…</string>
+    <string name="page_number_text">Numéro de page : %d</string>
     <string name="text_password_required">Mot de passe requis</string>
     <string name="text_password_inserted_wrong">Mot de passe inséré mal</string>
     <string name="button_ok">OK</string>
@@ -31,7 +40,12 @@
     <string name="tooltip_close_app">Fermer l\'application</string>
     <string name="tooltip_go_to_the_page">Aller à la page insérée</string>
     <string name="tooltip_close_panel">Fermer ce panneau</string>
-    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_ok_button">OK, continue</string>
     <string name="tooltip_open_file_password">Ouvrir ce fichier</string>
     <string name="tooltip_review_now">Accédez à votre app store et commentez maintenant</string>
+    <string name="tooltip_follow_now">Allez sur Instagram et suivez le compte de l\'application</string>
+    <string name="tooltip_add_to_bookmarks">Ajouter la page actuelle aux favoris</string>
+    <string name="tooltip_remove_from_bookmarks">Supprimer la page courante des favoris</string>
+    <string name="tooltip_see_all_bookmarks">Voir tous les signets</string>
+    <string name="tooltip_close_bookmarks">Fermer tous les signets</string>
 </resources>

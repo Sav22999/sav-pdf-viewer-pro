@@ -1,0 +1,3 @@
+- Added "Bookmarks": now you can add, remove and manage bookmarks
+- Improved the backend code and the frontend UI
+- Created the <a href="https://www.instagram.com/savpdfviewer/">Instagram account</a> of the app. Follow it!

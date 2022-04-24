@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
@@ -19,8 +20,15 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.widget.addTextChangedListener
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.listener.OnErrorListener
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.saverio.pdfviewer.db.BookmarksModel
+import com.saverio.pdfviewer.db.DatabaseHandler
+import com.saverio.pdfviewer.db.FilesModel
+import com.saverio.pdfviewer.ui.BookmarksItemAdapter
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
@@ -34,6 +42,7 @@ class PDFViewer : AppCompatActivity() {
     var uriOpened: Uri? = null
 
     val timesAfterOpenReviewMessage = 500
+    val timesAfterShowFollowApp = 5
 
     var isFullscreenEnabled = false
     var showingTopBar = true
@@ -50,6 +59,7 @@ class PDFViewer : AppCompatActivity() {
     var savedCurrentPage = 0
 
     var hideTopBarCounter = 0
+    var dialog: BottomSheetDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,11 +97,10 @@ class PDFViewer : AppCompatActivity() {
         }
 
 
-        checkReviewApp()
+        checkReviewFollowApp()
 
         val backButton: ImageView = findViewById(R.id.buttonGoBackToolbar)
         backButton.setOnClickListener {
-            updateLastFileOpened("")
             resetHideTopBarCounter()
             finish()
         }
@@ -136,14 +145,13 @@ class PDFViewer : AppCompatActivity() {
 
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
         currentPage.setOnClickListener {
-            if (findViewById<ConstraintLayout>(R.id.messageGoTo).isGone){
+            if (findViewById<ConstraintLayout>(R.id.messageGoTo).isGone) {
                 val currentPosition1 = pdfViewer.positionOffset
                 Handler().postDelayed({
                     val currentPosition2 = pdfViewer.positionOffset
                     showGoToDialog(x = currentPosition1, y = currentPosition2)
                 }, 100)
-            }
-            else hideGoToDialog()
+            } else hideGoToDialog()
             resetHideTopBarCounter()
         }
         currentPage.setOnLongClickListener {
@@ -263,15 +271,21 @@ class PDFViewer : AppCompatActivity() {
                     lastPosition = getPdfPage(uri.toString())
                     /*pdfViewer.positionOffset = 1F
                     totalPages = pdfViewer.currentPage + 1*/
+                    //TODO
                     /*
                     println("title: " + pdfViewer.documentMeta.title)
                     println("author: " + pdfViewer.documentMeta.author)
                     println("keywords: " + pdfViewer.documentMeta.keywords)
+                    println("creator: " + pdfViewer.documentMeta.creator)
+                    println("modifiedDate: " + pdfViewer.documentMeta.modDate)
+                    println("producer: " + pdfViewer.documentMeta.producer)
+                    println("subject: " + pdfViewer.documentMeta.subject)
                     println("creationDate: " + pdfViewer.documentMeta.creationDate)
                     */
                 }
                 .onRender { nbPages, pageWidth, pageHeight ->
                     totalPages = nbPages
+                    if (lastPosition >= totalPages) lastPosition = (totalPages - 1)
                     updatePdfPage(uri.toString(), lastPosition)
                     if (totalPages == 1) {
                         isSupportedGoTop = false
@@ -284,6 +298,8 @@ class PDFViewer : AppCompatActivity() {
                     } else {
                         hideTopBar()
                     }
+
+                    checkFirstTimeShowMessageGuide()
                 }
                 .onError(OnErrorListener {
                     if (it.message.toString()
@@ -309,6 +325,7 @@ class PDFViewer : AppCompatActivity() {
         val buttonClose: TextView = findViewById(R.id.buttonClosePassword)
 
         val textboxPassword: EditText = findViewById(R.id.textboxPassword)
+        showSoftKeyboard(textboxPassword)
 
         textboxPassword.setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus) {
@@ -363,6 +380,7 @@ class PDFViewer : AppCompatActivity() {
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
         val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
         val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
+        val buttonBookmark: ImageView = findViewById(R.id.buttonBookmarkToolbar)
         toolbar.isGone = true
         buttonClose.isGone = true
         buttonShare.isGone = true
@@ -372,6 +390,7 @@ class PDFViewer : AppCompatActivity() {
         toolbarInvisible.isGone = true
         buttonOpen.isGone = true
         buttonMenu.isGone = true
+        buttonBookmark.isGone = true
 
 
         val background: View = findViewById(R.id.passwordBackgroundScreen)
@@ -440,9 +459,11 @@ class PDFViewer : AppCompatActivity() {
                 val goTopButton: ImageView = findViewById(R.id.buttonGoTopToolbar)
                 val openButton: ImageView = findViewById(R.id.buttonOpenToolbar)
                 val menuButton: ImageView = findViewById(R.id.buttonMenuToolbar)
+                val bookmarkButton: ImageView = findViewById(R.id.buttonBookmarkToolbar)
                 shareButton.isGone = true
                 menuButton.isGone = true
                 fullscreenButton.isGone = true
+                bookmarkButton.isGone = true
                 uriOpened = selectedPdf
                 if (uriOpened != null) {
                     try {
@@ -455,13 +476,11 @@ class PDFViewer : AppCompatActivity() {
                     if (isSupportedGoTop) goTopButton.isGone = false
                     isSupportedShareFeature = true
                     openButton.isGone = false
+                    bookmarkButton.isGone = false
                 }
                 val pagesNumber: TextView = findViewById(R.id.totalPagesToolbar)
                 pagesNumber.isGone = true
 
-                //checkRecentFiles(selectedPdf)
-
-                updateLastFileOpened(selectedPdf.toString())
                 //setTitle(getTheFileName(selectedPdf.toString(), -1))
             } catch (e: Exception) {
                 println("Exception 4: Loading failed")
@@ -485,14 +504,32 @@ class PDFViewer : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-        updateLastFileOpened("")
         super.onBackPressed()
     }
 
     private fun updatePdfPage(pathName: String, currentPage: Int) {
-        val pathNameTemp = getTheFileName(pathName, 0).toMD5()
-        getSharedPreferences(pathNameTemp, Context.MODE_PRIVATE).edit()
-            .putInt(pathNameTemp, currentPage).apply()
+        val pathNameTemp = getTheFileName(pathName, 0).toMD5() //file-id
+        val databaseHandler = DatabaseHandler(this)
+        if (databaseHandler.checkFile(id = pathNameTemp)) {
+            //already exists -> update
+            val file = databaseHandler.getFiles(id = pathNameTemp)[0]
+            file.lastPage = currentPage //update the lastPage variable
+            file.lastUpdate = getNow() //update the lastUpdate variable
+            databaseHandler.updateFile(file = file)
+        } else {
+            //not exists -> add
+            val file = FilesModel(
+                id = pathNameTemp,
+                date = getNow(),
+                lastUpdate = getNow(),
+                path = pathName,
+                lastPage = currentPage,
+                notes = ""
+            )
+            databaseHandler.add(file = file)
+        }
+        /*getSharedPreferences(pathNameTemp, Context.MODE_PRIVATE).edit()
+            .putInt(pathNameTemp, currentPage).apply()*/
 
         val currentPageText: TextView = findViewById(R.id.totalPagesToolbar)
         currentPageText.text = (currentPage + 1).toString() + "/" + totalPages.toString()
@@ -500,86 +537,128 @@ class PDFViewer : AppCompatActivity() {
         savedCurrentPageOld = savedCurrentPage
         savedCurrentPage = currentPage
         //println("current page: $savedCurrentPage")
+        updateButtonBookmark(pathName = pathName, currentPage = currentPage)
+    }
+
+    fun updateButtonBookmark(pathName: String, currentPage: Int) {
+        val pathNameTemp = getTheFileName(pathName, 0).toMD5() //file-id
+        val bookmarkButton: ImageView = findViewById(R.id.buttonBookmarkToolbar)
+
+        val databaseHandler = DatabaseHandler(this)
+
+        if (databaseHandler.checkBookmark(fileId = pathNameTemp, page = currentPage)) {
+            //there is the bookmark
+            bookmarkButton.setImageResource(R.drawable.ic_add_bookmark)
+            bookmarkButton.setOnClickListener {
+                //remove bookmark
+                databaseHandler.deleteBookmark(
+                    databaseHandler.getBookmarks(
+                        fileId = pathNameTemp,
+                        page = currentPage
+                    )[0].id!!
+                )
+                Toast.makeText(this, getString(R.string.toast_bookmark_removed), Toast.LENGTH_SHORT)
+                    .show()
+                updateButtonBookmark(pathName, currentPage)
+            }
+        } else {
+            //no bookmark
+            bookmarkButton.setImageResource(R.drawable.ic_no_bookmark)
+            bookmarkButton.setOnClickListener {
+                //add bookmark
+                val bookmark = BookmarksModel(
+                    id = null,
+                    date = getNow(),
+                    file = pathNameTemp,
+                    page = currentPage,
+                    ""
+                )
+                databaseHandler.add(bookmark = bookmark)
+                Toast.makeText(this, getString(R.string.toast_bookmark_added), Toast.LENGTH_SHORT)
+                    .show()
+                updateButtonBookmark(pathName, currentPage)
+            }
+        }
+
+        bookmarkButton.setOnLongClickListener {
+            showAllBookmarks(pathName)
+            true
+        }
+
+        resetHideTopBarCounter()
+    }
+
+    fun showAllBookmarks(pathName: String) {
+        val pathNameTemp = getTheFileName(pathName, 0).toMD5() //file-id
+        val databaseHandler = DatabaseHandler(this)
+        val bookmarks = databaseHandler.getBookmarks(fileId = pathNameTemp)
+        dialog = BottomSheetDialog(this)
+        val view = layoutInflater.inflate(R.layout.bottom_sheet_bookmarks, null)
+        view.setBackgroundResource(R.drawable.border_bottomsheet)
+        dialog!!.setContentView(view)
+        dialog!!.dismissWithAnimation = true
+        dialog!!.setCancelable(true)
+        dialog!!.setOnShowListener {
+            val bookmarkItemsList: RecyclerView = view.findViewById(R.id.bookmarksList)
+            val noBookmarksPresent: TextView = view.findViewById(R.id.noBookmarksPresentText)
+            val loadingBookmarks: TextView = view.findViewById(R.id.loadingPreviewOfBookmarksText)
+            val constraintMessageGuide: ConstraintLayout =
+                view.findViewById(R.id.constraintMessageGuide)
+            val buttonHideMessageGuide: TextView = view.findViewById(R.id.buttonHideGuideBookmarks)
+
+            if (bookmarks.size > 0) {
+                noBookmarksPresent.visibility = View.GONE
+                bookmarkItemsList.visibility = View.VISIBLE
+
+                bookmarkItemsList.layoutManager = LinearLayoutManager(this)
+                bookmarkItemsList.setHasFixedSize(false)
+                val itemAdapter = BookmarksItemAdapter(this, bookmarks)
+                bookmarkItemsList.adapter = itemAdapter
+                loadingBookmarks.isGone = true
+
+                if (getBooleanData("firstTimeSeeAllBookmarks", true)) {
+                    constraintMessageGuide.isGone = false
+                    buttonHideMessageGuide.setOnClickListener {
+                        saveBooleanData("firstTimeSeeAllBookmarks", false)
+                        constraintMessageGuide.isGone = true
+                    }
+                }
+            } else {
+                noBookmarksPresent.visibility = View.VISIBLE
+                bookmarkItemsList.visibility = View.GONE
+                loadingBookmarks.isGone = true
+            }
+        }
+        dialog!!.setOnDismissListener {
+            showTopBar()
+            updateButtonBookmark(pathName, pdfViewer.currentPage)
+            dialog = null
+        }
+        dialog!!.show()
+    }
+
+    fun hideBottomSheet() {
+        if (dialog != null) {
+            dialog!!.dismiss()
+            dialog = null
+        }
+    }
+
+    @SuppressLint("SimpleDateFormat")
+    fun getNow(): String {
+        val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
+        return sdf.format(Date())
     }
 
     private fun getPdfPage(pathName: String): Int {
-        val pathNameTemp = getTheFileName(pathName, 0).toMD5()
-        return getSharedPreferences(pathNameTemp, Context.MODE_PRIVATE).getInt(pathNameTemp, 0)
-    }
-
-    private fun checkRecentFiles(uri: Uri?) {
-        //format: date1:::uri1:::favourite1/:::/date2:::uri2:::favourite2/:::/.. ecc.
-        val uriToUse = getTheFileName(uri.toString(), 2)
-        //println(uriToUse)
-        val RECENT_FILES = "recents"
-        val recentFiles: String? =
-            getSharedPreferences(RECENT_FILES, Context.MODE_PRIVATE).getString(RECENT_FILES, "")
-        var recentFilesToSave = ""
-
-        var recentFilesParts = recentFiles?.split("/:::/")
-
-        var found = false
-        var found_i = -1
-        var i = 0
-        var added_i = 0
-        while (i < recentFilesParts!!.size) {
-            val recentFilesParts2 = recentFilesParts[i].split(":::")
-            if (recentFilesParts2.size == 3 && recentFilesParts2[1] == uriToUse) {
-                found = true
-                found_i = i
-            }
-
-            if (recentFilesParts2.size == 3) {
-                if (added_i > 0) recentFilesToSave += "/:::/"
-                recentFilesToSave += "${recentFilesParts2[0]}:::${recentFilesParts2[1]}:::${recentFilesParts2[2]}"
-                added_i++
-            }
-            i++
-        }
-
-        val sdf = SimpleDateFormat("yyyy/MM/dd HH:mm:ss")
-        val currentDate = sdf.format(Date())
-
-
-        if (recentFiles != null && added_i > 0 && found) {
-            //already in recent files: remove and re-add the element
-            //println("Already in list")
-            if (added_i == 1 || found_i == 0) {
-                //it's not necessary remove and re-add
-            } else {
-                //it's necessary
-                recentFilesToSave =
-                    "${currentDate}:::${uriToUse}:::false/:::/" + getRecentFilesWithoutIndex(
-                        found_i,
-                        recentFilesParts
-                    )
-            }
-        } else if (recentFiles == null || added_i == 0) {
-            //add to the recent files: no other elements --> first element in the list
-            //println("List empty - Added")
-            recentFilesToSave = "${currentDate}:::${uriToUse}:::false"
+        val pathNameTemp = getTheFileName(pathName, 0).toMD5() //file-id
+        //return getSharedPreferences(pathNameTemp, Context.MODE_PRIVATE).getInt(pathNameTemp, 0)
+        val databaseHandler = DatabaseHandler(this)
+        return if (databaseHandler.checkFile(pathNameTemp)) {
+            databaseHandler.getFiles(id = pathNameTemp)[0].lastPage
         } else {
-            //add to the recent files: with other elements
-            //println("Added")
-            recentFilesToSave = "${currentDate}:::${uriToUse}:::false/:::/" + recentFilesToSave
+            0
         }
-        getSharedPreferences(RECENT_FILES, Context.MODE_PRIVATE).edit()
-            .putString(RECENT_FILES, recentFilesToSave).apply()
-    }
-
-    fun getRecentFilesWithoutIndex(index: Int, recentFiles: List<String>): String {
-        var recentFilesToSave = ""
-        var i = 0
-        while (i < recentFiles.size) {
-            if (i != index) {
-                if (i != 0) {
-                    recentFilesToSave += " /:::/ "
-                }
-                recentFilesToSave += recentFiles[i]
-            }
-            i++
-        }
-        return recentFilesToSave
     }
 
     fun getTheFileName(path: String, type: Int = 0): String {
@@ -619,18 +698,6 @@ class PDFViewer : AppCompatActivity() {
             println("Exception 2 : ${e.toString()}")
         }
         return ""
-    }
-
-    fun getLastFileOpened(): String? {
-        return getSharedPreferences(
-            "last_opened_file",
-            Context.MODE_PRIVATE
-        ).getString("last_opened_file", "")
-    }
-
-    fun updateLastFileOpened(uri: String?) {
-        getSharedPreferences("last_opened_file", Context.MODE_PRIVATE).edit()
-            .putString("last_opened_file", uri).apply()
     }
 
     fun String.toMD5(): String {
@@ -686,6 +753,7 @@ class PDFViewer : AppCompatActivity() {
         val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
         val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
         val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
+        val buttonBookmark: ImageView = findViewById(R.id.buttonBookmarkToolbar)
         if (x == y) {
             showingTopBar = true
             hideTopBarCounter = 0
@@ -698,6 +766,7 @@ class PDFViewer : AppCompatActivity() {
             buttonOpen.isGone = false
             buttonMenu.isGone = false
             buttonNightDay.isGone = false
+            buttonBookmark.isGone = false
 
             currentPage.isGone = false
             currentPage.setTextColor(ContextCompat.getColor(applicationContext, R.color.white))
@@ -705,15 +774,11 @@ class PDFViewer : AppCompatActivity() {
 
             hideMessageGuide1()
 
-            if (getBooleanData("firstTimeShowTopBar", true)) {
-                checkFirstTimeShowTopBar()
-            } else if (getBooleanData("firstTimeShowTopBarMenu", true)) {
-                checkFirstTimeShowTopBar()
-            }
+            checkFirstTimeShowMessageGuide()
         }
     }
 
-    fun checkFirstTimeShowTopBar() {
+    fun checkFirstTimeShowMessageGuide() {
         if (getBooleanData("firstTimeShowTopBar", true)) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
             val arrow: View = findViewById(R.id.arrowRight)
@@ -728,12 +793,21 @@ class PDFViewer : AppCompatActivity() {
                 arrow.isGone = true
                 saveBooleanData("firstTimeShowTopBar", false)
 
-                checkFirstTimeShowTopBar()
+                checkFirstTimeShowMessageGuide()
             }
         } else if (getBooleanData("firstTimeShowTopBarMenu", true)) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
-            val arrow: View = findViewById(R.id.arrowRight2)
+            val arrow: View = findViewById(R.id.arrowRight3)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
+
+            val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
+            pageNumberTextViewToolbar.isGone = false
+            Handler().postDelayed({
+                arrow.animate()
+                    .x(pageNumberTextViewToolbar.x + (pageNumberTextViewToolbar.width / 2) - (arrow.width / 2))
+                    .setDuration(200).start()
+            }, 200)
+
             messageText.setText(getString(R.string.text_tap_here_to_show_menu_panel))
             message.isGone = false
             arrow.isGone = false
@@ -744,7 +818,32 @@ class PDFViewer : AppCompatActivity() {
                 arrow.isGone = true
                 saveBooleanData("firstTimeShowTopBarMenu", false)
 
-                checkFirstTimeShowTopBar()
+                checkFirstTimeShowMessageGuide()
+            }
+        } else if (getBooleanData("firstTimeBookmarks", true)) {
+            val message: ConstraintLayout = findViewById(R.id.messageGuide1)
+            val arrow: View = findViewById(R.id.arrowRight2)
+            val messageText: TextView = findViewById(R.id.messageTextGuide1)
+            messageText.setText(getString(R.string.text_tap_here_to_add_or_remove_the_current_page_to_bookmarks))
+
+            val bookmarkButtonToolbar: ImageView = findViewById(R.id.buttonBookmarkToolbar)
+            bookmarkButtonToolbar.isGone = false
+            Handler().postDelayed({
+                arrow.animate()
+                    .x(bookmarkButtonToolbar.x + (bookmarkButtonToolbar.width / 2) - (arrow.width / 2))
+                    .setDuration(200).start()
+            }, 200)
+
+            message.isGone = false
+            arrow.isGone = false
+
+            val button: TextView = findViewById(R.id.buttonHideGuide1)
+            button.setOnClickListener {
+                message.isGone = true
+                arrow.isGone = true
+                saveBooleanData("firstTimeBookmarks", false)
+
+                checkFirstTimeShowMessageGuide()
             }
         }
     }
@@ -764,6 +863,7 @@ class PDFViewer : AppCompatActivity() {
             val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
             val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
             val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
+            val buttonBookmark: ImageView = findViewById(R.id.buttonBookmarkToolbar)
 
             if (!showingTopBar) {
                 currentPage.setTextColor(
@@ -813,6 +913,7 @@ class PDFViewer : AppCompatActivity() {
                 buttonOpen.isGone = true
                 buttonMenu.isGone = true
                 buttonNightDay.isGone = true
+                buttonBookmark.isGone = true
 
                 if (message.isGone && messageGoTo.isGone && menuPanel.isGone) {
                     toolbarInvisible.isGone = fullHiding
@@ -837,6 +938,7 @@ class PDFViewer : AppCompatActivity() {
                     buttonNightDay.isGone = true
                     toolbarInvisible.isGone = true
                     currentPage.isGone = true
+                    buttonBookmark.isGone = true
 
                     showHideAfterFiveSeconds()
                 }
@@ -864,18 +966,18 @@ class PDFViewer : AppCompatActivity() {
 
     fun hideMessageGuide1() {
         val message: ConstraintLayout = findViewById(R.id.messageGuide1)
-        val arrow: View = findViewById(R.id.arrowLeft)
-        val arrow2: View = findViewById(R.id.arrowRight)
-        val arrow3: View = findViewById(R.id.arrowRight2)
-        if (!message.isGone || !arrow.isGone) {
-            message.isGone = true
-            arrow.isGone = true
-            arrow2.isGone = true
-            arrow3.isGone = true
-        }
+        val arrow0: View = findViewById(R.id.arrowLeft)
+        val arrow1: View = findViewById(R.id.arrowRight)
+        val arrow2: View = findViewById(R.id.arrowRight2)
+        val arrow3: View = findViewById(R.id.arrowRight3)
+        message.isGone = true
+        arrow0.isGone = true
+        arrow1.isGone = true
+        arrow2.isGone = true
+        arrow3.isGone = true
     }
 
-    fun checkReviewApp() {
+    fun checkReviewFollowApp() {
         var timesOpened = getSharedPreferences(
             "app_opened_times",
             Context.MODE_PRIVATE
@@ -886,32 +988,66 @@ class PDFViewer : AppCompatActivity() {
             Context.MODE_PRIVATE
         ).getBoolean("already_reviewed_app", false)
 
-        val buttonReviewNow: TextView = findViewById(R.id.buttonReviewNow)
-        val messageContainer: ConstraintLayout = findViewById(R.id.messageContainer)
-        val buttonHideMessage: ImageView = findViewById(R.id.buttonHideMessageDialog)
+        val alreadyFollow = getSharedPreferences(
+            "already_follow_app",
+            Context.MODE_PRIVATE
+        ).getBoolean("already_follow_app", false)
 
-        buttonReviewNow.setOnClickListener {
+        val buttonReviewNowReview: TextView = findViewById(R.id.buttonReviewNowReview)
+        val messageContainerReview: ConstraintLayout = findViewById(R.id.messageContainerReview)
+        val buttonHideMessageReview: ImageView = findViewById(R.id.buttonHideMessageDialogReview)
+
+        val buttonFollowNowInstagram: TextView = findViewById(R.id.buttonFollowNowInstagram)
+        val messageContainerInstagram: ConstraintLayout =
+            findViewById(R.id.messageContainerInstagram)
+        val buttonHideMessageInstagram: ImageView =
+            findViewById(R.id.buttonHideMessageDialogInstagram)
+
+        buttonReviewNowReview.setOnClickListener {
             if (openOnGooglePlay()) {
-                messageContainer.isGone = true
+                messageContainerReview.isGone = true
                 getSharedPreferences("already_reviewed_app", Context.MODE_PRIVATE).edit()
                     .putBoolean("already_reviewed_app", true).apply()
             }
         }
 
-        buttonHideMessage.setOnClickListener {
-            messageContainer.isGone = true
+        buttonHideMessageReview.setOnClickListener {
+            messageContainerReview.isGone = true
         }
 
+        buttonFollowNowInstagram.setOnClickListener {
+            if (openInstagram()) {
+                messageContainerInstagram.isGone = true
+                getSharedPreferences("already_follow_app", Context.MODE_PRIVATE).edit()
+                    .putBoolean("already_follow_app", true).apply()
+            }
+        }
+
+        buttonHideMessageInstagram.setOnClickListener {
+            messageContainerInstagram.isGone = true
+        }
+
+        //check whether show "review on google play" message
         if (!alreadyReviewed) {
             if ((timesOpened % timesAfterOpenReviewMessage) == 0 && timesOpened >= timesAfterOpenReviewMessage) {
-                messageContainer.isGone = false
+                messageContainerReview.isGone = false
             } else {
-                messageContainer.isGone = true
+                messageContainerReview.isGone = true
             }
         } else {
-            messageContainer.isGone = true
+            messageContainerReview.isGone = true
         }
 
+        //check whether show "follow on instagram" message
+        if (!alreadyFollow) {
+            if ((timesOpened % timesAfterShowFollowApp) == 0 && timesOpened >= timesAfterShowFollowApp) {
+                messageContainerInstagram.isGone = false
+            } else {
+                messageContainerInstagram.isGone = true
+            }
+        } else {
+            messageContainerInstagram.isGone = true
+        }
 
         timesOpened++
         getSharedPreferences("app_opened_times", Context.MODE_PRIVATE).edit()
@@ -935,7 +1071,42 @@ class PDFViewer : AppCompatActivity() {
         return valueToReturn
     }
 
-    fun showGoToDialog(x: Float = 0F, y:Float= 0F) {
+    fun openInstagram(): Boolean {
+        var valueToReturn = true
+        try {
+            startActivity(
+                Intent(instagramIntent(this))
+            )
+        } catch (e: Exception) {
+            println("Exception 10: " + e.toString())
+            valueToReturn = false
+        }
+
+        return valueToReturn
+    }
+
+    private fun instagramIntent(context: Context): Intent {
+        val instaId = "savpdfviewer"
+        val appResolver = "instagram://user?username="
+        val webResolver = "https://instagram.com/"
+        val instaPackageName = "com.instagram.android"
+        val instaLitePackName = "com.instagram.lite"
+        return try {
+            context.packageManager.getPackageInfo(instaPackageName, 0)
+            Intent(Intent.ACTION_VIEW, Uri.parse(appResolver + instaId))
+        } catch (e1: PackageManager.NameNotFoundException) {
+            //println("Instagram not found")
+            try {
+                context.packageManager.getPackageInfo(instaLitePackName, 0)
+                Intent(Intent.ACTION_VIEW, Uri.parse(appResolver + instaId))
+            } catch (e2: PackageManager.NameNotFoundException) {
+                //println("Instagram and Instagram lite not found")
+                Intent(Intent.ACTION_VIEW, Uri.parse(webResolver + instaId))
+            }
+        }
+    }
+
+    fun showGoToDialog(x: Float = 0F, y: Float = 0F) {
         if (x == y) {
             if (pdfViewer.currentPage == 0) showTopBar(showGoTop = false)
             else showTopBar()
@@ -956,8 +1127,17 @@ class PDFViewer : AppCompatActivity() {
             message.isGone = false
             arrow.isGone = false
 
+            val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
+            pageNumberTextViewToolbar.isGone = false
+            Handler().postDelayed({
+                arrow.animate()
+                    .x(pageNumberTextViewToolbar.x + (pageNumberTextViewToolbar.width / 2) - (arrow.width / 2))
+                    .setDuration(200).start()
+            }, 200)
+
             textbox.requestFocus()
             textbox.hasFocus()
+            showSoftKeyboard(textbox)
             textbox.setOnFocusChangeListener { v, hasFocus ->
                 if (hasFocus) {
                     window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
@@ -1011,16 +1191,29 @@ class PDFViewer : AppCompatActivity() {
             }
         }
         try {
-            pdfViewer.jumpTo(valueToGo, true)
+            goToPage(valueToGo, true)
             textbox.clearFocus()
         } catch (e: Exception) {
 
         }
     }
 
+    fun goToPage(valueToGo: Int, animation: Boolean = true) {
+        pdfViewer.jumpTo(valueToGo, true)
+        if (dialog != null) dialog!!.dismiss()
+    }
+
     fun hideKeyboard(view: View) {
         val manager = getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
         if (manager.isActive) manager.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    fun showSoftKeyboard(view: View) {
+        if (view.requestFocus()) {
+            val inputMethodManager: InputMethodManager =
+                getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
+        }
     }
 
     fun hideGoToDialog() {

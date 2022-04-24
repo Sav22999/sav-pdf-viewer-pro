@@ -5,13 +5,22 @@
     <string name="title_settings">Innstillinger</string>
     <string name="title_recents">Recents</string>
     <string name="title_favourites">Favoritter</string>
-    <string name="text_review_the_app">Liker du denne appen?\nVennligst legg til en vurdering på Google Play.\nDet er bare noen få sekunder for deg 😊</string>
+    <string name="text_review_the_app">Liker du denne appen?\nVennligst legg til en anmeldelse ⭐ på Google Play.\nDet er bare noen få sekunder for deg 😊</string>
     <string name="button_review_the_app_now">Gjennomgå nå</string>
     <string name="text_review_the_app_later">Gjennomgå senere</string>
+    <string name="text_follow_on_instagram_the_app">Jeg har nettopp opprettet Instagram-kontoen til appen.\nDa finner du tips, nysgjerrige og noe annet! 😉\nFølg den nå 💙</string>
+    <string name="button_follow_instagram_the_app_now">Følg på Instagram</string>
     <string name="text_tap_here_to_show_the_top_bar">Trykk på den gjennomsiktige røde delen for å vise den øverste linjen igjen, som forsvinner når du ruller ut.\nEtter 5 sekunder gjemmes baren også for å vise den igjen scroll.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Trykk her for å vise \"Gå til\"-panelet, slik at du kan raskt gå til en bestemt side.</string>
     <string name="text_tap_here_to_show_menu_panel">Trykk her for å vise menypanelet, slik at du kan slå av eller på noen alternativer (nattlys, fullskjerm osv.).</string>
+    <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">Trykk (og utgivelse) her for å legge til eller fjerne gjeldende side i bokmerker.\nTrykk og hold (\"langt trykk\") her for å se alle bokmerker lagret av den gjeldende PDF-filen.</string>
     <string name="text_scroll_to_show_the_top_bar_again">Etter 5 sekunder er den øverste linjen skjult automatisk, slik at det er enklere å lese dokumentet ditt. For å gjenopprette toppbaren (slik for å vise den igjen) må du bare scrolle.</string>
+    <string name="text_swipe_left_to_remove_tap_to_go_to_the_page_bookmarks">Her har du listen over alle bokmerkene for den aktuelle PDF-filen.\nDu kan se en forhåndsvisning av siden på venstre side.\nSveip til venstre for å fjerne bokmerket, mens du trykker på det for å gå til siden for bokmerket.</string>
+    <string name="toast_bookmark_added">Bokmerke lagt til</string>
+    <string name="toast_bookmark_removed">Bokmerke fjernet</string>
+    <string name="no_bookmarks_present_text">Det finnes ingen bokmerker for denne PDF-filen.</string>
+    <string name="loading_preview_of_bookmarks_text">Laster forhåndsvisning av bokmerker…</string>
+    <string name="page_number_text">Sidenummer: %d</string>
     <string name="text_password_required">Passord kreves</string>
     <string name="text_password_inserted_wrong">Passord satt inn feil</string>
     <string name="button_ok">Ok</string>
@@ -31,7 +40,12 @@
     <string name="tooltip_close_app">Lukk app</string>
     <string name="tooltip_go_to_the_page">Gå til den innlagte siden</string>
     <string name="tooltip_close_panel">Lukk dette panelet</string>
-    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_ok_button">OK, continue</string>
     <string name="tooltip_open_file_password">Åpne denne filen</string>
     <string name="tooltip_review_now">Gå til appbutikken din og se gjennom nå</string>
+    <string name="tooltip_follow_now">Gå til Instagram og følg app-kontoen</string>
+    <string name="tooltip_add_to_bookmarks">Legg til denne siden i bokmerker</string>
+    <string name="tooltip_remove_from_bookmarks">Fjern gjeldende side fra bokmerker</string>
+    <string name="tooltip_see_all_bookmarks">Se alle bokmerker</string>
+    <string name="tooltip_close_bookmarks">Lukk alle bokmerker</string>
 </resources>

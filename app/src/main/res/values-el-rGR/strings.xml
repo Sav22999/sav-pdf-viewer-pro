@@ -5,13 +5,22 @@
     <string name="title_settings">Ρυθμίσεις</string>
     <string name="title_recents">Recents</string>
     <string name="title_favourites">Αγαπημένα</string>
-    <string name="text_review_the_app">Σας αρέσει αυτή η εφαρμογή?\nΠαρακαλώ, αφήστε μια κριτική στο Google Play.\nΕίναι μόλις λίγα δευτερόλεπτα για εσάς 😊</string>
+    <string name="text_review_the_app">Σας αρέσει αυτή η εφαρμογή?\nΠαρακαλώ, αφήστε μια κριτική ⭐ στο Google Play.\nΕίναι μόλις λίγα δευτερόλεπτα για σας 😊</string>
     <string name="button_review_the_app_now">Επανεξέταση τώρα</string>
     <string name="text_review_the_app_later">Επανεξέταση αργότερα</string>
+    <string name="text_follow_on_instagram_the_app">Μόλις δημιούργησα το λογαριασμό Instagram της εφαρμογής.\nΕκεί, θα βρείτε συμβουλές, περιέργειες και κάτι άλλο! 😉\nΑκολουθήστε το τώρα 💙</string>
+    <string name="button_follow_instagram_the_app_now">Ακολουθήστε στο Instagram</string>
     <string name="text_tap_here_to_show_the_top_bar">Πατήστε το διαφανές κόκκινο τμήμα για να εμφανιστεί ξανά η επάνω γραμμή, η οποία εξαφανίζεται όταν κυλήσετε.\nΜετά από 5 δευτερόλεπτα, η μπάρα είναι επίσης κρυμμένη και για να την εμφανίσετε ξανά κύλιση.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Πατήστε εδώ για να δείτε τον πίνακα \"Πηγαίνετε στο\", ώστε να μπορείτε γρήγορα να μεταβείτε σε μια συγκεκριμένη σελίδα.</string>
     <string name="text_tap_here_to_show_menu_panel">Πατήστε εδώ για να εμφανίσετε τον πίνακα μενού, ώστε να μπορείτε να ενεργοποιήσετε ή να απενεργοποιήσετε κάποιες επιλογές (νυχτερινό φως, πλήρη οθόνη, κλπ.).</string>
+    <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">Πατήστε (και έκδοση) εδώ για να προσθέσετε ή να αφαιρέσετε την τρέχουσα σελίδα στους σελιδοδείκτες.\nΠατήστε παρατεταμένα (\"παρατεταμένο χτύπημα\") εδώ για να δείτε όλους τους σελιδοδείκτες που έχουν αποθηκευτεί για το τρέχον αρχείο PDF.</string>
     <string name="text_scroll_to_show_the_top_bar_again">Μετά από 5 δευτερόλεπτα, η επάνω μπάρα είναι αυτόματα κρυμμένη ώστε να είναι ευκολότερη η ανάγνωση του εγγράφου σας. Για να επαναφέρετε την επάνω γραμμή (έτσι, για να την δείξετε και πάλι) θα πρέπει απλά να κυλήσετε.</string>
+    <string name="text_swipe_left_to_remove_tap_to_go_to_the_page_bookmarks">Εδώ έχετε τη λίστα όλων των σελιδοδεικτών για το τρέχον αρχείο PDF.\nΜπορείτε να δείτε μια προεπισκόπηση της σελίδας στην αριστερή πλευρά.\nΣύρετε αριστερά για να αφαιρέσετε τον σελιδοδείκτη, ενώ πατήστε πάνω του για να μεταβείτε στη σελίδα του σελιδοδείκτη.</string>
+    <string name="toast_bookmark_added">Ο σελιδοδείκτης προστέθηκε</string>
+    <string name="toast_bookmark_removed">Ο σελιδοδείκτης αφαιρέθηκε</string>
+    <string name="no_bookmarks_present_text">Δεν υπάρχουν σελιδοδείκτες για αυτό το αρχείο PDF.</string>
+    <string name="loading_preview_of_bookmarks_text">Φόρτωση προεπισκόπησης σελιδοδεικτών…</string>
+    <string name="page_number_text">Αριθμός σελίδας: %d</string>
     <string name="text_password_required">Απαιτείται κωδικός πρόσβασης</string>
     <string name="text_password_inserted_wrong">Ο κωδικός εισήχθη λάθος</string>
     <string name="button_ok">Εντάξει</string>
@@ -31,7 +40,12 @@
     <string name="tooltip_close_app">Κλείσιμο εφαρμογής</string>
     <string name="tooltip_go_to_the_page">Μετάβαση στη σελίδα που έχει εισαχθεί</string>
     <string name="tooltip_close_panel">Κλείσιμο αυτού του πίνακα</string>
-    <string name="tooltip_ok_button">Ok, continue</string>
+    <string name="tooltip_ok_button">OK, continue</string>
     <string name="tooltip_open_file_password">Άνοιγμα αυτού του αρχείου</string>
     <string name="tooltip_review_now">Πηγαίνετε στο κατάστημά σας και αξιολογήστε τώρα</string>
+    <string name="tooltip_follow_now">Πηγαίνετε στο Instagram και ακολουθήστε τον λογαριασμό της εφαρμογής</string>
+    <string name="tooltip_add_to_bookmarks">Προσθήκη της τρέχουσας σελίδας στους σελιδοδείκτες</string>
+    <string name="tooltip_remove_from_bookmarks">Αφαίρεση της τρέχουσας σελίδας από τους σελιδοδείκτες</string>
+    <string name="tooltip_see_all_bookmarks">Δείτε όλους τους σελιδοδείκτες</string>
+    <string name="tooltip_close_bookmarks">Κλείσιμο όλων των σελιδοδεικτών</string>
 </resources>
