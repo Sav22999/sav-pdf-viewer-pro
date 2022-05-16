@@ -12,6 +12,8 @@ If you have any questions, please open an issue (you can add the label `question
 
 The app permits to open all PDF files, in the simplest way you ever seen. The app doesn't require any permissions!
 
+I've created an [Instagram account](https://www.instagram.com/savpdfviewer/) where you can find tips, curiosity or something else about the app. Follow it now!
+
 ### Where download the app
 
 [<img src="images/googlePlayBadge.png" width="200px"></img>](https://play.google.com/store/apps/details?id=com.saverio.pdfviewer) [<img src="images/fDroidBadge.png" width="200px"></img>](https://f-droid.org/it/packages/com.saverio.pdfviewer/) [<img src="images/huaweiAppGalleryBadge.png" width="200px"></img>](https://appgallery.huawei.com/#/app/C104418743) [<img src="images/amazonAppStoreBadge.png" width="200px"></img>](https://www.amazon.com/gp/product/B0974TV679)
