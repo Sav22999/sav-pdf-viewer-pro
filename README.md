@@ -1,6 +1,6 @@
 <h1 align="center">
     <br>
-    <img width="70" src="images/icon.png" alt="CV Project icon" />
+    <img width="70" src="images/icon.png" alt="App icon" />
     <br>
     Sav PDF Viewer Pro
     <br>
