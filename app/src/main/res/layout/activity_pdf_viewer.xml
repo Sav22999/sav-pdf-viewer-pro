@@ -35,6 +35,40 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
+    <View
+        android:id="@+id/residualView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="@color/black"
+        android:elevation="100dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
+        tools:visibility="gone" />
+
+    <TextView
+        android:id="@+id/buttonSideScroll"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:width="15dp"
+        android:background="@drawable/button_rounded"
+        android:padding="10dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:shadowRadius="10"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:textStyle="normal"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
+        tools:visibility="visible" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbarContainer"
         android:layout_width="match_parent"
@@ -64,11 +98,11 @@
             android:contentDescription="@string/tooltip_go_to_top"
             android:padding="18sp"
             android:scaleType="fitCenter"
-            android:tint="@color/white"
             android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@+id/buttonBookmarkToolbar"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
             app:srcCompat="@drawable/ic_go_to_top"
+            app:tint="@color/white"
             tools:ignore="VectorDrawableCompat"
             tools:visibility="visible" />
 
@@ -105,7 +139,7 @@
         <TextView
             android:id="@+id/titleToolbar"
             android:layout_width="0dp"
-            android:layout_height="60dp"
+            android:layout_height="56dp"
             android:background="@color/dark_red"
             android:gravity="left|center_vertical"
             android:paddingStart="10dp"
@@ -136,7 +170,7 @@
         <View
             android:id="@+id/toolbarInvisible"
             android:layout_width="wrap_content"
-            android:layout_height="60dp"
+            android:layout_height="56dp"
             android:background="@color/transparent_red"
             android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
@@ -287,8 +321,7 @@
         android:elevation="5dp"
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@+id/messageMenuPanel"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:visibility="visible" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/messageMenuPanel"
@@ -304,8 +337,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
-        tools:visibility="visible">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
 
         <LinearLayout
             android:id="@+id/menuPanelSection1"
@@ -471,8 +503,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
-        tools:visibility="visible">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
 
         <TextView
             android:id="@+id/messageTextGuide1"
@@ -533,7 +564,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="gone">
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/messageTextReview"
@@ -554,7 +585,8 @@
             app:layout_constraintBottom_toTopOf="@+id/buttonReviewNowReview"
             app:layout_constraintEnd_toStartOf="@+id/buttonHideMessageDialogReview"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            tools:visibility="visible" />
 
         <ImageView
             android:id="@+id/buttonHideMessageDialogReview"
@@ -571,7 +603,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_close"
-            tools:ignore="VectorDrawableCompat" />
+            tools:ignore="VectorDrawableCompat"
+            tools:visibility="visible" />
 
         <TextView
             android:id="@+id/buttonReviewNowReview"
@@ -590,7 +623,8 @@
             android:textSize="20sp"
             android:textStyle="normal"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -608,8 +642,7 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="@+id/pdfView"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:visibility="gone">
+        app:layout_constraintStart_toStartOf="parent">
 
         <TextView
             android:id="@+id/messageTextInstagram"

@@ -11,6 +11,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.view.KeyEvent
+import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
+import androidx.core.view.marginTop
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -50,6 +52,7 @@ class PDFViewer : AppCompatActivity() {
 
     var isSupportedShareFeature = false
     var isSupportedGoTop = true
+    var isSupportedScrollbarButton = true
 
     var passwordRequired = false
     var passwordToUse = ""
@@ -60,6 +63,10 @@ class PDFViewer : AppCompatActivity() {
 
     var hideTopBarCounter = 0
     var dialog: BottomSheetDialog? = null
+
+    var minPositionScrollbar: Float = 0F
+    var maxPositionScrollbar: Float = 0F
+    var startY = 0F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -220,8 +227,7 @@ class PDFViewer : AppCompatActivity() {
         browserStorage.type = "application/pdf"
         browserStorage.addCategory(Intent.CATEGORY_OPENABLE)
         startActivityForResult(
-            Intent.createChooser(browserStorage, "Select the file"),
-            PDF_SELECTION_CODE
+            Intent.createChooser(browserStorage, "Select the file"), PDF_SELECTION_CODE
         )
     }
 
@@ -250,10 +256,14 @@ class PDFViewer : AppCompatActivity() {
                 //.defaultPage(getPdfPage(uri.toString()))
                 .spacing(10)
                 .enableAnnotationRendering(true) // render annotations (such as comments, colors or forms)
-                .password(passwordToUse)
-                .scrollHandle(null)
+                .password(passwordToUse).scrollHandle(null)
                 .enableAntialiasing(true) // improve rendering a little bit on low-res screens
-                .onPageChange { page, pageCount -> updatePdfPage(uri.toString(), page) }
+                .onPageChange { page, pageCount ->
+                    run {
+                        updatePdfPage(uri.toString(), page)
+                        //setPositionScrollbarByPage(page.toFloat())
+                    }
+                }
                 .onPageScroll { page, positionOffset ->
                     hideTopBarCounter = 0
                     if (!showingTopBar && (page > 0 || positionOffset > 0F)) {
@@ -266,8 +276,7 @@ class PDFViewer : AppCompatActivity() {
                     }
                     hideGoToDialog()
                     hideMenuPanel()
-                }
-                .onLoad {
+                }.onLoad {
                     lastPosition = getPdfPage(uri.toString())
                     /*pdfViewer.positionOffset = 1F
                     totalPages = pdfViewer.currentPage + 1*/
@@ -282,14 +291,27 @@ class PDFViewer : AppCompatActivity() {
                     println("subject: " + pdfViewer.documentMeta.subject)
                     println("creationDate: " + pdfViewer.documentMeta.creationDate)
                     */
-                }
-                .onRender { nbPages, pageWidth, pageHeight ->
+                }.onRender { nbPages, pageWidth, pageHeight ->
                     totalPages = nbPages
                     if (lastPosition >= totalPages) lastPosition = (totalPages - 1)
+
+                    val buttonScroll: TextView = findViewById(R.id.buttonSideScroll)
+                    val residualView: View = findViewById(R.id.residualView)
+                    if (minPositionScrollbar == 0F) minPositionScrollbar = buttonScroll.y
+                    maxPositionScrollbar = residualView.measuredHeight - minPositionScrollbar
+                    residualView.isGone = true
+                    startY = minPositionScrollbar
+                    println(maxPositionScrollbar)
+
                     updatePdfPage(uri.toString(), lastPosition)
                     if (totalPages == 1) {
                         isSupportedGoTop = false
+                        isSupportedScrollbarButton = false
                         findViewById<ImageView>(R.id.buttonGoTopToolbar).isGone = true
+                        buttonScroll.isGone = true
+                    } else {
+                        isSupportedGoTop = true
+                        isSupportedScrollbarButton = true
                     }
                     pdfViewer.fitToWidth()
                     pdfViewer.jumpTo(lastPosition, false)
@@ -299,9 +321,10 @@ class PDFViewer : AppCompatActivity() {
                         hideTopBar()
                     }
 
+
                     checkFirstTimeShowMessageGuide()
-                }
-                .onError(OnErrorListener {
+                    setScrollBarSide()
+                }.onError(OnErrorListener {
                     if (it.message.toString()
                             .contains("Password required or incorrect password.")
                     ) {
@@ -311,8 +334,7 @@ class PDFViewer : AppCompatActivity() {
                         askThePassword(uri, passwordWrong)
                     }
                     //PdfPasswordException
-                })
-                .load()
+                }).load()
         } catch (e: Exception) {
             println("Exception 1")
         }
@@ -496,8 +518,7 @@ class PDFViewer : AppCompatActivity() {
         var titleTemp = title
         if (titleTemp.length > 40) {
             titleTemp = titleTemp.substring(0, 15) + " ... " + titleTemp.substring(
-                titleTemp.length - 16,
-                titleTemp.length - 1
+                titleTemp.length - 16, titleTemp.length - 1
             )
         }
         titleElement.text = titleTemp
@@ -538,6 +559,7 @@ class PDFViewer : AppCompatActivity() {
         savedCurrentPage = currentPage
         //println("current page: $savedCurrentPage")
         updateButtonBookmark(pathName = pathName, currentPage = currentPage)
+        setPositionScrollbarByPage((currentPage + 1).toFloat())
     }
 
     fun updateButtonBookmark(pathName: String, currentPage: Int) {
@@ -553,8 +575,7 @@ class PDFViewer : AppCompatActivity() {
                 //remove bookmark
                 databaseHandler.deleteBookmark(
                     databaseHandler.getBookmarks(
-                        fileId = pathNameTemp,
-                        page = currentPage
+                        fileId = pathNameTemp, page = currentPage
                     )[0].id!!
                 )
                 Toast.makeText(this, getString(R.string.toast_bookmark_removed), Toast.LENGTH_SHORT)
@@ -567,11 +588,7 @@ class PDFViewer : AppCompatActivity() {
             bookmarkButton.setOnClickListener {
                 //add bookmark
                 val bookmark = BookmarksModel(
-                    id = null,
-                    date = getNow(),
-                    file = pathNameTemp,
-                    page = currentPage,
-                    ""
+                    id = null, date = getNow(), file = pathNameTemp, page = currentPage, ""
                 )
                 databaseHandler.add(bookmark = bookmark)
                 Toast.makeText(this, getString(R.string.toast_bookmark_added), Toast.LENGTH_SHORT)
@@ -630,7 +647,7 @@ class PDFViewer : AppCompatActivity() {
             }
         }
         dialog!!.setOnDismissListener {
-            showTopBar()
+            showTopBar(showGoTop = !(pdfViewer.currentYOffset == 0F))
             updateButtonBookmark(pathName, pdfViewer.currentPage)
             dialog = null
         }
@@ -664,8 +681,7 @@ class PDFViewer : AppCompatActivity() {
     fun getTheFileName(path: String, type: Int = 0): String {
         try {
             var pathTemp = path
-            pathTemp =
-                pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
+            pathTemp = pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
 
             var pathName = ""
             if (pathTemp.contains(":/")) {
@@ -754,6 +770,7 @@ class PDFViewer : AppCompatActivity() {
         val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
         val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
         val buttonBookmark: ImageView = findViewById(R.id.buttonBookmarkToolbar)
+        val buttonScroll: TextView = findViewById(R.id.buttonSideScroll)
         if (x == y) {
             showingTopBar = true
             hideTopBarCounter = 0
@@ -771,6 +788,7 @@ class PDFViewer : AppCompatActivity() {
             currentPage.isGone = false
             currentPage.setTextColor(ContextCompat.getColor(applicationContext, R.color.white))
             toolbarInvisible.isGone = true
+            if (isSupportedScrollbarButton) buttonScroll.isGone = false
 
             hideMessageGuide1()
 
@@ -779,7 +797,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun checkFirstTimeShowMessageGuide() {
-        if (getBooleanData("firstTimeShowTopBar", true)) {
+        if (getBooleanData("firstTimeShowTopBar", true) && showingTopBar) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
             val arrow: View = findViewById(R.id.arrowRight)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
@@ -795,16 +813,16 @@ class PDFViewer : AppCompatActivity() {
 
                 checkFirstTimeShowMessageGuide()
             }
-        } else if (getBooleanData("firstTimeShowTopBarMenu", true)) {
+        } else if (getBooleanData("firstTimeShowTopBarMenu", true) && showingTopBar) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
             val arrow: View = findViewById(R.id.arrowRight3)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
 
-            val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
-            pageNumberTextViewToolbar.isGone = false
+            val showMenuPanelImageViewToolbar: ImageView = findViewById(R.id.buttonMenuToolbar)
+            showMenuPanelImageViewToolbar.isGone = false
             Handler().postDelayed({
                 arrow.animate()
-                    .x(pageNumberTextViewToolbar.x + (pageNumberTextViewToolbar.width / 2) - (arrow.width / 2))
+                    .x(showMenuPanelImageViewToolbar.x + (showMenuPanelImageViewToolbar.width / 2) - (arrow.width / 2))
                     .setDuration(200).start()
             }, 200)
 
@@ -820,7 +838,7 @@ class PDFViewer : AppCompatActivity() {
 
                 checkFirstTimeShowMessageGuide()
             }
-        } else if (getBooleanData("firstTimeBookmarks", true)) {
+        } else if (getBooleanData("firstTimeBookmarks", true) && showingTopBar) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
             val arrow: View = findViewById(R.id.arrowRight2)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
@@ -864,12 +882,12 @@ class PDFViewer : AppCompatActivity() {
             val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
             val buttonNightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
             val buttonBookmark: ImageView = findViewById(R.id.buttonBookmarkToolbar)
+            val buttonScroll: TextView = findViewById(R.id.buttonSideScroll)
 
             if (!showingTopBar) {
                 currentPage.setTextColor(
                     ContextCompat.getColor(
-                        applicationContext,
-                        R.color.dark_red
+                        applicationContext, R.color.dark_red
                     )
                 )
 
@@ -878,15 +896,19 @@ class PDFViewer : AppCompatActivity() {
                 if (getBooleanData("firstTimeHideTopBar", true)) {
                     val message: ConstraintLayout = findViewById(R.id.messageGuide1)
                     val arrow: View = findViewById(R.id.arrowLeft)
+
                     val messageText: TextView = findViewById(R.id.messageTextGuide1)
                     messageText.setText(getString(R.string.text_tap_here_to_show_the_top_bar))
                     message.isGone = false
                     arrow.isGone = false
+
+                    val arrowLeft: View = findViewById(R.id.arrowLeft)
+                    arrowLeft.isGone = true
+
                     toolbarInvisible.setBackgroundResource(R.color.transparent_red_2)
                     currentPage.setTextColor(
                         ContextCompat.getColor(
-                            applicationContext,
-                            R.color.white
+                            applicationContext, R.color.white
                         )
                     )
 
@@ -898,8 +920,7 @@ class PDFViewer : AppCompatActivity() {
                         toolbarInvisible.setBackgroundResource(R.color.transparent_red)
                         currentPage.setTextColor(
                             ContextCompat.getColor(
-                                applicationContext,
-                                R.color.dark_red
+                                applicationContext, R.color.dark_red
                             )
                         )
                     }
@@ -918,6 +939,7 @@ class PDFViewer : AppCompatActivity() {
                 if (message.isGone && messageGoTo.isGone && menuPanel.isGone) {
                     toolbarInvisible.isGone = fullHiding
                     currentPage.isGone = fullHiding
+                    if (isSupportedScrollbarButton) buttonScroll.isGone = fullHiding
 
                     if (fullHiding) {
                         showHideAfterFiveSeconds()
@@ -925,6 +947,8 @@ class PDFViewer : AppCompatActivity() {
                 } else {
                     toolbarInvisible.isGone = false
                     currentPage.isGone = false
+
+                    if (isSupportedScrollbarButton) buttonScroll.isGone = false
                 }
             } else {
                 if (message.isGone && messageGoTo.isGone && menuPanel.isGone && fullHiding) {
@@ -939,6 +963,7 @@ class PDFViewer : AppCompatActivity() {
                     toolbarInvisible.isGone = true
                     currentPage.isGone = true
                     buttonBookmark.isGone = true
+                    buttonScroll.isGone = true
 
                     showHideAfterFiveSeconds()
                 }
@@ -952,9 +977,11 @@ class PDFViewer : AppCompatActivity() {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
             val arrow: View = findViewById(R.id.arrowLeft)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
+            val buttonScroll: TextView = findViewById(R.id.buttonSideScroll)
             messageText.setText(getString(R.string.text_scroll_to_show_the_top_bar_again))
             message.isGone = false
             arrow.isGone = true
+            buttonScroll.isGone = true
 
             val button: TextView = findViewById(R.id.buttonHideGuide1)
             button.setOnClickListener {
@@ -979,18 +1006,15 @@ class PDFViewer : AppCompatActivity() {
 
     fun checkReviewFollowApp() {
         var timesOpened = getSharedPreferences(
-            "app_opened_times",
-            Context.MODE_PRIVATE
+            "app_opened_times", Context.MODE_PRIVATE
         ).getInt("app_opened_times", 0)
 
         val alreadyReviewed = getSharedPreferences(
-            "already_reviewed_app",
-            Context.MODE_PRIVATE
+            "already_reviewed_app", Context.MODE_PRIVATE
         ).getBoolean("already_reviewed_app", false)
 
         val alreadyFollow = getSharedPreferences(
-            "already_follow_app",
-            Context.MODE_PRIVATE
+            "already_follow_app", Context.MODE_PRIVATE
         ).getBoolean("already_follow_app", false)
 
         val buttonReviewNowReview: TextView = findViewById(R.id.buttonReviewNowReview)
@@ -1039,6 +1063,7 @@ class PDFViewer : AppCompatActivity() {
         }
 
         //check whether show "follow on instagram" message
+        /*//DISABLED FOR NOW
         if (!alreadyFollow) {
             if ((timesOpened % timesAfterShowFollowApp) == 0 && timesOpened >= timesAfterShowFollowApp) {
                 messageContainerInstagram.isGone = false
@@ -1047,7 +1072,7 @@ class PDFViewer : AppCompatActivity() {
             }
         } else {
             messageContainerInstagram.isGone = true
-        }
+        }*/
 
         timesOpened++
         getSharedPreferences("app_opened_times", Context.MODE_PRIVATE).edit()
@@ -1059,8 +1084,7 @@ class PDFViewer : AppCompatActivity() {
         try {
             startActivity(
                 Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=com.saverio.pdfviewer")
+                    Intent.ACTION_VIEW, Uri.parse("market://details?id=com.saverio.pdfviewer")
                 )
             )
         } catch (e: Exception) {
@@ -1180,8 +1204,7 @@ class PDFViewer : AppCompatActivity() {
         var valueToGo = pdfViewer.currentPage + 1
 
         val valueTemp = textbox.text.toString().replace(" ", "")
-        if (valueTemp != "" && valueTemp != "-"
-        ) {
+        if (valueTemp != "" && valueTemp != "-") {
             if (valueTemp.toInt() < 0) {
                 valueToGo = 0
             } else if (valueTemp.toInt() > totalPages) {
@@ -1264,8 +1287,7 @@ class PDFViewer : AppCompatActivity() {
     fun setupGestures() {
         //conflict with PDFView class
         val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
-        toolbarInvisible.setOnTouchListener(object :
-            OnSwipeTouchListener(this@PDFViewer) {
+        toolbarInvisible.setOnTouchListener(object : OnSwipeTouchListener(this@PDFViewer) {
 
             override fun onSingleTapUp() {
                 val currentPosition1 = pdfViewer.positionOffset
@@ -1279,13 +1301,109 @@ class PDFViewer : AppCompatActivity() {
 
     fun getBooleanData(variable: String, default: Boolean = false): Boolean {
         return getSharedPreferences(variable, Context.MODE_PRIVATE).getBoolean(
-            variable,
-            default
+            variable, default
         )
     }
 
     fun saveBooleanData(variable: String, value: Boolean) {
         getSharedPreferences(variable, Context.MODE_PRIVATE).edit().putBoolean(variable, value)
             .apply()
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    fun setScrollBarSide() {
+        if (isSupportedScrollbarButton) {
+            val button: TextView = findViewById(R.id.buttonSideScroll)
+            var startY_moving: Float? = null
+            var scrolled: Float = 0F
+
+            button.setOnTouchListener(View.OnTouchListener { view, event ->
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        //
+                    }
+                    MotionEvent.ACTION_MOVE -> {
+                        resetHideTopBarCounter()
+
+                        button.layoutParams.width = 60;
+                        button.isGone = true
+                        button.isGone = false
+                        // get the new co-ordinate of X-axis
+                        if (startY_moving == null) startY_moving = event.rawY - startY
+                        val newY = event.rawY - startY
+                        scrolled = event.rawY - (button.layoutParams.height + startY) - startY
+
+                        if (scrolled >= 0F && scrolled <= maxPositionScrollbar) {
+                            view.animate().y(newY).setDuration(0).start()
+                        } else if (scrolled < 0F) {
+                            view.animate().y(minPositionScrollbar).setDuration(0).start()
+                            scrolled = 0F
+                        } else {
+                            //scrolled > maxPosition
+                            view.animate().y(maxPositionScrollbar).setDuration(0).start()
+                            scrolled = maxPositionScrollbar
+                        }
+                        val pageN = (totalPages * scrolled) / maxPositionScrollbar
+                        //goToPage(pageN.toInt(), false)
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        button.layoutParams.width = 30;
+                        button.isGone = true
+                        button.isGone = false
+
+                        startY_moving = null
+
+                        if (scrolled < 0F) {
+                            view.animate().y(minPositionScrollbar).setDuration(0).start()
+                            scrolled = 0F
+                        } else if (scrolled > maxPositionScrollbar) {
+                            view.animate().y(maxPositionScrollbar).setDuration(0).start()
+                            scrolled = maxPositionScrollbar
+                        }
+                        val pageN = (totalPages * scrolled) / maxPositionScrollbar
+
+                        goToPage(pageN.toInt(), true)
+                        //setPositionScrollbarByPage(pageN)
+                    }
+                    MotionEvent.ACTION_CANCEL -> {
+                        //TODO: improve this code -- It's equals to the ACTION_UP
+                        button.layoutParams.width = 30;
+                        button.isGone = true
+                        button.isGone = false
+                        startY_moving = null
+
+                        if (scrolled < 0F) {
+                            view.animate().y(minPositionScrollbar).setDuration(0).start()
+                            scrolled = 0F
+                        } else if (scrolled > maxPositionScrollbar) {
+                            view.animate().y(maxPositionScrollbar).setDuration(0).start()
+                            scrolled = maxPositionScrollbar
+                        }
+                        val pageN = (totalPages * scrolled) / maxPositionScrollbar
+
+                        goToPage(pageN.toInt(), true)
+                        //setPositionScrollbarByPage(pageN)
+                    }
+                }
+
+                // required to by-pass lint warning
+                view.performClick()
+                return@OnTouchListener true
+            })
+        }
+    }
+
+    fun setPositionScrollbarByPage(page: Float) {
+        if (isSupportedScrollbarButton) {
+            val button: TextView = findViewById(R.id.buttonSideScroll)
+            if (!page.isNaN() && minPositionScrollbar != 0F) {
+                var pageToUse = 1F
+                if (page >= 0 && page <= totalPages) pageToUse = page
+                var initialPosition =
+                    ((pageToUse * maxPositionScrollbar) / totalPages) + minPositionScrollbar
+                if (initialPosition.isNaN()) initialPosition = 0F
+                button.animate().y(initialPosition).setDuration(0).start()
+            }
+        }
     }
 }
