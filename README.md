@@ -1,6 +1,6 @@
 <h1 align="center">
     <br>
-    <img width="70" src="images/icon.png" alt="CV Project icon" />
+    <img width="70" src="images/icon.png" alt="App icon" />
     <br>
     Sav PDF Viewer Pro
     <br>
@@ -11,6 +11,8 @@ This app is developed by Saverio Morelli, using the Android Studio IDE.
 If you have any questions, please open an issue (you can add the label `question` there).
 
 The app permits to open all PDF files, in the simplest way you ever seen. The app doesn't require any permissions!
+
+I've created an [Instagram account](https://www.instagram.com/savpdfviewer/) where you can find tips, curiosity or something else about the app. Follow it now!
 
 ### Where download the app
 
