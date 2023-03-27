@@ -146,6 +146,9 @@ class BookmarksItemAdapter(
                             view.animate().x(cardStart).setDuration(500).start()
                         }
                     }
+
+                    MotionEvent.ACTION_OUTSIDE ->
+                        MotionEvent.ACTION_UP
                 }
 
                 // required to by-pass lint warning

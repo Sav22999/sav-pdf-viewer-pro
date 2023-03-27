@@ -220,8 +220,7 @@ class PDFViewer : AppCompatActivity() {
         browserStorage.type = "application/pdf"
         browserStorage.addCategory(Intent.CATEGORY_OPENABLE)
         startActivityForResult(
-            Intent.createChooser(browserStorage, "Select the file"),
-            PDF_SELECTION_CODE
+            Intent.createChooser(browserStorage, "Select the file"), PDF_SELECTION_CODE
         )
     }
 
@@ -250,8 +249,7 @@ class PDFViewer : AppCompatActivity() {
                 //.defaultPage(getPdfPage(uri.toString()))
                 .spacing(10)
                 .enableAnnotationRendering(true) // render annotations (such as comments, colors or forms)
-                .password(passwordToUse)
-                .scrollHandle(null)
+                .password(passwordToUse).scrollHandle(null)
                 .enableAntialiasing(true) // improve rendering a little bit on low-res screens
                 .onPageChange { page, pageCount -> updatePdfPage(uri.toString(), page) }
                 .onPageScroll { page, positionOffset ->
@@ -266,8 +264,7 @@ class PDFViewer : AppCompatActivity() {
                     }
                     hideGoToDialog()
                     hideMenuPanel()
-                }
-                .onLoad {
+                }.onLoad {
                     lastPosition = getPdfPage(uri.toString())
                     /*pdfViewer.positionOffset = 1F
                     totalPages = pdfViewer.currentPage + 1*/
@@ -282,8 +279,7 @@ class PDFViewer : AppCompatActivity() {
                     println("subject: " + pdfViewer.documentMeta.subject)
                     println("creationDate: " + pdfViewer.documentMeta.creationDate)
                     */
-                }
-                .onRender { nbPages, pageWidth, pageHeight ->
+                }.onRender { nbPages, pageWidth, pageHeight ->
                     totalPages = nbPages
                     if (lastPosition >= totalPages) lastPosition = (totalPages - 1)
                     updatePdfPage(uri.toString(), lastPosition)
@@ -300,8 +296,7 @@ class PDFViewer : AppCompatActivity() {
                     }
 
                     checkFirstTimeShowMessageGuide()
-                }
-                .onError(OnErrorListener {
+                }.onError(OnErrorListener {
                     if (it.message.toString()
                             .contains("Password required or incorrect password.")
                     ) {
@@ -311,8 +306,7 @@ class PDFViewer : AppCompatActivity() {
                         askThePassword(uri, passwordWrong)
                     }
                     //PdfPasswordException
-                })
-                .load()
+                }).load()
         } catch (e: Exception) {
             println("Exception 1")
         }
@@ -496,8 +490,7 @@ class PDFViewer : AppCompatActivity() {
         var titleTemp = title
         if (titleTemp.length > 40) {
             titleTemp = titleTemp.substring(0, 15) + " ... " + titleTemp.substring(
-                titleTemp.length - 16,
-                titleTemp.length - 1
+                titleTemp.length - 16, titleTemp.length - 1
             )
         }
         titleElement.text = titleTemp
@@ -553,8 +546,7 @@ class PDFViewer : AppCompatActivity() {
                 //remove bookmark
                 databaseHandler.deleteBookmark(
                     databaseHandler.getBookmarks(
-                        fileId = pathNameTemp,
-                        page = currentPage
+                        fileId = pathNameTemp, page = currentPage
                     )[0].id!!
                 )
                 Toast.makeText(this, getString(R.string.toast_bookmark_removed), Toast.LENGTH_SHORT)
@@ -567,11 +559,7 @@ class PDFViewer : AppCompatActivity() {
             bookmarkButton.setOnClickListener {
                 //add bookmark
                 val bookmark = BookmarksModel(
-                    id = null,
-                    date = getNow(),
-                    file = pathNameTemp,
-                    page = currentPage,
-                    ""
+                    id = null, date = getNow(), file = pathNameTemp, page = currentPage, ""
                 )
                 databaseHandler.add(bookmark = bookmark)
                 Toast.makeText(this, getString(R.string.toast_bookmark_added), Toast.LENGTH_SHORT)
@@ -630,7 +618,7 @@ class PDFViewer : AppCompatActivity() {
             }
         }
         dialog!!.setOnDismissListener {
-            showTopBar()
+            showTopBar(showGoTop = !(pdfViewer.currentYOffset == 0F))
             updateButtonBookmark(pathName, pdfViewer.currentPage)
             dialog = null
         }
@@ -664,8 +652,7 @@ class PDFViewer : AppCompatActivity() {
     fun getTheFileName(path: String, type: Int = 0): String {
         try {
             var pathTemp = path
-            pathTemp =
-                pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
+            pathTemp = pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
 
             var pathName = ""
             if (pathTemp.contains(":/")) {
@@ -779,7 +766,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun checkFirstTimeShowMessageGuide() {
-        if (getBooleanData("firstTimeShowTopBar", true)) {
+        if (getBooleanData("firstTimeShowTopBar", true) && showingTopBar) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
             val arrow: View = findViewById(R.id.arrowRight)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
@@ -795,16 +782,16 @@ class PDFViewer : AppCompatActivity() {
 
                 checkFirstTimeShowMessageGuide()
             }
-        } else if (getBooleanData("firstTimeShowTopBarMenu", true)) {
+        } else if (getBooleanData("firstTimeShowTopBarMenu", true) && showingTopBar) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
             val arrow: View = findViewById(R.id.arrowRight3)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
 
-            val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
-            pageNumberTextViewToolbar.isGone = false
+            val showMenuPanelImageViewToolbar: ImageView = findViewById(R.id.buttonMenuToolbar)
+            showMenuPanelImageViewToolbar.isGone = false
             Handler().postDelayed({
                 arrow.animate()
-                    .x(pageNumberTextViewToolbar.x + (pageNumberTextViewToolbar.width / 2) - (arrow.width / 2))
+                    .x(showMenuPanelImageViewToolbar.x + (showMenuPanelImageViewToolbar.width / 2) - (arrow.width / 2))
                     .setDuration(200).start()
             }, 200)
 
@@ -820,7 +807,7 @@ class PDFViewer : AppCompatActivity() {
 
                 checkFirstTimeShowMessageGuide()
             }
-        } else if (getBooleanData("firstTimeBookmarks", true)) {
+        } else if (getBooleanData("firstTimeBookmarks", true) && showingTopBar) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
             val arrow: View = findViewById(R.id.arrowRight2)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
@@ -868,8 +855,7 @@ class PDFViewer : AppCompatActivity() {
             if (!showingTopBar) {
                 currentPage.setTextColor(
                     ContextCompat.getColor(
-                        applicationContext,
-                        R.color.dark_red
+                        applicationContext, R.color.dark_red
                     )
                 )
 
@@ -878,15 +864,19 @@ class PDFViewer : AppCompatActivity() {
                 if (getBooleanData("firstTimeHideTopBar", true)) {
                     val message: ConstraintLayout = findViewById(R.id.messageGuide1)
                     val arrow: View = findViewById(R.id.arrowLeft)
+
                     val messageText: TextView = findViewById(R.id.messageTextGuide1)
                     messageText.setText(getString(R.string.text_tap_here_to_show_the_top_bar))
                     message.isGone = false
                     arrow.isGone = false
+
+                    val arrowLeft: View = findViewById(R.id.arrowLeft)
+                    arrowLeft.isGone = true
+
                     toolbarInvisible.setBackgroundResource(R.color.transparent_red_2)
                     currentPage.setTextColor(
                         ContextCompat.getColor(
-                            applicationContext,
-                            R.color.white
+                            applicationContext, R.color.white
                         )
                     )
 
@@ -898,8 +888,7 @@ class PDFViewer : AppCompatActivity() {
                         toolbarInvisible.setBackgroundResource(R.color.transparent_red)
                         currentPage.setTextColor(
                             ContextCompat.getColor(
-                                applicationContext,
-                                R.color.dark_red
+                                applicationContext, R.color.dark_red
                             )
                         )
                     }
@@ -979,18 +968,15 @@ class PDFViewer : AppCompatActivity() {
 
     fun checkReviewFollowApp() {
         var timesOpened = getSharedPreferences(
-            "app_opened_times",
-            Context.MODE_PRIVATE
+            "app_opened_times", Context.MODE_PRIVATE
         ).getInt("app_opened_times", 0)
 
         val alreadyReviewed = getSharedPreferences(
-            "already_reviewed_app",
-            Context.MODE_PRIVATE
+            "already_reviewed_app", Context.MODE_PRIVATE
         ).getBoolean("already_reviewed_app", false)
 
         val alreadyFollow = getSharedPreferences(
-            "already_follow_app",
-            Context.MODE_PRIVATE
+            "already_follow_app", Context.MODE_PRIVATE
         ).getBoolean("already_follow_app", false)
 
         val buttonReviewNowReview: TextView = findViewById(R.id.buttonReviewNowReview)
@@ -1039,6 +1025,7 @@ class PDFViewer : AppCompatActivity() {
         }
 
         //check whether show "follow on instagram" message
+        /*//DISABLED FOR NOW
         if (!alreadyFollow) {
             if ((timesOpened % timesAfterShowFollowApp) == 0 && timesOpened >= timesAfterShowFollowApp) {
                 messageContainerInstagram.isGone = false
@@ -1047,7 +1034,7 @@ class PDFViewer : AppCompatActivity() {
             }
         } else {
             messageContainerInstagram.isGone = true
-        }
+        }*/
 
         timesOpened++
         getSharedPreferences("app_opened_times", Context.MODE_PRIVATE).edit()
@@ -1059,8 +1046,7 @@ class PDFViewer : AppCompatActivity() {
         try {
             startActivity(
                 Intent(
-                    Intent.ACTION_VIEW,
-                    Uri.parse("market://details?id=com.saverio.pdfviewer")
+                    Intent.ACTION_VIEW, Uri.parse("market://details?id=com.saverio.pdfviewer")
                 )
             )
         } catch (e: Exception) {
@@ -1180,8 +1166,7 @@ class PDFViewer : AppCompatActivity() {
         var valueToGo = pdfViewer.currentPage + 1
 
         val valueTemp = textbox.text.toString().replace(" ", "")
-        if (valueTemp != "" && valueTemp != "-"
-        ) {
+        if (valueTemp != "" && valueTemp != "-") {
             if (valueTemp.toInt() < 0) {
                 valueToGo = 0
             } else if (valueTemp.toInt() > totalPages) {
@@ -1264,8 +1249,7 @@ class PDFViewer : AppCompatActivity() {
     fun setupGestures() {
         //conflict with PDFView class
         val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
-        toolbarInvisible.setOnTouchListener(object :
-            OnSwipeTouchListener(this@PDFViewer) {
+        toolbarInvisible.setOnTouchListener(object : OnSwipeTouchListener(this@PDFViewer) {
 
             override fun onSingleTapUp() {
                 val currentPosition1 = pdfViewer.positionOffset
@@ -1279,8 +1263,7 @@ class PDFViewer : AppCompatActivity() {
 
     fun getBooleanData(variable: String, default: Boolean = false): Boolean {
         return getSharedPreferences(variable, Context.MODE_PRIVATE).getBoolean(
-            variable,
-            default
+            variable, default
         )
     }
 
