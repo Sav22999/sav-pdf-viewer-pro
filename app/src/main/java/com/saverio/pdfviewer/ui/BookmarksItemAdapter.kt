@@ -91,7 +91,6 @@ class BookmarksItemAdapter(
                     //TODO: improve this code -- It's equals to the ACTION_CANCEL
                     val POSITION_TO_ARRIVE_WITH_ERROR =
                         -(cardWidthToRemove - (cardWidthToRemove / 25))
-                    println("POSITION with ERROR: " + POSITION_TO_ARRIVE_WITH_ERROR + " -- view.x: " + view.x)
                     if (view.x <= POSITION_TO_ARRIVE_WITH_ERROR) {
                         //Activated
                         //Go all to left
@@ -145,7 +144,6 @@ class BookmarksItemAdapter(
                     //TODO: improve this code -- It's equals to the ACTION_UP
                     val POSITION_TO_ARRIVE_WITH_ERROR =
                         -(cardWidthToRemove - (cardWidthToRemove / 25))
-                    println("POSITION with ERROR: " + POSITION_TO_ARRIVE_WITH_ERROR + " -- view.x: " + view.x)
                     if (view.x <= POSITION_TO_ARRIVE_WITH_ERROR) {
                         //Activated
                         //Go all to left

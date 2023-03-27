@@ -8,11 +8,11 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId 'com.saverio.pdfviewer.beta'
+        applicationId 'com.saverio.pdfviewer'
         minSdkVersion 16
         targetSdkVersion 30
-        versionCode 36
-        versionName '1.9.1b'
+        versionCode 37
+        versionName '1.10'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
