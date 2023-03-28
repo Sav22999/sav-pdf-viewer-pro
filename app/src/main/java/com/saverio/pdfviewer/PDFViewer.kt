@@ -263,8 +263,7 @@ class PDFViewer : AppCompatActivity() {
                         updatePdfPage(uri.toString(), page)
                         //setPositionScrollbarByPage(page.toFloat())
                     }
-                }
-                .onPageScroll { page, positionOffset ->
+                }.onPageScroll { page, positionOffset ->
                     hideTopBarCounter = 0
                     if (!showingTopBar && (page > 0 || positionOffset > 0F)) {
                         hideTopBar()
@@ -301,7 +300,6 @@ class PDFViewer : AppCompatActivity() {
                     maxPositionScrollbar = residualView.measuredHeight - minPositionScrollbar
                     residualView.isGone = true
                     startY = minPositionScrollbar
-                    println(maxPositionScrollbar)
 
                     updatePdfPage(uri.toString(), lastPosition)
                     if (totalPages == 1) {
@@ -1314,6 +1312,8 @@ class PDFViewer : AppCompatActivity() {
     fun setScrollBarSide() {
         if (isSupportedScrollbarButton) {
             val button: TextView = findViewById(R.id.buttonSideScroll)
+            val textPage: TextView = findViewById(R.id.textSideScroll)
+            val container: ConstraintLayout = findViewById(R.id.containerSideScroll)
             var startY_moving: Float? = null
             var scrolled: Float = 0F
 
@@ -1331,38 +1331,41 @@ class PDFViewer : AppCompatActivity() {
                         // get the new co-ordinate of X-axis
                         if (startY_moving == null) startY_moving = event.rawY - startY
                         val newY = event.rawY - startY
-                        scrolled = event.rawY - (button.layoutParams.height + startY) - startY
+                        scrolled = newY - minPositionScrollbar
+                        if (scrolled < 0F) scrolled = 0F
+                        else if (scrolled > (maxPositionScrollbar)) scrolled = maxPositionScrollbar
 
-                        if (scrolled >= 0F && scrolled <= maxPositionScrollbar) {
+                        //println(scrolled)
+                        if (newY >= minPositionScrollbar && newY <= (maxPositionScrollbar + minPositionScrollbar)) {
                             view.animate().y(newY).setDuration(0).start()
-                        } else if (scrolled < 0F) {
+                            container.animate().y(newY).setDuration(0).start()
+                        } else if (newY < minPositionScrollbar) {
                             view.animate().y(minPositionScrollbar).setDuration(0).start()
-                            scrolled = 0F
+                            container.animate().y(minPositionScrollbar).setDuration(0).start()
                         } else {
-                            //scrolled > maxPosition
-                            view.animate().y(maxPositionScrollbar).setDuration(0).start()
-                            scrolled = maxPositionScrollbar
+                            //newY > maxPosition
+                            view.animate().y(maxPositionScrollbar + minPositionScrollbar)
+                                .setDuration(0)
+                                .start()
+                            container.animate().y(maxPositionScrollbar + minPositionScrollbar)
+                                .setDuration(0)
+                                .start()
                         }
-                        val pageN = (totalPages * scrolled) / maxPositionScrollbar
+                        val pageN = ((totalPages - 1) * scrolled) / maxPositionScrollbar
+                        textPage.text = (pageN.toInt() + 1).toString()
+                        container.isGone = false
                         //goToPage(pageN.toInt(), false)
                     }
                     MotionEvent.ACTION_UP -> {
                         button.layoutParams.width = 30;
                         button.isGone = true
                         button.isGone = false
-
                         startY_moving = null
 
-                        if (scrolled < 0F) {
-                            view.animate().y(minPositionScrollbar).setDuration(0).start()
-                            scrolled = 0F
-                        } else if (scrolled > maxPositionScrollbar) {
-                            view.animate().y(maxPositionScrollbar).setDuration(0).start()
-                            scrolled = maxPositionScrollbar
-                        }
-                        val pageN = (totalPages * scrolled) / maxPositionScrollbar
+                        val pageN = ((totalPages - 1) * scrolled) / maxPositionScrollbar
 
                         goToPage(pageN.toInt(), true)
+                        container.isGone = true
                         //setPositionScrollbarByPage(pageN)
                     }
                     MotionEvent.ACTION_CANCEL -> {
@@ -1372,16 +1375,10 @@ class PDFViewer : AppCompatActivity() {
                         button.isGone = false
                         startY_moving = null
 
-                        if (scrolled < 0F) {
-                            view.animate().y(minPositionScrollbar).setDuration(0).start()
-                            scrolled = 0F
-                        } else if (scrolled > maxPositionScrollbar) {
-                            view.animate().y(maxPositionScrollbar).setDuration(0).start()
-                            scrolled = maxPositionScrollbar
-                        }
-                        val pageN = (totalPages * scrolled) / maxPositionScrollbar
+                        val pageN = ((totalPages - 1) * scrolled) / maxPositionScrollbar
 
                         goToPage(pageN.toInt(), true)
+                        container.isGone = true
                         //setPositionScrollbarByPage(pageN)
                     }
                 }
@@ -1396,16 +1393,20 @@ class PDFViewer : AppCompatActivity() {
     fun setPositionScrollbarByPage(page: Float) {
         if (isSupportedScrollbarButton) {
             val button: TextView = findViewById(R.id.buttonSideScroll)
+            val textPage: TextView = findViewById(R.id.textSideScroll)
+            val container: ConstraintLayout = findViewById(R.id.containerSideScroll)
             button.layoutParams.width = 30;
             button.isGone = true
             button.isGone = false
             if (!page.isNaN() && minPositionScrollbar != 0F) {
-                var pageToUse = 1F
+                var pageToUse = 0F
                 if (page >= 0 && page <= totalPages) pageToUse = page
                 var initialPosition =
-                    ((pageToUse * maxPositionScrollbar) / totalPages) + minPositionScrollbar
+                    (((pageToUse - 1) * maxPositionScrollbar) / (totalPages - 1)) + minPositionScrollbar
                 if (initialPosition.isNaN()) initialPosition = 0F
                 button.animate().y(initialPosition).setDuration(0).start()
+                container.animate().y(initialPosition).setDuration(0).start()
+                textPage.text = pageToUse.toInt().toString()
             }
         }
     }

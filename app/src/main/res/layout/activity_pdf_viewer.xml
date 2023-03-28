@@ -51,7 +51,7 @@
     <TextView
         android:id="@+id/buttonSideScroll"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
         android:layout_marginRight="10dp"
@@ -60,7 +60,6 @@
         android:padding="10dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
-        android:shadowRadius="10"
         android:textColor="@color/white"
         android:textSize="20sp"
         android:textStyle="normal"
@@ -68,6 +67,47 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
         tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/containerSideScroll"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="10dp"
+        android:padding="0dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toStartOf="@+id/buttonSideScroll"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
+        tools:visibility="visible">
+
+        <View
+            android:id="@+id/arrowSideScroll"
+            android:layout_width="10dp"
+            android:layout_height="15dp"
+            android:background="@drawable/ic_arrow_side"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/textSideScroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_rounded4"
+            android:gravity="center|center_vertical"
+            android:padding="5dp"
+            android:textColor="@color/white"
+            android:textSize="12sp"
+            android:textStyle="normal"
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/arrowSideScroll"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints"
+            tools:text="100"
+            tools:visibility="visible" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/toolbarContainer"
