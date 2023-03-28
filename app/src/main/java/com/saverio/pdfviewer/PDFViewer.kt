@@ -1396,6 +1396,9 @@ class PDFViewer : AppCompatActivity() {
     fun setPositionScrollbarByPage(page: Float) {
         if (isSupportedScrollbarButton) {
             val button: TextView = findViewById(R.id.buttonSideScroll)
+            button.layoutParams.width = 30;
+            button.isGone = true
+            button.isGone = false
             if (!page.isNaN() && minPositionScrollbar != 0F) {
                 var pageToUse = 1F
                 if (page >= 0 && page <= totalPages) pageToUse = page
