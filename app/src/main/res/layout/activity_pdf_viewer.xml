@@ -377,44 +377,22 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
+        tools:visibility="visible">
 
         <LinearLayout
             android:id="@+id/menuPanelSection1"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="0dp"
-            android:layout_marginEnd="0dp"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="100"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <ImageView
-                android:id="@+id/buttonOpenToolbar"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_weight="25"
-                android:background="@color/transparent"
-                android:contentDescription="@string/tooltip_open_new_file"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                android:tint="@color/white"
-                android:visibility="gone"
-                app:layout_constraintEnd_toStartOf="@+id/buttonNightDayToolbar"
-                app:layout_constraintTop_toTopOf="@+id/toolbar"
-                app:srcCompat="@drawable/ic_open_file"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
+            android:weightSum="90">
 
             <ImageView
                 android:id="@+id/buttonNightDayToolbar"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_weight="25"
+                android:layout_weight="30"
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_night_light_on"
                 android:padding="18sp"
@@ -431,7 +409,7 @@
                 android:id="@+id/buttonFullScreenToolbar"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_weight="25"
+                android:layout_weight="30"
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_full_screen_on"
                 android:padding="18sp"
@@ -448,7 +426,7 @@
                 android:id="@+id/buttonShareToolbar"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_weight="25"
+                android:layout_weight="30"
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_share_file"
                 android:padding="18sp"
@@ -461,6 +439,50 @@
                 tools:ignore="VectorDrawableCompat"
                 tools:visibility="visible" />
 
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuPanelSection2"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="100"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/menuPanelSection1">
+
+            <ImageView
+                android:id="@+id/buttonOpenToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="50"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_open_new_file"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                android:tint="@color/white"
+                android:visibility="gone"
+                app:layout_constraintEnd_toStartOf="@+id/buttonNightDayToolbar"
+                app:layout_constraintTop_toTopOf="@+id/toolbar"
+                app:srcCompat="@drawable/ic_open_file"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/buttonAllBookmarksToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="50"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_see_all_bookmarks"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                android:tint="@color/white"
+                app:layout_constraintEnd_toStartOf="@+id/buttonNightDayToolbar"
+                app:layout_constraintTop_toTopOf="@+id/toolbar"
+                app:srcCompat="@drawable/ic_all_bookmarks"
+                tools:ignore="VectorDrawableCompat" />
         </LinearLayout>
 
         <!--

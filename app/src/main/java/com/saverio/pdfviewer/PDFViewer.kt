@@ -20,7 +20,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
-import androidx.core.view.marginTop
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -568,7 +567,7 @@ class PDFViewer : AppCompatActivity() {
 
         if (databaseHandler.checkBookmark(fileId = pathNameTemp, page = currentPage)) {
             //there is the bookmark
-            bookmarkButton.setImageResource(R.drawable.ic_add_bookmark)
+            bookmarkButton.setImageResource(R.drawable.ic_yes_bookmark)
             bookmarkButton.setOnClickListener {
                 //remove bookmark
                 databaseHandler.deleteBookmark(
@@ -597,6 +596,16 @@ class PDFViewer : AppCompatActivity() {
 
         bookmarkButton.setOnLongClickListener {
             showAllBookmarks(pathName)
+            true
+        }
+
+        val allBookmarksButton: ImageView = findViewById(R.id.buttonAllBookmarksToolbar)
+        allBookmarksButton.setOnClickListener {
+            showAllBookmarks(pathName)
+            hideMenuPanel()
+        }
+        allBookmarksButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_see_all_bookmarks)
             true
         }
 
@@ -1256,18 +1265,17 @@ class PDFViewer : AppCompatActivity() {
         menuOpened = true
 
         val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
+        val buttonAllBookmarks: ImageView = findViewById(R.id.buttonAllBookmarksToolbar)
         val buttonNightLight: ImageView = findViewById(R.id.buttonNightDayToolbar)
         val buttonFullScreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
         val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
         if (isSupportedShareFeature) {
-            (buttonOpen.layoutParams as LinearLayout.LayoutParams).weight = 25F
-            (buttonNightLight.layoutParams as LinearLayout.LayoutParams).weight = 25F
-            (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 25F
-            (buttonShare.layoutParams as LinearLayout.LayoutParams).weight = 25F
+            (buttonNightLight.layoutParams as LinearLayout.LayoutParams).weight = 30F
+            (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 30F
+            (buttonShare.layoutParams as LinearLayout.LayoutParams).weight = 30F
         } else {
-            (buttonOpen.layoutParams as LinearLayout.LayoutParams).weight = 33F
-            (buttonNightLight.layoutParams as LinearLayout.LayoutParams).weight = 34F
-            (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 33F
+            (buttonNightLight.layoutParams as LinearLayout.LayoutParams).weight = 45F
+            (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 45F
         }
         findViewById<LinearLayout>(R.id.menuPanelSection1).requestLayout()
     }

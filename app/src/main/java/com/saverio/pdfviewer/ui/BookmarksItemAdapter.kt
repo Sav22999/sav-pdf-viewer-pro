@@ -25,8 +25,6 @@ import com.saverio.pdfviewer.db.BookmarksModel
 import com.saverio.pdfviewer.db.DatabaseHandler
 import com.shockwave.pdfium.PdfDocument
 import com.shockwave.pdfium.PdfiumCore
-import kotlin.math.abs
-import kotlin.math.min
 
 
 class BookmarksItemAdapter(
@@ -51,6 +49,7 @@ class BookmarksItemAdapter(
         var onlyClicked = false
         val startX = holder.card.x
         var startX_moving: Float? = null
+        var cancelled = false
 
         holder.card.setOnTouchListener(View.OnTouchListener { view, event ->
             val displayMetrics = view.resources.displayMetrics
@@ -65,6 +64,7 @@ class BookmarksItemAdapter(
                 }
                 MotionEvent.ACTION_MOVE -> {
                     onlyClicked = false
+                    cancelled = false
 
                     // get the new co-ordinate of X-axis
                     if (startX_moving == null) startX_moving = event.rawX
@@ -75,8 +75,16 @@ class BookmarksItemAdapter(
                     if (newX <= startX && newX >= -cardWidthToRemove) {
                         //left
                         view.animate().x(newX).setDuration(0).start()
-                    } else if (newX < -cardWidthToRemove) {
-                        view.animate().x(-cardWidthToRemove).setDuration(0).start()
+                    } else {
+                        //now do the same thing of if
+                        view.animate().x(newX).setDuration(0).start()
+                    }
+
+                    if (newX < -cardWidthToRemove) {
+                        //view.animate().x(-cardWidthToRemove).setDuration(0).start()
+                        holder.cardRemoved.setCardBackgroundColor(holder.colorDarkDarkRed)
+                    } else {
+                        holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
                     }
                 }
                 MotionEvent.ACTION_UP -> {
@@ -86,111 +94,134 @@ class BookmarksItemAdapter(
                     if (onlyClicked) (context as PDFViewer).goToPage(
                         valueToGo = item.page, animation = true
                     )
+                    if (!cancelled) {
+                        cancelled = true
+                        try {
+                            //"onActionUp"
+                            //TODO: improve this code -- It's equals to the ACTION_CANCEL
+                            val POSITION_TO_ARRIVE_WITH_ERROR =
+                                -(cardWidthToRemove - (cardWidthToRemove / 25))
+                            if (view.x <= POSITION_TO_ARRIVE_WITH_ERROR) {
+                                //Activated
+                                //Go all to left
+                                view.animate().x(POSITION_ALL_TO_LEFT).setDuration(500).start()
+                                Handler().postDelayed(
+                                    {
+                                        /*view.animate().x(-(POSITION_ALL_TO_LEFT * 2)).setDuration(0)
+                                        .start()*/
+                                        view.animate().x(cardStart).setDuration(100).start()
+                                    }, 500
+                                )
+                                holder.card.isInvisible = true
+                                holder.imageRemoveBookmark.isGone = true
+                                holder.cardRemoved.isGone = false
 
-                    //"onActionUp"
-                    //TODO: improve this code -- It's equals to the ACTION_CANCEL
-                    val POSITION_TO_ARRIVE_WITH_ERROR =
-                        -(cardWidthToRemove - (cardWidthToRemove / 25))
-                    if (view.x <= POSITION_TO_ARRIVE_WITH_ERROR) {
-                        //Activated
-                        //Go all to left
-                        view.animate().x(POSITION_ALL_TO_LEFT).setDuration(500).start()
-                        Handler().postDelayed(
-                            {
-                                /*view.animate().x(-(POSITION_ALL_TO_LEFT * 2)).setDuration(0)
-                                    .start()*/
-                                view.animate().x(cardStart).setDuration(100).start()
-                            }, 500
-                        )
-                        holder.card.isInvisible = true
-                        holder.imageRemoveBookmark.isGone = true
-                        holder.cardRemoved.isGone = false
+                                //println(holder.cardRemoved.width.toFloat())
+                                val initialX = holder.textViewBookmarkRemoved.x
+                                holder.textViewBookmarkRemoved.animate()
+                                    .x(holder.cardRemoved.width.toFloat() * 2).setDuration(0)
+                                    .start()
+                                holder.textViewBookmarkRemoved.isGone = false
+                                holder.textViewBookmarkRemoved.animate().x(initialX)
+                                    .setDuration(500)
+                                    .start()
 
-                        //println(holder.cardRemoved.width.toFloat())
-                        val initialX = holder.textViewBookmarkRemoved.x
-                        holder.textViewBookmarkRemoved.animate()
-                            .x(holder.cardRemoved.width.toFloat() * 2).setDuration(0).start()
-                        holder.textViewBookmarkRemoved.isGone = false
-                        holder.textViewBookmarkRemoved.animate().x(initialX).setDuration(500)
-                            .start()
+                                holder.cardRemoved.setCardBackgroundColor(holder.colorDarkDarkRed)
+                                Handler().postDelayed(
+                                    {
+                                        holder.cardRemoved.animate()
+                                            .x(-holder.cardRemoved.width.toFloat())
+                                            .setDuration(500).start()
+                                        Handler().postDelayed({
+                                            holder.textViewBookmarkRemoved.isGone = true
+                                            holder.card.isGone = true
+                                            holder.constraintLayoutRecyclerBookmark.isGone = true
+                                        }, 500)
+                                    }, 5000
+                                )
 
-                        Handler().postDelayed(
-                            {
-                                holder.cardRemoved.animate().x(-holder.cardRemoved.width.toFloat())
-                                    .setDuration(500).start()
-                                Handler().postDelayed({
-                                    holder.textViewBookmarkRemoved.isGone = true
-                                    holder.card.isGone = true
-                                    holder.constraintLayoutRecyclerBookmark.isGone = true
-                                }, 500)
-                            }, 5000
-                        )
+                                databaseHandler.deleteBookmark(item.id!!) //delete the bookmark
+                                if (databaseHandler.getBookmarks(item.file).size == 0) {
+                                    //no more items
+                                    (context as PDFViewer).hideBottomSheet()
+                                }
 
-                        databaseHandler.deleteBookmark(item.id!!) //delete the bookmark
-                        if (databaseHandler.getBookmarks(item.file).size == 0) {
-                            //no more items
-                            (context as PDFViewer).hideBottomSheet()
+                                Toast.makeText(
+                                    context, holder.deleted_bookmark_text, Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                //Not activated (cancelled)
+                                holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
+                                view.animate().x(cardStart).setDuration(500).start()
+                            }
+                        } catch (e: Exception) {
+                            println("Exception B1: $e")
                         }
-
-                        Toast.makeText(
-                            context, holder.deleted_bookmark_text, Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        //Not activated (cancelled)
-                        view.animate().x(cardStart).setDuration(500).start()
                     }
                 }
                 MotionEvent.ACTION_CANCEL -> {
                     //TODO: improve this code -- It's equals to the ACTION_UP
-                    val POSITION_TO_ARRIVE_WITH_ERROR =
-                        -(cardWidthToRemove - (cardWidthToRemove / 25))
-                    if (view.x <= POSITION_TO_ARRIVE_WITH_ERROR) {
-                        //Activated
-                        //Go all to left
-                        view.animate().x(POSITION_ALL_TO_LEFT).setDuration(500).start()
-                        Handler().postDelayed(
-                            {
-                                /*view.animate().x(-(POSITION_ALL_TO_LEFT * 2)).setDuration(0)
+                    if (!cancelled) {
+                        cancelled = true
+                        try {
+                            val POSITION_TO_ARRIVE_WITH_ERROR =
+                                -(cardWidthToRemove - (cardWidthToRemove / 25))
+                            if (view.x <= POSITION_TO_ARRIVE_WITH_ERROR) {
+                                //Activated
+                                //Go all to left
+                                view.animate().x(POSITION_ALL_TO_LEFT).setDuration(500).start()
+                                Handler().postDelayed(
+                                    {
+                                        /*view.animate().x(-(POSITION_ALL_TO_LEFT * 2)).setDuration(0)
                                     .start()*/
-                                view.animate().x(cardStart).setDuration(100).start()
-                            }, 500
-                        )
-                        holder.card.isInvisible = true
-                        holder.imageRemoveBookmark.isGone = true
-                        holder.cardRemoved.isGone = false
+                                        view.animate().x(cardStart).setDuration(100).start()
+                                    }, 500
+                                )
+                                holder.card.isInvisible = true
+                                holder.imageRemoveBookmark.isGone = true
+                                holder.cardRemoved.isGone = false
 
-                        //println(holder.cardRemoved.width.toFloat())
-                        val initialX = holder.textViewBookmarkRemoved.x
-                        holder.textViewBookmarkRemoved.animate()
-                            .x(holder.cardRemoved.width.toFloat() * 2).setDuration(0).start()
-                        holder.textViewBookmarkRemoved.isGone = false
-                        holder.textViewBookmarkRemoved.animate().x(initialX).setDuration(500)
-                            .start()
+                                //println(holder.cardRemoved.width.toFloat())
+                                val initialX = holder.textViewBookmarkRemoved.x
+                                holder.textViewBookmarkRemoved.animate()
+                                    .x(holder.cardRemoved.width.toFloat() * 2).setDuration(0)
+                                    .start()
+                                holder.textViewBookmarkRemoved.isGone = false
+                                holder.textViewBookmarkRemoved.animate().x(initialX)
+                                    .setDuration(500)
+                                    .start()
 
-                        Handler().postDelayed(
-                            {
-                                holder.cardRemoved.animate().x(-holder.cardRemoved.width.toFloat())
-                                    .setDuration(500).start()
-                                Handler().postDelayed({
-                                    holder.textViewBookmarkRemoved.isGone = true
-                                    holder.card.isGone = true
-                                    holder.constraintLayoutRecyclerBookmark.isGone = true
-                                }, 500)
-                            }, 5000
-                        )
+                                holder.cardRemoved.setCardBackgroundColor(holder.colorDarkDarkRed)
+                                Handler().postDelayed(
+                                    {
+                                        holder.cardRemoved.animate()
+                                            .x(-holder.cardRemoved.width.toFloat())
+                                            .setDuration(500).start()
+                                        Handler().postDelayed({
+                                            holder.textViewBookmarkRemoved.isGone = true
+                                            holder.card.isGone = true
+                                            holder.constraintLayoutRecyclerBookmark.isGone = true
+                                        }, 500)
+                                    }, 5000
+                                )
 
-                        databaseHandler.deleteBookmark(item.id!!) //delete the bookmark
-                        if (databaseHandler.getBookmarks(item.file).size == 0) {
-                            //no more items
-                            (context as PDFViewer).hideBottomSheet()
+                                databaseHandler.deleteBookmark(item.id!!) //delete the bookmark
+                                if (databaseHandler.getBookmarks(item.file).size == 0) {
+                                    //no more items
+                                    (context as PDFViewer).hideBottomSheet()
+                                }
+
+                                Toast.makeText(
+                                    context, holder.deleted_bookmark_text, Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                //Not activated (cancelled)
+                                holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
+                                view.animate().x(cardStart).setDuration(500).start()
+                            }
+                        } catch (e: Exception) {
+                            println("Exception B2: $e")
                         }
-
-                        Toast.makeText(
-                            context, holder.deleted_bookmark_text, Toast.LENGTH_SHORT
-                        ).show()
-                    } else {
-                        //Not activated (cancelled)
-                        view.animate().x(cardStart).setDuration(500).start()
                     }
                 }
             }
@@ -262,5 +293,7 @@ class BookmarksItemAdapter(
 
         val page_number = view.resources.getString(R.string.page_number_text)
         val deleted_bookmark_text = view.resources.getString(R.string.toast_bookmark_removed)
+        val colorRed = view.resources.getColor(R.color.red)
+        val colorDarkDarkRed = view.resources.getColor(R.color.dark_dark_red)
     }
 }
