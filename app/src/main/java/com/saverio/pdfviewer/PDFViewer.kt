@@ -268,6 +268,19 @@ class PDFViewer : AppCompatActivity() {
                 .enableAnnotationRendering(true) // render annotations (such as comments, colors or forms)
                 .password(passwordToUse).scrollHandle(null)
                 .enableAntialiasing(true) // improve rendering a little bit on low-res screens
+                .spacing(5)
+                .onTap {
+                    if (!showingTopBar) {
+                        hideTopBarCounter = 0
+                        showTopBar()
+                        hideGoToDialog()
+                        hideMenuPanel()
+                    } else {
+                        hideTopBar(fullHiding = true)
+                    }
+                    true
+                }
+                //.onPageError { page, t -> println(page) }
                 .onPageChange { page, pageCount ->
                     run {
                         updatePdfPage(uri.toString(), page)
@@ -798,7 +811,8 @@ class PDFViewer : AppCompatActivity() {
             buttonClose.isGone = false
             if (isSupportedShareFeature) buttonShare.isGone = false
             buttonFullscreen.isGone = false
-            if (isSupportedGoTop && showGoTop) buttonGoTop.isGone = false
+            if (isSupportedGoTop && showGoTop && pdfViewer.currentPage > 0) buttonGoTop.isGone =
+                false
             buttonOpen.isGone = false
             buttonMenu.isGone = false
             buttonNightDay.isGone = false
@@ -979,6 +993,7 @@ class PDFViewer : AppCompatActivity() {
                 }
             } else {
                 if (message.isGone && messageGoTo.isGone && menuPanel.isGone && fullHiding) {
+                    showingTopBar = false;
                     toolbar.isGone = true
                     buttonClose.isGone = true
                     buttonShare.isGone = true

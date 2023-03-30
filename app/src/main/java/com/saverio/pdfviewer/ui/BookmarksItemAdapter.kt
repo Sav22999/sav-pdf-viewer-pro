@@ -56,7 +56,7 @@ class BookmarksItemAdapter(
             val cardWidth = view.width
             val cardStart = (displayMetrics.widthPixels.toFloat() / 2) - (cardWidth / 2)
             val POSITION_ALL_TO_LEFT = -(cardWidth + cardStart)
-            val cardWidthToRemove = (cardWidth / 4).toFloat();
+            val cardWidthToActivate = (cardWidth / 4).toFloat();
 
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -72,7 +72,7 @@ class BookmarksItemAdapter(
 
                     // carry out swipe only if newX > MAX_SWIPE_LEFT_DISTANCE, i.e.
                     // the card is swiped to the left side, not to the right
-                    if (newX <= startX && newX >= -cardWidthToRemove) {
+                    if (newX <= startX && newX >= -cardWidthToActivate) {
                         //left
                         view.animate().x(newX).setDuration(0).start()
                     } else {
@@ -80,9 +80,11 @@ class BookmarksItemAdapter(
                         view.animate().x(newX).setDuration(0).start()
                     }
 
-                    if (newX < -cardWidthToRemove) {
+                    if (newX < -cardWidthToActivate) {
                         //view.animate().x(-cardWidthToRemove).setDuration(0).start()
-                        holder.cardRemoved.setCardBackgroundColor(holder.colorDarkDarkRed)
+                        holder.cardRemoved.setCardBackgroundColor(holder.colorDarkDarkDarkRed)
+                    } else if (newX > cardWidthToActivate) {
+                        holder.cardRemoved.setCardBackgroundColor(holder.colorDarkGray)
                     } else {
                         holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
                     }
@@ -92,7 +94,8 @@ class BookmarksItemAdapter(
                     //"onClick"
                     startX_moving = null
                     if (onlyClicked) (context as PDFViewer).goToPage(
-                        valueToGo = item.page, animation = true
+                        valueToGo = item.page,
+                        animation = true
                     )
                     if (!cancelled) {
                         cancelled = true
@@ -100,9 +103,9 @@ class BookmarksItemAdapter(
                             //"onActionUp"
                             //TODO: improve this code -- It's equals to the ACTION_CANCEL
                             val POSITION_TO_ARRIVE_WITH_ERROR =
-                                -(cardWidthToRemove - (cardWidthToRemove / 25))
-                            if (view.x <= POSITION_TO_ARRIVE_WITH_ERROR) {
-                                //Activated
+                                (cardWidthToActivate - (cardWidthToActivate / 25))
+                            if (view.x <= -POSITION_TO_ARRIVE_WITH_ERROR) {
+                                //Activated (remove)
                                 //Go all to left
                                 view.animate().x(POSITION_ALL_TO_LEFT).setDuration(500).start()
                                 Handler().postDelayed(
@@ -114,6 +117,7 @@ class BookmarksItemAdapter(
                                 )
                                 holder.card.isInvisible = true
                                 holder.imageRemoveBookmark.isGone = true
+                                holder.imageGoToBookmark.isGone = true
                                 holder.cardRemoved.isGone = false
 
                                 //println(holder.cardRemoved.width.toFloat())
@@ -126,7 +130,7 @@ class BookmarksItemAdapter(
                                     .setDuration(500)
                                     .start()
 
-                                holder.cardRemoved.setCardBackgroundColor(holder.colorDarkDarkRed)
+                                holder.cardRemoved.setCardBackgroundColor(holder.colorDarkDarkDarkRed)
                                 Handler().postDelayed(
                                     {
                                         holder.cardRemoved.animate()
@@ -149,6 +153,12 @@ class BookmarksItemAdapter(
                                 Toast.makeText(
                                     context, holder.deleted_bookmark_text, Toast.LENGTH_SHORT
                                 ).show()
+                            } else if (view.x >= POSITION_TO_ARRIVE_WITH_ERROR) {
+                                //Activated (goto)
+                                (context as PDFViewer).goToPage(
+                                    valueToGo = item.page,
+                                    animation = true
+                                )
                             } else {
                                 //Not activated (cancelled)
                                 holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
@@ -161,14 +171,15 @@ class BookmarksItemAdapter(
                 }
                 MotionEvent.ACTION_CANCEL -> {
                     //TODO: improve this code -- It's equals to the ACTION_UP
+                    startX_moving = null
                     if (!cancelled) {
                         cancelled = true
                         try {
                             val POSITION_TO_ARRIVE_WITH_ERROR =
-                                -(cardWidthToRemove - (cardWidthToRemove / 25))
-                            if (view.x <= POSITION_TO_ARRIVE_WITH_ERROR) {
+                                (cardWidthToActivate - (cardWidthToActivate / 25))
+                            if (view.x <= -POSITION_TO_ARRIVE_WITH_ERROR) {
                                 //Activated
-                                //Go all to left
+                                //Go all to left (remove)
                                 view.animate().x(POSITION_ALL_TO_LEFT).setDuration(500).start()
                                 Handler().postDelayed(
                                     {
@@ -179,6 +190,7 @@ class BookmarksItemAdapter(
                                 )
                                 holder.card.isInvisible = true
                                 holder.imageRemoveBookmark.isGone = true
+                                holder.imageGoToBookmark.isGone = true
                                 holder.cardRemoved.isGone = false
 
                                 //println(holder.cardRemoved.width.toFloat())
@@ -191,7 +203,7 @@ class BookmarksItemAdapter(
                                     .setDuration(500)
                                     .start()
 
-                                holder.cardRemoved.setCardBackgroundColor(holder.colorDarkDarkRed)
+                                holder.cardRemoved.setCardBackgroundColor(holder.colorDarkDarkDarkRed)
                                 Handler().postDelayed(
                                     {
                                         holder.cardRemoved.animate()
@@ -214,6 +226,12 @@ class BookmarksItemAdapter(
                                 Toast.makeText(
                                     context, holder.deleted_bookmark_text, Toast.LENGTH_SHORT
                                 ).show()
+                            } else if (view.x >= POSITION_TO_ARRIVE_WITH_ERROR) {
+                                //Activated (goto)
+                                (context as PDFViewer).goToPage(
+                                    valueToGo = item.page,
+                                    animation = true
+                                )
                             } else {
                                 //Not activated (cancelled)
                                 holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
@@ -287,6 +305,7 @@ class BookmarksItemAdapter(
         val card: CardView = view.findViewById(R.id.cardViewBookmark)
         val cardRemoved: CardView = view.findViewById(R.id.cardViewBookmarkRemoved)
         val imageRemoveBookmark: ImageView = view.findViewById(R.id.imageViewRemoveBookmark)
+        val imageGoToBookmark: ImageView = view.findViewById(R.id.imageViewGoToBookmark)
         val textViewBookmarkRemoved: TextView = view.findViewById(R.id.textViewBookmarkRemoved)
         val constraintLayoutRecyclerBookmark: ConstraintLayout =
             view.findViewById(R.id.constraintLayoutRecyclerBookmark)
@@ -294,6 +313,7 @@ class BookmarksItemAdapter(
         val page_number = view.resources.getString(R.string.page_number_text)
         val deleted_bookmark_text = view.resources.getString(R.string.toast_bookmark_removed)
         val colorRed = view.resources.getColor(R.color.red)
-        val colorDarkDarkRed = view.resources.getColor(R.color.dark_dark_red)
+        val colorDarkDarkDarkRed = view.resources.getColor(R.color.dark_dark_dark_red)
+        val colorDarkGray = view.resources.getColor(R.color.dark_gray)
     }
 }
