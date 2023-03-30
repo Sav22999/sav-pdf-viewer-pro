@@ -26,7 +26,6 @@ import com.saverio.pdfviewer.db.DatabaseHandler
 import com.shockwave.pdfium.PdfDocument
 import com.shockwave.pdfium.PdfiumCore
 
-
 class BookmarksItemAdapter(
     private val context: Context, private val items: ArrayList<BookmarksModel>
 ) : RecyclerView.Adapter<BookmarksItemAdapter.ItemViewHolder>() {
@@ -50,6 +49,7 @@ class BookmarksItemAdapter(
         val startX = holder.card.x
         var startX_moving: Float? = null
         var cancelled = false
+        var goto_activated = false
 
         holder.card.setOnTouchListener(View.OnTouchListener { view, event ->
             val displayMetrics = view.resources.displayMetrics
@@ -84,7 +84,7 @@ class BookmarksItemAdapter(
                         //view.animate().x(-cardWidthToRemove).setDuration(0).start()
                         holder.cardRemoved.setCardBackgroundColor(holder.colorDarkDarkDarkRed)
                     } else if (newX > cardWidthToActivate) {
-                        holder.cardRemoved.setCardBackgroundColor(holder.colorDarkGray)
+                        //holder.cardRemoved.setCardBackgroundColor(holder.colorDarkGray)
                     } else {
                         holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
                     }
@@ -153,13 +153,14 @@ class BookmarksItemAdapter(
                                 Toast.makeText(
                                     context, holder.deleted_bookmark_text, Toast.LENGTH_SHORT
                                 ).show()
-                            } else if (view.x >= POSITION_TO_ARRIVE_WITH_ERROR) {
+                            } /*else if (view.x >= POSITION_TO_ARRIVE_WITH_ERROR) {
                                 //Activated (goto)
-                                (context as PDFViewer).goToPage(
-                                    valueToGo = item.page,
-                                    animation = true
-                                )
-                            } else {
+                                try {
+                                    //goToPage(context, item.page) //TODO: re-enable this
+                                } catch (e: Exception) {
+                                    println("Exception B3: $e")
+                                }
+                            }*/ else {
                                 //Not activated (cancelled)
                                 holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
                                 view.animate().x(cardStart).setDuration(500).start()
@@ -226,14 +227,20 @@ class BookmarksItemAdapter(
                                 Toast.makeText(
                                     context, holder.deleted_bookmark_text, Toast.LENGTH_SHORT
                                 ).show()
-                            } else if (view.x >= POSITION_TO_ARRIVE_WITH_ERROR) {
+                            } /*else if (view.x >= POSITION_TO_ARRIVE_WITH_ERROR) {
                                 //Activated (goto)
-                                (context as PDFViewer).goToPage(
-                                    valueToGo = item.page,
-                                    animation = true
-                                )
-                            } else {
+                                if (!goto_activated) {
+                                    goto_activated = true
+                                    try {
+                                        //TODO: here it's generated an exception (a unmanaged event ??)
+                                        //goToPage(context, item.page)
+                                    } catch (e: Exception) {
+                                        println("Exception B4: $e")
+                                    }
+                                }
+                            }*/ else {
                                 //Not activated (cancelled)
+
                                 holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
                                 view.animate().x(cardStart).setDuration(500).start()
                             }
@@ -257,6 +264,13 @@ class BookmarksItemAdapter(
                 lastPosition = lastPosition, uri = uri, holder = holder
             )
         }
+    }
+
+    fun goToPage(context: Context, page: Int) {
+        (context as PDFViewer).goToPage(
+            valueToGo = page,
+            animation = true
+        )
     }
 
     fun loadPreview(

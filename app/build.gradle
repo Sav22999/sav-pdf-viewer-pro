@@ -51,5 +51,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     compile 'com.github.barteksc:pdfium-android:1.9.0'
 
-    implementation 'com.github.barteksc:android-pdf-viewer:2.8.2' //Use "2.8.2" for stability
+    implementation 'com.github.barteksc:android-pdf-viewer:3.2.0-beta.1' //Use "2.8.2" for stability
 }

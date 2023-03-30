@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.listener.OnErrorListener
+import com.github.barteksc.pdfviewer.listener.OnRenderListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.saverio.pdfviewer.db.BookmarksModel
 import com.saverio.pdfviewer.db.DatabaseHandler
@@ -313,7 +314,8 @@ class PDFViewer : AppCompatActivity() {
                     println("subject: " + pdfViewer.documentMeta.subject)
                     println("creationDate: " + pdfViewer.documentMeta.creationDate)
                     */
-                }.onRender { nbPages, pageWidth, pageHeight ->
+                }
+                .onRender { nbPages ->
                     totalPages = nbPages
                     if (lastPosition >= totalPages) lastPosition = (totalPages - 1)
 
@@ -334,7 +336,7 @@ class PDFViewer : AppCompatActivity() {
                         isSupportedGoTop = true
                         isSupportedScrollbarButton = true
                     }
-                    pdfViewer.fitToWidth()
+                    pdfViewer.fitToWidth(0)
                     pdfViewer.jumpTo(lastPosition, false)
                     if (lastPosition.toString() == "0") {
                         showTopBar(showGoTop = false)
@@ -470,7 +472,7 @@ class PDFViewer : AppCompatActivity() {
             }
             //println("______>" + savedCurrentPageOld)
             val startZoom = pdfViewer.zoom
-            pdfViewer.fitToWidth()
+            pdfViewer.fitToWidth(0)
             val endZoom = pdfViewer.zoom
             pdfViewer.zoomTo(startZoom)
             pdfViewer.zoomWithAnimation(endZoom)
