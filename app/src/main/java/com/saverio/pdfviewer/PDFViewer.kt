@@ -824,6 +824,14 @@ class PDFViewer : AppCompatActivity() {
             message.isGone = false
             arrow.isGone = false
 
+            val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
+            pageNumberTextViewToolbar.isGone = false
+            Handler().postDelayed({
+                arrow.animate()
+                    .x(pageNumberTextViewToolbar.x + (pageNumberTextViewToolbar.width / 2) - (arrow.width / 2))
+                    .setDuration(200).start()
+            }, 200)
+
             val button: TextView = findViewById(R.id.buttonHideGuide1)
             button.setOnClickListener {
                 message.isGone = true
@@ -841,7 +849,7 @@ class PDFViewer : AppCompatActivity() {
             showMenuPanelImageViewToolbar.isGone = false
             Handler().postDelayed({
                 arrow.animate()
-                    .x(showMenuPanelImageViewToolbar.x + (showMenuPanelImageViewToolbar.width / 2) - (arrow.width / 2))
+                    .x(showMenuPanelImageViewToolbar.x + (showMenuPanelImageViewToolbar.width / 2) - (arrow.width / 2) - 25)
                     .setDuration(200).start()
             }, 200)
 
@@ -1273,6 +1281,14 @@ class PDFViewer : AppCompatActivity() {
         val arrow: View = findViewById(R.id.arrowMenuPanel)
         message.isGone = false
         arrow.isGone = false
+
+        val showMenuPanelToolbar: ImageView = findViewById(R.id.buttonMenuToolbar)
+        showMenuPanelToolbar.isGone = false
+        Handler().postDelayed({
+            arrow.animate()
+                .x(showMenuPanelToolbar.x + (showMenuPanelToolbar.width / 2) - (arrow.width / 2) - 25)
+                .setDuration(200).start()
+        }, 200)
 
         menuOpened = true
 
