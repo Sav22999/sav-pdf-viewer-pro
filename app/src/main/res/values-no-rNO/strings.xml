@@ -48,4 +48,5 @@
     <string name="tooltip_remove_from_bookmarks">Fjern gjeldende side fra bokmerker</string>
     <string name="tooltip_see_all_bookmarks">Se alle bokmerker</string>
     <string name="tooltip_close_bookmarks">Lukk alle bokmerker</string>
+    <string name="tooltip_get_help">Få hjelp</string>
 </resources>

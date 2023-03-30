@@ -366,7 +366,8 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
+        tools:visibility="visible">
 
         <LinearLayout
             android:id="@+id/menuPanelSection1"
@@ -432,7 +433,7 @@
             android:layout_height="fill_parent"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="100"
+            android:weightSum="90"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/menuPanelSection1">
@@ -441,7 +442,7 @@
                 android:id="@+id/buttonOpenToolbar"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_weight="50"
+                android:layout_weight="30"
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_open_new_file"
                 android:padding="18sp"
@@ -457,7 +458,7 @@
                 android:id="@+id/buttonAllBookmarksToolbar"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_weight="50"
+                android:layout_weight="30"
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_see_all_bookmarks"
                 android:padding="18sp"
@@ -465,6 +466,20 @@
                 app:layout_constraintEnd_toStartOf="@+id/buttonNightDayToolbar"
                 app:layout_constraintTop_toTopOf="@+id/toolbar"
                 app:srcCompat="@drawable/ic_all_bookmarks"
+                tools:ignore="VectorDrawableCompat" />
+
+            <ImageView
+                android:id="@+id/buttonGetHelpToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="30"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_get_help"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                app:layout_constraintEnd_toStartOf="@+id/buttonNightDayToolbar"
+                app:layout_constraintTop_toTopOf="@+id/toolbar"
+                app:srcCompat="@drawable/ic_get_help"
                 tools:ignore="VectorDrawableCompat" />
         </LinearLayout>
 
