@@ -48,4 +48,5 @@
     <string name="tooltip_remove_from_bookmarks">Supprimer la page courante des favoris</string>
     <string name="tooltip_see_all_bookmarks">Voir tous les signets</string>
     <string name="tooltip_close_bookmarks">Fermer tous les signets</string>
+    <string name="tooltip_get_help">Obtenir de l\'aide</string>
 </resources>

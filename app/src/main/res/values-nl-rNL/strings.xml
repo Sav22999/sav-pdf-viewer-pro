@@ -48,4 +48,5 @@
     <string name="tooltip_remove_from_bookmarks">De huidige pagina uit de bladwijzers verwijderen</string>
     <string name="tooltip_see_all_bookmarks">Alle bladwijzers weergeven</string>
     <string name="tooltip_close_bookmarks">Alle bladwijzers sluiten</string>
+    <string name="tooltip_get_help">Hulp vragen</string>
 </resources>

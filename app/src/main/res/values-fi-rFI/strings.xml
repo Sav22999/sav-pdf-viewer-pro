@@ -5,10 +5,10 @@
     <string name="title_settings">Asetukset</string>
     <string name="title_recents">Viimeisimmät</string>
     <string name="title_favourites">Suosikit</string>
-    <string name="text_review_the_app">Pidätkö tästä sovelluksesta?\nJätä arvostelu ⭐ Google Play.\nSe on vain muutaman sekunnin sinulle: smiling_face_with_smiling_eyes:</string>
+    <string name="text_review_the_app">Pidätkö tästä sovelluksesta?\nJätä arvostelu ⭐ Google Playhin.\nSe vie vain muutaman sekunnin 😊</string>
     <string name="button_review_the_app_now">Arvostele nyt</string>
     <string name="text_review_the_app_later">Arvostele myöhemmin</string>
-    <string name="text_follow_on_instagram_the_app">Olen juuri luonut sovelluksen Instagram-tilin.\nSiellä, löydät vinkkejä, curiosities ja jotain muuta! 😉\nSeuraa sitä nyt 💙</string>
+    <string name="text_follow_on_instagram_the_app">Olen juuri luonut sovellukselle Instagram-tilin.\nSieltä löydät vinkkejä, kuriositeetteja ja jotain muuta! 😉\nSeuraa sitä nyt 💙</string>
     <string name="button_follow_instagram_the_app_now">Seuraa Instagramissa</string>
     <string name="text_tap_here_to_show_the_top_bar">Napauta läpinäkyvää punaista osiota näyttääksesi taas yläpalkin, joka häviää vierittäessäsi.\n5 sekunnin kuluttua palkki on myös piilotettu; vieritä sen näyttämiseksi uudelleen.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Paina tätä näyttääksesi \"Mene kohtaan\"-paneelin, jotta voit siirtyä nopeasti tietylle sivulle.</string>
@@ -40,7 +40,7 @@
     <string name="tooltip_close_app">Sulje sovellus</string>
     <string name="tooltip_go_to_the_page">Siirry lisätyn sivun luo</string>
     <string name="tooltip_close_panel">Sulje tämä paneeli</string>
-    <string name="tooltip_ok_button">OK, continue</string>
+    <string name="tooltip_ok_button">OK, jatka</string>
     <string name="tooltip_open_file_password">Avaa tämä tiedosto</string>
     <string name="tooltip_review_now">Mene sovelluskauppaasi ja arvostele nyt</string>
     <string name="tooltip_follow_now">Mene Instagramiin ja seuraa sovellustiliä</string>
@@ -48,4 +48,5 @@
     <string name="tooltip_remove_from_bookmarks">Poista nykyinen sivu kirjanmerkeistä</string>
     <string name="tooltip_see_all_bookmarks">Näytä kaikki kirjanmerkit</string>
     <string name="tooltip_close_bookmarks">Sulje kaikki kirjanmerkit</string>
+    <string name="tooltip_get_help">Hae apua</string>
 </resources>

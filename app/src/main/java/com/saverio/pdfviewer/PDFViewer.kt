@@ -176,6 +176,17 @@ class PDFViewer : AppCompatActivity() {
             true
         }
 
+        val helpButton: ImageView = findViewById(R.id.buttonGetHelpToolbar)
+        helpButton.setOnClickListener {
+            openGetHelp()
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        helpButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_get_help)
+            true
+        }
+
         val lightButton: ImageView = findViewById(R.id.buttonNightDayToolbar)
         val comfortView: View = findViewById(R.id.nightThemeBackground)
         lightButton.setOnClickListener {
@@ -602,6 +613,7 @@ class PDFViewer : AppCompatActivity() {
         val allBookmarksButton: ImageView = findViewById(R.id.buttonAllBookmarksToolbar)
         allBookmarksButton.setOnClickListener {
             showAllBookmarks(pathName)
+            resetHideTopBarCounter()
             hideMenuPanel()
         }
         allBookmarksButton.setOnLongClickListener {
@@ -1398,7 +1410,7 @@ class PDFViewer : AppCompatActivity() {
         }
     }
 
-    fun setPositionScrollbarByPage(page: Float) {
+    fun setPositionScrollbarByPage(page: Float, animationDuration: Long = 0) {
         if (isSupportedScrollbarButton) {
             val button: TextView = findViewById(R.id.buttonSideScroll)
             val textPage: TextView = findViewById(R.id.textSideScroll)
@@ -1412,10 +1424,19 @@ class PDFViewer : AppCompatActivity() {
                 var initialPosition =
                     (((pageToUse - 1) * maxPositionScrollbar) / (totalPages - 1)) + minPositionScrollbar
                 if (initialPosition.isNaN()) initialPosition = 0F
-                button.animate().y(initialPosition).setDuration(0).start()
-                container.animate().y(initialPosition).setDuration(0).start()
+                button.animate().y(initialPosition).setDuration(animationDuration).start()
+                container.animate().y(initialPosition).setDuration(animationDuration).start()
                 textPage.text = pageToUse.toInt().toString()
             }
         }
+    }
+
+    fun openGetHelp() {
+        this.startActivity(
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://www.savpdfviewer.com/help/")
+            )
+        )
     }
 }
