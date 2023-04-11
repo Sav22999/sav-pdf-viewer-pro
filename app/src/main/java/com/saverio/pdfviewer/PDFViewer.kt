@@ -601,8 +601,7 @@ class PDFViewer : AppCompatActivity() {
                         fileId = pathNameTemp, page = currentPage
                     )[0].id!!
                 )
-                Toast.makeText(this, getString(R.string.toast_bookmark_removed), Toast.LENGTH_SHORT)
-                    .show()
+                //Toast.makeText(this, getString(R.string.toast_bookmark_removed), Toast.LENGTH_SHORT).show()
                 updateButtonBookmark(pathName, currentPage)
             }
         } else {
@@ -614,8 +613,7 @@ class PDFViewer : AppCompatActivity() {
                     id = null, date = getNow(), file = pathNameTemp, page = currentPage, ""
                 )
                 databaseHandler.add(bookmark = bookmark)
-                Toast.makeText(this, getString(R.string.toast_bookmark_added), Toast.LENGTH_SHORT)
-                    .show()
+                //Toast.makeText(this, getString(R.string.toast_bookmark_added), Toast.LENGTH_SHORT).show()
                 updateButtonBookmark(pathName, currentPage)
             }
         }
@@ -689,9 +687,13 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun hideBottomSheet() {
-        if (dialog != null) {
-            dialog!!.dismiss()
-            dialog = null
+        try {
+            if (dialog != null) {
+                dialog!!.dismiss()
+                dialog = null
+            }
+        }catch (e: Exception){
+            println("Exception 12")
         }
     }
 
@@ -1261,7 +1263,7 @@ class PDFViewer : AppCompatActivity() {
             goToPage(valueToGo, true)
             textbox.clearFocus()
         } catch (e: Exception) {
-
+            println("Exception 11")
         }
     }
 

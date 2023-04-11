@@ -93,10 +93,7 @@ class BookmarksItemAdapter(
                     //when the action is up
                     //"onClick"
                     startX_moving = null
-                    if (onlyClicked) (context as PDFViewer).goToPage(
-                        valueToGo = item.page,
-                        animation = true
-                    )
+                    if (onlyClicked) goToPage(context = context, page = item.page, animation = true)
                     if (!cancelled) {
                         cancelled = true
                         try {
@@ -150,9 +147,7 @@ class BookmarksItemAdapter(
                                     (context as PDFViewer).hideBottomSheet()
                                 }
 
-                                Toast.makeText(
-                                    context, holder.deleted_bookmark_text, Toast.LENGTH_SHORT
-                                ).show()
+                                //Toast.makeText(context, holder.deleted_bookmark_text, Toast.LENGTH_SHORT).show()
                             } /*else if (view.x >= POSITION_TO_ARRIVE_WITH_ERROR) {
                                 //Activated (goto)
                                 try {
@@ -176,74 +171,8 @@ class BookmarksItemAdapter(
                     if (!cancelled) {
                         cancelled = true
                         try {
-                            val POSITION_TO_ARRIVE_WITH_ERROR =
-                                (cardWidthToActivate - (cardWidthToActivate / 25))
-                            if (view.x <= -POSITION_TO_ARRIVE_WITH_ERROR) {
-                                //Activated
-                                //Go all to left (remove)
-                                view.animate().x(POSITION_ALL_TO_LEFT).setDuration(500).start()
-                                Handler().postDelayed(
-                                    {
-                                        /*view.animate().x(-(POSITION_ALL_TO_LEFT * 2)).setDuration(0)
-                                    .start()*/
-                                        view.animate().x(cardStart).setDuration(100).start()
-                                    }, 500
-                                )
-                                holder.card.isInvisible = true
-                                holder.imageRemoveBookmark.isGone = true
-                                holder.imageGoToBookmark.isGone = true
-                                holder.cardRemoved.isGone = false
-
-                                //println(holder.cardRemoved.width.toFloat())
-                                val initialX = holder.textViewBookmarkRemoved.x
-                                holder.textViewBookmarkRemoved.animate()
-                                    .x(holder.cardRemoved.width.toFloat() * 2).setDuration(0)
-                                    .start()
-                                holder.textViewBookmarkRemoved.isGone = false
-                                holder.textViewBookmarkRemoved.animate().x(initialX)
-                                    .setDuration(500)
-                                    .start()
-
-                                holder.cardRemoved.setCardBackgroundColor(holder.colorDarkDarkDarkRed)
-                                Handler().postDelayed(
-                                    {
-                                        holder.cardRemoved.animate()
-                                            .x(-holder.cardRemoved.width.toFloat())
-                                            .setDuration(500).start()
-                                        Handler().postDelayed({
-                                            holder.textViewBookmarkRemoved.isGone = true
-                                            holder.card.isGone = true
-                                            holder.constraintLayoutRecyclerBookmark.isGone = true
-                                        }, 500)
-                                    }, 5000
-                                )
-
-                                databaseHandler.deleteBookmark(item.id!!) //delete the bookmark
-                                if (databaseHandler.getBookmarks(item.file).size == 0) {
-                                    //no more items
-                                    (context as PDFViewer).hideBottomSheet()
-                                }
-
-                                Toast.makeText(
-                                    context, holder.deleted_bookmark_text, Toast.LENGTH_SHORT
-                                ).show()
-                            } /*else if (view.x >= POSITION_TO_ARRIVE_WITH_ERROR) {
-                                //Activated (goto)
-                                if (!goto_activated) {
-                                    goto_activated = true
-                                    try {
-                                        //TODO: here it's generated an exception (a unmanaged event ??)
-                                        //goToPage(context, item.page)
-                                    } catch (e: Exception) {
-                                        println("Exception B4: $e")
-                                    }
-                                }
-                            }*/ else {
-                                //Not activated (cancelled)
-
-                                holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
-                                view.animate().x(cardStart).setDuration(500).start()
-                            }
+                            holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
+                            view.animate().x(cardStart).setDuration(500).start()
                         } catch (e: Exception) {
                             println("Exception B2: $e")
                         }
@@ -266,7 +195,7 @@ class BookmarksItemAdapter(
         }
     }
 
-    fun goToPage(context: Context, page: Int) {
+    fun goToPage(context: Context, page: Int, animation: Boolean = true) {
         (context as PDFViewer).goToPage(
             valueToGo = page,
             animation = true
