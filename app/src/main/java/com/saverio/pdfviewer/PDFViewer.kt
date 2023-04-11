@@ -25,6 +25,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.listener.OnErrorListener
+import com.github.barteksc.pdfviewer.listener.OnRenderListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.saverio.pdfviewer.db.BookmarksModel
 import com.saverio.pdfviewer.db.DatabaseHandler
@@ -268,6 +269,19 @@ class PDFViewer : AppCompatActivity() {
                 .enableAnnotationRendering(true) // render annotations (such as comments, colors or forms)
                 .password(passwordToUse).scrollHandle(null)
                 .enableAntialiasing(true) // improve rendering a little bit on low-res screens
+                .spacing(5)
+                .onTap {
+                    if (!showingTopBar) {
+                        hideTopBarCounter = 0
+                        showTopBar()
+                        hideGoToDialog()
+                        hideMenuPanel()
+                    } else {
+                        hideTopBar(fullHiding = true)
+                    }
+                    true
+                }
+                //.onPageError { page, t -> println(page) }
                 .onPageChange { page, pageCount ->
                     run {
                         updatePdfPage(uri.toString(), page)
@@ -300,7 +314,8 @@ class PDFViewer : AppCompatActivity() {
                     println("subject: " + pdfViewer.documentMeta.subject)
                     println("creationDate: " + pdfViewer.documentMeta.creationDate)
                     */
-                }.onRender { nbPages, pageWidth, pageHeight ->
+                }
+                .onRender { nbPages ->
                     totalPages = nbPages
                     if (lastPosition >= totalPages) lastPosition = (totalPages - 1)
 
@@ -321,7 +336,7 @@ class PDFViewer : AppCompatActivity() {
                         isSupportedGoTop = true
                         isSupportedScrollbarButton = true
                     }
-                    pdfViewer.fitToWidth()
+                    pdfViewer.fitToWidth(0)
                     pdfViewer.jumpTo(lastPosition, false)
                     if (lastPosition.toString() == "0") {
                         showTopBar(showGoTop = false)
@@ -457,7 +472,7 @@ class PDFViewer : AppCompatActivity() {
             }
             //println("______>" + savedCurrentPageOld)
             val startZoom = pdfViewer.zoom
-            pdfViewer.fitToWidth()
+            pdfViewer.fitToWidth(0)
             val endZoom = pdfViewer.zoom
             pdfViewer.zoomTo(startZoom)
             pdfViewer.zoomWithAnimation(endZoom)
@@ -586,8 +601,7 @@ class PDFViewer : AppCompatActivity() {
                         fileId = pathNameTemp, page = currentPage
                     )[0].id!!
                 )
-                Toast.makeText(this, getString(R.string.toast_bookmark_removed), Toast.LENGTH_SHORT)
-                    .show()
+                //Toast.makeText(this, getString(R.string.toast_bookmark_removed), Toast.LENGTH_SHORT).show()
                 updateButtonBookmark(pathName, currentPage)
             }
         } else {
@@ -599,8 +613,7 @@ class PDFViewer : AppCompatActivity() {
                     id = null, date = getNow(), file = pathNameTemp, page = currentPage, ""
                 )
                 databaseHandler.add(bookmark = bookmark)
-                Toast.makeText(this, getString(R.string.toast_bookmark_added), Toast.LENGTH_SHORT)
-                    .show()
+                //Toast.makeText(this, getString(R.string.toast_bookmark_added), Toast.LENGTH_SHORT).show()
                 updateButtonBookmark(pathName, currentPage)
             }
         }
@@ -674,9 +687,13 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun hideBottomSheet() {
-        if (dialog != null) {
-            dialog!!.dismiss()
-            dialog = null
+        try {
+            if (dialog != null) {
+                dialog!!.dismiss()
+                dialog = null
+            }
+        }catch (e: Exception){
+            println("Exception 12")
         }
     }
 
@@ -798,7 +815,8 @@ class PDFViewer : AppCompatActivity() {
             buttonClose.isGone = false
             if (isSupportedShareFeature) buttonShare.isGone = false
             buttonFullscreen.isGone = false
-            if (isSupportedGoTop && showGoTop) buttonGoTop.isGone = false
+            if (isSupportedGoTop && showGoTop && pdfViewer.currentPage > 0) buttonGoTop.isGone =
+                false
             buttonOpen.isGone = false
             buttonMenu.isGone = false
             buttonNightDay.isGone = false
@@ -824,6 +842,14 @@ class PDFViewer : AppCompatActivity() {
             message.isGone = false
             arrow.isGone = false
 
+            val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
+            pageNumberTextViewToolbar.isGone = false
+            Handler().postDelayed({
+                arrow.animate()
+                    .x(pageNumberTextViewToolbar.x + (pageNumberTextViewToolbar.width / 2) - (arrow.width / 2))
+                    .setDuration(200).start()
+            }, 200)
+
             val button: TextView = findViewById(R.id.buttonHideGuide1)
             button.setOnClickListener {
                 message.isGone = true
@@ -841,7 +867,7 @@ class PDFViewer : AppCompatActivity() {
             showMenuPanelImageViewToolbar.isGone = false
             Handler().postDelayed({
                 arrow.animate()
-                    .x(showMenuPanelImageViewToolbar.x + (showMenuPanelImageViewToolbar.width / 2) - (arrow.width / 2))
+                    .x(showMenuPanelImageViewToolbar.x + (showMenuPanelImageViewToolbar.width / 2) - (arrow.width / 2) - 25)
                     .setDuration(200).start()
             }, 200)
 
@@ -971,6 +997,7 @@ class PDFViewer : AppCompatActivity() {
                 }
             } else {
                 if (message.isGone && messageGoTo.isGone && menuPanel.isGone && fullHiding) {
+                    showingTopBar = false;
                     toolbar.isGone = true
                     buttonClose.isGone = true
                     buttonShare.isGone = true
@@ -1236,7 +1263,7 @@ class PDFViewer : AppCompatActivity() {
             goToPage(valueToGo, true)
             textbox.clearFocus()
         } catch (e: Exception) {
-
+            println("Exception 11")
         }
     }
 
@@ -1273,6 +1300,14 @@ class PDFViewer : AppCompatActivity() {
         val arrow: View = findViewById(R.id.arrowMenuPanel)
         message.isGone = false
         arrow.isGone = false
+
+        val showMenuPanelToolbar: ImageView = findViewById(R.id.buttonMenuToolbar)
+        showMenuPanelToolbar.isGone = false
+        Handler().postDelayed({
+            arrow.animate()
+                .x(showMenuPanelToolbar.x + (showMenuPanelToolbar.width / 2) - (arrow.width / 2) - 25)
+                .setDuration(200).start()
+        }, 200)
 
         menuOpened = true
 
