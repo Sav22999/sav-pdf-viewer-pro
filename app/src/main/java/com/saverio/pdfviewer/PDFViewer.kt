@@ -270,6 +270,7 @@ class PDFViewer : AppCompatActivity() {
                 .password(passwordToUse).scrollHandle(null)
                 .enableAntialiasing(true) // improve rendering a little bit on low-res screens
                 .spacing(5)
+                /*//makes unstable the zoom feature
                 .onTap {
                     if (!showingTopBar) {
                         hideTopBarCounter = 0
@@ -281,6 +282,7 @@ class PDFViewer : AppCompatActivity() {
                     }
                     true
                 }
+                */
                 //.onPageError { page, t -> println(page) }
                 .onPageChange { page, pageCount ->
                     run {
@@ -315,7 +317,7 @@ class PDFViewer : AppCompatActivity() {
                     println("creationDate: " + pdfViewer.documentMeta.creationDate)
                     */
                 }
-                .onRender { nbPages ->
+                .onRender { nbPages, pageWidth, pageHeight ->
                     totalPages = nbPages
                     if (lastPosition >= totalPages) lastPosition = (totalPages - 1)
 
@@ -692,7 +694,7 @@ class PDFViewer : AppCompatActivity() {
                 dialog!!.dismiss()
                 dialog = null
             }
-        }catch (e: Exception){
+        } catch (e: Exception) {
             println("Exception 12")
         }
     }

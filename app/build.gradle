@@ -8,11 +8,11 @@ android {
     buildToolsVersion "30.0.2"
 
     defaultConfig {
-        applicationId 'com.saverio.pdfviewer.beta'
+        applicationId 'com.saverio.pdfviewer'
         minSdk defaultMinSdkVersion
         targetSdk 31
-        versionCode 43
-        versionName '1.11'
+        versionCode 44
+        versionName '1.11.1'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -51,5 +51,5 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     compile 'com.github.barteksc:pdfium-android:1.9.0'
 
-    implementation 'com.github.barteksc:android-pdf-viewer:3.2.0-beta.1' //Use "2.8.2" for stability
+    implementation 'com.github.barteksc:android-pdf-viewer:2.8.2'//Use "2.8.2" is stable | "3.2.0-beta.1" is unstable
 }
