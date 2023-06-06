@@ -851,14 +851,6 @@ class PDFViewer : AppCompatActivity() {
             val arrow: View = findViewById(R.id.arrowRight2)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
 
-            val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
-            pageNumberTextViewToolbar.isGone = false
-            Handler().postDelayed({
-                arrow.animate()
-                    .x(pageNumberTextViewToolbar.x + (pageNumberTextViewToolbar.width / 2) - (arrow.width / 2))
-                    .setDuration(200).start()
-            }, 200)
-
             messageText.setText(getString(R.string.text_tap_here_to_show_go_to_dialog))
             message.isGone = false
             arrow.isGone = false
