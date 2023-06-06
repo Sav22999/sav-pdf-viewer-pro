@@ -7,7 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.KeyEvent
@@ -266,6 +268,11 @@ class PDFViewer : AppCompatActivity() {
                     }
                     hideGoToDialog()
                     hideMenuPanel()
+                }
+                .onDraw { canvas, pageWidth, pageHeight, displayedPage ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        canvas.drawColor(Color.argb(0.4f, 0f, 0f, 0f))
+                    }
                 }
                 .onLoad {
                     lastPosition = getPdfPage(uri.toString())
@@ -781,8 +788,17 @@ class PDFViewer : AppCompatActivity() {
     fun checkFirstTimeShowMessageGuide() {
         if (getBooleanData("firstTimeShowTopBar", true)) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
-            val arrow: View = findViewById(R.id.arrowRight)
+            val arrow: View = findViewById(R.id.arrowRight2)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
+
+            val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
+            pageNumberTextViewToolbar.isGone = false
+            Handler().postDelayed({
+                arrow.animate()
+                    .x(pageNumberTextViewToolbar.x + (pageNumberTextViewToolbar.width / 2) - (arrow.width / 2))
+                    .setDuration(200).start()
+            }, 200)
+
             messageText.setText(getString(R.string.text_tap_here_to_show_go_to_dialog))
             message.isGone = false
             arrow.isGone = false
@@ -800,11 +816,11 @@ class PDFViewer : AppCompatActivity() {
             val arrow: View = findViewById(R.id.arrowRight3)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
 
-            val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
-            pageNumberTextViewToolbar.isGone = false
+            val menuButtonViewToolbar: ImageView = findViewById(R.id.buttonMenuToolbar)
+            menuButtonViewToolbar.isGone = false
             Handler().postDelayed({
                 arrow.animate()
-                    .x(pageNumberTextViewToolbar.x + (pageNumberTextViewToolbar.width / 2) - (arrow.width / 2))
+                    .x(menuButtonViewToolbar.x + (menuButtonViewToolbar.width / 2) - (arrow.width / 2))
                     .setDuration(200).start()
             }, 200)
 
