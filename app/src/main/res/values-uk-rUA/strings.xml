@@ -48,4 +48,5 @@
     <string name="tooltip_remove_from_bookmarks">Видалити поточну сторінку із закладок</string>
     <string name="tooltip_see_all_bookmarks">Переглянути всі закладки</string>
     <string name="tooltip_close_bookmarks">Закрити всі закладки</string>
+    <string name="tooltip_get_help">Отримати допомогу</string>
 </resources>
