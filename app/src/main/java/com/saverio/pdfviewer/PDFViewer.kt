@@ -7,7 +7,9 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.Configuration
+import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.view.KeyEvent
@@ -19,6 +21,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.os.postDelayed
 import androidx.core.view.isGone
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -34,6 +37,7 @@ import com.saverio.pdfviewer.ui.BookmarksItemAdapter
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class PDFViewer : AppCompatActivity() {
@@ -64,6 +68,11 @@ class PDFViewer : AppCompatActivity() {
     var hideTopBarCounter = 0
     var dialog: BottomSheetDialog? = null
 
+    var residualViewConfiguration: HashMap<String, HashMap<String, Int>> =
+        hashMapOf(
+            "landscape" to hashMapOf("width" to 0, "height" to 0),
+            "landscape" to hashMapOf("width" to 0, "height" to 0)
+        ) // {"landscape": [width, height], "portrait": [width, height]}
     var minPositionScrollbar: Float = 0F
     var maxPositionScrollbar: Float = 0F
     var startY = 0F
@@ -188,6 +197,36 @@ class PDFViewer : AppCompatActivity() {
             true
         }
 
+
+        val zoomInButton: ImageView = findViewById(R.id.buttonZoomInToolbar)
+        zoomInButton.setOnClickListener {
+            zoomIn()
+            resetHideTopBarCounter()
+        }
+        zoomInButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_zoom_in)
+            true
+        }
+        val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
+        resetZoomButton.setOnClickListener {
+            resetZoom()
+            resetHideTopBarCounter()
+        }
+        resetZoomButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_reset_zoom)
+            true
+        }
+        val zoomOutButton: ImageView = findViewById(R.id.buttonZoomOutToolbar)
+        zoomOutButton.setOnClickListener {
+            zoomOut()
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        zoomOutButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_zoom_out)
+            true
+        }
+
         val lightButton: ImageView = findViewById(R.id.buttonNightDayToolbar)
         val comfortView: View = findViewById(R.id.nightThemeBackground)
         lightButton.setOnClickListener {
@@ -301,7 +340,13 @@ class PDFViewer : AppCompatActivity() {
                     }
                     hideGoToDialog()
                     hideMenuPanel()
-                }.onLoad {
+                }
+                .onDraw { canvas, pageWidth, pageHeight, displayedPage ->
+                    /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        canvas.drawColor(Color.argb(0.4f, 0f, 0f, 0f))
+                    }*/
+                }
+                .onLoad {
                     lastPosition = getPdfPage(uri.toString())
                     /*pdfViewer.positionOffset = 1F
                     totalPages = pdfViewer.currentPage + 1*/
@@ -323,9 +368,47 @@ class PDFViewer : AppCompatActivity() {
 
                     val buttonScroll: TextView = findViewById(R.id.buttonSideScroll)
                     val residualView: View = findViewById(R.id.residualView)
+                    val fullView: View = findViewById(R.id.fullView)
+
+                    val nowLandscape = resources.configuration.orientation
+                    var landscapeDictionary: Map<String, Array<Int>>
+                    var portraitDictionary: Map<String, Array<Int>>
+
+                    var currentStatus = "landscape"
+                    val toAddOrRemove = fullView.measuredHeight - residualView.measuredHeight
+                    if (nowLandscape == Configuration.ORIENTATION_LANDSCAPE) {
+                        currentStatus = "landscape"
+
+                        residualViewConfiguration["landscape"] =
+                            hashMapOf(
+                                "width" to residualView.measuredWidth,
+                                "height" to residualView.measuredHeight
+                            )
+                        residualViewConfiguration["portrait"] =
+                            hashMapOf(
+                                "width" to residualView.measuredHeight + toAddOrRemove,
+                                "height" to residualView.measuredWidth - toAddOrRemove
+                            )
+                    } else {
+                        currentStatus = "portrait"
+
+                        residualViewConfiguration["landscape"] =
+                            hashMapOf(
+                                "width" to residualView.measuredHeight + toAddOrRemove,
+                                "height" to residualView.measuredWidth - toAddOrRemove * 2
+                            )
+                        residualViewConfiguration["portrait"] =
+                            hashMapOf(
+                                "width" to residualView.measuredWidth,
+                                "height" to residualView.measuredHeight
+                            )
+                    }
+
                     if (minPositionScrollbar == 0F) minPositionScrollbar = buttonScroll.y
-                    maxPositionScrollbar = residualView.measuredHeight - minPositionScrollbar
+                    maxPositionScrollbar =
+                        residualViewConfiguration[currentStatus]!!["height"]!!.toInt() - minPositionScrollbar
                     residualView.isGone = true
+                    fullView.isGone = true
                     startY = minPositionScrollbar
 
                     updatePdfPage(uri.toString(), lastPosition)
@@ -421,23 +504,19 @@ class PDFViewer : AppCompatActivity() {
         val toolbar: View = findViewById(R.id.toolbar)
         val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
         val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
-        val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
-        val buttonFullscreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
         val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
-        val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
         val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
         val buttonBookmark: ImageView = findViewById(R.id.buttonBookmarkToolbar)
         toolbar.isGone = true
         buttonClose.isGone = true
-        buttonShare.isGone = true
-        buttonFullscreen.isGone = true
         buttonGoTop.isGone = true
         currentPage.isGone = true
         toolbarInvisible.isGone = true
-        buttonOpen.isGone = true
         buttonMenu.isGone = true
         buttonBookmark.isGone = true
+
+        hideMenuPanel()
 
 
         val background: View = findViewById(R.id.passwordBackgroundScreen)
@@ -465,23 +544,33 @@ class PDFViewer : AppCompatActivity() {
         message.isGone = true
     }
 
+
     override fun onConfigurationChanged(newConfig: Configuration) {
+        var currentStatus: String = "portrait"
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            //LANDSCAPE
+            currentStatus = "landscape"
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            //PORTRAIT
+            currentStatus = "portrait"
+        }
+        val savedPageToUse = savedCurrentPage
         Handler().postDelayed({
-            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                //LANDSCAPE
-            } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                //PORTRAIT
-            }
-            //println("______>" + savedCurrentPageOld)
-            val startZoom = pdfViewer.zoom
-            pdfViewer.fitToWidth(0)
-            val endZoom = pdfViewer.zoom
-            pdfViewer.zoomTo(startZoom)
-            pdfViewer.zoomWithAnimation(endZoom)
-            Handler().postDelayed({
-                //restore the visited page
-                pdfViewer.jumpTo(savedCurrentPageOld, false)
-            }, 100)
+            pdfViewer.fitToWidth(savedCurrentPage)
+            val buttonScroll: TextView = findViewById(R.id.buttonSideScroll)
+            val residualView: View = findViewById(R.id.residualView)
+            val fullView: View = findViewById(R.id.fullView)
+            if (minPositionScrollbar == 0F) minPositionScrollbar = buttonScroll.y
+            maxPositionScrollbar =
+                residualViewConfiguration[currentStatus]!!["height"]!!.toInt() - minPositionScrollbar
+            residualView.isGone = true
+            fullView.isGone = true
+            startY = minPositionScrollbar
+
+            setScrollBarSide()
+
+            //restore the visited page
+            goToPage(savedPageToUse, animation = true)
             pdfViewer.isEnabled = true
         }, 100)
 
@@ -507,6 +596,9 @@ class PDFViewer : AppCompatActivity() {
                 val openButton: ImageView = findViewById(R.id.buttonOpenToolbar)
                 val menuButton: ImageView = findViewById(R.id.buttonMenuToolbar)
                 val bookmarkButton: ImageView = findViewById(R.id.buttonBookmarkToolbar)
+                val zoomInButton: ImageView = findViewById(R.id.buttonZoomInToolbar)
+                val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
+                val zoomOutButton: ImageView = findViewById(R.id.buttonZoomOutToolbar)
                 shareButton.isGone = true
                 menuButton.isGone = true
                 fullscreenButton.isGone = true
@@ -735,14 +827,17 @@ class PDFViewer : AppCompatActivity() {
                     //path name
                     return "/" + pathName
                 }
+
                 1 -> {
                     //file name
                     return fileName
                 }
+
                 2 -> {
                     //path (also content://)
                     return "content://" + pathTemp
                 }
+
                 else -> {
                     //file name without ".pdf"
                     return fileName.replace(".pdf", "")
@@ -838,8 +933,9 @@ class PDFViewer : AppCompatActivity() {
     fun checkFirstTimeShowMessageGuide() {
         if (getBooleanData("firstTimeShowTopBar", true) && showingTopBar) {
             val message: ConstraintLayout = findViewById(R.id.messageGuide1)
-            val arrow: View = findViewById(R.id.arrowRight)
+            val arrow: View = findViewById(R.id.arrowRight2)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
+
             messageText.setText(getString(R.string.text_tap_here_to_show_go_to_dialog))
             message.isGone = false
             arrow.isGone = false
@@ -1303,6 +1399,8 @@ class PDFViewer : AppCompatActivity() {
         message.isGone = false
         arrow.isGone = false
 
+        setCurrentZoomStatus()
+
         val showMenuPanelToolbar: ImageView = findViewById(R.id.buttonMenuToolbar)
         showMenuPanelToolbar.isGone = false
         Handler().postDelayed({
@@ -1318,6 +1416,9 @@ class PDFViewer : AppCompatActivity() {
         val buttonNightLight: ImageView = findViewById(R.id.buttonNightDayToolbar)
         val buttonFullScreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
         val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
+        val zoomInButton: ImageView = findViewById(R.id.buttonZoomInToolbar)
+        val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
+        val zoomOutButton: ImageView = findViewById(R.id.buttonZoomOutToolbar)
         if (isSupportedShareFeature) {
             (buttonNightLight.layoutParams as LinearLayout.LayoutParams).weight = 30F
             (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 30F
@@ -1327,6 +1428,12 @@ class PDFViewer : AppCompatActivity() {
             (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 45F
         }
         findViewById<LinearLayout>(R.id.menuPanelSection1).requestLayout()
+
+        buttonOpen.isGone = false
+        buttonAllBookmarks.isGone = false
+        zoomInButton.isGone = false
+        zoomOutButton.isGone = false
+        resetZoomButton.isGone = false
     }
 
     fun hideMenuPanel() {
@@ -1366,7 +1473,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    fun setScrollBarSide() {
+    fun setScrollBarSide(animation: Boolean = true) {
         if (isSupportedScrollbarButton) {
             val button: TextView = findViewById(R.id.buttonSideScroll)
             val textPage: TextView = findViewById(R.id.textSideScroll)
@@ -1379,6 +1486,7 @@ class PDFViewer : AppCompatActivity() {
                     MotionEvent.ACTION_DOWN -> {
                         //
                     }
+
                     MotionEvent.ACTION_MOVE -> {
                         resetHideTopBarCounter()
 
@@ -1413,6 +1521,7 @@ class PDFViewer : AppCompatActivity() {
                         container.isGone = false
                         //goToPage(pageN.toInt(), false)
                     }
+
                     MotionEvent.ACTION_UP -> {
                         button.layoutParams.width = 30;
                         button.isGone = true
@@ -1421,10 +1530,11 @@ class PDFViewer : AppCompatActivity() {
 
                         val pageN = ((totalPages - 1) * scrolled) / maxPositionScrollbar
 
-                        goToPage(pageN.toInt(), true)
+                        goToPage(pageN.toInt(), animation)
                         container.isGone = true
                         //setPositionScrollbarByPage(pageN)
                     }
+
                     MotionEvent.ACTION_CANCEL -> {
                         //TODO: improve this code -- It's equals to the ACTION_UP
                         button.layoutParams.width = 30;
@@ -1434,7 +1544,7 @@ class PDFViewer : AppCompatActivity() {
 
                         val pageN = ((totalPages - 1) * scrolled) / maxPositionScrollbar
 
-                        goToPage(pageN.toInt(), true)
+                        goToPage(pageN.toInt(), animation)
                         container.isGone = true
                         //setPositionScrollbarByPage(pageN)
                     }
@@ -1475,5 +1585,29 @@ class PDFViewer : AppCompatActivity() {
                 Uri.parse("https://www.savpdfviewer.com/help/")
             )
         )
+    }
+
+    fun zoomIn() {
+        pdfViewer.zoomWithAnimation(pdfViewer.zoom + 0.2F)
+        setCurrentZoomStatus()
+    }
+
+    fun zoomOut() {
+        pdfViewer.zoomWithAnimation(pdfViewer.zoom - 0.2F)
+        setCurrentZoomStatus()
+    }
+
+    fun resetZoom() {
+        pdfViewer.resetZoomWithAnimation()
+        setCurrentZoomStatus()
+    }
+
+    fun setCurrentZoomStatus() {
+        val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
+        resetZoomButton.text =
+            getString(R.string.zoom_status_perc).replace(
+                "%d",
+                ((pdfViewer.zoom * 100).toInt().toString())
+            )
     }
 }

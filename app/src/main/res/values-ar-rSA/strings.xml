@@ -27,6 +27,7 @@
     <string name="button_go">الذهاب</string>
     <string name="button_close">إغلاق</string>
     <string name="button_open">فتح</string>
+    <string name="zoom_status_perc">%d %</string>
     <string name="tooltip_full_screen_on">أدخل ملء الشاشة</string>
     <string name="tooltip_full_screen_off">الخروج من ملء الشاشة</string>
     <string name="tooltip_night_light_on">إظهار الضوء الليلي</string>
@@ -34,6 +35,9 @@
     <string name="tooltip_go_to_feature">فتح ميزة \'الذهاب إلى\'</string>
     <string name="tooltip_go_to_top">الذهاب إلى الصفحة الأولى من الملف</string>
     <string name="tooltip_open_new_file">فتح ملف جديد</string>
+    <string name="tooltip_zoom_in">Zoom in</string>
+    <string name="tooltip_zoom_out">Zoom out</string>
+    <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
     <string name="tooltip_open_menu_panel">فتح لوحة القائمة</string>
     <string name="tooltip_hide_menu_panel">إخفاء لوحة القائمة</string>
     <string name="tooltip_share_file">مشاركة هذا الملف</string>

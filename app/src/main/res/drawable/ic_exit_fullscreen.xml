@@ -1,9 +1,42 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="20dp"
-    android:height="20dp"
-    android:viewportWidth="16"
-    android:viewportHeight="16">
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="667"
+    android:viewportHeight="667">
     <path
-        android:fillColor="?attr/colorOnPrimary"
-        android:pathData="M7,8L2,8a1,1 0,0 0,0 2h2.586l-3.293,3.293a1,1 0,1 0,1.414 1.414L6,11.414L6,14a1,1 0,0 0,2 0L8,9a1,1 0,0 0,-1 -1zM14,6h-2.586l3.293,-3.293a1,1 0,0 0,-1.414 -1.414L10,4.586L10,2a1,1 0,0 0,-2 0v5a1,1 0,0 0,1 1h5a1,1 0,0 0,0 -2z" />
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M50.67,416.33L250.67,416.33L250.67,616.33"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
+    <path
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M250.67,416.33L34,633"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
+    <path
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M233.33,33.33L33.33,33.33L33.33,233.33"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
+    <path
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M433.33,633.34L633.34,633.34L633.34,433.33"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
+    <path
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M617.33,249.67L417.33,249.67L417.33,49.67"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
+    <path
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M634,33L417.33,249.67"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
 </vector>

@@ -27,6 +27,7 @@
     <string name="button_go">Идти</string>
     <string name="button_close">Закрыть</string>
     <string name="button_open">Открыть</string>
+    <string name="zoom_status_perc">%d %</string>
     <string name="tooltip_full_screen_on">Вход на весь экран</string>
     <string name="tooltip_full_screen_off">Выйти из полноэкранного режима</string>
     <string name="tooltip_night_light_on">Показывать ночное освещение</string>
@@ -34,6 +35,9 @@
     <string name="tooltip_go_to_feature">Открыть функцию \'Перейти к\'</string>
     <string name="tooltip_go_to_top">Перейти на первую страницу файла</string>
     <string name="tooltip_open_new_file">Открыть новый файл</string>
+    <string name="tooltip_zoom_in">Zoom in</string>
+    <string name="tooltip_zoom_out">Zoom out</string>
+    <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
     <string name="tooltip_open_menu_panel">Открыть панель меню</string>
     <string name="tooltip_hide_menu_panel">Скрыть панель меню</string>
     <string name="tooltip_share_file">Поделиться файлом</string>

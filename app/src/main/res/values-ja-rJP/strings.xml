@@ -27,6 +27,7 @@
     <string name="button_go">移動</string>
     <string name="button_close">閉じる</string>
     <string name="button_open">開く</string>
+    <string name="zoom_status_perc">%d %</string>
     <string name="tooltip_full_screen_on">全画面表示にする</string>
     <string name="tooltip_full_screen_off">全画面表示を終了</string>
     <string name="tooltip_night_light_on">夜間ライトを表示</string>
@@ -34,6 +35,9 @@
     <string name="tooltip_go_to_feature">「移動先」機能を開く</string>
     <string name="tooltip_go_to_top">ファイルの最初のページに移動</string>
     <string name="tooltip_open_new_file">新しいファイルを開く</string>
+    <string name="tooltip_zoom_in">Zoom in</string>
+    <string name="tooltip_zoom_out">Zoom out</string>
+    <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
     <string name="tooltip_open_menu_panel">メニューパネルを開く</string>
     <string name="tooltip_hide_menu_panel">メニューパネルを隠す</string>
     <string name="tooltip_share_file">このファイルを共有</string>
