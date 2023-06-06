@@ -1,9 +1,42 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="20dp"
-    android:height="20dp"
-    android:viewportWidth="16"
-    android:viewportHeight="16">
+    android:width="16dp"
+    android:height="16dp"
+    android:viewportWidth="667"
+    android:viewportHeight="667">
     <path
-        android:fillColor="?attr/colorOnPrimary"
-        android:pathData="M7.707,8.293a1,1 0,0 0,-1.414 0L3,11.586V9a1,1 0,0 0,-2 0v5a1,1 0,0 0,1 1h5a1,1 0,1 0,0 -2H4.414l3.293,-3.293a1,1 0,0 0,0 -1.414zM14,1H9a1,1 0,0 0,0 2h2.586L8.293,6.293a1,1 0,1 0,1.414 1.414L13,4.414V7a1,1 0,0 0,2 0V2a1,1 0,0 0,-1 -1z" />
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M433.33,33.33L633.34,33.33L633.34,233.33"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
+    <path
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M233.33,33.33L33.33,33.33L33.33,233.33"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
+    <path
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M433.33,633.34L633.34,633.34L633.34,433.33"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
+    <path
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M233.33,633.34L33.33,633.34L33.33,433.33"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
+    <path
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M633.34,33.33L416.67,250"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
+    <path
+        android:fillColor="#00000000"
+        android:fillType="nonZero"
+        android:pathData="M250,416.67L33.33,633.34"
+        android:strokeWidth="66.67"
+        android:strokeColor="?attr/colorOnPrimary" />
 </vector>

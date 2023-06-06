@@ -21,6 +21,7 @@ import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.os.postDelayed
 import androidx.core.view.isGone
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -36,6 +37,7 @@ import com.saverio.pdfviewer.ui.BookmarksItemAdapter
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.HashMap
 
 
 class PDFViewer : AppCompatActivity() {
@@ -66,6 +68,11 @@ class PDFViewer : AppCompatActivity() {
     var hideTopBarCounter = 0
     var dialog: BottomSheetDialog? = null
 
+    var residualViewConfiguration: HashMap<String, HashMap<String, Int>> =
+        hashMapOf(
+            "landscape" to hashMapOf("width" to 0, "height" to 0),
+            "landscape" to hashMapOf("width" to 0, "height" to 0)
+        ) // {"landscape": [width, height], "portrait": [width, height]}
     var minPositionScrollbar: Float = 0F
     var maxPositionScrollbar: Float = 0F
     var startY = 0F
@@ -305,9 +312,9 @@ class PDFViewer : AppCompatActivity() {
                     hideMenuPanel()
                 }
                 .onDraw { canvas, pageWidth, pageHeight, displayedPage ->
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         canvas.drawColor(Color.argb(0.4f, 0f, 0f, 0f))
-                    }
+                    }*/
                 }
                 .onLoad {
                     lastPosition = getPdfPage(uri.toString())
@@ -331,9 +338,47 @@ class PDFViewer : AppCompatActivity() {
 
                     val buttonScroll: TextView = findViewById(R.id.buttonSideScroll)
                     val residualView: View = findViewById(R.id.residualView)
+                    val fullView: View = findViewById(R.id.fullView)
+
+                    val nowLandscape = resources.configuration.orientation
+                    var landscapeDictionary: Map<String, Array<Int>>
+                    var portraitDictionary: Map<String, Array<Int>>
+
+                    var currentStatus = "landscape"
+                    val toAddOrRemove = fullView.measuredHeight - residualView.measuredHeight
+                    if (nowLandscape == Configuration.ORIENTATION_LANDSCAPE) {
+                        currentStatus = "landscape"
+
+                        residualViewConfiguration["landscape"] =
+                            hashMapOf(
+                                "width" to residualView.measuredWidth,
+                                "height" to residualView.measuredHeight
+                            )
+                        residualViewConfiguration["portrait"] =
+                            hashMapOf(
+                                "width" to residualView.measuredHeight + toAddOrRemove,
+                                "height" to residualView.measuredWidth - toAddOrRemove
+                            )
+                    } else {
+                        currentStatus = "portrait"
+
+                        residualViewConfiguration["landscape"] =
+                            hashMapOf(
+                                "width" to residualView.measuredHeight + toAddOrRemove,
+                                "height" to residualView.measuredWidth - toAddOrRemove * 2
+                            )
+                        residualViewConfiguration["portrait"] =
+                            hashMapOf(
+                                "width" to residualView.measuredWidth,
+                                "height" to residualView.measuredHeight
+                            )
+                    }
+
                     if (minPositionScrollbar == 0F) minPositionScrollbar = buttonScroll.y
-                    maxPositionScrollbar = residualView.measuredHeight - minPositionScrollbar
+                    maxPositionScrollbar =
+                        residualViewConfiguration[currentStatus]!!["height"]!!.toInt() - minPositionScrollbar
                     residualView.isGone = true
+                    fullView.isGone = true
                     startY = minPositionScrollbar
 
                     updatePdfPage(uri.toString(), lastPosition)
@@ -473,32 +518,40 @@ class PDFViewer : AppCompatActivity() {
         message.isGone = true
     }
 
+
     override fun onConfigurationChanged(newConfig: Configuration) {
+        var currentStatus: String = "portrait"
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            //LANDSCAPE
+            currentStatus = "landscape"
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            //PORTRAIT
+            currentStatus = "portrait"
+        }
+        val savedPageToUse = savedCurrentPage
         Handler().postDelayed({
-            if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                //LANDSCAPE
-            } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-                //PORTRAIT
-            }
-            //println("______>" + savedCurrentPageOld)
-            val startZoom = pdfViewer.zoom
-            pdfViewer.fitToWidth(0)
-            val endZoom = pdfViewer.zoom
-            pdfViewer.zoomTo(startZoom)
-            pdfViewer.zoomWithAnimation(endZoom)
-            Handler().postDelayed({
-                //restore the visited page
-                pdfViewer.jumpTo(savedCurrentPageOld, false)
-            }, 100)
+            pdfViewer.fitToWidth(savedCurrentPage)
+            val buttonScroll: TextView = findViewById(R.id.buttonSideScroll)
+            val residualView: View = findViewById(R.id.residualView)
+            val fullView: View = findViewById(R.id.fullView)
+            if (minPositionScrollbar == 0F) minPositionScrollbar = buttonScroll.y
+            maxPositionScrollbar =
+                residualViewConfiguration[currentStatus]!!["height"]!!.toInt() - minPositionScrollbar
+            residualView.isGone = true
+            fullView.isGone = true
+            startY = minPositionScrollbar
+
+            setScrollBarSide()
+
+            //restore the visited page
+            goToPage(savedPageToUse, animation = true)
             pdfViewer.isEnabled = true
-        }, 500)
+        }, 100)
 
         pdfViewer.isEnabled = false
 
         if (pdfViewer.currentPage == 0) showTopBar(showGoTop = false)
         else hideTopBar()
-
-        setScrollBarSide()
 
         super.onConfigurationChanged(newConfig)
     }
@@ -745,14 +798,17 @@ class PDFViewer : AppCompatActivity() {
                     //path name
                     return "/" + pathName
                 }
+
                 1 -> {
                     //file name
                     return fileName
                 }
+
                 2 -> {
                     //path (also content://)
                     return "content://" + pathTemp
                 }
+
                 else -> {
                     //file name without ".pdf"
                     return fileName.replace(".pdf", "")
@@ -1377,7 +1433,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     @SuppressLint("ClickableViewAccessibility")
-    fun setScrollBarSide() {
+    fun setScrollBarSide(animation: Boolean = true) {
         if (isSupportedScrollbarButton) {
             val button: TextView = findViewById(R.id.buttonSideScroll)
             val textPage: TextView = findViewById(R.id.textSideScroll)
@@ -1390,6 +1446,7 @@ class PDFViewer : AppCompatActivity() {
                     MotionEvent.ACTION_DOWN -> {
                         //
                     }
+
                     MotionEvent.ACTION_MOVE -> {
                         resetHideTopBarCounter()
 
@@ -1424,6 +1481,7 @@ class PDFViewer : AppCompatActivity() {
                         container.isGone = false
                         //goToPage(pageN.toInt(), false)
                     }
+
                     MotionEvent.ACTION_UP -> {
                         button.layoutParams.width = 30;
                         button.isGone = true
@@ -1432,10 +1490,11 @@ class PDFViewer : AppCompatActivity() {
 
                         val pageN = ((totalPages - 1) * scrolled) / maxPositionScrollbar
 
-                        goToPage(pageN.toInt(), true)
+                        goToPage(pageN.toInt(), animation)
                         container.isGone = true
                         //setPositionScrollbarByPage(pageN)
                     }
+
                     MotionEvent.ACTION_CANCEL -> {
                         //TODO: improve this code -- It's equals to the ACTION_UP
                         button.layoutParams.width = 30;
@@ -1445,7 +1504,7 @@ class PDFViewer : AppCompatActivity() {
 
                         val pageN = ((totalPages - 1) * scrolled) / maxPositionScrollbar
 
-                        goToPage(pageN.toInt(), true)
+                        goToPage(pageN.toInt(), animation)
                         container.isGone = true
                         //setPositionScrollbarByPage(pageN)
                     }
