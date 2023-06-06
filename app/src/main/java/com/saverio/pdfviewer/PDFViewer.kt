@@ -483,12 +483,14 @@ class PDFViewer : AppCompatActivity() {
                 pdfViewer.jumpTo(savedCurrentPageOld, false)
             }, 100)
             pdfViewer.isEnabled = true
-        }, 100)
+        }, 500)
 
         pdfViewer.isEnabled = false
 
         if (pdfViewer.currentPage == 0) showTopBar(showGoTop = false)
         else hideTopBar()
+
+        setScrollBarSide()
 
         super.onConfigurationChanged(newConfig)
     }
