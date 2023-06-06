@@ -27,6 +27,7 @@
     <string name="button_go">Přejít</string>
     <string name="button_close">Zavřít</string>
     <string name="button_open">Otevřít</string>
+    <string name="zoom_status_perc">%d %</string>
     <string name="tooltip_full_screen_on">Zadejte celou obrazovku</string>
     <string name="tooltip_full_screen_off">Ukončit celou obrazovku</string>
     <string name="tooltip_night_light_on">Zobrazit noční světlo</string>
@@ -34,6 +35,9 @@
     <string name="tooltip_go_to_feature">Otevřít funkci \'Přejít na\'</string>
     <string name="tooltip_go_to_top">Přejít na první stránku souboru</string>
     <string name="tooltip_open_new_file">Otevřít nový soubor</string>
+    <string name="tooltip_zoom_in">Zoom in</string>
+    <string name="tooltip_zoom_out">Zoom out</string>
+    <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
     <string name="tooltip_open_menu_panel">Otevřít panel nabídky</string>
     <string name="tooltip_hide_menu_panel">Skrýt panel nabídky</string>
     <string name="tooltip_share_file">Sdílet tento soubor</string>

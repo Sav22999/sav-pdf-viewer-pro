@@ -27,6 +27,7 @@
     <string name="button_go">Mergi</string>
     <string name="button_close">Inchide</string>
     <string name="button_open">Deschideți</string>
+    <string name="zoom_status_perc">%d %</string>
     <string name="tooltip_full_screen_on">Introduceți ecranul complet</string>
     <string name="tooltip_full_screen_off">Ieșiți din ecran complet</string>
     <string name="tooltip_night_light_on">Arată lumina nopții</string>
@@ -34,6 +35,9 @@
     <string name="tooltip_go_to_feature">Deschide opțiunea \"Mergi la\"</string>
     <string name="tooltip_go_to_top">Mergeți la prima pagină a fișierului</string>
     <string name="tooltip_open_new_file">Deschide un fișier nou</string>
+    <string name="tooltip_zoom_in">Zoom in</string>
+    <string name="tooltip_zoom_out">Zoom out</string>
+    <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
     <string name="tooltip_open_menu_panel">Deschide panoul de meniu</string>
     <string name="tooltip_hide_menu_panel">Ascunde panoul de meniu</string>
     <string name="tooltip_share_file">Distribuie acest fișier</string>

@@ -197,6 +197,36 @@ class PDFViewer : AppCompatActivity() {
             true
         }
 
+
+        val zoomInButton: ImageView = findViewById(R.id.buttonZoomInToolbar)
+        zoomInButton.setOnClickListener {
+            zoomIn()
+            resetHideTopBarCounter()
+        }
+        zoomInButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_zoom_in)
+            true
+        }
+        val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
+        resetZoomButton.setOnClickListener {
+            resetZoom()
+            resetHideTopBarCounter()
+        }
+        resetZoomButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_reset_zoom)
+            true
+        }
+        val zoomOutButton: ImageView = findViewById(R.id.buttonZoomOutToolbar)
+        zoomOutButton.setOnClickListener {
+            zoomOut()
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        zoomOutButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_zoom_out)
+            true
+        }
+
         val lightButton: ImageView = findViewById(R.id.buttonNightDayToolbar)
         val comfortView: View = findViewById(R.id.nightThemeBackground)
         lightButton.setOnClickListener {
@@ -474,23 +504,19 @@ class PDFViewer : AppCompatActivity() {
         val toolbar: View = findViewById(R.id.toolbar)
         val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
         val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
-        val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
-        val buttonFullscreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
         val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
-        val buttonOpen: ImageView = findViewById(R.id.buttonOpenToolbar)
         val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
         val buttonBookmark: ImageView = findViewById(R.id.buttonBookmarkToolbar)
         toolbar.isGone = true
         buttonClose.isGone = true
-        buttonShare.isGone = true
-        buttonFullscreen.isGone = true
         buttonGoTop.isGone = true
         currentPage.isGone = true
         toolbarInvisible.isGone = true
-        buttonOpen.isGone = true
         buttonMenu.isGone = true
         buttonBookmark.isGone = true
+
+        hideMenuPanel()
 
 
         val background: View = findViewById(R.id.passwordBackgroundScreen)
@@ -570,6 +596,9 @@ class PDFViewer : AppCompatActivity() {
                 val openButton: ImageView = findViewById(R.id.buttonOpenToolbar)
                 val menuButton: ImageView = findViewById(R.id.buttonMenuToolbar)
                 val bookmarkButton: ImageView = findViewById(R.id.buttonBookmarkToolbar)
+                val zoomInButton: ImageView = findViewById(R.id.buttonZoomInToolbar)
+                val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
+                val zoomOutButton: ImageView = findViewById(R.id.buttonZoomOutToolbar)
                 shareButton.isGone = true
                 menuButton.isGone = true
                 fullscreenButton.isGone = true
@@ -1370,6 +1399,8 @@ class PDFViewer : AppCompatActivity() {
         message.isGone = false
         arrow.isGone = false
 
+        setCurrentZoomStatus()
+
         val showMenuPanelToolbar: ImageView = findViewById(R.id.buttonMenuToolbar)
         showMenuPanelToolbar.isGone = false
         Handler().postDelayed({
@@ -1385,6 +1416,9 @@ class PDFViewer : AppCompatActivity() {
         val buttonNightLight: ImageView = findViewById(R.id.buttonNightDayToolbar)
         val buttonFullScreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
         val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
+        val zoomInButton: ImageView = findViewById(R.id.buttonZoomInToolbar)
+        val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
+        val zoomOutButton: ImageView = findViewById(R.id.buttonZoomOutToolbar)
         if (isSupportedShareFeature) {
             (buttonNightLight.layoutParams as LinearLayout.LayoutParams).weight = 30F
             (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 30F
@@ -1394,6 +1428,12 @@ class PDFViewer : AppCompatActivity() {
             (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 45F
         }
         findViewById<LinearLayout>(R.id.menuPanelSection1).requestLayout()
+
+        buttonOpen.isGone = false
+        buttonAllBookmarks.isGone = false
+        zoomInButton.isGone = false
+        zoomOutButton.isGone = false
+        resetZoomButton.isGone = false
     }
 
     fun hideMenuPanel() {
@@ -1545,5 +1585,29 @@ class PDFViewer : AppCompatActivity() {
                 Uri.parse("https://www.savpdfviewer.com/help/")
             )
         )
+    }
+
+    fun zoomIn() {
+        pdfViewer.zoomWithAnimation(pdfViewer.zoom + 0.2F)
+        setCurrentZoomStatus()
+    }
+
+    fun zoomOut() {
+        pdfViewer.zoomWithAnimation(pdfViewer.zoom - 0.2F)
+        setCurrentZoomStatus()
+    }
+
+    fun resetZoom() {
+        pdfViewer.resetZoomWithAnimation()
+        setCurrentZoomStatus()
+    }
+
+    fun setCurrentZoomStatus() {
+        val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
+        resetZoomButton.text =
+            getString(R.string.zoom_status_perc).replace(
+                "%d",
+                ((pdfViewer.zoom * 100).toInt().toString())
+            )
     }
 }

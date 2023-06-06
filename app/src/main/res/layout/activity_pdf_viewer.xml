@@ -435,6 +435,54 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/menuPanelSectionSeparator1_2"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="100"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/menuPanelSection1">
+
+            <View
+                android:id="@+id/spaceleft_separator1_2"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/separator1_2"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="98"
+                android:background="?attr/colorSecondary"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/spaceright_separator1_2"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/menuPanelSection2"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -443,7 +491,7 @@
             android:weightSum="90"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/menuPanelSection1">
+            app:layout_constraintTop_toBottomOf="@+id/menuPanelSectionSeparator1_2">
 
             <ImageView
                 android:id="@+id/buttonOpenToolbar"
@@ -485,15 +533,63 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/menuPanelSectionSeparator2_3"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="100"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/menuPanelSection2">
+
+            <View
+                android:id="@+id/spaceleft_separator2_3"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/separator2_3"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="98"
+                android:background="?attr/colorSecondary"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/spaceright_separator2_3"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/menuPanelSection3"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="90"
+            android:weightSum="100"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/menuPanelSection2">
+            app:layout_constraintTop_toBottomOf="@+id/menuPanelSectionSeparator2_3">
 
             <ImageView
                 android:id="@+id/buttonZoomOutToolbar"
@@ -513,25 +609,24 @@
                 android:id="@+id/buttonResetZoomToolbar"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_weight="30"
+                android:layout_weight="40"
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_reset_zoom"
-                app:srcCompat="@drawable/ic_all_bookmarks"
                 android:gravity="center"
-                android:paddingTop="0dp"
-                android:paddingBottom="0dp"
                 android:paddingStart="10dp"
+                android:paddingTop="0dp"
                 android:paddingEnd="10dp"
+                android:paddingBottom="0dp"
                 android:textColor="?attr/colorOnPrimary"
                 android:textSize="20sp"
                 android:textStyle="normal"
                 android:visibility="gone"
                 app:layout_constraintEnd_toStartOf="@+id/buttonMenuToolbar"
                 app:layout_constraintTop_toTopOf="@+id/toolbar"
+                app:srcCompat="@drawable/ic_all_bookmarks"
                 tools:ignore="RtlCompat"
                 tools:text="100 %"
-                tools:visibility="visible"
-                />
+                tools:visibility="visible" />
 
             <ImageView
                 android:id="@+id/buttonZoomInToolbar"

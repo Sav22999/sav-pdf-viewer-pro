@@ -35,6 +35,7 @@
     <string name="button_go">Go</string>
     <string name="button_close">Close</string>
     <string name="button_open">Open</string>
+    <string name="zoom_status_perc">%d %</string>
 
     <string name="tooltip_full_screen_on">Enter full screen</string>
     <string name="tooltip_full_screen_off">Exit full screen</string>
@@ -45,7 +46,7 @@
     <string name="tooltip_open_new_file">Open a new file</string>
     <string name="tooltip_zoom_in">Zoom in</string>
     <string name="tooltip_zoom_out">Zoom out</string>
-    <string name="tooltip_reset_zoom">Reset zoom (adapt to width)</string>
+    <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
     <string name="tooltip_open_menu_panel">Open menu panel</string>
     <string name="tooltip_hide_menu_panel">Hide menu panel</string>
     <string name="tooltip_share_file">Share this file</string>

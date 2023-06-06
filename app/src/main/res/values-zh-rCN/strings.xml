@@ -27,6 +27,7 @@
     <string name="button_go">转至</string>
     <string name="button_close">关闭</string>
     <string name="button_open">打开</string>
+    <string name="zoom_status_perc">%d %</string>
     <string name="tooltip_full_screen_on">输入全屏</string>
     <string name="tooltip_full_screen_off">退出全屏</string>
     <string name="tooltip_night_light_on">显示夜间指示灯</string>
@@ -34,6 +35,9 @@
     <string name="tooltip_go_to_feature">打开“转到”功能</string>
     <string name="tooltip_go_to_top">转到文件的第一页</string>
     <string name="tooltip_open_new_file">打开一个新文件</string>
+    <string name="tooltip_zoom_in">Zoom in</string>
+    <string name="tooltip_zoom_out">Zoom out</string>
+    <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
     <string name="tooltip_open_menu_panel">打开菜单面板</string>
     <string name="tooltip_hide_menu_panel">隐藏菜单面板</string>
     <string name="tooltip_share_file">分享这个文件</string>

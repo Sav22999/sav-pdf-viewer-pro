@@ -27,6 +27,7 @@
     <string name="button_go">Gå</string>
     <string name="button_close">Lukk</string>
     <string name="button_open">Åpne</string>
+    <string name="zoom_status_perc">%d %</string>
     <string name="tooltip_full_screen_on">Gå til fullskjerm</string>
     <string name="tooltip_full_screen_off">Avslutt fullskjerm</string>
     <string name="tooltip_night_light_on">Vis nattlys</string>
@@ -34,6 +35,9 @@
     <string name="tooltip_go_to_feature">Åpne \"Gå til\" funksjonen</string>
     <string name="tooltip_go_to_top">Gå til den første siden i filen</string>
     <string name="tooltip_open_new_file">Åpne en ny fil</string>
+    <string name="tooltip_zoom_in">Zoom in</string>
+    <string name="tooltip_zoom_out">Zoom out</string>
+    <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
     <string name="tooltip_open_menu_panel">Åpne menypanel</string>
     <string name="tooltip_hide_menu_panel">Skjul menypanel</string>
     <string name="tooltip_share_file">Del denne filen</string>

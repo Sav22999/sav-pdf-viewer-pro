@@ -27,6 +27,7 @@
     <string name="button_go">Kör</string>
     <string name="button_close">Stäng</string>
     <string name="button_open">Öppna</string>
+    <string name="zoom_status_perc">%d %</string>
     <string name="tooltip_full_screen_on">Gå till helskärm</string>
     <string name="tooltip_full_screen_off">Avsluta helskärm</string>
     <string name="tooltip_night_light_on">Visa nattljus</string>
@@ -34,6 +35,9 @@
     <string name="tooltip_go_to_feature">Öppna \'Gå till\' funktionen</string>
     <string name="tooltip_go_to_top">Gå till första sidan i filen</string>
     <string name="tooltip_open_new_file">Öppna en ny fil</string>
+    <string name="tooltip_zoom_in">Zoom in</string>
+    <string name="tooltip_zoom_out">Zoom out</string>
+    <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
     <string name="tooltip_open_menu_panel">Öppna menypanelen</string>
     <string name="tooltip_hide_menu_panel">Dölj menypanel</string>
     <string name="tooltip_share_file">Dela denna fil</string>

@@ -27,6 +27,7 @@
     <string name="button_go">Ir</string>
     <string name="button_close">Cerrar</string>
     <string name="button_open">Abrir</string>
+    <string name="zoom_status_perc">%d %</string>
     <string name="tooltip_full_screen_on">Pantalla completa</string>
     <string name="tooltip_full_screen_off">Salir de pantalla completa</string>
     <string name="tooltip_night_light_on">Mostrar luz nocturna</string>
@@ -34,6 +35,9 @@
     <string name="tooltip_go_to_feature">Abrir función \'Ir a\'</string>
     <string name="tooltip_go_to_top">Ir a la primera página del archivo</string>
     <string name="tooltip_open_new_file">Abrir un nuevo archivo</string>
+    <string name="tooltip_zoom_in">Zoom in</string>
+    <string name="tooltip_zoom_out">Zoom out</string>
+    <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
     <string name="tooltip_open_menu_panel">Abrir panel de menú</string>
     <string name="tooltip_hide_menu_panel">Ocultar panel de menú</string>
     <string name="tooltip_share_file">Compartir este archivo</string>
