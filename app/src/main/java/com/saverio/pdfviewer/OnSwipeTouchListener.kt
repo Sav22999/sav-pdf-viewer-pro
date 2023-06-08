@@ -67,14 +67,14 @@ abstract class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
             return result
         }
 
-        override fun onLongPress(e: MotionEvent?) {
-            onLongPress();
+        override fun onLongPress(e: MotionEvent) {
+            onLongPress()
             super.onLongPress(e)
         }
 
         override fun onScroll(
-            e1: MotionEvent?,
-            e2: MotionEvent?,
+            e1: MotionEvent,
+            e2: MotionEvent,
             distanceX: Float,
             distanceY: Float
         ): Boolean {
@@ -104,17 +104,19 @@ abstract class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
             return super.onScroll(e1, e2, distanceX, distanceY)
         }
 
-        override fun onShowPress(e: MotionEvent?) {
+
+        override fun onShowPress(e: MotionEvent) {
             onShowPress()
             super.onShowPress(e)
         }
 
-        override fun onSingleTapConfirmed(e: MotionEvent?): Boolean {
+
+        override fun onSingleTapConfirmed(e: MotionEvent): Boolean {
             onSingleTap()
             return super.onSingleTapConfirmed(e)
         }
 
-        override fun onSingleTapUp(e: MotionEvent?): Boolean {
+        override fun onSingleTapUp(e: MotionEvent): Boolean {
             onSingleTapUp()
             return super.onSingleTapUp(e)
         }
