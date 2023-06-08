@@ -5,15 +5,15 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 33
     buildToolsVersion "30.0.2"
 
     defaultConfig {
         applicationId 'com.saverio.pdfviewer'
-        minSdk 31
-        targetSdk 31
-        versionCode 46
-        versionName '1.12'
+        minSdk 21
+        targetSdk 33
+        versionCode 47
+        versionName '1.12.0.1'
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
