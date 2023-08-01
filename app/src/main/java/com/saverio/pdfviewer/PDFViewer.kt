@@ -95,6 +95,8 @@ class PDFViewer : AppCompatActivity() {
                 uriToUse = intent.data.toString()
                 //println(uriToUse)
             }
+
+            println(">>> "+intent.data?.path)
         } catch (e: Exception) {
             uriToUse = ""
         }
