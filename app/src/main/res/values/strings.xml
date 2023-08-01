@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name" translatable="false">Beta Sav PDF Viewer</string>
+    <string name="app_name" translatable="false">Sav PDF Viewer</string>
     <string name="title_activity_main2" translatable="false">@string/app_name</string>
     <string name="title_home">Home</string>
     <string name="title_open">Open</string>

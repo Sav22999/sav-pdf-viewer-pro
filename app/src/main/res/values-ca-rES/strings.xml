@@ -10,6 +10,8 @@
     <string name="text_review_the_app_later">Review later</string>
     <string name="text_follow_on_instagram_the_app">I\'ve just created the Instagram account of the app.\nThere, you will find tips, curiosities and something else! 😉\nFollow it now 💙</string>
     <string name="button_follow_instagram_the_app_now">Follow on Instagram</string>
+    <string name="select_file_intent">Select file</string>
+    <string name="share_file_intent">Share file</string>
     <string name="text_tap_here_to_show_the_top_bar">Tap the transparent red section to show the top bar again, which disappears when you scroll.\nAfter 5 seconds the bar is also hidden and to show it again scroll.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tap here to show the \"Go to\" panel, so you can quickly go to a specific page.</string>
     <string name="text_tap_here_to_show_menu_panel">Tap here to show the menu panel, so you can turn on or off some options (night light, fullscreen, etc.).</string>
@@ -41,6 +43,7 @@
     <string name="tooltip_open_menu_panel">Open menu panel</string>
     <string name="tooltip_hide_menu_panel">Hide menu panel</string>
     <string name="tooltip_share_file">Share this file</string>
+    <string name="tooltip_save_file">Save this file</string>
     <string name="tooltip_close_app">Close app</string>
     <string name="tooltip_go_to_the_page">Go to the inserted page</string>
     <string name="tooltip_close_panel">Close this panel</string>
