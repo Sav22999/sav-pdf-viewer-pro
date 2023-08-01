@@ -10,6 +10,8 @@
     <string name="text_review_the_app_later">Gjennomgå senere</string>
     <string name="text_follow_on_instagram_the_app">Jeg har nettopp opprettet Instagram-kontoen til appen.\nDa finner du tips, nysgjerrige og noe annet! 😉\nFølg den nå 💙</string>
     <string name="button_follow_instagram_the_app_now">Følg på Instagram</string>
+    <string name="select_file_intent">Select file</string>
+    <string name="share_file_intent">Share file</string>
     <string name="text_tap_here_to_show_the_top_bar">Trykk på den gjennomsiktige røde delen for å vise den øverste linjen igjen, som forsvinner når du ruller ut.\nEtter 5 sekunder gjemmes baren også for å vise den igjen scroll.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Trykk her for å vise \"Gå til\"-panelet, slik at du kan raskt gå til en bestemt side.</string>
     <string name="text_tap_here_to_show_menu_panel">Trykk her for å vise menypanelet, slik at du kan slå av eller på noen alternativer (nattlys, fullskjerm osv.).</string>
@@ -41,6 +43,7 @@
     <string name="tooltip_open_menu_panel">Åpne menypanel</string>
     <string name="tooltip_hide_menu_panel">Skjul menypanel</string>
     <string name="tooltip_share_file">Del denne filen</string>
+    <string name="tooltip_save_file">Save this file</string>
     <string name="tooltip_close_app">Lukk app</string>
     <string name="tooltip_go_to_the_page">Gå til den innlagte siden</string>
     <string name="tooltip_close_panel">Lukk dette panelet</string>

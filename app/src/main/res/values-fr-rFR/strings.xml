@@ -10,6 +10,8 @@
     <string name="text_review_the_app_later">Réviser plus tard</string>
     <string name="text_follow_on_instagram_the_app">Je viens de créer le compte Instagram de l\'application.\nVous y trouverez des conseils, des curiosités et quelque chose d\'autre ! 😉\nSuivez-le maintenant 💙</string>
     <string name="button_follow_instagram_the_app_now">Suivre sur Instagram</string>
+    <string name="select_file_intent">Select file</string>
+    <string name="share_file_intent">Share file</string>
     <string name="text_tap_here_to_show_the_top_bar">Appuyez sur la section rouge transparente pour afficher à nouveau la barre supérieure, qui disparaît lorsque vous faites défiler.\nAprès 5 secondes, la barre est également cachée et pour la faire défiler à nouveau.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Appuyez ici pour afficher le panneau \"Aller à\", afin que vous puissiez accéder rapidement à une page spécifique.</string>
     <string name="text_tap_here_to_show_menu_panel">Appuyez ici pour afficher le panneau du menu, afin de pouvoir activer ou désactiver certaines options (lumière de nuit, plein écran, etc.).</string>
@@ -41,6 +43,7 @@
     <string name="tooltip_open_menu_panel">Ouvrir le panneau de menu</string>
     <string name="tooltip_hide_menu_panel">Masquer le panneau de menu</string>
     <string name="tooltip_share_file">Partager ce fichier</string>
+    <string name="tooltip_save_file">Save this file</string>
     <string name="tooltip_close_app">Fermer l\'application</string>
     <string name="tooltip_go_to_the_page">Aller à la page insérée</string>
     <string name="tooltip_close_panel">Fermer ce panneau</string>

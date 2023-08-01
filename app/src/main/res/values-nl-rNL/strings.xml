@@ -10,6 +10,8 @@
     <string name="text_review_the_app_later">Later beoordelen</string>
     <string name="text_follow_on_instagram_the_app">Ik heb zojuist de Instagram-account van de app gemaakt.\nDaar vind je tips, curiosities en nog iets anders! 😉\nVolg het nu 💙</string>
     <string name="button_follow_instagram_the_app_now">Volg op Instagram</string>
+    <string name="select_file_intent">Select file</string>
+    <string name="share_file_intent">Share file</string>
     <string name="text_tap_here_to_show_the_top_bar">Tik op de transparante rode sectie om de bovenste balk opnieuw te tonen, die verdwijnt wanneer je scrolt.\nNa 5 seconden is de balk ook verborgen en laat hij opnieuw scrollen.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tik hier om het \"Ga naar\" paneel te tonen, zodat je snel naar een specifieke pagina kunt gaan.</string>
     <string name="text_tap_here_to_show_menu_panel">Tik hier om het menu paneel weer te geven, zodat je sommige opties (nachtlicht, volledig scherm, enz.) kunt in- of uitschakelen.</string>
@@ -41,6 +43,7 @@
     <string name="tooltip_open_menu_panel">Open menu paneel</string>
     <string name="tooltip_hide_menu_panel">Menu-paneel verbergen</string>
     <string name="tooltip_share_file">Dit bestand delen</string>
+    <string name="tooltip_save_file">Save this file</string>
     <string name="tooltip_close_app">Sluit app</string>
     <string name="tooltip_go_to_the_page">Ga naar de ingevoegd pagina</string>
     <string name="tooltip_close_panel">Sluit dit paneel</string>

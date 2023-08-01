@@ -45,6 +45,7 @@ class PDFViewer : AppCompatActivity() {
     val PDF_SELECTION_CODE = 100
 
     var fileOpened: String? = ""
+    var fileId: String = ""
     var uriOpened: Uri? = null
 
     val timesAfterOpenReviewMessage = 500
@@ -94,7 +95,11 @@ class PDFViewer : AppCompatActivity() {
             ) {
                 uriToUse = intent.data.toString()
                 //println(uriToUse)
+                uriOpened = intent.data
             }
+
+            fileOpened = RealPathUtil.getRealPath(this, intent.data!!)
+            isSupportedShareFeature = true
         } catch (e: Exception) {
             uriToUse = ""
         }
@@ -111,7 +116,6 @@ class PDFViewer : AppCompatActivity() {
             //open a recent file
             openFromStorage(Uri.parse(uriToUse))
         }
-
 
         checkReviewFollowApp()
 
@@ -277,7 +281,7 @@ class PDFViewer : AppCompatActivity() {
         browserStorage.type = "application/pdf"
         browserStorage.addCategory(Intent.CATEGORY_OPENABLE)
         startActivityForResult(
-            Intent.createChooser(browserStorage, "Select the file"), PDF_SELECTION_CODE
+            Intent.createChooser(browserStorage, getString(R.string.select_file_intent)), PDF_SELECTION_CODE
         )
     }
 
@@ -297,8 +301,12 @@ class PDFViewer : AppCompatActivity() {
 
     fun selectPdfFromURI(uri: Uri?) {
         try {
+            //Toast.makeText(this, fileOpened, Toast.LENGTH_LONG).show()
+            //Toast.makeText(this, uri.toString(), Toast.LENGTH_LONG).show()
             incrementHideTopBarCounter()
             var lastPosition = 0
+            fileId = fileOpened!!.toString()
+            //Toast.makeText(this, fileId, Toast.LENGTH_LONG).show()
             pdfViewer.fromUri(uri)
                 .enableSwipe(true) //leave as "true" (it causes a bug with scrolling when zoom is "100%")
                 .swipeHorizontal(false) //horizontal scrolling disable
@@ -325,7 +333,7 @@ class PDFViewer : AppCompatActivity() {
                 //.onPageError { page, t -> println(page) }
                 .onPageChange { page, pageCount ->
                     run {
-                        updatePdfPage(uri.toString(), page)
+                        updatePdfPage(fileId, page)
                         //setPositionScrollbarByPage(page.toFloat())
                     }
                 }.onPageScroll { page, positionOffset ->
@@ -347,7 +355,7 @@ class PDFViewer : AppCompatActivity() {
                     }*/
                 }
                 .onLoad {
-                    lastPosition = getPdfPage(uri.toString())
+                    lastPosition = getPdfPage(fileId)
                     /*pdfViewer.positionOffset = 1F
                     totalPages = pdfViewer.currentPage + 1*/
                     //TODO
@@ -411,7 +419,7 @@ class PDFViewer : AppCompatActivity() {
                     fullView.isGone = true
                     startY = minPositionScrollbar
 
-                    updatePdfPage(uri.toString(), lastPosition)
+                    updatePdfPage(fileId, lastPosition)
                     if (totalPages == 1) {
                         isSupportedGoTop = false
                         isSupportedScrollbarButton = false
@@ -588,7 +596,7 @@ class PDFViewer : AppCompatActivity() {
         if (requestCode == PDF_SELECTION_CODE && resultCode == Activity.RESULT_OK && data != null) {
             try {
                 val selectedPdf = data.data
-                selectPdfFromURI(selectedPdf)
+
 
                 val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
                 val fullscreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
@@ -621,6 +629,8 @@ class PDFViewer : AppCompatActivity() {
                 pagesNumber.isGone = true
 
                 //setTitle(getTheFileName(selectedPdf.toString(), -1))
+
+                selectPdfFromURI(selectedPdf)
             } catch (e: Exception) {
                 println("Exception 4: Loading failed")
             }
@@ -865,7 +875,11 @@ class PDFViewer : AppCompatActivity() {
         shareIntent.putExtra(Intent.EXTRA_STREAM, uriOpened)
         shareIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
         shareIntent.type = "application/pdf"
-        startActivity(Intent.createChooser(shareIntent, "Share"))
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_file_intent)))
+    }
+
+    fun setSaveButton() {
+        //TODO
     }
 
     fun setFullscreenButton(button: ImageView) {
