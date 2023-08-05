@@ -10,8 +10,6 @@
     <string name="text_review_the_app_later">後で確認</string>
     <string name="text_follow_on_instagram_the_app">アプリのInstagramアカウントを作成しました。\nそこにはヒント、好奇心などがあります！ 😉\n今すぐフォローしてください 💙</string>
     <string name="button_follow_instagram_the_app_now">Instagramでフォロー</string>
-    <string name="select_file_intent">Select file</string>
-    <string name="share_file_intent">Share file</string>
     <string name="text_tap_here_to_show_the_top_bar">透明な赤いセクションをタップすると、スクロールすると消えるバーが再び表示されます。\n5秒後、バーも隠され、再びスクロールして表示されます。</string>
     <string name="text_tap_here_to_show_go_to_dialog">「移動」パネルを表示するには、ここをタップしてください。これにより、特定のページにすばやく移動できます。</string>
     <string name="text_tap_here_to_show_menu_panel">ここをタップするとメニューパネルが表示されるので、いくつかのオプション(夜間ライト、フルスクリーンなど)をオンまたはオフにできます。</string>
@@ -43,7 +41,6 @@
     <string name="tooltip_open_menu_panel">メニューパネルを開く</string>
     <string name="tooltip_hide_menu_panel">メニューパネルを隠す</string>
     <string name="tooltip_share_file">このファイルを共有</string>
-    <string name="tooltip_save_file">Save this file</string>
     <string name="tooltip_close_app">アプリを閉じる</string>
     <string name="tooltip_go_to_the_page">挿入されたページに移動</string>
     <string name="tooltip_close_panel">このパネルを閉じる</string>
