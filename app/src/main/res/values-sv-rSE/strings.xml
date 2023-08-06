@@ -8,8 +8,12 @@
     <string name="text_review_the_app">Gillar du den här appen?\nLämna en recension ⭐ på Google Play.\nDet är bara några sekunder för dig 😊</string>
     <string name="button_review_the_app_now">Granska nu</string>
     <string name="text_review_the_app_later">Granska senare</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">Jag har precis skapat Instagramkontot i appen.\nDär hittar du tips, kuriosa och något annat! 😉\nFölj den nu 💙</string>
     <string name="button_follow_instagram_the_app_now">Följ på Instagram</string>
+    <string name="select_file_intent">Select file</string>
+    <string name="share_file_intent">Share file</string>
     <string name="text_tap_here_to_show_the_top_bar">Tryck på den genomskinliga röda sektionen för att visa överstapeln igen, som försvinner när du bläddrar.\nEfter 5 sekunder är baren också dold och för att visa den igen bläddra.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tryck här för att visa \"Gå till\" panelen, så att du snabbt kan gå till en specifik sida.</string>
     <string name="text_tap_here_to_show_menu_panel">Tryck här för att visa menypanelen, så att du kan slå på eller stänga av vissa alternativ (nattljus, helskärm etc.).</string>
@@ -41,6 +45,7 @@
     <string name="tooltip_open_menu_panel">Öppna menypanelen</string>
     <string name="tooltip_hide_menu_panel">Dölj menypanel</string>
     <string name="tooltip_share_file">Dela denna fil</string>
+    <string name="tooltip_save_file">Save this file</string>
     <string name="tooltip_close_app">Stäng appen</string>
     <string name="tooltip_go_to_the_page">Gå till den infogade sidan</string>
     <string name="tooltip_close_panel">Stäng denna panel</string>

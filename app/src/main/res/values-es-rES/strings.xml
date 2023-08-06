@@ -8,8 +8,12 @@
     <string name="text_review_the_app">¿Te gusta esta aplicación?\nPor favor, deja una reseña ⭐ en Google Play.\nTe toca unos segundos 😊</string>
     <string name="button_review_the_app_now">Revisar ahora</string>
     <string name="text_review_the_app_later">Revisar más tarde</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">Acabo de crear la cuenta de Instagrama de la aplicación.\n¡Ahí encontrarás consejos, curiosidades y algo más! 😉\nSíguelo ahora 💙</string>
     <string name="button_follow_instagram_the_app_now">Seguir en Instagrama</string>
+    <string name="select_file_intent">Select file</string>
+    <string name="share_file_intent">Share file</string>
     <string name="text_tap_here_to_show_the_top_bar">Pulse la sección rojo transparente para mostrar la barra superior de nuevo, que desaparece cuando se desplaza.\nDespués de 5 segundos, la barra también está oculta y para mostrarla de nuevo desplazamiento.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Pulse aquí para mostrar el panel \"Ir a\" para que pueda ir rápidamente a una página específica.</string>
     <string name="text_tap_here_to_show_menu_panel">Pulse aquí para mostrar el panel del menú, para que pueda activar o desactivar algunas opciones (luz nocturna, pantalla completa, etc.).</string>
@@ -41,6 +45,7 @@
     <string name="tooltip_open_menu_panel">Abrir panel de menú</string>
     <string name="tooltip_hide_menu_panel">Ocultar panel de menú</string>
     <string name="tooltip_share_file">Compartir este archivo</string>
+    <string name="tooltip_save_file">Save this file</string>
     <string name="tooltip_close_app">Cerrar app</string>
     <string name="tooltip_go_to_the_page">Ir a la página insertada</string>
     <string name="tooltip_close_panel">Cerrar este panel</string>

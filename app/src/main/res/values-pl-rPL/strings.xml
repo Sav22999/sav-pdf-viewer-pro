@@ -8,8 +8,12 @@
     <string name="text_review_the_app">Czy podoba Ci się ta aplikacja?\nPozostaw recenzję ⭐ w Google Play.\nTo tylko kilka sekund dla Ciebie 😊</string>
     <string name="button_review_the_app_now">Przejrzyj teraz</string>
     <string name="text_review_the_app_later">Przejrzyj później</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">Właśnie utworzyłem konto na Instagramie aplikacji.\nTutaj znajdziesz wskazówki, ciekawości i coś innego! 😉\nŚledź to teraz 💙</string>
     <string name="button_follow_instagram_the_app_now">Śledź na Instagramie</string>
+    <string name="select_file_intent">Select file</string>
+    <string name="share_file_intent">Share file</string>
     <string name="text_tap_here_to_show_the_top_bar">Dotknij przezroczystej czerwonej sekcji, aby ponownie pokazać górny pasek, co zniknie po przewijaniu.\nPo 5 sekundach pasek jest również ukryty i aby ponownie pokazać przewijanie.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Dotknij tutaj, aby wyświetlić panel \"Idź do\", aby szybko przejść do konkretnej strony.</string>
     <string name="text_tap_here_to_show_menu_panel">Dotknij tutaj, aby wyświetlić panel menu, aby włączyć lub wyłączyć niektóre opcje (światło nocne, pełny ekran itp.).</string>
@@ -41,6 +45,7 @@
     <string name="tooltip_open_menu_panel">Otwórz panel menu</string>
     <string name="tooltip_hide_menu_panel">Ukryj panel menu</string>
     <string name="tooltip_share_file">Udostępnij ten plik</string>
+    <string name="tooltip_save_file">Save this file</string>
     <string name="tooltip_close_app">Zamknij aplikację</string>
     <string name="tooltip_go_to_the_page">Przejdź do wstawionej strony</string>
     <string name="tooltip_close_panel">Zamknij ten panel</string>

@@ -8,8 +8,12 @@
     <string name="text_review_the_app">Ti piace questa app?\nPer favore, lascia una recensione ⭐ su Google Play.\nÈ solo qualche secondo per te 😊</string>
     <string name="button_review_the_app_now">Recensisci ora</string>
     <string name="text_review_the_app_later">Recensisci più tardi</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">Ho appena creato l\'account Instagram dell\'app.\nQui troverai consigli, curiosità e qualcos\'altro! 😉\nSeguilo ora 💙</string>
     <string name="button_follow_instagram_the_app_now">Segui su Instagram</string>
+    <string name="select_file_intent">Select file</string>
+    <string name="share_file_intent">Share file</string>
     <string name="text_tap_here_to_show_the_top_bar">Toccare la sezione rossa trasparente per mostrare nuovamente la barra in alto, che scompare quando si scorre.\nDopo 5 secondi anche la barra viene nascosta e per mostrarla di nuovo scorrere.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tocca qui per mostrare il pannello \"Vai a\" in modo da poter accedere rapidamente a una pagina specifica.</string>
     <string name="text_tap_here_to_show_menu_panel">Tocca qui per mostrare il pannello dei menu, in modo da poter attivare o disattivare alcune opzioni (luce notturna, schermo intero, ecc.).</string>
@@ -41,6 +45,7 @@
     <string name="tooltip_open_menu_panel">Apri pannello menu</string>
     <string name="tooltip_hide_menu_panel">Nascondi pannello menu</string>
     <string name="tooltip_share_file">Condividi questo documento</string>
+    <string name="tooltip_save_file">Save this file</string>
     <string name="tooltip_close_app">Chiudi app</string>
     <string name="tooltip_go_to_the_page">Va alla pagina inserita</string>
     <string name="tooltip_close_panel">Chiudi questo pannello</string>

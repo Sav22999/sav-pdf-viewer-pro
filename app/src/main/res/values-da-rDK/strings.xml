@@ -8,8 +8,12 @@
     <string name="text_review_the_app">Kan du lide denne app?\nForlad venligst en anmeldelse ⭐ på Google Play.\nDet er blot et par sekunder for dig 😊</string>
     <string name="button_review_the_app_now">Gennemgå nu</string>
     <string name="text_review_the_app_later">Gennemgå senere</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">Jeg har netop oprettet Instagram-kontoen i appen.\nDer, vil du finde tips, nysgerrigheder og noget andet! 😉\nFølg det nu 💙</string>
     <string name="button_follow_instagram_the_app_now">Følg på Instagram</string>
+    <string name="select_file_intent">Select file</string>
+    <string name="share_file_intent">Share file</string>
     <string name="text_tap_here_to_show_the_top_bar">Tryk på den gennemsigtige røde sektion for at vise den øverste bar igen, hvilket forsvinder, når du ruller.\nEfter 5 sekunder er bjælken også skjult og for at vise den igen rulle.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tryk her for at vise panelet \"Gå til\", så du hurtigt kan gå til en bestemt side.</string>
     <string name="text_tap_here_to_show_menu_panel">Tryk her for at vise menupanelet, så du kan tænde eller slukke nogle indstillinger (natlys, fuldskærm osv.).</string>
@@ -41,6 +45,7 @@
     <string name="tooltip_open_menu_panel">Åbn menupanel</string>
     <string name="tooltip_hide_menu_panel">Skjul menupanel</string>
     <string name="tooltip_share_file">Del denne fil</string>
+    <string name="tooltip_save_file">Save this file</string>
     <string name="tooltip_close_app">Luk app</string>
     <string name="tooltip_go_to_the_page">Gå til den indsatte side</string>
     <string name="tooltip_close_panel">Luk dette panel</string>

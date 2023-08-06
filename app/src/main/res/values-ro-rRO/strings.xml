@@ -8,8 +8,12 @@
     <string name="text_review_the_app">Îți place această aplicație?\nTe rugăm să lași o recenzie ⭐ pe Google Play.\nSunt doar câteva secunde pentru tine 😊</string>
     <string name="button_review_the_app_now">Revizuiește acum</string>
     <string name="text_review_the_app_later">Evaluează mai târziu</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">Tocmai am creat contul Instagram al aplicației.\nAici, veți găsi sfaturi, curiozități și altceva! 😉\nUrmăriți-l acum 💙</string>
     <string name="button_follow_instagram_the_app_now">Urmăriți pe Instagram</string>
+    <string name="select_file_intent">Select file</string>
+    <string name="share_file_intent">Share file</string>
     <string name="text_tap_here_to_show_the_top_bar">Atingeți secțiunea transparentă roșu pentru a afișa din nou bara de sus, care dispare atunci când derulați.\nDupă 5 secunde, bara este ascunsă și afișează din nou derularea.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Apăsați aici pentru a afișa panoul \"Mergi la\", astfel încât să puteți merge rapid la o anumită pagină.</string>
     <string name="text_tap_here_to_show_menu_panel">Apăsați aici pentru a afișa panoul de meniu, astfel încât să puteți activa sau dezactiva unele opțiuni (lumina nopții, ecran complet, etc.).</string>
@@ -41,6 +45,7 @@
     <string name="tooltip_open_menu_panel">Deschide panoul de meniu</string>
     <string name="tooltip_hide_menu_panel">Ascunde panoul de meniu</string>
     <string name="tooltip_share_file">Distribuie acest fișier</string>
+    <string name="tooltip_save_file">Save this file</string>
     <string name="tooltip_close_app">Închide aplicația</string>
     <string name="tooltip_go_to_the_page">Mergeți la pagina inserată</string>
     <string name="tooltip_close_panel">Închide acest panou</string>
