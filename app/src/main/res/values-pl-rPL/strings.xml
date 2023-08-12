@@ -8,6 +8,8 @@
     <string name="text_review_the_app">Czy podoba Ci się ta aplikacja?\nPozostaw recenzję ⭐ w Google Play.\nTo tylko kilka sekund dla Ciebie 😊</string>
     <string name="button_review_the_app_now">Przejrzyj teraz</string>
     <string name="text_review_the_app_later">Przejrzyj później</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">Właśnie utworzyłem konto na Instagramie aplikacji.\nTutaj znajdziesz wskazówki, ciekawości i coś innego! 😉\nŚledź to teraz 💙</string>
     <string name="button_follow_instagram_the_app_now">Śledź na Instagramie</string>
     <string name="select_file_intent">Select file</string>

@@ -8,6 +8,8 @@
     <string name="text_review_the_app">Do you like this app?\nPlease, leave a review ⭐ on Google Play.\nIt\'s just a few seconds for you 😊</string>
     <string name="button_review_the_app_now">지금 평가</string>
     <string name="text_review_the_app_later">Review later</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">I\'ve just created the Instagram account of the app.\nThere, you will find tips, curiosities and something else! 😉\nFollow it now 💙</string>
     <string name="button_follow_instagram_the_app_now">Follow on Instagram</string>
     <string name="select_file_intent">Select file</string>

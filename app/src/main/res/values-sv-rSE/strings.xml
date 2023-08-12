@@ -8,6 +8,8 @@
     <string name="text_review_the_app">Gillar du den här appen?\nLämna en recension ⭐ på Google Play.\nDet är bara några sekunder för dig 😊</string>
     <string name="button_review_the_app_now">Granska nu</string>
     <string name="text_review_the_app_later">Granska senare</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">Jag har precis skapat Instagramkontot i appen.\nDär hittar du tips, kuriosa och något annat! 😉\nFölj den nu 💙</string>
     <string name="button_follow_instagram_the_app_now">Följ på Instagram</string>
     <string name="select_file_intent">Select file</string>

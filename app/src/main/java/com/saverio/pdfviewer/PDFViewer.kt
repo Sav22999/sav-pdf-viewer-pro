@@ -50,6 +50,7 @@ class PDFViewer : AppCompatActivity() {
 
     val timesAfterOpenReviewMessage = 500
     val timesAfterShowFollowApp = 5
+    val timesAfterLiberaPay = 5000
 
     var isFullscreenEnabled = false
     var showingTopBar = true
@@ -281,7 +282,8 @@ class PDFViewer : AppCompatActivity() {
         browserStorage.type = "application/pdf"
         browserStorage.addCategory(Intent.CATEGORY_OPENABLE)
         startActivityForResult(
-            Intent.createChooser(browserStorage, getString(R.string.select_file_intent)), PDF_SELECTION_CODE
+            Intent.createChooser(browserStorage, getString(R.string.select_file_intent)),
+            PDF_SELECTION_CODE
         )
     }
 
@@ -1175,6 +1177,10 @@ class PDFViewer : AppCompatActivity() {
             "already_follow_app", Context.MODE_PRIVATE
         ).getBoolean("already_follow_app", false)
 
+        val donateLiberaPay = getSharedPreferences(
+            "donate_liberapay", Context.MODE_PRIVATE
+        ).getBoolean("donate_liberapay", false)
+
         val buttonReviewNowReview: TextView = findViewById(R.id.buttonReviewNowReview)
         val messageContainerReview: ConstraintLayout = findViewById(R.id.messageContainerReview)
         val buttonHideMessageReview: ImageView = findViewById(R.id.buttonHideMessageDialogReview)
@@ -1184,6 +1190,14 @@ class PDFViewer : AppCompatActivity() {
             findViewById(R.id.messageContainerInstagram)
         val buttonHideMessageInstagram: ImageView =
             findViewById(R.id.buttonHideMessageDialogInstagram)
+
+        val buttonDonateLiberaPay: TextView = findViewById(R.id.buttonLiberaPay)
+        val messageContainerLiberaPay: ConstraintLayout =
+            findViewById(R.id.messageContainerLiberaPay)
+        val messageTextLiberaPay: TextView =
+            findViewById(R.id.messageTextLiberaPay)
+        val buttonHideMessageLiberaPay: ImageView =
+            findViewById(R.id.buttonHideMessageDialogLiberaPay)
 
         buttonReviewNowReview.setOnClickListener {
             if (openOnGooglePlay()) {
@@ -1195,6 +1209,18 @@ class PDFViewer : AppCompatActivity() {
 
         buttonHideMessageReview.setOnClickListener {
             messageContainerReview.isGone = true
+        }
+
+        buttonDonateLiberaPay.setOnClickListener {
+            if (openLiberaPay()) {
+                messageContainerLiberaPay.isGone = true
+                getSharedPreferences("donate_liberapay", Context.MODE_PRIVATE).edit()
+                    .putBoolean("donate_liberapay", true).apply()
+            }
+        }
+
+        buttonHideMessageLiberaPay.setOnClickListener {
+            messageContainerLiberaPay.isGone = true
         }
 
         buttonFollowNowInstagram.setOnClickListener {
@@ -1232,6 +1258,23 @@ class PDFViewer : AppCompatActivity() {
             messageContainerInstagram.isGone = true
         }*/
 
+        //check whether show "donate on liberapay" message
+        if (!donateLiberaPay) {
+            if ((timesOpened % timesAfterLiberaPay) == 0 && timesOpened >= timesAfterLiberaPay) {
+                messageTextLiberaPay.setText(
+                    getString(R.string.text_donate_liberapay).replace(
+                        "{n_times}",
+                        timesOpened.toString()
+                    )
+                )
+                messageContainerLiberaPay.isGone = false
+            } else {
+                messageContainerLiberaPay.isGone = true
+            }
+        } else {
+            messageContainerLiberaPay.isGone = true
+        }
+
         timesOpened++
         getSharedPreferences("app_opened_times", Context.MODE_PRIVATE).edit()
             .putInt("app_opened_times", timesOpened).apply()
@@ -1247,6 +1290,20 @@ class PDFViewer : AppCompatActivity() {
             )
         } catch (e: Exception) {
             println("Exception 3: " + e.toString())
+            valueToReturn = false
+        }
+
+        return valueToReturn
+    }
+
+    fun openLiberaPay(): Boolean {
+        var valueToReturn = true
+        try {
+            startActivity(
+                Intent(Intent.ACTION_VIEW, Uri.parse("https://www.savpdfviewer.com/donate/"))
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
             valueToReturn = false
         }
 

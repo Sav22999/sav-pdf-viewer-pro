@@ -8,6 +8,8 @@
     <string name="text_review_the_app">Σας αρέσει αυτή η εφαρμογή?\nΠαρακαλώ, αφήστε μια κριτική ⭐ στο Google Play.\nΕίναι μόλις λίγα δευτερόλεπτα για σας 😊</string>
     <string name="button_review_the_app_now">Επανεξέταση τώρα</string>
     <string name="text_review_the_app_later">Επανεξέταση αργότερα</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">Μόλις δημιούργησα το λογαριασμό Instagram της εφαρμογής.\nΕκεί, θα βρείτε συμβουλές, περιέργειες και κάτι άλλο! 😉\nΑκολουθήστε το τώρα 💙</string>
     <string name="button_follow_instagram_the_app_now">Ακολουθήστε στο Instagram</string>
     <string name="select_file_intent">Select file</string>

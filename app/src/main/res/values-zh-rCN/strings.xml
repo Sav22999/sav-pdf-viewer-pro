@@ -8,6 +8,8 @@
     <string name="text_review_the_app">你喜欢这个应用吗？\n请留下一个 :white_med_star: on Google Play。\n这只是给你 :smiling_face_with_smiling_eyes：</string>
     <string name="button_review_the_app_now">现在检查</string>
     <string name="text_review_the_app_later">稍后审核</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">我刚刚创建了应用程序的 Instagram 帐户。\n在那里，你会找到提示、好奇等东西！:winking_face：\n现在跟随它:blu_heart：</string>
     <string name="button_follow_instagram_the_app_now">在 Instagram 上关注</string>
     <string name="select_file_intent">Select file</string>

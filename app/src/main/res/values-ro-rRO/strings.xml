@@ -8,6 +8,8 @@
     <string name="text_review_the_app">Îți place această aplicație?\nTe rugăm să lași o recenzie ⭐ pe Google Play.\nSunt doar câteva secunde pentru tine 😊</string>
     <string name="button_review_the_app_now">Revizuiește acum</string>
     <string name="text_review_the_app_later">Evaluează mai târziu</string>
+    <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
+    <string name="button_donate_liberapay">Donate now!</string>
     <string name="text_follow_on_instagram_the_app">Tocmai am creat contul Instagram al aplicației.\nAici, veți găsi sfaturi, curiozități și altceva! 😉\nUrmăriți-l acum 💙</string>
     <string name="button_follow_instagram_the_app_now">Urmăriți pe Instagram</string>
     <string name="select_file_intent">Select file</string>

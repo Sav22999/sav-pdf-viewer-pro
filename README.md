@@ -16,7 +16,7 @@ I've created an [Instagram account](https://www.instagram.com/savpdfviewer/) whe
 
 ### Where download the app
 
-[<img src="images/googlePlayBadge.png" width="200px"></img>](https://play.google.com/store/apps/details?id=com.saverio.pdfviewer) [<img src="images/fDroidBadge.png" width="200px"></img>](https://f-droid.org/it/packages/com.saverio.pdfviewer/) [<img src="images/huaweiAppGalleryBadge.png" width="200px"></img>](https://appgallery.huawei.com/#/app/C104418743) [<img src="images/amazonAppStoreBadge.png" width="200px"></img>](https://www.amazon.com/gp/product/B0974TV679)
+[<img src="images/googlePlayBadge.png" width="200px"></img>](https://play.google.com/store/apps/details?id=com.saverio.pdfviewer) [<img src="images/huaweiAppGalleryBadge.png" width="200px"></img>](https://appgallery.huawei.com/#/app/C104418743) [<img src="images/amazonAppStoreBadge.png" width="200px"></img>](https://www.amazon.com/gp/product/B0974TV679)
 
 You can download the app from Google Play, Huawei AppGallery or Amazon AppStore.
 
