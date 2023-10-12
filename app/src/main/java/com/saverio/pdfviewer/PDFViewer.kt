@@ -34,6 +34,7 @@ import com.saverio.pdfviewer.db.BookmarksModel
 import com.saverio.pdfviewer.db.DatabaseHandler
 import com.saverio.pdfviewer.db.FilesModel
 import com.saverio.pdfviewer.ui.BookmarksItemAdapter
+import java.net.URLDecoder
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
@@ -99,9 +100,32 @@ class PDFViewer : AppCompatActivity() {
                 uriOpened = intent.data
             }
 
-            fileOpened = RealPathUtil.getRealPath(this, intent.data!!)
+            println(intent.data)
+
+            try {
+                fileOpened = RealPathUtil.getRealPath(this, intent.data!!)
+                //println("File opened\t" + fileOpened)
+            } catch (e: Exception) {
+                println("Exception Z2\n" + e.message)
+                try {
+                    val tempUrl = URLDecoder.decode(intent.data.toString(), "UTF-8").split("/")
+                    fileOpened = ""
+                    var storageFound = false
+                    tempUrl.forEach {
+                        if (storageFound || it == "storage") {
+                            storageFound = true
+                            fileOpened += "/" + it
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    fileOpened = intent.data.toString()
+                    println("Exception Z3\n" + e.message)
+                }
+            }
             isSupportedShareFeature = true
         } catch (e: Exception) {
+            println("Exception Z1\n" + e.message)
             uriToUse = ""
         }
         if (uriToUse == null || uriToUse == "") {
