@@ -107,26 +107,29 @@ class PDFViewer : AppCompatActivity() {
                 //println("File opened\t" + fileOpened)
             } catch (e: Exception) {
                 println("Exception Z2\n" + e.message)
-                try {
-                    val tempUrl = URLDecoder.decode(intent.data.toString(), "UTF-8").split("/")
-                    fileOpened = ""
-                    var storageFound = false
-                    tempUrl.forEach {
-                        if (storageFound || it == "storage") {
-                            storageFound = true
-                            fileOpened += "/" + it
-                        }
-                    }
-
-                } catch (e: Exception) {
-                    fileOpened = intent.data.toString()
-                    println("Exception Z3\n" + e.message)
-                }
+                fileOpened = null
             }
             isSupportedShareFeature = true
         } catch (e: Exception) {
             println("Exception Z1\n" + e.message)
             uriToUse = ""
+        }
+        if (fileOpened == null) {
+            try {
+                val tempUrl = URLDecoder.decode(intent.data.toString(), "UTF-8").split("/")
+                fileOpened = ""
+                var storageFound = false
+                tempUrl.forEach {
+                    if (storageFound || it == "storage") {
+                        storageFound = true
+                        fileOpened += "/" + it
+                    }
+                }
+
+            } catch (e: Exception) {
+                fileOpened = intent.data.toString()
+                println("Exception Z3\n" + e.message)
+            }
         }
         if (uriToUse == null || uriToUse == "") {
             //if (getLastFileOpened() == "") {
@@ -462,7 +465,6 @@ class PDFViewer : AppCompatActivity() {
                     } else {
                         hideTopBar()
                     }
-
 
                     checkFirstTimeShowMessageGuide()
                     setScrollBarSide()
