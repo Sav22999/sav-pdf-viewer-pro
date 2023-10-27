@@ -108,7 +108,7 @@ class PDFViewer : AppCompatActivity() {
                 uriOpened = intent.data
             }
 
-            println(intent.data)
+            //println(intent.data)
 
             try {
                 fileOpened = RealPathUtil.getRealPath(this, intent.data!!)
@@ -468,11 +468,16 @@ class PDFViewer : AppCompatActivity() {
 
                     val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
                     val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
-                    if (horizontal) {
-                        buttonSideScroll.isGone = true
-                        buttonBottomScroll.isGone = false
+                    if (totalPages > 1) {
+                        if (horizontal) {
+                            buttonSideScroll.isGone = true
+                            buttonBottomScroll.isGone = false
+                        } else {
+                            buttonSideScroll.isGone = false
+                            buttonBottomScroll.isGone = true
+                        }
                     } else {
-                        buttonSideScroll.isGone = false
+                        buttonSideScroll.isGone = true
                         buttonBottomScroll.isGone = true
                     }
                 }
@@ -1815,6 +1820,9 @@ class PDFViewer : AppCompatActivity() {
                 view.performClick()
                 return@OnTouchListener true
             })
+
+            if (!horizontal && totalPages > 1) button.isGone = false
+            else button.isGone = true
         }
     }
 
@@ -1902,7 +1910,8 @@ class PDFViewer : AppCompatActivity() {
                         button.isGone = false
                         startX_moving = null
 
-                        val pageN = ((totalPages + 1) * scrolled) / maxPositionScrollbarHorizontal
+                        val pageN =
+                            ((totalPages + 1) * scrolled) / (maxPositionScrollbarHorizontal - startX)
 
                         goToPage(pageN.toInt(), animation)
                         container.isGone = true
@@ -1915,7 +1924,8 @@ class PDFViewer : AppCompatActivity() {
                         button.isGone = false
                         startX_moving = null
 
-                        val pageN = ((totalPages - 1) * scrolled) / maxPositionScrollbarHorizontal
+                        val pageN =
+                            ((totalPages + 1) * scrolled) / (maxPositionScrollbarHorizontal - startX)
 
                         goToPage(pageN.toInt(), animation)
                         container.isGone = true
@@ -1926,6 +1936,9 @@ class PDFViewer : AppCompatActivity() {
                 view.performClick()
                 return@OnTouchListener true
             })
+
+            if (horizontal && totalPages > 1) button.isGone = false
+            else button.isGone = true
         }
     }
 
