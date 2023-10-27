@@ -51,6 +51,12 @@
     <string name="tooltip_go_to_feature">Open \'Go to\' feature</string>
     <string name="tooltip_go_to_top">Go to the first page of the file</string>
     <string name="tooltip_open_new_file">Open a new file</string>
+    <string name="tooltip_scroll_horizontally">Scroll horizontally</string>
+    <string name="tooltip_scroll_vertically">Scroll vertically</string>
+    <string name="tooltip_force_dark_filter">Enabled the forced-dark filter</string>
+    <string name="tooltip_force_dark_filter_disable">Disable the forced-dark filter</string>
+    <string name="tooltip_single_page_scroll">Enable single page viewing mode</string>
+    <string name="tooltip_single_page_scroll_disabled">Enable continuous page viewing mode</string>
     <string name="tooltip_zoom_in">Zoom in</string>
     <string name="tooltip_zoom_out">Zoom out</string>
     <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
