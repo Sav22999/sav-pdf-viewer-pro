@@ -39,7 +39,7 @@
         android:id="@+id/residualView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/black"
+        android:background="@color/red"
         android:elevation="100dp"
         android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -63,7 +63,7 @@
 
     <TextView
         android:id="@+id/buttonSideScroll"
-        android:layout_width="wrap_content"
+        android:layout_width="15dp"
         android:layout_height="50dp"
         android:layout_marginTop="10dp"
         android:layout_marginEnd="10dp"
@@ -84,12 +84,11 @@
         android:id="@+id/containerSideScroll"
         android:layout_width="0dp"
         android:layout_height="50dp"
-        android:layout_marginTop="10dp"
         android:padding="0dp"
         android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/buttonSideScroll"
         app:layout_constraintEnd_toStartOf="@+id/buttonSideScroll"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
+        app:layout_constraintTop_toTopOf="@+id/buttonSideScroll"
         tools:visibility="visible">
 
         <View
@@ -116,6 +115,65 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/arrowSideScroll"
             app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="MissingConstraints"
+            tools:text="100"
+            tools:visibility="visible" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/buttonBottomScroll"
+        android:layout_width="60dp"
+        android:layout_height="15dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginBottom="10dp"
+        android:width="15dp"
+        android:background="@drawable/button_rounded"
+        android:padding="10dp"
+        android:paddingStart="20dp"
+        android:paddingEnd="20dp"
+        android:textColor="?attr/colorOnPrimary"
+        android:textSize="20sp"
+        android:textStyle="normal"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="@+id/pdfView"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/containerBottomScroll"
+        android:layout_width="0dp"
+        android:layout_height="50dp"
+        android:padding="0dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/buttonBottomScroll"
+        app:layout_constraintEnd_toEndOf="@+id/buttonBottomScroll"
+        app:layout_constraintStart_toStartOf="@+id/buttonBottomScroll"
+        tools:visibility="visible">
+
+        <View
+            android:id="@+id/arrowBottomScroll"
+            android:layout_width="15dp"
+            android:layout_height="10dp"
+            android:background="@drawable/ic_arrow_bottom"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <TextView
+            android:id="@+id/textBottomScroll"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/border_rounded4"
+            android:gravity="center|center_vertical"
+            android:padding="5dp"
+            android:textColor="?attr/colorOnPrimary"
+            android:textSize="12sp"
+            android:textStyle="normal"
+            android:visibility="visible"
+            android:minWidth="25dp"
+            app:layout_constraintBottom_toTopOf="@+id/arrowBottomScroll"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             tools:ignore="MissingConstraints"
             tools:text="100"
             tools:visibility="visible" />
@@ -638,6 +696,102 @@
                 android:padding="18sp"
                 android:scaleType="fitCenter"
                 app:srcCompat="@drawable/ic_zoom_in"
+                tools:ignore="VectorDrawableCompat" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuPanelSectionSeparator3_4"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="100"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/menuPanelSection3">
+
+            <View
+                android:id="@+id/spaceleft_separator3_4"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/separator3_4"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="98"
+                android:background="?attr/colorSecondary"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/spaceright_separator3_4"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuPanelSection4"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="90"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/menuPanelSectionSeparator3_4">
+
+            <ImageView
+                android:id="@+id/buttonHorizontallyScroll"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="30"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_scroll_horizontally"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_scroll_horizontally"
+                tools:ignore="VectorDrawableCompat" />
+
+            <ImageView
+                android:id="@+id/buttonSinglePage"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="30"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_single_page_scroll"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_single_page"
+                tools:ignore="VectorDrawableCompat" />
+
+            <ImageView
+                android:id="@+id/buttonDarkFilter"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="30"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_force_dark_filter"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                app:srcCompat="@drawable/ic_dark_filter"
                 tools:ignore="VectorDrawableCompat" />
         </LinearLayout>
 
