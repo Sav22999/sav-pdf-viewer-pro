@@ -108,18 +108,18 @@ class PDFViewer : AppCompatActivity() {
                 uriOpened = intent.data
             }
 
-            //println(intent.data)
+            println(intent.data)
 
             try {
                 fileOpened = RealPathUtil.getRealPath(this, intent.data!!)
                 //println("File opened\t" + fileOpened)
             } catch (e: Exception) {
-                error("Exception Z2\n" + e.message)
+                println("Exception Z2\n" + e.message)
                 fileOpened = null
             }
             isSupportedShareFeature = true
         } catch (e: Exception) {
-            error("Exception Z1\n" + e.message)
+            println("Exception Z1\n" + e.message)
             uriToUse = ""
         }
         if (fileOpened == null) {
@@ -136,7 +136,7 @@ class PDFViewer : AppCompatActivity() {
 
             } catch (e: Exception) {
                 fileOpened = intent.data.toString()
-                error("Exception Z3\n" + e.message)
+                println("Exception Z3\n" + e.message)
             }
         }
         if (uriToUse == null || uriToUse == "") {
@@ -385,17 +385,13 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun selectPdfFromStorage() {
-        try {
-            val browserStorage = Intent(Intent.ACTION_GET_CONTENT)
-            browserStorage.type = "application/pdf"
-            browserStorage.addCategory(Intent.CATEGORY_OPENABLE)
-            startActivityForResult(
-                Intent.createChooser(browserStorage, getString(R.string.select_file_intent)),
-                PDF_SELECTION_CODE
-            )
-        } catch (e: Exception) {
-            error("EX-X1")
-        }
+        val browserStorage = Intent(Intent.ACTION_GET_CONTENT)
+        browserStorage.type = "application/pdf"
+        browserStorage.addCategory(Intent.CATEGORY_OPENABLE)
+        startActivityForResult(
+            Intent.createChooser(browserStorage, getString(R.string.select_file_intent)),
+            PDF_SELECTION_CODE
+        )
     }
 
     fun incrementHideTopBarCounter() {
@@ -459,17 +455,6 @@ class PDFViewer : AppCompatActivity() {
                     }
                 }.onPageScroll { page, positionOffset ->
                     hideTopBarCounter = 0
-
-                    val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
-                    val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
-                    if (horizontal) {
-                        buttonSideScroll.isGone = true
-                        buttonBottomScroll.isGone = false
-                    } else {
-                        buttonSideScroll.isGone = false
-                        buttonBottomScroll.isGone = true
-                    }
-
                     if (!showingTopBar && (page > 0 || positionOffset > 0F)) {
                         hideTopBar()
                     } else if (positionOffset == 0F) {
@@ -481,8 +466,13 @@ class PDFViewer : AppCompatActivity() {
                     hideGoToDialog()
                     hideMenuPanel()
 
-                    if (totalPages == 1) {
+                    val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
+                    val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
+                    if (horizontal) {
                         buttonSideScroll.isGone = true
+                        buttonBottomScroll.isGone = false
+                    } else {
+                        buttonSideScroll.isGone = false
                         buttonBottomScroll.isGone = true
                     }
                 }
@@ -595,10 +585,6 @@ class PDFViewer : AppCompatActivity() {
                         buttonSideScroll.isGone = false
                         buttonBottomScroll.isGone = true
                     }
-                    if (totalPages == 1) {
-                        buttonSideScroll.isGone = true
-                        buttonBottomScroll.isGone = true
-                    }
                 }.onError(OnErrorListener {
                     if (it.message.toString()
                             .contains("Password required or incorrect password.")
@@ -611,7 +597,7 @@ class PDFViewer : AppCompatActivity() {
                     //PdfPasswordException
                 }).load()
         } catch (e: Exception) {
-            error("Exception 1")
+            println("Exception 1")
         }
     }
 
@@ -811,7 +797,7 @@ class PDFViewer : AppCompatActivity() {
 
                 selectPdfFromURI(selectedPdf)
             } catch (e: Exception) {
-                error("Exception 4: Loading failed")
+                println("Exception 4: Loading failed")
             }
         } else {
             //file not selected
@@ -978,7 +964,7 @@ class PDFViewer : AppCompatActivity() {
                 dialog = null
             }
         } catch (e: Exception) {
-            error("Exception 12")
+            println("Exception 12")
         }
     }
 
@@ -1035,7 +1021,7 @@ class PDFViewer : AppCompatActivity() {
                 }
             }
         } catch (e: Exception) {
-            error("Exception 2 : ${e.toString()}")
+            println("Exception 2 : ${e.toString()}")
         }
         return ""
     }
@@ -1495,7 +1481,7 @@ class PDFViewer : AppCompatActivity() {
                 )
             )
         } catch (e: Exception) {
-            error("Exception 3: " + e.toString())
+            println("Exception 3: " + e.toString())
             valueToReturn = false
         }
 
@@ -1523,7 +1509,7 @@ class PDFViewer : AppCompatActivity() {
                 Intent(instagramIntent(this))
             )
         } catch (e: Exception) {
-            error("Exception 10: " + e.toString())
+            println("Exception 10: " + e.toString())
             valueToReturn = false
         }
 
@@ -1638,7 +1624,7 @@ class PDFViewer : AppCompatActivity() {
             goToPage(valueToGo, true)
             textbox.clearFocus()
         } catch (e: Exception) {
-            error("Exception 11")
+            println("Exception 11")
         }
     }
 
@@ -1979,7 +1965,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun zoomOut() {
-        if (pdfViewer.zoom >= (0.6F + zoom_value)) pdfViewer.zoomWithAnimation(pdfViewer.zoom - zoom_value)
+        if (pdfViewer.zoom >= (0.0F + zoom_value)) pdfViewer.zoomWithAnimation(pdfViewer.zoom - zoom_value)
         setCurrentZoomStatus()
     }
 
