@@ -24,12 +24,14 @@ import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.barteksc.pdfviewer.PDFView
+import com.github.barteksc.pdfviewer.link.DefaultLinkHandler
 import com.github.barteksc.pdfviewer.listener.OnErrorListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.saverio.pdfviewer.db.BookmarksModel
 import com.saverio.pdfviewer.db.DatabaseHandler
 import com.saverio.pdfviewer.db.FilesModel
 import com.saverio.pdfviewer.ui.BookmarksItemAdapter
+import com.saverio.pdfviewer.ui.SavPdfViewerLinkHandler
 import java.net.URLDecoder
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
@@ -430,6 +432,7 @@ class PDFViewer : AppCompatActivity() {
                 .pageSnap(single_page)
                 .pageFling(single_page)
                 .nightMode(night_mode)
+                .linkHandler(SavPdfViewerLinkHandler(pdfViewer))
 
                 /*//makes unstable the zoom feature
                 .onTap {
