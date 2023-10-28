@@ -75,10 +75,11 @@ class PDFViewer : AppCompatActivity() {
     var hideTopBarCounter = 0
     var dialog: BottomSheetDialog? = null
 
+    var residualViewConfigurationConfigurated = false
     var residualViewConfiguration: HashMap<String, HashMap<String, Int>> =
         hashMapOf(
             "landscape" to hashMapOf("width" to 0, "height" to 0),
-            "landscape" to hashMapOf("width" to 0, "height" to 0)
+            "portrait" to hashMapOf("width" to 0, "height" to 0)
         ) // {"landscape": [width, height], "portrait": [width, height]}
     var minPositionScrollbar: Float = 0F
     var maxPositionScrollbar: Float = 0F
@@ -508,41 +509,45 @@ class PDFViewer : AppCompatActivity() {
 
                     val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
                     val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
-                    val residualView: View = findViewById(R.id.residualView)
-                    val fullView: View = findViewById(R.id.fullView)
 
                     val nowLandscape = resources.configuration.orientation
-                    var landscapeDictionary: Map<String, Array<Int>>
-                    var portraitDictionary: Map<String, Array<Int>>
 
+                    val residualView: View = findViewById(R.id.residualView)
+                    val fullView: View = findViewById(R.id.fullView)
                     var currentStatus = "landscape"
                     val toAddOrRemove = fullView.measuredHeight - residualView.measuredHeight
                     if (nowLandscape == Configuration.ORIENTATION_LANDSCAPE) {
                         currentStatus = "landscape"
 
-                        residualViewConfiguration["landscape"] =
-                            hashMapOf(
-                                "width" to residualView.measuredWidth,
-                                "height" to residualView.measuredHeight
-                            )
-                        residualViewConfiguration["portrait"] =
-                            hashMapOf(
-                                "width" to residualView.measuredHeight + toAddOrRemove,
-                                "height" to residualView.measuredWidth - toAddOrRemove
-                            )
+                        if (!residualViewConfigurationConfigurated) {
+                            residualViewConfiguration["landscape"] =
+                                hashMapOf(
+                                    "width" to residualView.measuredWidth, //run in landscape, currently in landscape (bottomScroll)
+                                    "height" to residualView.measuredHeight //run in landscape, currently in landscape (sideScroll)
+                                )
+                            residualViewConfiguration["portrait"] =
+                                hashMapOf(
+                                    "width" to residualView.measuredHeight + toAddOrRemove * (3 / 2),
+                                    "height" to residualView.measuredWidth - toAddOrRemove * 2 //run in landscape, currently in portrait (sideScroll)
+                                )
+                            residualViewConfigurationConfigurated = true;
+                        }
                     } else {
                         currentStatus = "portrait"
 
-                        residualViewConfiguration["landscape"] =
-                            hashMapOf(
-                                "width" to residualView.measuredHeight,
-                                "height" to residualView.measuredWidth - toAddOrRemove
-                            )
-                        residualViewConfiguration["portrait"] =
-                            hashMapOf(
-                                "width" to residualView.measuredWidth - toAddOrRemove,
-                                "height" to residualView.measuredHeight
-                            )
+                        if (!residualViewConfigurationConfigurated) {
+                            residualViewConfiguration["landscape"] =
+                                hashMapOf(
+                                    "width" to residualView.measuredHeight + toAddOrRemove, //run in portrait, currently in landscape (bottomScroll)
+                                    "height" to residualView.measuredWidth - toAddOrRemove * 2 //run in portrait, currently in landscape (sideScroll)
+                                )
+                            residualViewConfiguration["portrait"] =
+                                hashMapOf(
+                                    "width" to residualView.measuredWidth - toAddOrRemove / 2, //run in portrait, currently in portrait (bottomScroll)
+                                    "height" to residualView.measuredHeight //run in portrait, currently in portrait (sideScroll)
+                                )
+                            residualViewConfigurationConfigurated = true
+                        }
                     }
 
                     if (minPositionScrollbar == 0F) minPositionScrollbar = buttonSideScroll.y
@@ -724,21 +729,10 @@ class PDFViewer : AppCompatActivity() {
                 residualViewConfiguration[currentStatus]!!["height"]!!.toInt() - minPositionScrollbar
             startY = minPositionScrollbar
 
-            if (minPositionScrollbar == 0F) minPositionScrollbar = buttonSideScroll.y
-            maxPositionScrollbar =
-                residualViewConfiguration[currentStatus]!!["width"]!!.toInt() - minPositionScrollbar
-            startY = minPositionScrollbar
-
             if (minPositionScrollbarHorizontal == 0F) minPositionScrollbarHorizontal =
                 buttonBottomScroll.x
             maxPositionScrollbarHorizontal =
                 residualViewConfiguration[currentStatus]!!["width"]!!.toInt() - minPositionScrollbarHorizontal
-            startX = minPositionScrollbarHorizontal
-
-            if (minPositionScrollbarHorizontal == 0F) minPositionScrollbarHorizontal =
-                buttonSideScroll.x
-            maxPositionScrollbarHorizontal =
-                residualViewConfiguration[currentStatus]!!["height"]!!.toInt() - minPositionScrollbarHorizontal
             startX = minPositionScrollbarHorizontal
 
             residualView.isGone = true
@@ -1886,7 +1880,7 @@ class PDFViewer : AppCompatActivity() {
                             container.animate().x(minPositionScrollbarHorizontal).setDuration(0)
                                 .start()
                         } else {
-                            //newY > maxPosition
+                            //newX > maxPosition
                             view.animate()
                                 .x((maxPositionScrollbarHorizontal - startX) + minPositionScrollbarHorizontal)
                                 .setDuration(0)
@@ -1896,9 +1890,8 @@ class PDFViewer : AppCompatActivity() {
                                 .setDuration(0)
                                 .start()
                         }
-                        var pageN =
-                            ((totalPages + 1) * scrolled) / (maxPositionScrollbarHorizontal - startX)
-                        if (pageN > totalPages) pageN = (totalPages - 1).toFloat()
+                        var pageN = ((totalPages + 1) * scrolled) / maxPositionScrollbarHorizontal
+                        if (pageN > totalPages) pageN = totalPages.toFloat() - 1
                         textPage.text = (pageN.toInt() + 1).toString()
                         container.isGone = false
                         //goToPage(pageN.toInt(), false)
@@ -1910,8 +1903,7 @@ class PDFViewer : AppCompatActivity() {
                         button.isGone = false
                         startX_moving = null
 
-                        val pageN =
-                            ((totalPages + 1) * scrolled) / (maxPositionScrollbarHorizontal - startX)
+                        val pageN = ((totalPages + 1) * scrolled) / maxPositionScrollbarHorizontal
 
                         goToPage(pageN.toInt(), animation)
                         container.isGone = true
@@ -1924,8 +1916,7 @@ class PDFViewer : AppCompatActivity() {
                         button.isGone = false
                         startX_moving = null
 
-                        val pageN =
-                            ((totalPages + 1) * scrolled) / (maxPositionScrollbarHorizontal - startX)
+                        val pageN = ((totalPages + 1) * scrolled) / maxPositionScrollbarHorizontal
 
                         goToPage(pageN.toInt(), animation)
                         container.isGone = true
