@@ -501,6 +501,7 @@ class PDFViewer : AppCompatActivity() {
                     println("producer: " + pdfViewer.documentMeta.producer)
                     println("subject: " + pdfViewer.documentMeta.subject)
                     println("creationDate: " + pdfViewer.documentMeta.creationDate)
+                    println("table of contents: " + pdfViewer.tableOfContents)
                     */
                 }
                 .onRender { nbPages ->
