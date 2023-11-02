@@ -16,6 +16,7 @@
     <color name="backgroundNightTheme">#44FF9800</color>
 
     <color name="spacingPage">#EEEEEE</color>
+    <color name="spacingPageDark">#111111</color>
 
     <color name="gray">#666666</color>
     <color name="dark_gray">#FF333333</color>

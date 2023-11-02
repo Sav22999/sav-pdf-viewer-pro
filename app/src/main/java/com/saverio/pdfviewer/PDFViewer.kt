@@ -274,13 +274,9 @@ class PDFViewer : AppCompatActivity() {
             if (!comfortView.isGone) {
                 comfortView.isGone = true
                 lightButton.setImageResource(R.drawable.ic_light_on)
-                pdfViewer.setNightMode(false)
-                pdfViewer.jumpTo(pdfViewer.currentPage, false)
             } else {
                 comfortView.isGone = false
                 lightButton.setImageResource(R.drawable.ic_light_off)
-                pdfViewer.setNightMode(true)
-                pdfViewer.jumpTo(pdfViewer.currentPage, false)
             }
             resetHideTopBarCounter()
             hideMenuPanel()
@@ -324,11 +320,13 @@ class PDFViewer : AppCompatActivity() {
                 pdfViewer.setNightMode(true)
                 pdfViewer.jumpTo(pdfViewer.currentPage, true)
                 buttonDarkFilter.setImageResource(R.drawable.ic_dark_filter_disabled)
+                pdfViewer.setBackgroundResource(R.color.spacingPageDark)
             } else {
                 night_mode = false
                 pdfViewer.setNightMode(false)
                 pdfViewer.jumpTo(pdfViewer.currentPage, true)
                 buttonDarkFilter.setImageResource(R.drawable.ic_dark_filter)
+                pdfViewer.setBackgroundResource(R.color.spacingPage)
             }
             resetHideTopBarCounter()
             hideMenuPanel()
@@ -435,26 +433,18 @@ class PDFViewer : AppCompatActivity() {
                 .nightMode(night_mode)
                 .linkHandler(SavPdfViewerLinkHandler(pdfViewer))
 
-                /*//makes unstable the zoom feature
                 .onTap {
-                    if (!showingTopBar) {
-                        hideTopBarCounter = 0
-                        showTopBar()
-                        hideGoToDialog()
-                        hideMenuPanel()
-                    } else {
-                        hideTopBar(fullHiding = true)
-                    }
+                    showTopBar()
                     true
                 }
-                */
                 //.onPageError { page, t -> println(page) }
                 .onPageChange { page, pageCount ->
                     run {
                         updatePdfPage(fileId, page)
                         //setPositionScrollbarByPage(page.toFloat())
                     }
-                }.onPageScroll { page, positionOffset ->
+                }
+                .onPageScroll { page, positionOffset ->
                     hideTopBarCounter = 0
                     if (!showingTopBar && (page > 0 || positionOffset > 0F)) {
                         hideTopBar()
