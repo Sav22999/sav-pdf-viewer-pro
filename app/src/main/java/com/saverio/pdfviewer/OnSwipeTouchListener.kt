@@ -78,9 +78,9 @@ abstract class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
             distanceX: Float,
             distanceY: Float
         ): Boolean {
-            var type = ""
-            val diffY = e2!!.y - e1!!.y
-            val diffX = e2!!.x - e1!!.x
+            var type: String
+            val diffY = e2.y - e1.y
+            val diffX = e2.x - e1.x
             if (abs(diffX) > abs(diffY)) {
                 if (diffX > 0) {
                     type = "r"//right
