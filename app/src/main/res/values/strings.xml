@@ -76,4 +76,5 @@
     <string name="tooltip_see_all_bookmarks">See all bookmarks</string>
     <string name="tooltip_close_bookmarks">Close all bookmarks</string>
     <string name="tooltip_get_help">Get help</string>
+    <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
 </resources>

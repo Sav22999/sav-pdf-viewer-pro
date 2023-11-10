@@ -9,16 +9,16 @@
     <string name="button_review_the_app_now">مراجعة الآن</string>
     <string name="text_review_the_app_later">مراجعة لاحقًا</string>
     <string name="text_donate_liberapay">You opened the app already {n_times} times. I hope you like it. If it is and you want to support my work, consider to buy me a coffee.</string>
-    <string name="button_donate_liberapay">Donate now!</string>
+    <string name="button_donate_liberapay">تبرع الآن!</string>
     <string name="text_follow_on_instagram_the_app">لقد قمت للتو بإنشاء حساب Instagram في التطبيق.\nهناك، ستجد نصائح، فضوليات وشيء آخر! 😉\nتابعه الآن 💙</string>
     <string name="button_follow_instagram_the_app_now">تابع على Instagram</string>
-    <string name="select_file_intent">Select file</string>
-    <string name="share_file_intent">Share file</string>
+    <string name="select_file_intent">حدد ملف</string>
+    <string name="share_file_intent">مشاركة الملف</string>
     <string name="text_tap_here_to_show_the_top_bar">اضغط على القسم الأحمر الشفاف لإظهار الشريط العلوي مرة أخرى، والذي يختفي عند التمرين.\nبعد 5 ثواني يتم إخفاء الشريط أيضا وإظهاره مرة أخرى.</string>
     <string name="text_tap_here_to_show_go_to_dialog">اضغط هنا لإظهار لوحة \"انتقل إلى\"، حتى تتمكن من الذهاب بسرعة إلى صفحة معينة.</string>
     <string name="text_tap_here_to_show_menu_panel">اضغط هنا لعرض لوحة القائمة، حتى تتمكن من تشغيل أو إيقاف بعض الخيارات (الضوء الليلي، ملء الشاشة، إلخ).</string>
     <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">انقر هنا لإضافة أو إزالة الصفحة الحالية إلى الإشارات المرجعية.\nاضغط واستمر (\"انقر طويل\") هنا لمشاهدة جميع الإشارات المرجعية المحفوظة لملف PDF الحالي.</string>
-    <string name="text_scroll_to_show_the_top_bar_again">بعد 5 ثوانٍ يتم إخفاء الشريط العلوي تلقائيًا لذلك فإنه أسهل قراءة مستنداتك. لاستعادة الشريط العلوي (لذلك ، لإظهاره مرة أخرى) تحتاج فقط للتمرير.</string>
+    <string name="text_scroll_to_show_the_top_bar_again">After 5 seconds the top bar is automatically hidden so it\'s easier to read your document. To restore the top bar (so, to show it again) you need just to scroll or to tap in any points.</string>
     <string name="text_swipe_left_to_remove_tap_to_go_to_the_page_bookmarks">هنا لديك قائمة بجميع الإشارات المرجعية لملف PDF الحالي.\nيمكنك رؤية معاينة للصفحة في الجانب الأيسر.\nاسحب لليسار لإزالة العلامة المرجعية، أثناء النقر عليها للذهاب إلى صفحة الإشارات المرجعية.</string>
     <string name="toast_bookmark_added">تمت إضافة إشارة مرجعية</string>
     <string name="toast_bookmark_removed">تمت إزالة الإشارة المرجعية</string>
@@ -39,13 +39,19 @@
     <string name="tooltip_go_to_feature">فتح ميزة \'الذهاب إلى\'</string>
     <string name="tooltip_go_to_top">الذهاب إلى الصفحة الأولى من الملف</string>
     <string name="tooltip_open_new_file">فتح ملف جديد</string>
-    <string name="tooltip_zoom_in">Zoom in</string>
-    <string name="tooltip_zoom_out">Zoom out</string>
-    <string name="tooltip_reset_zoom">Reset zoom (adapt to width) and see the current zoom status</string>
+    <string name="tooltip_scroll_horizontally">تمرير أفقياً</string>
+    <string name="tooltip_scroll_vertically">تمرير عمودياً</string>
+    <string name="tooltip_force_dark_filter">تمكين الفلتر الظلام القسري</string>
+    <string name="tooltip_force_dark_filter_disable">تعطيل الفلتر الظلام القسري</string>
+    <string name="tooltip_single_page_scroll">تمكين وضع عرض الصفحة الواحدة</string>
+    <string name="tooltip_single_page_scroll_disabled">تمكين وضع عرض الصفحة المستمرة</string>
+    <string name="tooltip_zoom_in">تكبير في</string>
+    <string name="tooltip_zoom_out">تكبير خارجي</string>
+    <string name="tooltip_reset_zoom">إعادة ضبط التكبير (التكيف مع العرض) وشاهد حالة التكبير الحالية</string>
     <string name="tooltip_open_menu_panel">فتح لوحة القائمة</string>
     <string name="tooltip_hide_menu_panel">إخفاء لوحة القائمة</string>
     <string name="tooltip_share_file">مشاركة هذا الملف</string>
-    <string name="tooltip_save_file">Save this file</string>
+    <string name="tooltip_save_file">حفظ هذا الملف</string>
     <string name="tooltip_close_app">إغلاق التطبيق</string>
     <string name="tooltip_go_to_the_page">الذهاب إلى الصفحة المدرجة</string>
     <string name="tooltip_close_panel">إغلاق هذه اللوحة</string>
@@ -58,4 +64,5 @@
     <string name="tooltip_see_all_bookmarks">عرض جميع الإشارات المرجعية</string>
     <string name="tooltip_close_bookmarks">إغلاق جميع الإشارات المرجعية</string>
     <string name="tooltip_get_help">الحصول على المساعدة</string>
+    <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
 </resources>

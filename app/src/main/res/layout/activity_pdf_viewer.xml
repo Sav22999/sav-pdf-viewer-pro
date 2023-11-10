@@ -207,7 +207,7 @@
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_go_to_top"
             android:padding="18sp"
-            android:scaleType="fitCenter"
+            android:scaleType="centerInside"
             android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@+id/buttonBookmarkToolbar"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
@@ -222,7 +222,7 @@
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_go_to_top"
             android:padding="18sp"
-            android:scaleType="fitCenter"
+            android:scaleType="centerInside"
             android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@+id/totalPagesToolbar"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
@@ -237,7 +237,7 @@
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_close_app"
             android:padding="18sp"
-            android:scaleType="fitCenter"
+            android:scaleType="centerInside"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
             app:srcCompat="@drawable/ic_close"
@@ -267,7 +267,7 @@
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_open_menu_panel"
             android:padding="18sp"
-            android:scaleType="fitCenter"
+            android:scaleType="centerInside"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_dots"
@@ -382,7 +382,6 @@
             android:layout_height="40sp"
             android:layout_marginTop="10dp"
             android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp"
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_close_panel"
             android:padding="10sp"
@@ -456,7 +455,7 @@
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_night_light_on"
                 android:padding="18sp"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_light_on"
                 tools:ignore="VectorDrawableCompat"
@@ -470,7 +469,7 @@
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_full_screen_on"
                 android:padding="18sp"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_fullscreen"
                 tools:ignore="VectorDrawableCompat"
@@ -484,7 +483,7 @@
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_share_file"
                 android:padding="18sp"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_share"
                 tools:ignore="VectorDrawableCompat"
@@ -559,7 +558,7 @@
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_open_new_file"
                 android:padding="18sp"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_open_file"
                 tools:ignore="VectorDrawableCompat"
@@ -573,7 +572,7 @@
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_see_all_bookmarks"
                 android:padding="18sp"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 app:srcCompat="@drawable/ic_all_bookmarks"
                 tools:ignore="VectorDrawableCompat" />
 
@@ -585,7 +584,7 @@
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_get_help"
                 android:padding="18sp"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 app:srcCompat="@drawable/ic_get_help"
                 tools:ignore="VectorDrawableCompat" />
         </LinearLayout>
@@ -657,7 +656,7 @@
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_zoom_out"
                 android:padding="18sp"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_zoom_out"
                 tools:ignore="VectorDrawableCompat"
@@ -694,7 +693,7 @@
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_zoom_in"
                 android:padding="18sp"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 app:srcCompat="@drawable/ic_zoom_in"
                 tools:ignore="VectorDrawableCompat" />
         </LinearLayout>
@@ -766,7 +765,7 @@
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_scroll_horizontally"
                 android:padding="18sp"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 app:srcCompat="@drawable/ic_scroll_horizontally"
                 tools:ignore="VectorDrawableCompat" />
 
@@ -778,7 +777,7 @@
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_single_page_scroll"
                 android:padding="18sp"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 app:srcCompat="@drawable/ic_single_page"
                 tools:ignore="VectorDrawableCompat" />
 
@@ -790,7 +789,7 @@
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_force_dark_filter"
                 android:padding="18sp"
-                android:scaleType="fitCenter"
+                android:scaleType="centerInside"
                 app:srcCompat="@drawable/ic_dark_filter"
                 tools:ignore="VectorDrawableCompat" />
         </LinearLayout>
