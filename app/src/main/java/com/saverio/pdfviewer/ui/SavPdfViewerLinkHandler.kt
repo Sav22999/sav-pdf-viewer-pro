@@ -35,7 +35,7 @@ class SavPdfViewerLinkHandler(private val pdfView: PDFView) : LinkHandler {
     private fun showConfirmationDialog(url: String) {
         val alertDialogBuilder = AlertDialog.Builder(pdfView.context)
 
-        alertDialogBuilder.setTitle("Confirmation")
+        alertDialogBuilder.setTitle("Open link")
         alertDialogBuilder.setMessage(
             Html.fromHtml(
                 pdfView.context.getString(R.string.confirmation_open_link).replace("{{url}}", url)
