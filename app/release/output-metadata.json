@@ -1,0 +1,20 @@
+{
+  "version": 3,
+  "artifactType": {
+    "type": "APK",
+    "kind": "Directory"
+  },
+  "applicationId": "com.saverio.pdfviewer",
+  "variantName": "release",
+  "elements": [
+    {
+      "type": "SINGLE",
+      "filters": [],
+      "attributes": [],
+      "versionCode": 64,
+      "versionName": "1.15.1.2",
+      "outputFile": "app-release.apk"
+    }
+  ],
+  "elementType": "File"
+}
