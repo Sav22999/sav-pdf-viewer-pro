@@ -16,6 +16,8 @@ The app permits to open all PDF files, in the simplest way you ever seen. The ap
 
 I've created an [Instagram account](https://www.instagram.com/savpdfviewer/) where you can find tips, curiosity or something else about the app. Follow it now!
 
+Go to the <a href="https://savpdfviewer.com">official website of the app</a>
+
 ### Where download the app
 
 [<img src="images/googlePlayBadge.png" width="200px"></img>](https://play.google.com/store/apps/details?id=com.saverio.pdfviewer) [<img src="images/huaweiAppGalleryBadge.png" width="200px"></img>](https://appgallery.huawei.com/#/app/C104418743) [<img src="images/amazonAppStoreBadge.png" width="200px"></img>](https://www.amazon.com/gp/product/B0974TV679)
