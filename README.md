@@ -1,3 +1,4 @@
+<a href="https://savpdfviewer.com">
 <h1 align="center">
     <br>
     <img width="70" src="images/icon.png" alt="App icon" />
@@ -5,6 +6,7 @@
     Sav PDF Viewer Pro
     <br>
 </h1>
+</a>
 
 This app is developed by Saverio Morelli, using the Android Studio IDE.
 
