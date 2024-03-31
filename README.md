@@ -34,6 +34,8 @@ To support me, you can do a donation :smile: with **PayPal**, **LiberaPay** or *
 
 If you want to help to develop this app, you can open an `Issue` an send feedback about the features or report bugs.
 
+You can improve this project translating it in your language on Crowdin, follow [this link](https://crowdin.com/project/sav-pdf-viewer).
+
 ### Screenshots
 
 <img src="images/screenshots/1.png" width="200px"></img><img src="images/screenshots/2.png" width="200px"></img><img src="images/screenshots/3.png" width="200px"></img><img src="images/screenshots/4.png" width="200px"></img>
