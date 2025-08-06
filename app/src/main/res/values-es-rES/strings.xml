@@ -8,17 +8,19 @@
     <string name="text_review_the_app">¿Te gusta esta aplicación?\nPor favor, deja una reseña ⭐ en Google Play.\nTe toca unos segundos 😊</string>
     <string name="button_review_the_app_now">Revisar ahora</string>
     <string name="text_review_the_app_later">Revisar más tarde</string>
-    <string name="text_donate_liberapay">Has abierto la aplicación ya {n_times} veces. Espero que te guste. Si es y quiere apoyar mi trabajo, considere comprarme un café.</string>
+    <string name="text_donate_liberapay">Ya has abierto la aplicación {n_times} veces. Espero que te guste. Si es así y quieres apoyar mi trabajo, considera comprarme un café.</string>
     <string name="button_donate_liberapay">¡Donar ahora!</string>
     <string name="text_follow_on_instagram_the_app">Acabo de crear la cuenta de Instagrama de la aplicación.\n¡Ahí encontrarás consejos, curiosidades y algo más! 😉\nSíguelo ahora 💙</string>
     <string name="button_follow_instagram_the_app_now">Seguir en Instagrama</string>
     <string name="select_file_intent">Seleccionar archivo</string>
     <string name="share_file_intent">Compartir archivo</string>
+    <string name="print_file_intent">Print file</string>
+    <string name="no_file_to_print">No file to print</string>
     <string name="text_tap_here_to_show_the_top_bar">Pulse la sección rojo transparente para mostrar la barra superior de nuevo, que desaparece cuando se desplaza.\nDespués de 5 segundos, la barra también está oculta y para mostrarla de nuevo desplazamiento.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Pulse aquí para mostrar el panel \"Ir a\" para que pueda ir rápidamente a una página específica.</string>
     <string name="text_tap_here_to_show_menu_panel">Pulse aquí para mostrar el panel del menú, para que pueda activar o desactivar algunas opciones (luz nocturna, pantalla completa, etc.).</string>
     <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">Pulse (y publicar) aquí para añadir o eliminar la página actual a marcadores.\nPulsa y mantén pulsado (\"toque largo\") aquí para ver todos los marcadores guardados para el archivo PDF actual.</string>
-    <string name="text_scroll_to_show_the_top_bar_again">After 5 seconds the top bar is automatically hidden so it\'s easier to read your document. To restore the top bar (so, to show it again) you need just to scroll or to tap in any points.</string>
+    <string name="text_scroll_to_show_the_top_bar_again">Después de 5 segundos, la barra superior se oculta automáticamente para que sea más fácil leer tu documento. Para restaurar la barra superior (y así se muestre de nuevo), solo necesitas desplazarte o pulsar en cualquier punto.</string>
     <string name="text_swipe_left_to_remove_tap_to_go_to_the_page_bookmarks">Aquí tiene la lista de todos los marcadores del archivo PDF actual.\nPuede ver una vista previa de la página en el lado izquierdo.\nDesliza a la izquierda para eliminar el marcador, mientras pulsa sobre él para ir a la página del marcador.</string>
     <string name="toast_bookmark_added">Marcador añadido</string>
     <string name="toast_bookmark_removed">Marcador eliminado</string>
@@ -45,12 +47,14 @@
     <string name="tooltip_force_dark_filter_disable">Desactivar el filtro forzado oscuro</string>
     <string name="tooltip_single_page_scroll">Activar modo de visualización de una página</string>
     <string name="tooltip_single_page_scroll_disabled">Activar modo de visualización continua de páginas</string>
-    <string name="tooltip_zoom_in">Acercarse en</string>
-    <string name="tooltip_zoom_out">Apagar</string>
+    <string name="tooltip_zoom_in">Ampliar</string>
+    <string name="tooltip_zoom_out">Alejar</string>
     <string name="tooltip_reset_zoom">Restablecer zoom (adaptarse al ancho) y ver el estado actual del zoom</string>
     <string name="tooltip_open_menu_panel">Abrir panel de menú</string>
     <string name="tooltip_hide_menu_panel">Ocultar panel de menú</string>
     <string name="tooltip_share_file">Compartir este archivo</string>
+    <string name="tooltip_lock_rotation">Lock the rotation</string>
+    <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Guardar este archivo</string>
     <string name="tooltip_close_app">Cerrar app</string>
     <string name="tooltip_go_to_the_page">Ir a la página insertada</string>
@@ -64,5 +68,5 @@
     <string name="tooltip_see_all_bookmarks">Ver todos los marcadores</string>
     <string name="tooltip_close_bookmarks">Cerrar todos los marcadores</string>
     <string name="tooltip_get_help">Obtener ayuda</string>
-    <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+    <string name="confirmation_open_link">¿Quieres abrir <b>{{url}}</b> en tu navegador?</string>
 </resources>

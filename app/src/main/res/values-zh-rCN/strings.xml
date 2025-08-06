@@ -14,11 +14,13 @@
     <string name="button_follow_instagram_the_app_now">在 Instagram 上关注</string>
     <string name="select_file_intent">选择文件</string>
     <string name="share_file_intent">分享文件</string>
+    <string name="print_file_intent">Print file</string>
+    <string name="no_file_to_print">No file to print</string>
     <string name="text_tap_here_to_show_the_top_bar">点击透明的红色部分再次显示顶部栏，滚动时会消失。\n5秒后，条也被隐藏并再次显示滚动。</string>
     <string name="text_tap_here_to_show_go_to_dialog">点击此处显示\"转到\"面板，您可以快速转到一个特定页面。</string>
     <string name="text_tap_here_to_show_menu_panel">点击此处显示菜单面板，您可以打开或关闭某些选项 (夜光、全屏等)。</string>
     <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">点击(发布)来添加或删除当前页面到书签。\n点击并按住(\"长按\")来查看当前PDF文件保存的所有书签。</string>
-    <string name="text_scroll_to_show_the_top_bar_again">After 5 seconds the top bar is automatically hidden so it\'s easier to read your document. To restore the top bar (so, to show it again) you need just to scroll or to tap in any points.</string>
+    <string name="text_scroll_to_show_the_top_bar_again">顶部栏会在 5 秒后自动隐藏，以便您阅读文档。 只需滚动或点击任意处即可恢复顶部栏（即重新显示）。</string>
     <string name="text_swipe_left_to_remove_tap_to_go_to_the_page_bookmarks">这里有当前PDF文件的所有书签列表。\n你可以看到页面左侧的预览。\n向左滑动以移除书签，同时点击它进入书签的页面。</string>
     <string name="toast_bookmark_added">已添加书签</string>
     <string name="toast_bookmark_removed">书签已删除</string>
@@ -51,6 +53,8 @@
     <string name="tooltip_open_menu_panel">打开菜单面板</string>
     <string name="tooltip_hide_menu_panel">隐藏菜单面板</string>
     <string name="tooltip_share_file">分享这个文件</string>
+    <string name="tooltip_lock_rotation">Lock the rotation</string>
+    <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">保存此文件</string>
     <string name="tooltip_close_app">关闭应用</string>
     <string name="tooltip_go_to_the_page">转到已插入的页面</string>
@@ -64,5 +68,5 @@
     <string name="tooltip_see_all_bookmarks">查看所有书签</string>
     <string name="tooltip_close_bookmarks">关闭所有书签</string>
     <string name="tooltip_get_help">获得帮助</string>
-    <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+    <string name="confirmation_open_link">您想要在浏览器中打开 <b>{{url}}</b> 吗？</string>
 </resources>

@@ -11,8 +11,8 @@ android {
         applicationId = "com.saverio.pdfviewer"
         minSdk = 21
         targetSdk = 33
-        versionCode = 64
-        versionName = "1.15.1.2"
+        versionCode = 65
+        versionName = "1.16"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,7 +33,6 @@ android {
 }
 
 dependencies {
-
     val kotlin_version = "1.4.21"
 
     implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version")
@@ -58,7 +57,5 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.3")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.4.0")
 
-    implementation("com.github.barteksc:pdfium-android:1.9.0")
-    implementation("com.github.barteksc:android-pdf-viewer:3.1.0-beta.1")
-//Use "2.8.2" is stable | "3.1.0-beta.1" is unstable
+    implementation("io.github.muthuraj57:AndroidPdfViewer:1.1.0")
 }

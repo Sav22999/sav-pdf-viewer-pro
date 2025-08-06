@@ -14,6 +14,8 @@
     <string name="button_follow_instagram_the_app_now">Śledź na Instagramie</string>
     <string name="select_file_intent">Wybierz plik</string>
     <string name="share_file_intent">Udostępnij plik</string>
+    <string name="print_file_intent">Print file</string>
+    <string name="no_file_to_print">No file to print</string>
     <string name="text_tap_here_to_show_the_top_bar">Dotknij przezroczystej czerwonej sekcji, aby ponownie pokazać górny pasek, co zniknie po przewijaniu.\nPo 5 sekundach pasek jest również ukryty i aby ponownie pokazać przewijanie.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Dotknij tutaj, aby wyświetlić panel \"Idź do\", aby szybko przejść do konkretnej strony.</string>
     <string name="text_tap_here_to_show_menu_panel">Dotknij tutaj, aby wyświetlić panel menu, aby włączyć lub wyłączyć niektóre opcje (światło nocne, pełny ekran itp.).</string>
@@ -51,6 +53,8 @@
     <string name="tooltip_open_menu_panel">Otwórz panel menu</string>
     <string name="tooltip_hide_menu_panel">Ukryj panel menu</string>
     <string name="tooltip_share_file">Udostępnij ten plik</string>
+    <string name="tooltip_lock_rotation">Lock the rotation</string>
+    <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Zapisz ten plik</string>
     <string name="tooltip_close_app">Zamknij aplikację</string>
     <string name="tooltip_go_to_the_page">Przejdź do wstawionej strony</string>

@@ -1,9 +1,10 @@
+import org.gradle.api.tasks.Delete
+
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     repositories {
         google()
-        jcenter()
-        mavenCentral()
+        mavenCentral() // Replaced jcenter()
     }
     dependencies {
         classpath ("com.android.tools.build:gradle:7.4.1")
@@ -17,8 +18,7 @@ buildscript {
 allprojects {
     repositories {
         google()
-        jcenter()
-        mavenCentral()
+        mavenCentral() // Replaced jcenter()
     }
 }
 

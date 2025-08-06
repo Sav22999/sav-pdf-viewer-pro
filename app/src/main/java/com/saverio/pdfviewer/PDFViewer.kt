@@ -37,6 +37,7 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
+import android.content.pm.ActivityInfo
 
 
 class PDFViewer : AppCompatActivity() {
@@ -69,6 +70,7 @@ class PDFViewer : AppCompatActivity() {
     var horizontal = false
     var single_page = false
     var night_mode = false
+    var rotation_locked = false
 
     var zoom_value = 0.2F
 
@@ -175,6 +177,21 @@ class PDFViewer : AppCompatActivity() {
         }
         shareButton.setOnLongClickListener {
             showTooltip(R.string.tooltip_share_file)
+            true
+        }
+
+        val rotationButton: ImageView = findViewById(R.id.buttonRotationToolbar)
+        rotationButton.setOnClickListener {
+            setRotationLock()
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        rotationButton.setOnLongClickListener {
+            if (rotation_locked) {
+                showTooltip(R.string.tooltip_unlock_rotation)
+            } else {
+                showTooltip(R.string.tooltip_lock_rotation)
+            }
             true
         }
 
@@ -762,6 +779,7 @@ class PDFViewer : AppCompatActivity() {
                 val zoomInButton: ImageView = findViewById(R.id.buttonZoomInToolbar)
                 val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
                 val zoomOutButton: ImageView = findViewById(R.id.buttonZoomOutToolbar)
+                val rotationButton: ImageView = findViewById(R.id.buttonRotationToolbar)
                 shareButton.isGone = true
                 menuButton.isGone = true
                 fullscreenButton.isGone = true
@@ -782,6 +800,12 @@ class PDFViewer : AppCompatActivity() {
                 }
                 val pagesNumber: TextView = findViewById(R.id.totalPagesToolbar)
                 pagesNumber.isGone = true
+
+                if (rotation_locked) {
+                    rotationButton.setImageResource(R.drawable.ic_rotation_unlocked)
+                } else {
+                    rotationButton.setImageResource(R.drawable.ic_rotation_locked)
+                }
 
                 //setTitle(getTheFileName(selectedPdf.toString(), -1))
 
@@ -1026,17 +1050,44 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun setShareButton() {
-        //intent.getStringExtra("iName")
-        val shareIntent = Intent()
-        shareIntent.action = Intent.ACTION_SEND
-        shareIntent.putExtra(Intent.EXTRA_STREAM, uriOpened)
-        shareIntent.flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-        shareIntent.type = "application/pdf"
-        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_file_intent)))
+        val shareIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_STREAM, uriOpened)
+            putExtra(Intent.EXTRA_TITLE, "CustomFileName.pdf") // Add your custom title here
+            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
+            type = "application/pdf"
+        }
+
+        startActivity(
+            Intent.createChooser(
+                shareIntent,
+                getString(R.string.share_file_intent)
+            )
+        )
     }
 
     fun setSaveButton() {
         //TODO
+
+    }
+
+    fun setPrintButton() {
+        //TODO
+    }
+
+    fun setRotationLock() {
+        val rotationButton: ImageView = findViewById(R.id.buttonRotationToolbar)
+        if (rotation_locked) {
+            //unlock rotation
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+            rotationButton.setImageResource(R.drawable.ic_rotation_locked)
+            rotation_locked = false
+        } else {
+            //lock rotation
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
+            rotationButton.setImageResource(R.drawable.ic_rotation_unlocked)
+            rotation_locked = true
+        }
     }
 
     fun setFullscreenButton(button: ImageView) {
@@ -1672,6 +1723,7 @@ class PDFViewer : AppCompatActivity() {
         val zoomInButton: ImageView = findViewById(R.id.buttonZoomInToolbar)
         val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
         val zoomOutButton: ImageView = findViewById(R.id.buttonZoomOutToolbar)
+        /*
         if (isSupportedShareFeature) {
             (buttonNightLight.layoutParams as LinearLayout.LayoutParams).weight = 30F
             (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 30F
@@ -1681,6 +1733,7 @@ class PDFViewer : AppCompatActivity() {
             (buttonFullScreen.layoutParams as LinearLayout.LayoutParams).weight = 45F
         }
         findViewById<LinearLayout>(R.id.menuPanelSection1).requestLayout()
+        */
 
         buttonOpen.isGone = false
         buttonAllBookmarks.isGone = false

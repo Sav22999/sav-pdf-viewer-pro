@@ -14,6 +14,8 @@
     <string name="button_follow_instagram_the_app_now">Ακολουθήστε στο Instagram</string>
     <string name="select_file_intent">Επιλογή αρχείου</string>
     <string name="share_file_intent">Κοινή χρήση αρχείου</string>
+    <string name="print_file_intent">Print file</string>
+    <string name="no_file_to_print">No file to print</string>
     <string name="text_tap_here_to_show_the_top_bar">Πατήστε το διαφανές κόκκινο τμήμα για να εμφανιστεί ξανά η επάνω γραμμή, η οποία εξαφανίζεται όταν κυλήσετε.\nΜετά από 5 δευτερόλεπτα, η μπάρα είναι επίσης κρυμμένη και για να την εμφανίσετε ξανά κύλιση.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Πατήστε εδώ για να δείτε τον πίνακα \"Πηγαίνετε στο\", ώστε να μπορείτε γρήγορα να μεταβείτε σε μια συγκεκριμένη σελίδα.</string>
     <string name="text_tap_here_to_show_menu_panel">Πατήστε εδώ για να εμφανίσετε τον πίνακα μενού, ώστε να μπορείτε να ενεργοποιήσετε ή να απενεργοποιήσετε κάποιες επιλογές (νυχτερινό φως, πλήρη οθόνη, κλπ.).</string>
@@ -51,6 +53,8 @@
     <string name="tooltip_open_menu_panel">Άνοιγμα πίνακα μενού</string>
     <string name="tooltip_hide_menu_panel">Απόκρυψη πίνακα μενού</string>
     <string name="tooltip_share_file">Κοινοποίηση αυτού του αρχείου</string>
+    <string name="tooltip_lock_rotation">Lock the rotation</string>
+    <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Αποθήκευση αυτού του αρχείου</string>
     <string name="tooltip_close_app">Κλείσιμο εφαρμογής</string>
     <string name="tooltip_go_to_the_page">Μετάβαση στη σελίδα που έχει εισαχθεί</string>

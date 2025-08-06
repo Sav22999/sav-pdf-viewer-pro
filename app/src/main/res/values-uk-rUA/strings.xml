@@ -14,6 +14,8 @@
     <string name="button_follow_instagram_the_app_now">Слідувати в Instagram</string>
     <string name="select_file_intent">Виберіть файл</string>
     <string name="share_file_intent">Поділитися файлом</string>
+    <string name="print_file_intent">Print file</string>
+    <string name="no_file_to_print">No file to print</string>
     <string name="text_tap_here_to_show_the_top_bar">Торкніться прозорої червоної секції, щоб показати верхню панель, яка зникає під час прокручування.\nЧерез 5 секунд бар також прихований і з\'являється його знову прокрутку.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Натисніть тут щоб показати панель \"Перейти до\", щоб швидко перейти на іншу сторінку.</string>
     <string name="text_tap_here_to_show_menu_panel">Натисніть тут, щоб показати панель меню, щоб увімкнути або вимкнути деякі параметри (світло, повноекранний режим і т. д.).</string>
@@ -51,6 +53,8 @@
     <string name="tooltip_open_menu_panel">Відкрити панель меню</string>
     <string name="tooltip_hide_menu_panel">Сховати панель меню</string>
     <string name="tooltip_share_file">Поділитися цим файлом</string>
+    <string name="tooltip_lock_rotation">Lock the rotation</string>
+    <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Зберегти цей файл</string>
     <string name="tooltip_close_app">Закрити додаток</string>
     <string name="tooltip_go_to_the_page">Перейти на додану сторінку</string>
