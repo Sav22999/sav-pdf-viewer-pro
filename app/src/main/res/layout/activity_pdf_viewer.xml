@@ -206,7 +206,7 @@
             android:layout_height="56dp"
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_go_to_top"
-            android:padding="18sp"
+            android:padding="20sp"
             android:scaleType="centerInside"
             android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@+id/buttonBookmarkToolbar"
@@ -221,12 +221,28 @@
             android:layout_height="56dp"
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_go_to_top"
-            android:padding="18sp"
+            android:padding="20sp"
+            android:scaleType="centerInside"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@+id/buttonShareToolbar"
+            app:layout_constraintTop_toTopOf="@+id/toolbar"
+            app:srcCompat="@drawable/ic_no_bookmark"
+            tools:ignore="VectorDrawableCompat"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/buttonShareToolbar"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_weight="30"
+            android:background="@color/transparent"
+            android:contentDescription="@string/tooltip_share_file"
+            android:padding="20sp"
             android:scaleType="centerInside"
             android:visibility="gone"
             app:layout_constraintEnd_toStartOf="@+id/totalPagesToolbar"
-            app:layout_constraintTop_toTopOf="@+id/toolbar"
-            app:srcCompat="@drawable/ic_no_bookmark"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_share"
             tools:ignore="VectorDrawableCompat"
             tools:visibility="visible" />
 
@@ -236,7 +252,7 @@
             android:layout_height="56dp"
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_close_app"
-            android:padding="18sp"
+            android:padding="20sp"
             android:scaleType="centerInside"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="@+id/toolbar"
@@ -476,18 +492,16 @@
                 tools:visibility="visible" />
 
             <ImageView
-                android:id="@+id/buttonShareToolbar"
+                android:id="@+id/buttonRotationToolbar"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:layout_weight="30"
                 android:background="@color/transparent"
-                android:contentDescription="@string/tooltip_share_file"
-                android:padding="18sp"
+                android:contentDescription="@string/tooltip_lock_rotation"
+                android:padding="14sp"
                 android:scaleType="centerInside"
-                android:visibility="gone"
-                app:srcCompat="@drawable/ic_share"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
+                app:srcCompat="@drawable/ic_rotation_locked"
+                tools:ignore="VectorDrawableCompat" />
 
         </LinearLayout>
 
