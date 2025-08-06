@@ -37,6 +37,7 @@ import java.security.MessageDigest
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
+import android.content.pm.ActivityInfo
 
 
 class PDFViewer : AppCompatActivity() {
