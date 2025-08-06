@@ -14,11 +14,13 @@
     <string name="button_follow_instagram_the_app_now">Подписаться на Instagram</string>
     <string name="select_file_intent">Выберите файл</string>
     <string name="share_file_intent">Поделиться файлом</string>
+    <string name="print_file_intent">Print file</string>
+    <string name="no_file_to_print">No file to print</string>
     <string name="text_tap_here_to_show_the_top_bar">Коснитесь прозрачной секции, чтобы снова показать верхнюю панель, которая исчезает при прокрутке.\nЧерез 5 секунд панель также скрыта и чтобы показать ее снова прокрутку.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Нажмите здесь, чтобы отобразить панель \"Перейти к\", чтобы быстро перейти на конкретную страницу.</string>
     <string name="text_tap_here_to_show_menu_panel">Нажмите здесь, чтобы показать панель меню, чтобы вы могли включить или выключить некоторые параметры (ночной свет, полноэкранный режим и т.д.).</string>
     <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">Нажмите (и релиз) здесь, чтобы добавить или удалить текущую страницу в закладки.\nНажмите и удерживайте (\"долгое нажатие\") здесь, чтобы увидеть все закладки, сохраненные в текущем PDF-файле.</string>
-    <string name="text_scroll_to_show_the_top_bar_again">After 5 seconds the top bar is automatically hidden so it\'s easier to read your document. To restore the top bar (so, to show it again) you need just to scroll or to tap in any points.</string>
+    <string name="text_scroll_to_show_the_top_bar_again">Через 5 секунд верхняя панель автоматически скроется, чтобы документ было легче читать. Чтобы восстановить верхнюю панель (то есть показать её снова), нужно просто прокрутить экран или коснуться в любого места.</string>
     <string name="text_swipe_left_to_remove_tap_to_go_to_the_page_bookmarks">Здесь есть список закладок для текущего PDF файла.\nВы можете увидеть предварительный просмотр страницы в левой стороне.\nПроведите влево для удаления закладки, а затем нажмите на неё, чтобы перейти на страницу закладки.</string>
     <string name="toast_bookmark_added">Закладка добавлена</string>
     <string name="toast_bookmark_removed">Закладка удалена</string>
@@ -51,6 +53,8 @@
     <string name="tooltip_open_menu_panel">Открыть панель меню</string>
     <string name="tooltip_hide_menu_panel">Скрыть панель меню</string>
     <string name="tooltip_share_file">Поделиться файлом</string>
+    <string name="tooltip_lock_rotation">Lock the rotation</string>
+    <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Сохранить этот файл</string>
     <string name="tooltip_close_app">Закрыть приложение</string>
     <string name="tooltip_go_to_the_page">Перейти на вставленную страницу</string>
@@ -64,5 +68,5 @@
     <string name="tooltip_see_all_bookmarks">Просмотреть все закладки</string>
     <string name="tooltip_close_bookmarks">Закрыть все закладки</string>
     <string name="tooltip_get_help">Получить помощь</string>
-    <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+    <string name="confirmation_open_link">Открыть <b>{{url}}</b> в браузере?</string>
 </resources>

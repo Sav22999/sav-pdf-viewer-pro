@@ -14,6 +14,8 @@
     <string name="button_follow_instagram_the_app_now">Urmăriți pe Instagram</string>
     <string name="select_file_intent">Selectaţi fişierul</string>
     <string name="share_file_intent">Distribuie fișierul</string>
+    <string name="print_file_intent">Print file</string>
+    <string name="no_file_to_print">No file to print</string>
     <string name="text_tap_here_to_show_the_top_bar">Atingeți secțiunea transparentă roșu pentru a afișa din nou bara de sus, care dispare atunci când derulați.\nDupă 5 secunde, bara este ascunsă și afișează din nou derularea.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Apăsați aici pentru a afișa panoul \"Mergi la\", astfel încât să puteți merge rapid la o anumită pagină.</string>
     <string name="text_tap_here_to_show_menu_panel">Apăsați aici pentru a afișa panoul de meniu, astfel încât să puteți activa sau dezactiva unele opțiuni (lumina nopții, ecran complet, etc.).</string>
@@ -51,6 +53,8 @@
     <string name="tooltip_open_menu_panel">Deschide panoul de meniu</string>
     <string name="tooltip_hide_menu_panel">Ascunde panoul de meniu</string>
     <string name="tooltip_share_file">Distribuie acest fișier</string>
+    <string name="tooltip_lock_rotation">Lock the rotation</string>
+    <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Salvează acest fișier</string>
     <string name="tooltip_close_app">Închide aplicația</string>
     <string name="tooltip_go_to_the_page">Mergeți la pagina inserată</string>
