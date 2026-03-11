@@ -522,16 +522,26 @@ class PDFViewer : AppCompatActivity() {
                 .onDraw { canvas, pageWidth, pageHeight, displayedPage ->
                     // Draw search highlight rectangles on this page
                     if (currentSearchQuery.isNotBlank() && searchResults.isNotEmpty()) {
-                        for ((idx, result) in searchResults.withIndex()) {
-                            if (result.pageIndex != displayedPage) continue
-                            val r = result.highlightRect
-                            if (r.isEmpty) continue
+                        val rects = ocrEngine.getHighlightsForPage(displayedPage, currentSearchQuery)
+                        // Determine which occurrence index within this page is active
+                        val activeResult = searchResults.getOrNull(searchResultIndex)
+                        val activeOnThisPage = activeResult != null && activeResult.pageIndex == displayedPage
+                        // Find which local rect index corresponds to the active global index
+                        var activeLocalIdx = -1
+                        if (activeOnThisPage) {
+                            // Count how many results before searchResultIndex are on this same page
+                            var localIdx = 0
+                            for (i in 0 until searchResultIndex) {
+                                if (searchResults[i].pageIndex == displayedPage) localIdx++
+                            }
+                            activeLocalIdx = localIdx
+                        }
+                        for ((localIdx, r) in rects.withIndex()) {
                             val left = r.left * pageWidth
                             val top = r.top * pageHeight
                             val right = r.right * pageWidth
                             val bottom = r.bottom * pageHeight
-                            // Use a different color for the currently selected occurrence
-                            if (idx == searchResultIndex) {
+                            if (localIdx == activeLocalIdx) {
                                 canvas.drawRect(left, top, right, bottom, activeHighlightPaint)
                                 canvas.drawRect(left, top, right, bottom, activeHighlightBorderPaint)
                             } else {

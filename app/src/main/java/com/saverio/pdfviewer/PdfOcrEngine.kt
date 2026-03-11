@@ -6,111 +6,106 @@ import android.graphics.RectF
 import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.util.Log
+import com.google.android.gms.tasks.Tasks
 import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.Text
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.shockwave.pdfium.PdfDocument
 import com.shockwave.pdfium.PdfiumCore
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
-import kotlin.coroutines.resume
-import kotlin.coroutines.suspendCoroutine
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.TimeUnit
 
+/**
+ * PDF text search engine.
+ *
+ * For each page it renders a bitmap via PdfiumCore, runs ML Kit OCR
+ * **synchronously** (using Tasks.await()), and stores every recognised word
+ * with its bounding box.  Search counts every occurrence of the query
+ * inside those word-level elements, producing one [SearchResult] per match.
+ */
 class PdfOcrEngine(private val context: Context) {
 
-    /**
-     * A single search occurrence.
-     * [pageIndex] is the 0-based page, [highlightRect] is the normalised rect (0..1)
-     * covering only the matched term on that page.
-     */
-    data class SearchResult(
-        val pageIndex: Int,
-        val highlightRect: RectF = RectF()
-    )
+    /** One search hit — one occurrence on one page. */
+    data class SearchResult(val pageIndex: Int)
 
+    // ── callbacks ─────────────────────────────────────────────────────────────
     var onResults: ((results: List<SearchResult>, finished: Boolean) -> Unit)? = null
     var onIndexingPage: ((page: Int, total: Int) -> Unit)? = null
 
+    // ── internals ─────────────────────────────────────────────────────────────
     private val recognizer by lazy {
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     }
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    private val cacheMutex = Mutex()
 
-    // page → recognised text (lower-cased)
-    private val textCache = mutableMapOf<Int, String>()
-    // page → list of (text, normalised bounding-box) for every text element on the page
-    private val elementsCache = mutableMapOf<Int, List<TextElement>>()
+    /** word text (lower-case) + normalised bounding rect (0‥1) */
+    data class WordElement(val text: String, val rect: RectF)
+
+    /** page index → list of words with bounding boxes */
+    private val wordsCache = ConcurrentHashMap<Int, List<WordElement>>()
 
     @Volatile private var pdfUri: Uri? = null
     @Volatile private var pageCount = 0
-
     private var searchJob: Job? = null
-
-    // internal helper
-    private data class TextElement(val text: String, val rect: RectF)
 
     // ── public API ────────────────────────────────────────────────────────────
 
     fun open(uri: Uri, totalPages: Int) {
         pdfUri = uri
         pageCount = totalPages
-        scope.launch {
-            cacheMutex.withLock {
-                textCache.clear()
-                elementsCache.clear()
-            }
-        }
-        Log.d(TAG, "open: uri=$uri  pages=$totalPages")
+        wordsCache.clear()
+        Log.d(TAG, "open  uri=$uri  pages=$totalPages")
     }
 
     fun close() {
         searchJob?.cancel()
         pdfUri = null
         pageCount = 0
-        scope.launch {
-            cacheMutex.withLock {
-                textCache.clear()
-                elementsCache.clear()
-            }
-        }
+        wordsCache.clear()
     }
 
-    /** Returns normalised highlight rects for a page (if already indexed).
-     *  Instead of highlighting the whole word/line, we approximate the sub-rect
-     *  that covers only the matched substring inside each element.
+    /**
+     * Returns normalised highlight rects for every occurrence of [query]
+     * on [pageIndex].  Called from the UI thread (onDraw) at render time,
+     * so it must be fast and non-blocking.
      */
     fun getHighlightsForPage(pageIndex: Int, query: String): List<RectF> {
         if (query.isBlank()) return emptyList()
         val q = query.trim().lowercase()
-        val elements = elementsCache[pageIndex] ?: return emptyList()
+        val words = wordsCache[pageIndex]
+        if (words == null) {
+            Log.d(TAG, "getHighlightsForPage($pageIndex): wordsCache is NULL")
+            return emptyList()
+        }
+        Log.d(TAG, "getHighlightsForPage($pageIndex): ${words.size} words in cache, searching '$q'")
         val rects = mutableListOf<RectF>()
-        for (el in elements) {
-            val text = el.text
-            var startIdx = text.indexOf(q, ignoreCase = true)
-            while (startIdx >= 0) {
-                // Proportionally calculate the horizontal sub-rect for the match
-                val endIdx = startIdx + q.length
-                val totalLen = text.length.coerceAtLeast(1)
-                val fracStart = startIdx.toFloat() / totalLen
-                val fracEnd = endIdx.toFloat() / totalLen
-                val r = el.rect
-                val width = r.right - r.left
-                val subRect = RectF(
-                    r.left + width * fracStart,
-                    r.top,
-                    r.left + width * fracEnd,
-                    r.bottom
-                )
-                rects.add(subRect)
-                startIdx = text.indexOf(q, startIdx + 1, ignoreCase = true)
+        for (w in words) {
+            var idx = w.text.indexOf(q)
+            while (idx >= 0) {
+                val len = w.text.length.coerceAtLeast(1)
+                val frac0 = idx.toFloat() / len
+                val frac1 = (idx + q.length).toFloat() / len
+                val width = w.rect.right - w.rect.left
+                rects.add(RectF(
+                    w.rect.left + width * frac0,
+                    w.rect.top,
+                    w.rect.left + width * frac1,
+                    w.rect.bottom
+                ))
+                idx = w.text.indexOf(q, idx + 1)
             }
         }
+        Log.d(TAG, "getHighlightsForPage($pageIndex): found ${rects.size} rects")
         return rects
     }
 
+    /**
+     * Start a new search.  Results are delivered incrementally via [onResults].
+     * Each individual highlight rect = one [SearchResult].
+     * This uses [getHighlightsForPage] as the **single source of truth**
+     * — the exact same function that onDraw uses to paint highlights.
+     */
     fun search(query: String) {
         searchJob?.cancel()
         if (query.isBlank()) {
@@ -118,139 +113,119 @@ class PdfOcrEngine(private val context: Context) {
             return
         }
         val q = query.trim().lowercase()
-        val uri = pdfUri
+        val uri = pdfUri ?: run { onResults?.invoke(emptyList(), true); return }
         val total = pageCount
-        Log.d(TAG, "search: q='$q'  uri=$uri  total=$total")
+        if (total == 0) { onResults?.invoke(emptyList(), true); return }
 
-        if (uri == null || total == 0) {
-            onResults?.invoke(emptyList(), true)
-            return
-        }
+        Log.d(TAG, "search  q='$q'  pages=$total")
 
         searchJob = scope.launch {
-            val accumulated = mutableListOf<SearchResult>()
+            val all = mutableListOf<SearchResult>()
 
-            for (pageIdx in 0 until total) {
+            for (page in 0 until total) {
                 if (!isActive) break
+                withContext(Dispatchers.Main) { onIndexingPage?.invoke(page, total) }
 
-                withContext(Dispatchers.Main) { onIndexingPage?.invoke(pageIdx, total) }
+                // Index the page (renders bitmap + OCR, stores words in wordsCache)
+                ensurePageIndexed(uri, page)
 
-                val cached = cacheMutex.withLock { textCache[pageIdx] }
-                val pageText = cached ?: run {
-                    val result = extractText(uri, pageIdx)
-                    cacheMutex.withLock { textCache[pageIdx] = result }
-                    result
-                }
+                // Use getHighlightsForPage — THE SAME function onDraw uses.
+                // Number of rects = number of occurrences on this page.
+                val rects = getHighlightsForPage(page, q)
+                val pageHits = rects.size
 
-                if (pageText.contains(q, ignoreCase = true)) {
-                    val rects = getHighlightsForPage(pageIdx, q)
-                    if (rects.isNotEmpty()) {
-                        for (rect in rects) {
-                            accumulated.add(SearchResult(pageIdx, rect))
-                        }
-                    } else {
-                        // Text matched but no bounding boxes available (native text fallback)
-                        accumulated.add(SearchResult(pageIdx))
-                    }
-                    val snap = accumulated.toList()
+                if (pageHits > 0) {
+                    Log.d(TAG, "  page $page → $pageHits hits")
+                    repeat(pageHits) { all.add(SearchResult(page)) }
+                    val snap = all.toList()
                     withContext(Dispatchers.Main) { onResults?.invoke(snap, false) }
                 }
             }
 
             if (isActive) {
-                val snap = accumulated.toList()
+                val snap = all.toList()
                 withContext(Dispatchers.Main) {
-                    Log.d(TAG, "search finished: ${snap.size} results")
+                    Log.d(TAG, "search done: ${snap.size} total hits")
                     onResults?.invoke(snap, true)
                 }
             }
         }
     }
 
-    // ── text extraction ───────────────────────────────────────────────────────
+    // ── page indexing ─────────────────────────────────────────────────────────
 
-    private suspend fun extractText(uri: Uri, pageIndex: Int): String {
-        // Always try OCR first — we need bounding boxes for highlighting
-        val ocrText = extractOcrText(uri, pageIndex)
-        if (ocrText.isNotBlank()) {
-            Log.d(TAG, "page $pageIndex: OCR text (${ocrText.length} chars)")
-            return ocrText.lowercase()
-        }
+    /**
+     * Render the page to a bitmap and run ML Kit OCR **synchronously**
+     * (Tasks.await blocks on the IO thread — perfectly safe here).
+     * Stores every recognised word + bounding box in [wordsCache].
+     */
+    private fun ensurePageIndexed(uri: Uri, page: Int) {
+        if (wordsCache.containsKey(page)) return
 
-        // Fallback: native text via PdfiumCore (no bounding boxes available)
-        val nativeText = extractNativeText(uri, pageIndex)
-        if (!nativeText.isNullOrBlank()) {
-            Log.d(TAG, "page $pageIndex: native text fallback (${nativeText.length} chars)")
-            return nativeText.lowercase()
-        }
-
-        Log.d(TAG, "page $pageIndex: no text found")
-        return ""
-    }
-
-    private fun extractNativeText(uri: Uri, pageIndex: Int): String? {
-        var pfd: ParcelFileDescriptor? = null
-        var pdfDoc: PdfDocument? = null
-        val core = PdfiumCore(context)
-        return try {
-            pfd = context.contentResolver.openFileDescriptor(uri, "r") ?: return null
-            pdfDoc = core.newDocument(pfd)
-            core.openPage(pdfDoc, pageIndex)
-            getPageTextSafe(core, pdfDoc, pageIndex)
-        } catch (e: Exception) {
-            Log.w(TAG, "extractNativeText page $pageIndex: ${e.message}")
-            null
-        } finally {
-            try { if (pdfDoc != null) core.closeDocument(pdfDoc) } catch (_: Exception) {}
-            try { pfd?.close() } catch (_: Exception) {}
-        }
-    }
-
-    private fun getPageTextSafe(core: PdfiumCore, doc: PdfDocument, page: Int): String? {
-        return try {
-            val method = core.javaClass.getMethod(
-                "getPageText", PdfDocument::class.java, Int::class.javaPrimitiveType
-            )
-            method.invoke(core, doc, page) as? String
-        } catch (e: NoSuchMethodException) {
-            Log.d(TAG, "PdfiumCore.getPageText not available")
-            null
-        } catch (e: Exception) {
-            Log.w(TAG, "getPageTextSafe: ${e.message}")
-            null
-        }
-    }
-
-    private suspend fun extractOcrText(uri: Uri, pageIndex: Int): String {
-        val bitmap = renderWithPdfium(uri, pageIndex) ?: renderWithPdfRenderer(uri, pageIndex)
+        val bitmap = renderPage(uri, page)
         if (bitmap == null) {
-            Log.w(TAG, "page $pageIndex: could not render bitmap")
-            return ""
+            Log.w(TAG, "page $page: render failed")
+            wordsCache[page] = emptyList()
+            return
         }
-        return runOcr(bitmap, pageIndex)
+
+        val bmpW = bitmap.width.toFloat()
+        val bmpH = bitmap.height.toFloat()
+
+        try {
+            val image = InputImage.fromBitmap(bitmap, 0)
+            // *** blocking await with timeout — no async callback race ***
+            val visionText = Tasks.await(recognizer.process(image), 30, TimeUnit.SECONDS)
+            val words = mutableListOf<WordElement>()
+            for (block in visionText.textBlocks) {
+                for (line in block.lines) {
+                    for (elem in line.elements) {
+                        val b = elem.boundingBox ?: continue
+                        words.add(WordElement(
+                            text = elem.text.lowercase(),
+                            rect = RectF(
+                                b.left / bmpW, b.top / bmpH,
+                                b.right / bmpW, b.bottom / bmpH
+                            )
+                        ))
+                    }
+                }
+            }
+            wordsCache[page] = words
+            Log.d(TAG, "page $page: indexed ${words.size} words → [${words.take(20).joinToString { it.text }}]")
+        } catch (e: Exception) {
+            Log.e(TAG, "page $page OCR failed: ${e.message}")
+            wordsCache[page] = emptyList()
+        } finally {
+            bitmap.recycle()
+        }
+    }
+
+    // ── bitmap rendering ──────────────────────────────────────────────────────
+
+    private fun renderPage(uri: Uri, page: Int): Bitmap? {
+        return renderWithPdfium(uri, page) ?: renderWithPdfRenderer(uri, page)
     }
 
     private fun renderWithPdfium(uri: Uri, pageIndex: Int): Bitmap? {
         var pfd: ParcelFileDescriptor? = null
-        var pdfDoc: PdfDocument? = null
+        var doc: PdfDocument? = null
         val core = PdfiumCore(context)
         return try {
             pfd = context.contentResolver.openFileDescriptor(uri, "r") ?: return null
-            pdfDoc = core.newDocument(pfd)
-            core.openPage(pdfDoc, pageIndex)
-            val w = core.getPageWidthPoint(pdfDoc, pageIndex)
-            val h = core.getPageHeightPoint(pdfDoc, pageIndex)
-            val scale = maxOf(1, 1500 / w.coerceAtLeast(1))
-            val bw = w * scale
-            val bh = h * scale
+            doc = core.newDocument(pfd)
+            core.openPage(doc, pageIndex)
+            val w = core.getPageWidthPoint(doc, pageIndex)
+            val h = core.getPageHeightPoint(doc, pageIndex)
+            val scale = (1500f / w.coerceAtLeast(1)).coerceIn(1f, 3f).toInt()
+            val bw = w * scale;  val bh = h * scale
             val bmp = Bitmap.createBitmap(bw, bh, Bitmap.Config.ARGB_8888)
-            core.renderPageBitmap(pdfDoc, bmp, pageIndex, 0, 0, bw, bh, true)
+            core.renderPageBitmap(doc, bmp, pageIndex, 0, 0, bw, bh, true)
             bmp
         } catch (e: Exception) {
-            Log.w(TAG, "renderWithPdfium page $pageIndex: ${e.message}")
-            null
+            Log.w(TAG, "renderPdfium p$pageIndex: ${e.message}"); null
         } finally {
-            try { if (pdfDoc != null) core.closeDocument(pdfDoc) } catch (_: Exception) {}
+            try { doc?.let { core.closeDocument(it) } } catch (_: Exception) {}
             try { pfd?.close() } catch (_: Exception) {}
         }
     }
@@ -261,83 +236,17 @@ class PdfOcrEngine(private val context: Context) {
             pfd.use { fd ->
                 android.graphics.pdf.PdfRenderer(fd).use { renderer ->
                     if (pageIndex >= renderer.pageCount) return null
-                    renderer.openPage(pageIndex).use { page ->
-                        val scale = 2
-                        val bmp = Bitmap.createBitmap(
-                            page.width * scale, page.height * scale, Bitmap.Config.ARGB_8888
-                        )
-                        page.render(
-                            bmp, null, null,
-                            android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY
-                        )
+                    renderer.openPage(pageIndex).use { pg ->
+                        val s = 2
+                        val bmp = Bitmap.createBitmap(pg.width * s, pg.height * s, Bitmap.Config.ARGB_8888)
+                        pg.render(bmp, null, null, android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
                         bmp
                     }
                 }
             }
         } catch (e: Exception) {
-            Log.w(TAG, "renderWithPdfRenderer page $pageIndex: ${e.message}")
-            null
+            Log.w(TAG, "renderPdfRenderer p$pageIndex: ${e.message}"); null
         }
-    }
-
-    /**
-     * Run ML Kit OCR. Also stores normalised element bounding boxes in [elementsCache]
-     * so we can highlight individual text blocks later.
-     */
-    private suspend fun runOcr(bitmap: Bitmap, pageIndex: Int): String {
-        val bmpWidth = bitmap.width.toFloat()
-        val bmpHeight = bitmap.height.toFloat()
-        return withContext(Dispatchers.IO) {
-            try {
-                val image = InputImage.fromBitmap(bitmap, 0)
-                suspendCoroutine<String> { cont ->
-                    recognizer.process(image)
-                        .addOnSuccessListener { result ->
-                            // Collect bounding boxes ONLY at the Element (word) level
-                            // for precise per-word highlighting.
-                            // We do NOT add line-level rects to avoid highlighting entire lines.
-                            val elements = mutableListOf<TextElement>()
-                            for (block in result.textBlocks) {
-                                for (line in block.lines) {
-                                    for (element in line.elements) {
-                                        collectElements(element.text, element.boundingBox, bmpWidth, bmpHeight, elements)
-                                    }
-                                }
-                            }
-                            scope.launch {
-                                cacheMutex.withLock { elementsCache[pageIndex] = elements }
-                            }
-                            bitmap.recycle()
-                            cont.resume(result.text)
-                        }
-                        .addOnFailureListener { err ->
-                            bitmap.recycle()
-                            Log.w(TAG, "MLKit OCR error: ${err.message}")
-                            cont.resume("")
-                        }
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "runOcr error: ${e.message}")
-                try { bitmap.recycle() } catch (_: Exception) {}
-                ""
-            }
-        }
-    }
-
-    private fun collectElements(
-        text: String,
-        bounds: android.graphics.Rect?,
-        bmpW: Float, bmpH: Float,
-        out: MutableList<TextElement>
-    ) {
-        if (bounds == null) return
-        val r = RectF(
-            bounds.left / bmpW,
-            bounds.top / bmpH,
-            bounds.right / bmpW,
-            bounds.bottom / bmpH
-        )
-        out.add(TextElement(text.lowercase(), r))
     }
 
     companion object {
