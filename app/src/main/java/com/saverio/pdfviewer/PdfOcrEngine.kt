@@ -66,6 +66,43 @@ class PdfOcrEngine(private val context: Context) {
     }
 
     /**
+     * Get the full text of a page by concatenating all cached words.
+     * If the page hasn't been indexed yet, renders and OCR's it first
+     * (runs on the calling thread — call from a background thread).
+     */
+    fun getPageText(pageIndex: Int): String {
+        val uri = pdfUri ?: return ""
+        ensurePageIndexed(uri, pageIndex)
+        val words = wordsCache[pageIndex] ?: return ""
+        if (words.isEmpty()) return ""
+        // Reconstruct text: sort words top-to-bottom, left-to-right,
+        // grouping words on the same line (similar Y coordinate)
+        val sorted = words.sortedWith(compareBy({ it.rect.top }, { it.rect.left }))
+        val sb = StringBuilder()
+        var lastTop = -1f
+        val lineThreshold = 0.01f // words within 1% vertical distance are on the same line
+        for (w in sorted) {
+            if (lastTop >= 0 && (w.rect.top - lastTop) > lineThreshold) {
+                sb.append('\n')
+            } else if (sb.isNotEmpty() && lastTop >= 0) {
+                sb.append(' ')
+            }
+            sb.append(w.text)
+            lastTop = w.rect.top
+        }
+        return sb.toString()
+    }
+
+    /** Returns the cached words for a page, or null if not yet indexed. */
+    fun getWordsForPage(pageIndex: Int): List<WordElement>? = wordsCache[pageIndex]
+
+    /** Trigger background indexing for the given page so words are ready for selection. */
+    fun ensurePageIndexedAsync(pageIndex: Int) {
+        val uri = pdfUri ?: return
+        scope.launch { ensurePageIndexed(uri, pageIndex) }
+    }
+
+    /**
      * Returns normalised highlight rects for every occurrence of [query]
      * on [pageIndex].  Called from the UI thread (onDraw) at render time,
      * so it must be fast and non-blocking.

@@ -39,8 +39,8 @@ import java.util.*
 import kotlin.collections.HashMap
 import android.content.pm.ActivityInfo
 import android.graphics.Paint
-import android.graphics.RectF
 import android.os.Looper
+import kotlinx.coroutines.*
 
 
 class PDFViewer : AppCompatActivity() {
@@ -104,6 +104,15 @@ class PDFViewer : AppCompatActivity() {
         style = Paint.Style.STROKE
         strokeWidth = 3f
     }
+
+    // ── Text Selection ────────────────────────────────────────
+    private val textSelectionManager: TextSelectionManager by lazy {
+        TextSelectionManager(this).also {
+            it.ocrEngine = ocrEngine
+            it.pdfView = pdfViewer
+        }
+    }
+    private var selectionTouchActive = false  // true while finger is down in selection mode
     // ──────────────────────────────────────────────────────────
 
     var residualViewConfigurationConfigurated = false
@@ -281,6 +290,17 @@ class PDFViewer : AppCompatActivity() {
         }
         helpButton.setOnLongClickListener {
             showTooltip(R.string.tooltip_get_help)
+            true
+        }
+
+        val selectTextButton: ImageView = findViewById(R.id.buttonSelectTextToolbar)
+        selectTextButton.setOnClickListener {
+            toggleTextSelectionMode()
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        selectTextButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_select_text)
             true
         }
 
@@ -489,6 +509,10 @@ class PDFViewer : AppCompatActivity() {
                     run {
                         updatePdfPage(fileId, page)
                         //setPositionScrollbarByPage(page.toFloat())
+                        // Pre-index OCR words for text selection (temporarily disabled)
+                        // if (textSelectionManager.active) {
+                        //     ocrEngine.ensurePageIndexedAsync(page)
+                        // }
                     }
                 }
                 .onPageScroll { page, positionOffset ->
@@ -520,12 +544,17 @@ class PDFViewer : AppCompatActivity() {
                     }
                 }
                 .onDraw { canvas, pageWidth, pageHeight, displayedPage ->
+                    // Record page dimensions for text selection (temporarily disabled)
+                    // textSelectionManager.recordPageSize(displayedPage, pageWidth, pageHeight)
+
                     // Draw search highlight rectangles on this page
                     if (currentSearchQuery.isNotBlank() && searchResults.isNotEmpty()) {
-                        val rects = ocrEngine.getHighlightsForPage(displayedPage, currentSearchQuery)
+                        val rects =
+                            ocrEngine.getHighlightsForPage(displayedPage, currentSearchQuery)
                         // Determine which occurrence index within this page is active
                         val activeResult = searchResults.getOrNull(searchResultIndex)
-                        val activeOnThisPage = activeResult != null && activeResult.pageIndex == displayedPage
+                        val activeOnThisPage =
+                            activeResult != null && activeResult.pageIndex == displayedPage
                         // Find which local rect index corresponds to the active global index
                         var activeLocalIdx = -1
                         if (activeOnThisPage) {
@@ -543,13 +572,22 @@ class PDFViewer : AppCompatActivity() {
                             val bottom = r.bottom * pageHeight
                             if (localIdx == activeLocalIdx) {
                                 canvas.drawRect(left, top, right, bottom, activeHighlightPaint)
-                                canvas.drawRect(left, top, right, bottom, activeHighlightBorderPaint)
+                                canvas.drawRect(
+                                    left,
+                                    top,
+                                    right,
+                                    bottom,
+                                    activeHighlightBorderPaint
+                                )
                             } else {
                                 canvas.drawRect(left, top, right, bottom, highlightPaint)
                                 canvas.drawRect(left, top, right, bottom, highlightBorderPaint)
                             }
                         }
                     }
+
+                    // Draw text selection highlights (temporarily disabled)
+                    // textSelectionManager.drawOnPage(canvas, pageWidth, pageHeight, displayedPage)
                 }
                 .onLoad {
                     lastPosition = getPdfPage(fileId)
@@ -746,7 +784,6 @@ class PDFViewer : AppCompatActivity() {
         toolbarInvisible.isGone = true
         buttonMenu.isGone = true
         buttonBookmark.isGone = true
-        findViewById<ImageView>(R.id.buttonSearchToolbar).isGone = true
 
 
         val background: View = findViewById(R.id.passwordBackgroundScreen)
@@ -843,7 +880,6 @@ class PDFViewer : AppCompatActivity() {
                 menuButton.isGone = true
                 fullscreenButton.isGone = true
                 bookmarkButton.isGone = true
-                findViewById<ImageView>(R.id.buttonSearchToolbar).isGone = true
                 uriOpened = selectedPdf
                 if (uriOpened != null) {
                     try {
@@ -857,7 +893,6 @@ class PDFViewer : AppCompatActivity() {
                     isSupportedShareFeature = true
                     openButton.isGone = false
                     bookmarkButton.isGone = false
-                    findViewById<ImageView>(R.id.buttonSearchToolbar).isGone = false
                 }
                 val pagesNumber: TextView = findViewById(R.id.totalPagesToolbar)
                 pagesNumber.isGone = true
@@ -1371,7 +1406,6 @@ class PDFViewer : AppCompatActivity() {
                 toolbar.isGone = true
                 buttonClose.isGone = true
                 buttonShare.isGone = true
-                buttonSearch.isGone = true
                 buttonFullscreen.isGone = true
                 buttonGoTop.isGone = true
                 buttonOpen.isGone = true
@@ -1410,7 +1444,6 @@ class PDFViewer : AppCompatActivity() {
                     toolbar.isGone = true
                     buttonClose.isGone = true
                     buttonShare.isGone = true
-                    buttonSearch.isGone = true
                     buttonFullscreen.isGone = true
                     buttonGoTop.isGone = true
                     buttonOpen.isGone = true
@@ -2083,6 +2116,7 @@ class PDFViewer : AppCompatActivity() {
         buttonSearch.setOnClickListener {
             showSearchPanel()
             resetHideTopBarCounter()
+            hideMenuPanel()
         }
         buttonSearch.setOnLongClickListener {
             showTooltip(R.string.tooltip_search)
@@ -2162,11 +2196,18 @@ class PDFViewer : AppCompatActivity() {
         when {
             searchResults.isEmpty() && finished ->
                 status.text = getString(R.string.search_no_results)
+
             searchResults.isNotEmpty() -> {
                 val display = searchResultIndex + 1
-                status.text = String.format(getString(R.string.search_result_status), display, searchResults.size)
+                status.text = String.format(
+                    getString(R.string.search_result_status),
+                    display,
+                    searchResults.size
+                )
             }
-            else -> { /* keep "indexing…" text */ }
+
+            else -> { /* keep "indexing…" text */
+            }
         }
     }
 
@@ -2235,5 +2276,53 @@ class PDFViewer : AppCompatActivity() {
                 "%d",
                 ((pdfViewer.zoom * 100).toInt().toString())
             )
+    }
+
+    // ── Select & Copy Text (overlay mode) ────────────────────────────────────
+
+    private fun toggleTextSelectionMode() {
+        return // Temporarily disabled
+        val nowActive = textSelectionManager.toggleMode()
+        val bar = findViewById<LinearLayout>(R.id.textSelectionBar)
+        val copyBtn = findViewById<TextView>(R.id.buttonCopySelection)
+        val closeBtn = findViewById<ImageView>(R.id.buttonCloseSelectionMode)
+
+        bar.isGone = !nowActive
+
+        if (nowActive) {
+            updateSelectionBar()
+            ocrEngine.ensurePageIndexedAsync(pdfViewer.currentPage)
+
+            copyBtn.setOnClickListener {
+                textSelectionManager.copySelectedText()
+                textSelectionManager.clearSelection()
+                pdfViewer.invalidate()
+                updateSelectionBar()
+            }
+            closeBtn.setOnClickListener { toggleTextSelectionMode() }
+
+            Toast.makeText(this, getString(R.string.text_selection_mode_active), Toast.LENGTH_SHORT)
+                .show()
+        } else {
+            pdfViewer.invalidate()
+        }
+    }
+
+    private fun updateSelectionBar() {
+        val infoText = findViewById<TextView>(R.id.textSelectionInfo)
+        val copyBtn = findViewById<TextView>(R.id.buttonCopySelection)
+        val count = textSelectionManager.selectedWords.size
+        if (count > 0) {
+            infoText.text = String.format(getString(R.string.text_selection_count), count)
+            copyBtn.isGone = false
+        } else {
+            infoText.text = getString(R.string.text_selection_mode_hint)
+            copyBtn.isGone = true
+        }
+    }
+
+    override fun dispatchTouchEvent(event: MotionEvent): Boolean {
+        // Text selection temporarily disabled
+        return super.dispatchTouchEvent(event)
     }
 }
