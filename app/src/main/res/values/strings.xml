@@ -81,4 +81,15 @@
     <string name="tooltip_close_bookmarks">Close all bookmarks</string>
     <string name="tooltip_get_help">Get help</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Search text…</string>
+    <string name="search_no_results">No results found</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indexing page %1$d of %2$d…</string>
+    <string name="search_ready">Ready</string>
+    <string name="tooltip_search">Search text in PDF</string>
+    <string name="tooltip_search_prev">Previous result</string>
+    <string name="tooltip_search_next">Next result</string>
+    <string name="tooltip_search_close">Close search</string>
 </resources>

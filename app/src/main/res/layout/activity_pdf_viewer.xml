@@ -240,9 +240,24 @@
             android:padding="20sp"
             android:scaleType="centerInside"
             android:visibility="gone"
-            app:layout_constraintEnd_toStartOf="@+id/totalPagesToolbar"
+            app:layout_constraintEnd_toStartOf="@+id/buttonSearchToolbar"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_share"
+            tools:ignore="VectorDrawableCompat"
+            tools:visibility="visible" />
+
+        <ImageView
+            android:id="@+id/buttonSearchToolbar"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:background="@color/transparent"
+            android:contentDescription="@string/tooltip_search"
+            android:padding="18sp"
+            android:scaleType="centerInside"
+            android:visibility="gone"
+            app:layout_constraintEnd_toStartOf="@+id/totalPagesToolbar"
+            app:layout_constraintTop_toTopOf="@+id/toolbar"
+            app:srcCompat="@drawable/ic_search"
             tools:ignore="VectorDrawableCompat"
             tools:visibility="visible" />
 
@@ -319,6 +334,113 @@
             tools:visibility="visible" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <!-- =================== SEARCH PANEL =================== -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/messageSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:background="@drawable/border_rounded"
+        android:elevation="6dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
+
+        <!-- Search input row -->
+        <EditText
+            android:id="@+id/textboxSearch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="@drawable/textbox_rounded"
+            android:ems="10"
+            android:gravity="start|center_vertical"
+            android:hint="@string/search_hint"
+            android:imeOptions="actionSearch"
+            android:inputType="text"
+            android:paddingLeft="15dp"
+            android:paddingTop="10dp"
+            android:paddingRight="15dp"
+            android:paddingBottom="10dp"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:textColor="?attr/colorOnPrimary"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toStartOf="@+id/buttonSearchClose"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/buttonSearchClose"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginEnd="5dp"
+            android:background="@color/transparent"
+            android:contentDescription="@string/tooltip_search_close"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_close"
+            app:tint="@color/white"
+            tools:ignore="VectorDrawableCompat" />
+
+        <!-- Status / navigation row -->
+        <TextView
+            android:id="@+id/textSearchStatus"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="10dp"
+            android:gravity="start|center_vertical"
+            android:textColor="?attr/colorOnPrimary"
+            android:textSize="14sp"
+            app:layout_constraintEnd_toStartOf="@+id/buttonSearchPrev"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textboxSearch"
+            tools:text="2 / 5" />
+
+        <ImageView
+            android:id="@+id/buttonSearchPrev"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="4dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/transparent"
+            android:contentDescription="@string/tooltip_search_prev"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/buttonSearchNext"
+            app:layout_constraintTop_toBottomOf="@+id/textboxSearch"
+            app:srcCompat="@drawable/ic_chevron_up"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/buttonSearchNext"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginBottom="4dp"
+            android:background="@color/transparent"
+            android:contentDescription="@string/tooltip_search_next"
+            android:padding="10dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textboxSearch"
+            app:srcCompat="@drawable/ic_chevron_down"
+            tools:ignore="VectorDrawableCompat" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- =================== END SEARCH PANEL =================== -->
 
     <View
         android:id="@+id/arrowMessageGoTo"

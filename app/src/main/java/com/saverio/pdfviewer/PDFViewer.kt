@@ -38,6 +38,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 import android.content.pm.ActivityInfo
+import android.graphics.Paint
+import android.graphics.RectF
+import android.os.Looper
 
 
 class PDFViewer : AppCompatActivity() {
@@ -76,6 +79,32 @@ class PDFViewer : AppCompatActivity() {
 
     var hideTopBarCounter = 0
     var dialog: BottomSheetDialog? = null
+
+    // ── OCR Search ─────────────────────────────────────────────
+    private val ocrEngine: PdfOcrEngine by lazy { PdfOcrEngine(this) }
+    private var searchResults: List<PdfOcrEngine.SearchResult> = emptyList()
+    private var searchResultIndex: Int = 0
+    private var searchPanelVisible: Boolean = false
+    private var currentSearchQuery: String = ""
+    private val highlightPaint = Paint().apply {
+        color = android.graphics.Color.argb(90, 255, 235, 59) // semi-transparent yellow
+        style = Paint.Style.FILL
+    }
+    private val highlightBorderPaint = Paint().apply {
+        color = android.graphics.Color.argb(180, 255, 152, 0) // orange border
+        style = Paint.Style.STROKE
+        strokeWidth = 2f
+    }
+    private val activeHighlightPaint = Paint().apply {
+        color = android.graphics.Color.argb(140, 255, 152, 0) // stronger orange fill
+        style = Paint.Style.FILL
+    }
+    private val activeHighlightBorderPaint = Paint().apply {
+        color = android.graphics.Color.argb(220, 230, 81, 0) // dark orange border
+        style = Paint.Style.STROKE
+        strokeWidth = 3f
+    }
+    // ──────────────────────────────────────────────────────────
 
     var residualViewConfigurationConfigurated = false
     var residualViewConfiguration: HashMap<String, HashMap<String, Int>> =
@@ -388,6 +417,7 @@ class PDFViewer : AppCompatActivity() {
         }
         buttonMenu.isGone = false
 
+        setupSearch()
         setupGestures()
     }
 
@@ -490,9 +520,26 @@ class PDFViewer : AppCompatActivity() {
                     }
                 }
                 .onDraw { canvas, pageWidth, pageHeight, displayedPage ->
-                    /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        canvas.drawColor(Color.argb(0.4f, 0f, 0f, 0f))
-                    }*/
+                    // Draw search highlight rectangles on this page
+                    if (currentSearchQuery.isNotBlank() && searchResults.isNotEmpty()) {
+                        for ((idx, result) in searchResults.withIndex()) {
+                            if (result.pageIndex != displayedPage) continue
+                            val r = result.highlightRect
+                            if (r.isEmpty) continue
+                            val left = r.left * pageWidth
+                            val top = r.top * pageHeight
+                            val right = r.right * pageWidth
+                            val bottom = r.bottom * pageHeight
+                            // Use a different color for the currently selected occurrence
+                            if (idx == searchResultIndex) {
+                                canvas.drawRect(left, top, right, bottom, activeHighlightPaint)
+                                canvas.drawRect(left, top, right, bottom, activeHighlightBorderPaint)
+                            } else {
+                                canvas.drawRect(left, top, right, bottom, highlightPaint)
+                                canvas.drawRect(left, top, right, bottom, highlightBorderPaint)
+                            }
+                        }
+                    }
                 }
                 .onLoad {
                     lastPosition = getPdfPage(fileId)
@@ -514,6 +561,9 @@ class PDFViewer : AppCompatActivity() {
                 .onRender { nbPages ->
                     totalPages = nbPages
                     if (lastPosition >= totalPages) lastPosition = (totalPages - 1)
+
+                    // Notify OCR engine of the newly opened document
+                    if (uri != null) ocrEngine.open(uri, totalPages)
 
                     val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
                     val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
@@ -686,8 +736,7 @@ class PDFViewer : AppCompatActivity() {
         toolbarInvisible.isGone = true
         buttonMenu.isGone = true
         buttonBookmark.isGone = true
-
-        hideMenuPanel()
+        findViewById<ImageView>(R.id.buttonSearchToolbar).isGone = true
 
 
         val background: View = findViewById(R.id.passwordBackgroundScreen)
@@ -784,6 +833,7 @@ class PDFViewer : AppCompatActivity() {
                 menuButton.isGone = true
                 fullscreenButton.isGone = true
                 bookmarkButton.isGone = true
+                findViewById<ImageView>(R.id.buttonSearchToolbar).isGone = true
                 uriOpened = selectedPdf
                 if (uriOpened != null) {
                     try {
@@ -797,6 +847,7 @@ class PDFViewer : AppCompatActivity() {
                     isSupportedShareFeature = true
                     openButton.isGone = false
                     bookmarkButton.isGone = false
+                    findViewById<ImageView>(R.id.buttonSearchToolbar).isGone = false
                 }
                 val pagesNumber: TextView = findViewById(R.id.totalPagesToolbar)
                 pagesNumber.isGone = true
@@ -1118,6 +1169,7 @@ class PDFViewer : AppCompatActivity() {
         val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
         val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
         val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
+        val buttonSearch: ImageView = findViewById(R.id.buttonSearchToolbar)
         val buttonFullscreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
         val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
@@ -1134,6 +1186,7 @@ class PDFViewer : AppCompatActivity() {
             toolbar.isGone = false
             buttonClose.isGone = false
             if (isSupportedShareFeature) buttonShare.isGone = false
+            buttonSearch.isGone = false
             buttonFullscreen.isGone = false
             if (isSupportedGoTop && showGoTop && pdfViewer.currentPage > 0) buttonGoTop.isGone =
                 false
@@ -1249,6 +1302,7 @@ class PDFViewer : AppCompatActivity() {
             val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
             val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
             val buttonShare: ImageView = findViewById(R.id.buttonShareToolbar)
+            val buttonSearch: ImageView = findViewById(R.id.buttonSearchToolbar)
             val buttonFullscreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
             val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
             val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
@@ -1307,6 +1361,7 @@ class PDFViewer : AppCompatActivity() {
                 toolbar.isGone = true
                 buttonClose.isGone = true
                 buttonShare.isGone = true
+                buttonSearch.isGone = true
                 buttonFullscreen.isGone = true
                 buttonGoTop.isGone = true
                 buttonOpen.isGone = true
@@ -1345,6 +1400,7 @@ class PDFViewer : AppCompatActivity() {
                     toolbar.isGone = true
                     buttonClose.isGone = true
                     buttonShare.isGone = true
+                    buttonSearch.isGone = true
                     buttonFullscreen.isGone = true
                     buttonGoTop.isGone = true
                     buttonOpen.isGone = true
@@ -2006,6 +2062,146 @@ class PDFViewer : AppCompatActivity() {
             )
         )
     }
+
+    // ═══════════════════════════════════════════════════════════════
+    //  OCR SEARCH
+    // ═══════════════════════════════════════════════════════════════
+
+    fun setupSearch() {
+        // Wire the "Search" button in the menu panel
+        val buttonSearch: ImageView = findViewById(R.id.buttonSearchToolbar)
+        buttonSearch.setOnClickListener {
+            showSearchPanel()
+            resetHideTopBarCounter()
+        }
+        buttonSearch.setOnLongClickListener {
+            showTooltip(R.string.tooltip_search)
+            true
+        }
+
+        // Wire panel controls
+        val buttonClose: ImageView = findViewById(R.id.buttonSearchClose)
+        buttonClose.setOnClickListener {
+            hideSearchPanel()
+            resetHideTopBarCounter()
+        }
+
+        val buttonPrev: ImageView = findViewById(R.id.buttonSearchPrev)
+        buttonPrev.setOnClickListener {
+            navigateSearchResult(forward = false)
+            resetHideTopBarCounter()
+        }
+        buttonPrev.setOnLongClickListener {
+            showTooltip(R.string.tooltip_search_prev)
+            true
+        }
+
+        val buttonNext: ImageView = findViewById(R.id.buttonSearchNext)
+        buttonNext.setOnClickListener {
+            navigateSearchResult(forward = true)
+            resetHideTopBarCounter()
+        }
+        buttonNext.setOnLongClickListener {
+            showTooltip(R.string.tooltip_search_next)
+            true
+        }
+
+        val textbox: EditText = findViewById(R.id.textboxSearch)
+        textbox.setOnEditorActionListener { _, _, _ ->
+            triggerSearch()
+            true
+        }
+        textbox.setOnKeyListener { _, keyCode, event ->
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                triggerSearch()
+                true
+            } else false
+        }
+
+        // Wire OCR engine callbacks
+        ocrEngine.onIndexingPage = { page, total ->
+            val status: TextView = findViewById(R.id.textSearchStatus)
+            status.text = String.format(getString(R.string.search_indexing), page + 1, total)
+        }
+        ocrEngine.onResults = { results, finished ->
+            searchResults = results
+            updateSearchStatus(finished)
+            // Navigate to first result automatically
+            if (results.isNotEmpty() && searchResultIndex == 0) {
+                if (pdfViewer.currentPage != results[0].pageIndex) {
+                    pdfViewer.jumpTo(results[0].pageIndex, true)
+                }
+                pdfViewer.invalidate()
+            }
+        }
+    }
+
+    private fun triggerSearch() {
+        val textbox: EditText = findViewById(R.id.textboxSearch)
+        hideKeyboard(textbox)
+        searchResults = emptyList()
+        searchResultIndex = 0
+        currentSearchQuery = textbox.text.toString().trim()
+        val status: TextView = findViewById(R.id.textSearchStatus)
+        status.text = String.format(getString(R.string.search_indexing), 0, totalPages)
+        ocrEngine.search(currentSearchQuery)
+    }
+
+    private fun updateSearchStatus(finished: Boolean) {
+        val status: TextView = findViewById(R.id.textSearchStatus)
+        when {
+            searchResults.isEmpty() && finished ->
+                status.text = getString(R.string.search_no_results)
+            searchResults.isNotEmpty() -> {
+                val display = searchResultIndex + 1
+                status.text = String.format(getString(R.string.search_result_status), display, searchResults.size)
+            }
+            else -> { /* keep "indexing…" text */ }
+        }
+    }
+
+    private fun navigateSearchResult(forward: Boolean) {
+        if (searchResults.isEmpty()) return
+        if (forward) {
+            searchResultIndex = (searchResultIndex + 1) % searchResults.size
+        } else {
+            searchResultIndex = (searchResultIndex - 1 + searchResults.size) % searchResults.size
+        }
+        updateSearchStatus(true)
+        val page = searchResults[searchResultIndex].pageIndex
+        pdfViewer.jumpTo(page, true)
+        pdfViewer.invalidate() // force redraw to update highlights
+    }
+
+    fun showSearchPanel() {
+        hideGoToDialog()
+        hideMenuPanel()
+        val panel: ConstraintLayout = findViewById(R.id.messageSearch)
+        panel.isGone = false
+        searchPanelVisible = true
+        val textbox: EditText = findViewById(R.id.textboxSearch)
+        textbox.requestFocus()
+        showSoftKeyboard(textbox)
+    }
+
+    fun hideSearchPanel() {
+        val panel: ConstraintLayout = findViewById(R.id.messageSearch)
+        panel.isGone = true
+        searchPanelVisible = false
+        currentSearchQuery = ""
+        searchResults = emptyList()
+        searchResultIndex = 0
+        pdfViewer.invalidate() // remove highlights
+        val textbox: EditText = findViewById(R.id.textboxSearch)
+        hideKeyboard(textbox)
+    }
+
+    override fun onDestroy() {
+        ocrEngine.close()
+        super.onDestroy()
+    }
+
+    // ═══════════════════════════════════════════════════════════════
 
     fun zoomIn() {
         if (pdfViewer.zoom <= (10.0F - zoom_value)) pdfViewer.zoomWithAnimation(pdfViewer.zoom + zoom_value)
