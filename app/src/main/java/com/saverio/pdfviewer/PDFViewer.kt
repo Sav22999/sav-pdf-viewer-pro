@@ -131,7 +131,21 @@ class PDFViewer : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // On Android 15+ (edge-to-edge enforced), apply the status-bar inset
+        // only to the toolbar container so it doesn't overlap the system bar,
+        // without affecting fullView / residualView measurement.
+        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, true)
+
         setContentView(R.layout.activity_pdf_viewer)
+
+        // Extra safety: pad the toolbar for the status bar inset
+        val toolbarContainer = findViewById<View>(R.id.toolbarContainer)
+        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(toolbarContainer) { v, insets ->
+            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
+            v.setPadding(v.paddingLeft, systemBars.top, v.paddingRight, v.paddingBottom)
+            insets
+        }
 
         pdfViewer = findViewById(R.id.pdfView)
         var uriToUse: String? = ""
@@ -451,11 +465,12 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun selectPdfFromStorage() {
-        val browserStorage = Intent(Intent.ACTION_GET_CONTENT)
+        val browserStorage = Intent(Intent.ACTION_OPEN_DOCUMENT)
         browserStorage.type = "application/pdf"
         browserStorage.addCategory(Intent.CATEGORY_OPENABLE)
+        browserStorage.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         startActivityForResult(
-            Intent.createChooser(browserStorage, getString(R.string.select_file_intent)),
+            browserStorage,
             PDF_SELECTION_CODE
         )
     }
@@ -482,7 +497,7 @@ class PDFViewer : AppCompatActivity() {
             //Toast.makeText(this, uri.toString(), Toast.LENGTH_LONG).show()
             incrementHideTopBarCounter()
             var lastPosition = 0
-            fileId = fileOpened!!.toString()
+            fileId = (fileOpened ?: uri?.toString() ?: "").toString()
             //Toast.makeText(this, fileId, Toast.LENGTH_LONG).show()
 
             pdfViewer.fromUri(uri)
@@ -618,25 +633,31 @@ class PDFViewer : AppCompatActivity() {
 
                     val nowLandscape = resources.configuration.orientation
 
-                    val residualView: View = findViewById(R.id.residualView)
-                    val fullView: View = findViewById(R.id.fullView)
+                    // Compute measurements from parent container and toolbar
+                    val parentView: View = findViewById(R.id.pdfViewerContainer)
+                    val toolbarContainer: View = findViewById(R.id.toolbarContainer)
+                    val fullW = parentView.measuredWidth
+                    val fullH = parentView.measuredHeight
+                    val toolbarH = toolbarContainer.measuredHeight
+                    val residualW = fullW
+                    val residualH = fullH - toolbarH
+
                     var currentStatus = "landscape"
-                    val toAddOrRemove = fullView.measuredHeight - residualView.measuredHeight
                     if (nowLandscape == Configuration.ORIENTATION_LANDSCAPE) {
                         currentStatus = "landscape"
 
                         if (!residualViewConfigurationConfigurated) {
                             residualViewConfiguration["landscape"] =
                                 hashMapOf(
-                                    "width" to residualView.measuredWidth, //run in landscape, currently in landscape (bottomScroll)
-                                    "height" to residualView.measuredHeight //run in landscape, currently in landscape (sideScroll)
+                                    "width" to residualW,
+                                    "height" to residualH
                                 )
                             residualViewConfiguration["portrait"] =
                                 hashMapOf(
-                                    "width" to residualView.measuredHeight + toAddOrRemove * (3 / 2),
-                                    "height" to residualView.measuredWidth - toAddOrRemove * 2 //run in landscape, currently in portrait (sideScroll)
+                                    "width" to residualH + toolbarH * (3 / 2),
+                                    "height" to residualW - toolbarH * 2
                                 )
-                            residualViewConfigurationConfigurated = true;
+                            residualViewConfigurationConfigurated = true
                         }
                     } else {
                         currentStatus = "portrait"
@@ -644,13 +665,13 @@ class PDFViewer : AppCompatActivity() {
                         if (!residualViewConfigurationConfigurated) {
                             residualViewConfiguration["landscape"] =
                                 hashMapOf(
-                                    "width" to residualView.measuredHeight + toAddOrRemove, //run in portrait, currently in landscape (bottomScroll)
-                                    "height" to residualView.measuredWidth - toAddOrRemove * 2 //run in portrait, currently in landscape (sideScroll)
+                                    "width" to residualH + toolbarH,
+                                    "height" to residualW - toolbarH * 2
                                 )
                             residualViewConfiguration["portrait"] =
                                 hashMapOf(
-                                    "width" to residualView.measuredWidth - toAddOrRemove / 2, //run in portrait, currently in portrait (bottomScroll)
-                                    "height" to residualView.measuredHeight //run in portrait, currently in portrait (sideScroll)
+                                    "width" to residualW - toolbarH / 2,
+                                    "height" to residualH
                                 )
                             residualViewConfigurationConfigurated = true
                         }
@@ -666,9 +687,6 @@ class PDFViewer : AppCompatActivity() {
                     maxPositionScrollbarHorizontal =
                         residualViewConfiguration[currentStatus]!!["width"]!!.toInt() - minPositionScrollbarHorizontal
                     startX = minPositionScrollbarHorizontal
-
-                    residualView.isGone = true
-                    fullView.isGone = true
 
                     updatePdfPage(fileId, lastPosition)
                     if (totalPages == 1) {
@@ -709,11 +727,18 @@ class PDFViewer : AppCompatActivity() {
                         if (passwordRequired) passwordWrong = true
                         passwordRequired = true
                         askThePassword(uri, passwordWrong)
+                    } else {
+                        println("PDF load error: ${it.message}")
+                        Toast.makeText(
+                            this@PDFViewer,
+                            "Error: ${it.message}",
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                     //PdfPasswordException
                 }).load()
         } catch (e: Exception) {
-            println("Exception 1")
+            println("Exception 1: ${e.message}")
         }
     }
 
@@ -826,8 +851,6 @@ class PDFViewer : AppCompatActivity() {
             pdfViewer.fitToWidth(savedCurrentPage)
             val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
             val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
-            val residualView: View = findViewById(R.id.residualView)
-            val fullView: View = findViewById(R.id.fullView)
             if (minPositionScrollbar == 0F) minPositionScrollbar = buttonSideScroll.y
             maxPositionScrollbar =
                 residualViewConfiguration[currentStatus]!!["height"]!!.toInt() - minPositionScrollbar
@@ -839,8 +862,6 @@ class PDFViewer : AppCompatActivity() {
                 residualViewConfiguration[currentStatus]!!["width"]!!.toInt() - minPositionScrollbarHorizontal
             startX = minPositionScrollbarHorizontal
 
-            residualView.isGone = true
-            fullView.isGone = true
 
             setScrollBarSide()
             setScrollBarBottom()
@@ -865,6 +886,17 @@ class PDFViewer : AppCompatActivity() {
             try {
                 val selectedPdf = data.data
 
+                // Take persistable URI permission so the content URI stays readable
+                if (selectedPdf != null) {
+                    try {
+                        contentResolver.takePersistableUriPermission(
+                            selectedPdf,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        )
+                    } catch (_: Exception) {
+                        // Not all providers support persistable permissions – that's OK
+                    }
+                }
 
                 val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
                 val fullscreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
@@ -907,7 +939,8 @@ class PDFViewer : AppCompatActivity() {
 
                 selectPdfFromURI(selectedPdf)
             } catch (e: Exception) {
-                println("Exception 4: Loading failed")
+                println("Exception 4: Loading failed – ${e.message}")
+                Toast.makeText(this, "Loading failed: ${e.message}", Toast.LENGTH_LONG).show()
             }
         } else {
             //file not selected

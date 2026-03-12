@@ -5,8 +5,8 @@
     android:id="@+id/pdfViewerContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     android:background="@color/spacingPage"
+    android:fitsSystemWindows="true"
     tools:context=".PDFViewer">
 
     <com.github.barteksc.pdfviewer.PDFView
@@ -39,9 +39,7 @@
         android:id="@+id/residualView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/red"
-        android:elevation="100dp"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -52,9 +50,7 @@
         android:id="@+id/fullView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/black"
-        android:elevation="100dp"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

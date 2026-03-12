@@ -16,6 +16,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Opt out of edge-to-edge enforcement on Android 15+
+        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, true)
         /*setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
