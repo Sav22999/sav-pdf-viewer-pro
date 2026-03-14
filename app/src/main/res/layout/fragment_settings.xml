@@ -11,12 +11,12 @@
         android:id="@+id/settingsScroll"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:fillViewport="true"
         android:clipToPadding="false"
-        android:paddingStart="12dp"
-        android:paddingTop="12dp"
-        android:paddingEnd="12dp"
-        android:paddingBottom="96dp"
+        android:fillViewport="true"
+        android:paddingStart="0dp"
+        android:paddingTop="0dp"
+        android:paddingEnd="0dp"
+        android:paddingBottom="80dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -25,7 +25,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:padding="16dp">
 
             <TextView
                 android:layout_width="match_parent"
@@ -294,6 +295,80 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="5dp"
                         android:text="@string/viewer_defaults_mode_on_short"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/viewer_defaults_toolbar_position"
+                android:textColor="@color/dark_red"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/border_rounded"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_weight="50"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/buttonDefaultToolbarTop"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/viewer_defaults_toolbar_position_top_content_description"
+                        android:padding="12dp"
+                        app:srcCompat="@drawable/ic_menubar_top"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/viewer_defaults_toolbar_position_top"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_weight="50"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/buttonDefaultToolbarBottom"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/viewer_defaults_toolbar_position_bottom_content_description"
+                        android:padding="12dp"
+                        app:srcCompat="@drawable/ic_menubar_bottom"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:text="@string/viewer_defaults_toolbar_position_bottom"
                         android:textColor="@color/white"
                         android:textSize="11sp"
                         android:textStyle="bold" />

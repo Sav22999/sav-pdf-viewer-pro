@@ -10,6 +10,7 @@ object ViewerDefaultsStore {
     private const val KEY_ROTATION_LOCKED = "rotation_locked"
     private const val KEY_ZOOM_MODE = "zoom_mode"
     private const val KEY_ZOOM_PERCENT = "zoom_percent"
+    private const val KEY_TOOLBAR_PLACEMENT = "toolbar_placement"
     private const val KEY_FULLSCREEN = "fullscreen"
     private const val KEY_NIGHT_MODE = "night_mode"
     private const val KEY_CONTRAST_OVERLAY = "contrast_overlay"
@@ -22,6 +23,8 @@ object ViewerDefaultsStore {
 
     const val ZOOM_MODE_ADAPT = "ADAPT"
     const val ZOOM_MODE_PERCENT = "PERCENT"
+    const val TOOLBAR_PLACEMENT_TOP = "TOP"
+    const val TOOLBAR_PLACEMENT_BOTTOM = "BOTTOM"
     const val DEFAULT_DARK_FILTER_START_MINUTE = 21 * 60
     const val DEFAULT_DARK_FILTER_END_MINUTE = 7 * 60
     const val DEFAULT_NIGHT_LIGHT_START_MINUTE = 21 * 60
@@ -33,6 +36,7 @@ object ViewerDefaultsStore {
         val rotationLocked: Boolean = false,
         val zoomMode: String = ZOOM_MODE_ADAPT,
         val zoomPercent: Int = 100,
+        val toolbarPlacement: String = TOOLBAR_PLACEMENT_TOP,
         val fullscreen: Boolean = false,
         val nightMode: Boolean = false,
         val contrastOverlay: Boolean = false,
@@ -46,6 +50,13 @@ object ViewerDefaultsStore {
 
     fun defaultDefaults(): Defaults = Defaults()
 
+    private fun sanitizeToolbarPlacement(value: String?): String {
+        return when (value) {
+            TOOLBAR_PLACEMENT_BOTTOM -> TOOLBAR_PLACEMENT_BOTTOM
+            else -> TOOLBAR_PLACEMENT_TOP
+        }
+    }
+
     fun load(context: Context): Defaults {
         val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
         return Defaults(
@@ -54,6 +65,9 @@ object ViewerDefaultsStore {
             rotationLocked = prefs.getBoolean(KEY_ROTATION_LOCKED, false),
             zoomMode = prefs.getString(KEY_ZOOM_MODE, ZOOM_MODE_ADAPT) ?: ZOOM_MODE_ADAPT,
             zoomPercent = prefs.getInt(KEY_ZOOM_PERCENT, 100).coerceIn(10, 500),
+            toolbarPlacement = sanitizeToolbarPlacement(
+                prefs.getString(KEY_TOOLBAR_PLACEMENT, TOOLBAR_PLACEMENT_TOP)
+            ),
             fullscreen = prefs.getBoolean(KEY_FULLSCREEN, false),
             nightMode = prefs.getBoolean(KEY_NIGHT_MODE, false),
             contrastOverlay = prefs.getBoolean(KEY_CONTRAST_OVERLAY, false),
@@ -78,6 +92,7 @@ object ViewerDefaultsStore {
             .putBoolean(KEY_ROTATION_LOCKED, defaults.rotationLocked)
             .putString(KEY_ZOOM_MODE, defaults.zoomMode)
             .putInt(KEY_ZOOM_PERCENT, defaults.zoomPercent.coerceIn(10, 500))
+            .putString(KEY_TOOLBAR_PLACEMENT, sanitizeToolbarPlacement(defaults.toolbarPlacement))
             .putBoolean(KEY_FULLSCREEN, defaults.fullscreen)
             .putBoolean(KEY_NIGHT_MODE, defaults.nightMode)
             .putBoolean(KEY_CONTRAST_OVERLAY, defaults.contrastOverlay)

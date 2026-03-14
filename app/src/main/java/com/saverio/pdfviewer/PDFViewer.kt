@@ -22,7 +22,10 @@ import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
 import androidx.core.widget.addTextChangedListener
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -110,6 +113,9 @@ class PDFViewer : AppCompatActivity() {
     var horizontal = false
     var reverseScroll = false
     private var scrollMode = ScrollMode.VERTICAL_TOP_TO_BOTTOM
+    private var toolbarPlacement = ViewerDefaultsStore.TOOLBAR_PLACEMENT_TOP
+    private var toolbarSystemTopInset = 0
+    private var toolbarSystemBottomInset = 0
 
     private val scrollModePreferenceName = "scroll_mode"
     private val scrollModePreferenceKey = "scroll_mode"
@@ -302,16 +308,20 @@ class PDFViewer : AppCompatActivity() {
 
         setContentView(R.layout.activity_pdf_viewer)
         applySearchHighlightThemeColors()
+        toolbarPlacement = ViewerDefaultsStore.load(this).toolbarPlacement
 
         // Extra safety: pad the toolbar for the status bar inset
         val toolbarContainer = findViewById<View>(R.id.toolbarContainer)
-        androidx.core.view.ViewCompat.setOnApplyWindowInsetsListener(toolbarContainer) { v, insets ->
-            val systemBars = insets.getInsets(androidx.core.view.WindowInsetsCompat.Type.systemBars())
-            v.setPadding(v.paddingLeft, systemBars.top, v.paddingRight, v.paddingBottom)
+        ViewCompat.setOnApplyWindowInsetsListener(toolbarContainer) { _, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            toolbarSystemTopInset = systemBars.top
+            toolbarSystemBottomInset = systemBars.bottom
+            applyToolbarContainerInsets()
             insets
         }
 
         pdfViewer = findViewById(R.id.pdfView)
+        applyToolbarPlacement(force = true)
         loadScrollModePreference()
         var uriToUse: String? = ""
 
@@ -1008,62 +1018,7 @@ class PDFViewer : AppCompatActivity() {
                     val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
                     val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
 
-                    val nowLandscape = resources.configuration.orientation
-
-                    // Compute measurements from parent container and toolbar
-                    val parentView: View = findViewById(R.id.pdfViewerContainer)
-                    val toolbarContainer: View = findViewById(R.id.toolbarContainer)
-                    val fullW = parentView.measuredWidth
-                    val fullH = parentView.measuredHeight
-                    val toolbarH = toolbarContainer.measuredHeight
-                    val residualW = fullW
-                    val residualH = fullH - toolbarH
-
-                    var currentStatus = "landscape"
-                    if (nowLandscape == Configuration.ORIENTATION_LANDSCAPE) {
-                        currentStatus = "landscape"
-
-                        if (!residualViewConfigurationConfigurated) {
-                            residualViewConfiguration["landscape"] =
-                                hashMapOf(
-                                    "width" to residualW,
-                                    "height" to residualH
-                                )
-                            residualViewConfiguration["portrait"] =
-                                hashMapOf(
-                                    "width" to residualH + toolbarH * (3 / 2),
-                                    "height" to residualW - toolbarH * 2
-                                )
-                            residualViewConfigurationConfigurated = true
-                        }
-                    } else {
-                        currentStatus = "portrait"
-
-                        if (!residualViewConfigurationConfigurated) {
-                            residualViewConfiguration["landscape"] =
-                                hashMapOf(
-                                    "width" to residualH + toolbarH,
-                                    "height" to residualW - toolbarH * 2
-                                )
-                            residualViewConfiguration["portrait"] =
-                                hashMapOf(
-                                    "width" to residualW - toolbarH / 2,
-                                    "height" to residualH
-                                )
-                            residualViewConfigurationConfigurated = true
-                        }
-                    }
-
-                    if (minPositionScrollbar == 0F) minPositionScrollbar = buttonSideScroll.y
-                    maxPositionScrollbar =
-                        residualViewConfiguration[currentStatus]!!["height"]!!.toInt() - minPositionScrollbar
-                    startY = minPositionScrollbar
-
-                    if (minPositionScrollbarHorizontal == 0F) minPositionScrollbarHorizontal =
-                        buttonBottomScroll.x
-                    maxPositionScrollbarHorizontal =
-                        residualViewConfiguration[currentStatus]!!["width"]!!.toInt() - minPositionScrollbarHorizontal
-                    startX = minPositionScrollbarHorizontal
+                    refreshResidualViewMetrics()
 
                     updatePdfPage(fileId, lastPosition)
                     saveCurrentPdfOptions()
@@ -1309,37 +1264,17 @@ class PDFViewer : AppCompatActivity() {
 
 
     override fun onConfigurationChanged(newConfig: Configuration) {
+        syncToolbarPlacementWithDefaults()
         textSelectionManager.clearPageGeometryCache()
         selectionDragState = SelectionDragState.NONE
         selectionDownViewX = Float.NaN
         selectionDownViewY = Float.NaN
-        var currentStatus: String = "portrait"
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            //LANDSCAPE
-            currentStatus = "landscape"
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            //PORTRAIT
-            currentStatus = "portrait"
-        }
         val savedPageToUse = savedCurrentPage
         Handler().postDelayed({
             val viewerPage = mapLogicalPageToViewer(savedCurrentPage)
             updateZoomBoundsForCurrentOrientation(viewerPage)
             fitPageForCurrentOrientation(viewerPage)
-            val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
-            val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
-            if (minPositionScrollbar == 0F) minPositionScrollbar = buttonSideScroll.y
-            maxPositionScrollbar =
-                residualViewConfiguration[currentStatus]!!["height"]!!.toInt() - minPositionScrollbar
-            startY = minPositionScrollbar
-
-            if (minPositionScrollbarHorizontal == 0F) minPositionScrollbarHorizontal =
-                buttonBottomScroll.x
-            maxPositionScrollbarHorizontal =
-                residualViewConfiguration[currentStatus]!!["width"]!!.toInt() - minPositionScrollbarHorizontal
-            startX = minPositionScrollbarHorizontal
-
-
+            refreshResidualViewMetrics()
             setScrollBarSide()
             setScrollBarBottom()
 
@@ -2566,6 +2501,192 @@ class PDFViewer : AppCompatActivity() {
         return (dp * resources.displayMetrics.density).roundToInt()
     }
 
+    private fun isBottomToolbarPlacement(): Boolean {
+        return toolbarPlacement == ViewerDefaultsStore.TOOLBAR_PLACEMENT_BOTTOM
+    }
+
+    private fun applyToolbarContainerInsets() {
+        val toolbarContainer: View = findViewById(R.id.toolbarContainer)
+        val topInset = if (isBottomToolbarPlacement()) 0 else toolbarSystemTopInset
+        val bottomInset = if (isBottomToolbarPlacement()) toolbarSystemBottomInset else 0
+        toolbarContainer.setPadding(
+            toolbarContainer.paddingLeft,
+            topInset,
+            toolbarContainer.paddingRight,
+            bottomInset
+        )
+    }
+
+    private fun applyToolbarPlacement(force: Boolean = false) {
+        val root: ConstraintLayout = findViewById(R.id.pdfViewerContainer)
+        val useBottomPlacement = isBottomToolbarPlacement()
+        val constraintSet = ConstraintSet().apply { clone(root) }
+        val overlayMargin = dpToPx(5f)
+        val selectionBarMargin = dpToPx(12f)
+
+        constraintSet.clear(R.id.toolbarContainer, ConstraintSet.TOP)
+        constraintSet.clear(R.id.toolbarContainer, ConstraintSet.BOTTOM)
+        if (useBottomPlacement) {
+            constraintSet.connect(R.id.toolbarContainer, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        } else {
+            constraintSet.connect(R.id.toolbarContainer, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        }
+
+        constraintSet.clear(R.id.residualView, ConstraintSet.TOP)
+        constraintSet.clear(R.id.residualView, ConstraintSet.BOTTOM)
+        if (useBottomPlacement) {
+            constraintSet.connect(R.id.residualView, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+            constraintSet.connect(R.id.residualView, ConstraintSet.BOTTOM, R.id.toolbarContainer, ConstraintSet.TOP)
+        } else {
+            constraintSet.connect(R.id.residualView, ConstraintSet.TOP, R.id.toolbarContainer, ConstraintSet.BOTTOM)
+            constraintSet.connect(R.id.residualView, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        }
+
+        constraintSet.clear(R.id.buttonSideScroll, ConstraintSet.TOP)
+        constraintSet.clear(R.id.buttonSideScroll, ConstraintSet.BOTTOM)
+        if (useBottomPlacement) {
+            constraintSet.connect(R.id.buttonSideScroll, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+        } else {
+            constraintSet.connect(R.id.buttonSideScroll, ConstraintSet.TOP, R.id.toolbarContainer, ConstraintSet.BOTTOM)
+        }
+
+        constraintSet.clear(R.id.buttonBottomScroll, ConstraintSet.TOP)
+        constraintSet.clear(R.id.buttonBottomScroll, ConstraintSet.BOTTOM)
+        if (useBottomPlacement) {
+            constraintSet.connect(R.id.buttonBottomScroll, ConstraintSet.BOTTOM, R.id.toolbarContainer, ConstraintSet.TOP)
+        } else {
+            constraintSet.connect(R.id.buttonBottomScroll, ConstraintSet.BOTTOM, R.id.pdfView, ConstraintSet.BOTTOM)
+        }
+
+        val overlayPanelIds = intArrayOf(
+            R.id.messageSearch,
+            R.id.messageGoTo,
+            R.id.messageMenuPanel,
+            R.id.messageGuide1
+        )
+        overlayPanelIds.forEach { viewId ->
+            constraintSet.clear(viewId, ConstraintSet.TOP)
+            constraintSet.clear(viewId, ConstraintSet.BOTTOM)
+            if (useBottomPlacement) {
+                constraintSet.connect(viewId, ConstraintSet.BOTTOM, R.id.toolbarContainer, ConstraintSet.TOP)
+                constraintSet.setMargin(viewId, ConstraintSet.BOTTOM, overlayMargin)
+            } else {
+                constraintSet.connect(viewId, ConstraintSet.TOP, R.id.toolbarContainer, ConstraintSet.BOTTOM)
+                constraintSet.setMargin(viewId, ConstraintSet.TOP, overlayMargin)
+            }
+        }
+
+        val arrowIds = intArrayOf(
+            R.id.arrowMessageGoTo,
+            R.id.arrowMenuPanel,
+            R.id.arrowLeft,
+            R.id.arrowRight,
+            R.id.arrowRight2,
+            R.id.arrowRight3
+        )
+        val arrowTargetMap = mapOf(
+            R.id.arrowMessageGoTo to R.id.messageGoTo,
+            R.id.arrowMenuPanel to R.id.messageMenuPanel,
+            R.id.arrowLeft to R.id.messageGuide1,
+            R.id.arrowRight to R.id.messageGuide1,
+            R.id.arrowRight2 to R.id.messageGuide1,
+            R.id.arrowRight3 to R.id.messageGuide1
+        )
+        arrowIds.forEach { arrowId ->
+            val targetId = arrowTargetMap[arrowId] ?: return@forEach
+            constraintSet.clear(arrowId, ConstraintSet.TOP)
+            constraintSet.clear(arrowId, ConstraintSet.BOTTOM)
+            if (useBottomPlacement) {
+                constraintSet.connect(arrowId, ConstraintSet.TOP, targetId, ConstraintSet.BOTTOM)
+            } else {
+                constraintSet.connect(arrowId, ConstraintSet.BOTTOM, targetId, ConstraintSet.TOP)
+            }
+        }
+
+        constraintSet.clear(R.id.textSelectionBar, ConstraintSet.TOP)
+        constraintSet.clear(R.id.textSelectionBar, ConstraintSet.BOTTOM)
+        if (useBottomPlacement) {
+            constraintSet.connect(R.id.textSelectionBar, ConstraintSet.BOTTOM, R.id.toolbarContainer, ConstraintSet.TOP)
+        } else {
+            constraintSet.connect(R.id.textSelectionBar, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+        }
+        constraintSet.setMargin(R.id.textSelectionBar, ConstraintSet.BOTTOM, selectionBarMargin)
+
+        constraintSet.applyTo(root)
+        applyToolbarContainerInsets()
+
+        arrowIds.forEach { arrowId ->
+            findViewById<View>(arrowId).scaleY = if (useBottomPlacement) -1f else 1f
+        }
+
+        ViewCompat.requestApplyInsets(findViewById(R.id.toolbarContainer))
+
+        minPositionScrollbar = 0F
+        minPositionScrollbarHorizontal = 0F
+        if (force || totalPages > 0) {
+            root.post {
+                if (!refreshResidualViewMetrics()) return@post
+                setScrollBarSide(animation = false)
+                setScrollBarBottom(animation = false)
+                if (totalPages > 0) {
+                    val currentLogicalPage = getCurrentLogicalPage() + 1F
+                    setPositionScrollbarByPage(currentLogicalPage)
+                    setPositionBottomScrollbarByPage(currentLogicalPage)
+                }
+                updateScrollbarButtonsVisibility()
+            }
+        }
+    }
+
+    private fun refreshResidualViewMetrics(): Boolean {
+        val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
+        val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
+        val parentView: View = findViewById(R.id.pdfViewerContainer)
+        val toolbarContainer: View = findViewById(R.id.toolbarContainer)
+        val fullW = parentView.measuredWidth
+        val fullH = parentView.measuredHeight
+        val toolbarH = toolbarContainer.measuredHeight
+        if (fullW <= 0 || fullH <= 0) return false
+
+        val residualW = fullW
+        val residualH = (fullH - toolbarH).coerceAtLeast(0)
+
+        val currentStatus = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            residualViewConfiguration["landscape"] = hashMapOf(
+                "width" to residualW,
+                "height" to residualH
+            )
+            residualViewConfiguration["portrait"] = hashMapOf(
+                "width" to residualH + toolbarH * (3 / 2),
+                "height" to residualW - toolbarH * 2
+            )
+            "landscape"
+        } else {
+            residualViewConfiguration["landscape"] = hashMapOf(
+                "width" to residualH + toolbarH,
+                "height" to residualW - toolbarH * 2
+            )
+            residualViewConfiguration["portrait"] = hashMapOf(
+                "width" to residualW - toolbarH / 2,
+                "height" to residualH
+            )
+            "portrait"
+        }
+
+        residualViewConfigurationConfigurated = true
+        minPositionScrollbar = buttonSideScroll.y
+        maxPositionScrollbar =
+            residualViewConfiguration[currentStatus]!!["height"]!!.toFloat() - minPositionScrollbar
+        startY = minPositionScrollbar
+
+        minPositionScrollbarHorizontal = buttonBottomScroll.x
+        maxPositionScrollbarHorizontal =
+            residualViewConfiguration[currentStatus]!!["width"]!!.toFloat() - minPositionScrollbarHorizontal
+        startX = minPositionScrollbarHorizontal
+
+        return true
+    }
+
     private fun updateScrollbarButtonsVisibility() {
         val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
         val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
@@ -2697,6 +2818,8 @@ class PDFViewer : AppCompatActivity() {
         applyingPdfOptions = true
         try {
             val defaults = ViewerDefaultsStore.load(this)
+            toolbarPlacement = defaults.toolbarPlacement
+            applyToolbarPlacement()
             try {
                 setScrollMode(ScrollMode.valueOf(defaults.scrollMode), reloadPdf = false)
             } catch (_: Exception) {
@@ -3724,8 +3847,16 @@ class PDFViewer : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        syncToolbarPlacementWithDefaults()
         reevaluateScheduledAppearance(refreshViewer = totalPages > 0)
         restartScheduledAppearanceChecks()
+    }
+
+    private fun syncToolbarPlacementWithDefaults() {
+        val desiredPlacement = ViewerDefaultsStore.load(this).toolbarPlacement
+        if (toolbarPlacement == desiredPlacement) return
+        toolbarPlacement = desiredPlacement
+        applyToolbarPlacement(force = true)
     }
 
     override fun onPause() {

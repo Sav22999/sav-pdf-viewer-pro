@@ -64,6 +64,9 @@ class SettingsFragment : Fragment() {
         val buttonRotationOn: ImageView = root.findViewById(R.id.buttonDefaultRotationLockedOn)
         val buttonRotationOff: ImageView = root.findViewById(R.id.buttonDefaultRotationLockedOff)
 
+        val buttonToolbarTop: ImageView = root.findViewById(R.id.buttonDefaultToolbarTop)
+        val buttonToolbarBottom: ImageView = root.findViewById(R.id.buttonDefaultToolbarBottom)
+
         val buttonFullscreenOn: ImageView = root.findViewById(R.id.buttonDefaultFullscreenOn)
         val buttonFullscreenOff: ImageView = root.findViewById(R.id.buttonDefaultFullscreenOff)
 
@@ -95,6 +98,7 @@ class SettingsFragment : Fragment() {
         var selectedZoomPercent = 100
         var selectedSinglePage = false
         var selectedRotationLocked = false
+        var selectedToolbarPlacement = ViewerDefaultsStore.TOOLBAR_PLACEMENT_TOP
         var selectedFullscreen = false
 
         var darkFilterMode = ThreeStateMode.OFF
@@ -128,6 +132,7 @@ class SettingsFragment : Fragment() {
                     rotationLocked = selectedRotationLocked,
                     zoomMode = selectedZoomMode,
                     zoomPercent = selectedZoomPercent,
+                    toolbarPlacement = selectedToolbarPlacement,
                     fullscreen = selectedFullscreen,
                     nightMode = darkFilterMode == ThreeStateMode.ALWAYS_ON,
                     contrastOverlay = nightLightMode == ThreeStateMode.ALWAYS_ON,
@@ -166,6 +171,15 @@ class SettingsFragment : Fragment() {
             setSelected(buttonRotationOn.parent as View, selectedRotationLocked)
             setSelected(buttonRotationOff.parent as View, !selectedRotationLocked)
 
+            setSelected(
+                buttonToolbarTop.parent as View,
+                selectedToolbarPlacement == ViewerDefaultsStore.TOOLBAR_PLACEMENT_TOP
+            )
+            setSelected(
+                buttonToolbarBottom.parent as View,
+                selectedToolbarPlacement == ViewerDefaultsStore.TOOLBAR_PLACEMENT_BOTTOM
+            )
+
             setSelected(buttonFullscreenOn.parent as View, selectedFullscreen)
             setSelected(buttonFullscreenOff.parent as View, !selectedFullscreen)
         }
@@ -198,6 +212,7 @@ class SettingsFragment : Fragment() {
             selectedZoomPercent = defaults.zoomPercent
             selectedSinglePage = defaults.singlePage
             selectedRotationLocked = defaults.rotationLocked
+            selectedToolbarPlacement = defaults.toolbarPlacement
             selectedFullscreen = defaults.fullscreen
 
             darkFilterMode = when {
@@ -305,6 +320,17 @@ class SettingsFragment : Fragment() {
         }
         buttonRotationOff.setOnClickListener {
             selectedRotationLocked = false
+            refreshToggleUi()
+            persist()
+        }
+
+        buttonToolbarTop.setOnClickListener {
+            selectedToolbarPlacement = ViewerDefaultsStore.TOOLBAR_PLACEMENT_TOP
+            refreshToggleUi()
+            persist()
+        }
+        buttonToolbarBottom.setOnClickListener {
+            selectedToolbarPlacement = ViewerDefaultsStore.TOOLBAR_PLACEMENT_BOTTOM
             refreshToggleUi()
             persist()
         }
