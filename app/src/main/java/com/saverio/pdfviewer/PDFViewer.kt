@@ -83,6 +83,8 @@ class PDFViewer : AppCompatActivity() {
 
     private val scrollModePreferenceName = "scroll_mode"
     private val scrollModePreferenceKey = "scroll_mode"
+    private val legacyPdfOptionsPreferenceName = "pdf_options"
+    private val legacyMigrationPreferenceName = "legacy_pdf_options_migration"
     private var zoomToRestore = 1.0F
 
     var single_page = false
@@ -93,6 +95,13 @@ class PDFViewer : AppCompatActivity() {
 
     var hideTopBarCounter = 0
     var dialog: BottomSheetDialog? = null
+    private var lastGoToVisibleState: Boolean? = null
+    private var lastGoToBottomIconState: Boolean? = null
+    private val goToUiHandler by lazy { Handler(Looper.getMainLooper()) }
+    private val goToVisibilityDebounceMs = 60L
+    private val goToVisibilityRunnable = Runnable {
+        updateGoToEdgeButtonVisibilityInternal()
+    }
 
     // ── OCR Search ─────────────────────────────────────────────
     private val ocrEngine: PdfOcrEngine by lazy { PdfOcrEngine(this) }
@@ -373,9 +382,11 @@ class PDFViewer : AppCompatActivity() {
             if (!comfortView.isGone) {
                 comfortView.isGone = true
                 lightButton.setImageResource(R.drawable.ic_light_on)
+                lightButton.contentDescription = getString(R.string.tooltip_night_light_on)
             } else {
                 comfortView.isGone = false
                 lightButton.setImageResource(R.drawable.ic_light_off)
+                lightButton.contentDescription = getString(R.string.tooltip_night_light_off)
             }
             resetHideTopBarCounter()
             hideMenuPanel()
@@ -395,15 +406,13 @@ class PDFViewer : AppCompatActivity() {
                 pdfViewer.setPageSnap(true)
                 pdfViewer.setPageFling(true)
                 buttonSinglePage.setImageResource(R.drawable.ic_single_page_disabled)
-                buttonSinglePage.contentDescription =
-                    getString(R.string.tooltip_single_page_scroll_disabled)
+                buttonSinglePage.contentDescription = getString(R.string.tooltip_single_page_scroll_disabled)
             } else {
                 single_page = false
                 pdfViewer.setPageSnap(false)
                 pdfViewer.setPageFling(false)
                 buttonSinglePage.setImageResource(R.drawable.ic_single_page)
-                buttonSinglePage.contentDescription =
-                    getString(R.string.tooltip_single_page_scroll)
+                buttonSinglePage.contentDescription = getString(R.string.tooltip_single_page_scroll)
             }
             resetHideTopBarCounter()
             hideMenuPanel()
@@ -424,16 +433,14 @@ class PDFViewer : AppCompatActivity() {
                 pdfViewer.setNightMode(true)
                 pdfViewer.jumpTo(pdfViewer.currentPage, true)
                 buttonDarkFilter.setImageResource(R.drawable.ic_dark_filter_disabled)
-                buttonDarkFilter.contentDescription =
-                    getString(R.string.tooltip_force_dark_filter_disable)
+                buttonDarkFilter.contentDescription = getString(R.string.tooltip_force_dark_filter_disable)
                 pdfViewer.setBackgroundResource(R.color.spacingPageDark)
             } else {
                 night_mode = false
                 pdfViewer.setNightMode(false)
                 pdfViewer.jumpTo(pdfViewer.currentPage, true)
                 buttonDarkFilter.setImageResource(R.drawable.ic_dark_filter)
-                buttonDarkFilter.contentDescription =
-                    getString(R.string.tooltip_force_dark_filter)
+                buttonDarkFilter.contentDescription = getString(R.string.tooltip_force_dark_filter)
                 pdfViewer.setBackgroundResource(R.color.spacingPage)
             }
             resetHideTopBarCounter()
@@ -584,6 +591,7 @@ class PDFViewer : AppCompatActivity() {
                     run {
                         totalPages = pageCount
                         updatePdfPage(fileId, mapViewerPageToLogical(page))
+                        updateGoToEdgeButtonVisibility()
                         //setPositionScrollbarByPage(page.toFloat())
                         // Pre-index OCR words for text selection (temporarily disabled)
                         // if (textSelectionManager.active) {
@@ -597,7 +605,6 @@ class PDFViewer : AppCompatActivity() {
                         hideTopBar()
                     } else if (positionOffset == 0F) {
                         showTopBar()
-                        findViewById<ImageView>(R.id.buttonGoTopToolbar).isGone = true
                     } else {
                         showingTopBar = false
                     }
@@ -618,6 +625,7 @@ class PDFViewer : AppCompatActivity() {
                         buttonSideScroll.isGone = true
                         buttonBottomScroll.isGone = true
                     }
+                    requestGoToEdgeButtonVisibilityUpdate(debounced = true)
                 }
                 .onDraw { canvas, pageWidth, pageHeight, displayedPage ->
                     // Record page dimensions for text selection (temporarily disabled)
@@ -1077,6 +1085,7 @@ class PDFViewer : AppCompatActivity() {
         if (databaseHandler.checkBookmark(fileId = pathNameTemp, page = currentPage)) {
             //there is the bookmark
             bookmarkButton.setImageResource(R.drawable.ic_yes_bookmark)
+            bookmarkButton.contentDescription = getString(R.string.tooltip_remove_from_bookmarks)
             bookmarkButton.setOnClickListener {
                 //remove bookmark
                 databaseHandler.deleteBookmark(
@@ -1090,6 +1099,7 @@ class PDFViewer : AppCompatActivity() {
         } else {
             //no bookmark
             bookmarkButton.setImageResource(R.drawable.ic_no_bookmark)
+            bookmarkButton.contentDescription = getString(R.string.tooltip_add_to_bookmarks)
             bookmarkButton.setOnClickListener {
                 //add bookmark
                 val bookmark = BookmarksModel(
@@ -1302,6 +1312,7 @@ class PDFViewer : AppCompatActivity() {
             window.decorView.systemUiVisibility =
                 View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN
             button.setImageResource(R.drawable.ic_exit_fullscreen)
+            button.contentDescription = getString(R.string.tooltip_full_screen_off)
             isFullscreenEnabled = true
         } else {
             //hide fullscreen
@@ -1310,6 +1321,7 @@ class PDFViewer : AppCompatActivity() {
             )
             window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
             button.setImageResource(R.drawable.ic_fullscreen)
+            button.contentDescription = getString(R.string.tooltip_full_screen_on)
             isFullscreenEnabled = false
         }
     }
@@ -1357,6 +1369,8 @@ class PDFViewer : AppCompatActivity() {
                     buttonBottomScroll.isGone = true
                 }
             }
+
+            updateGoToEdgeButtonVisibility()
 
             hideMessageGuide1()
 
@@ -1939,13 +1953,40 @@ class PDFViewer : AppCompatActivity() {
 
     private fun updateGoToEdgeButton() {
         val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
-        if (isVerticalBottomToTopMode()) {
-            buttonGoTop.setImageResource(R.drawable.ic_go_to_bottom)
-            buttonGoTop.contentDescription = getString(R.string.tooltip_go_to_bottom)
-        } else {
-            buttonGoTop.setImageResource(R.drawable.ic_go_to_top)
-            buttonGoTop.contentDescription = getString(R.string.tooltip_go_to_top)
+        val shouldUseBottomIcon = isVerticalBottomToTopMode()
+        if (lastGoToBottomIconState != shouldUseBottomIcon) {
+            if (shouldUseBottomIcon) {
+                buttonGoTop.setImageResource(R.drawable.ic_go_to_bottom)
+                buttonGoTop.contentDescription = getString(R.string.tooltip_go_to_bottom)
+            } else {
+                buttonGoTop.setImageResource(R.drawable.ic_go_to_top)
+                buttonGoTop.contentDescription = getString(R.string.tooltip_go_to_top)
+            }
+            lastGoToBottomIconState = shouldUseBottomIcon
         }
+        updateGoToEdgeButtonVisibility()
+    }
+
+    private fun updateGoToEdgeButtonVisibility() {
+        requestGoToEdgeButtonVisibilityUpdate(debounced = false)
+    }
+
+    private fun requestGoToEdgeButtonVisibilityUpdate(debounced: Boolean) {
+        goToUiHandler.removeCallbacks(goToVisibilityRunnable)
+        if (debounced) {
+            goToUiHandler.postDelayed(goToVisibilityRunnable, goToVisibilityDebounceMs)
+        } else {
+            goToVisibilityRunnable.run()
+        }
+    }
+
+    private fun updateGoToEdgeButtonVisibilityInternal() {
+        val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
+        val shouldBeVisible = isSupportedGoTop && getCurrentLogicalPage() > 0
+        if (lastGoToVisibleState == shouldBeVisible) return
+
+        buttonGoTop.isGone = !shouldBeVisible
+        lastGoToVisibleState = shouldBeVisible
     }
 
     private fun loadCurrentPdfOptions() {
@@ -1955,8 +1996,11 @@ class PDFViewer : AppCompatActivity() {
         try {
             val fileKey = getTheFileName(fileId, 0).toMD5()
             val databaseHandler = DatabaseHandler(this)
-            if (databaseHandler.checkFile(fileKey)) {
-                val file = databaseHandler.getFiles(fileKey).firstOrNull() ?: return
+            val file = if (databaseHandler.checkFile(fileKey)) {
+                databaseHandler.getFiles(fileKey).firstOrNull()
+            } else null
+
+            if (file != null) {
                 try {
                     setScrollMode(ScrollMode.valueOf(file.scrollMode), reloadPdf = false)
                 } catch (_: Exception) {
@@ -1968,6 +2012,8 @@ class PDFViewer : AppCompatActivity() {
                 rotation_locked = file.rotationLocked
                 zoomToRestore = file.zoom
             }
+
+            migrateLegacyPreferencesIfNeeded(fileKey, databaseHandler)
 
             val buttonSinglePage: ImageView = findViewById(R.id.buttonSinglePage)
             buttonSinglePage.setImageResource(
@@ -2012,6 +2058,60 @@ class PDFViewer : AppCompatActivity() {
         } finally {
             applyingPdfOptions = false
         }
+    }
+
+    private fun migrateLegacyPreferencesIfNeeded(fileKey: String, databaseHandler: DatabaseHandler) {
+        val migrationPreferences = getSharedPreferences(legacyMigrationPreferenceName, Context.MODE_PRIVATE)
+        val migrationKey = "migrated_$fileKey"
+        if (migrationPreferences.getBoolean(migrationKey, false)) return
+
+        val oldPdfPreferences = getSharedPreferences(legacyPdfOptionsPreferenceName, Context.MODE_PRIVATE)
+        val oldGlobalScrollMode = getSharedPreferences(scrollModePreferenceName, Context.MODE_PRIVATE)
+            .getString(scrollModePreferenceKey, null)
+
+        var hasLegacyData = false
+
+        val legacyScrollMode = oldPdfPreferences.getString("scroll_mode_$fileKey", oldGlobalScrollMode)
+        if (!legacyScrollMode.isNullOrBlank()) {
+            try {
+                setScrollMode(ScrollMode.valueOf(legacyScrollMode), reloadPdf = false)
+                hasLegacyData = true
+            } catch (_: Exception) {
+                // ignore invalid legacy values
+            }
+        }
+
+        if (oldPdfPreferences.contains("single_page_$fileKey")) {
+            single_page = oldPdfPreferences.getBoolean("single_page_$fileKey", single_page)
+            hasLegacyData = true
+        }
+        if (oldPdfPreferences.contains("night_mode_$fileKey")) {
+            night_mode = oldPdfPreferences.getBoolean("night_mode_$fileKey", night_mode)
+            hasLegacyData = true
+        }
+        if (oldPdfPreferences.contains("zoom_$fileKey")) {
+            zoomToRestore = oldPdfPreferences.getFloat("zoom_$fileKey", zoomToRestore)
+            hasLegacyData = true
+        }
+        if (oldPdfPreferences.contains("rotation_locked_$fileKey")) {
+            rotation_locked = oldPdfPreferences.getBoolean("rotation_locked_$fileKey", rotation_locked)
+            hasLegacyData = true
+        }
+
+        if (hasLegacyData && databaseHandler.checkFile(fileKey)) {
+            val file = databaseHandler.getFiles(fileKey).firstOrNull()
+            if (file != null) {
+                file.scrollMode = scrollMode.name
+                file.singlePage = single_page
+                file.nightMode = night_mode
+                file.zoom = zoomToRestore
+                file.rotationLocked = rotation_locked
+                file.lastUpdate = getNow()
+                databaseHandler.updateFile(file)
+            }
+        }
+
+        migrationPreferences.edit().putBoolean(migrationKey, true).apply()
     }
 
     private fun saveCurrentPdfOptions() {
@@ -2270,7 +2370,8 @@ class PDFViewer : AppCompatActivity() {
                 if (totalPages <= 1) return
                 var pageToUse = 0F
                 if (page >= 0 && page <= totalPages) pageToUse = page
-                val viewerPageForPosition = mapLogicalPageToViewer(pageToUse.toInt()) + 1
+                val logicalPageForPosition = (pageToUse.toInt() - 1).coerceIn(0, totalPages - 1)
+                val viewerPageForPosition = mapLogicalPageToViewer(logicalPageForPosition) + 1
                 var initialPosition =
                     (((viewerPageForPosition - 1) * maxPositionScrollbar) / (totalPages - 1)) + minPositionScrollbar
                 if (initialPosition.isNaN()) initialPosition = 0F
@@ -2395,7 +2496,8 @@ class PDFViewer : AppCompatActivity() {
                 if (totalPages <= 1) return
                 var pageToUse = 0F
                 if (page >= 0 && page <= totalPages) pageToUse = page
-                val viewerPageForPosition = mapLogicalPageToViewer(pageToUse.toInt()) + 1
+                val logicalPageForPosition = (pageToUse.toInt() - 1).coerceIn(0, totalPages - 1)
+                val viewerPageForPosition = mapLogicalPageToViewer(logicalPageForPosition) + 1
                 val trackLength = (maxPositionScrollbarHorizontal - startX)
                 if (trackLength <= 0F) return
                 var initialPosition =
@@ -2559,6 +2661,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        goToUiHandler.removeCallbacks(goToVisibilityRunnable)
         ocrEngine.close()
         super.onDestroy()
     }
