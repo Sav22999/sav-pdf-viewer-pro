@@ -79,7 +79,7 @@ class PDFViewer : AppCompatActivity() {
     lateinit var pdfViewer: PDFView
     val PDF_SELECTION_CODE = 100
 
-    var fileOpened: String? = ""
+    var fileOpened: String? = null
     var fileId: String = ""
     var uriOpened: Uri? = null
 
@@ -357,6 +357,10 @@ class PDFViewer : AppCompatActivity() {
                         storageFound = true
                         fileOpened += "/" + it
                     }
+                }
+
+                if (fileOpened.isNullOrBlank()) {
+                    fileOpened = intent.data?.toString()
                 }
 
             } catch (e: Exception) {
@@ -858,7 +862,12 @@ class PDFViewer : AppCompatActivity() {
             cancelTopBarAutoHideCountdown()
             resetHideTopBarCounter()
             var lastPosition = 0
-            fileId = (fileOpened ?: uri?.toString() ?: "").toString()
+            val resolvedFileId = when {
+                !fileOpened.isNullOrBlank() -> fileOpened!!.trim()
+                uri != null -> uri.toString().trim()
+                else -> ""
+            }
+            fileId = resolvedFileId
             textSelectionManager.clearPageGeometryCache()
             loadCurrentPdfOptions()
             applyFullscreenState(isFullscreenEnabled, persist = false, showCompactBar = false)
@@ -3743,6 +3752,7 @@ class PDFViewer : AppCompatActivity() {
 
         // Wire panel buttons
         val copyBtn  = findViewById<ImageView>(R.id.buttonCopySelection)
+        val shareBtn = findViewById<ImageView>(R.id.buttonShareSelection)
         val closeBtn = findViewById<android.widget.ImageView>(R.id.buttonCloseSelectionMode)
         val wordModeBtn = findViewById<ImageView>(R.id.buttonSelectionWordMode)
         val characterModeBtn = findViewById<ImageView>(R.id.buttonSelectionCharacterMode)
@@ -3767,6 +3777,20 @@ class PDFViewer : AppCompatActivity() {
             } else {
                 Toast.makeText(this, getString(R.string.select_text_no_text), Toast.LENGTH_SHORT).show()
             }
+            hideSelectionPanel()
+        }
+        shareBtn.setOnClickListener {
+            val selectedText = textSelectionManager.getSelectedText().trim()
+            if (selectedText.isBlank()) {
+                Toast.makeText(this, getString(R.string.select_text_no_text), Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val shareIntent = Intent().apply {
+                action = Intent.ACTION_SEND
+                putExtra(Intent.EXTRA_TEXT, selectedText)
+                type = "text/plain"
+            }
+            startActivity(Intent.createChooser(shareIntent, getString(R.string.share_file_intent)))
             hideSelectionPanel()
         }
         closeBtn.setOnClickListener {

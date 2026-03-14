@@ -10,6 +10,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
@@ -39,6 +40,8 @@ class HomeFragment : Fragment() {
     }
 
     private lateinit var recentsAdapter: RecentFilesAdapter
+    private var isRecentSwipeActive = false
+    private var hasPendingRecentsRefresh = false
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -52,7 +55,15 @@ class HomeFragment : Fragment() {
         val main = activity as MainActivity
         val recentsList: RecyclerView = root.findViewById(R.id.recentsList)
         recentsAdapter = RecentFilesAdapter { file ->
-            val openUri = storedPathToUri(file) ?: return@RecentFilesAdapter
+            val openUri = storedPathToUri(file)
+            if (openUri == null) {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.toast_recent_document_unreadable),
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@RecentFilesAdapter
+            }
             if (openUri.scheme == "content") {
                 try {
                     requireContext().contentResolver.takePersistableUriPermission(
@@ -97,6 +108,14 @@ class HomeFragment : Fragment() {
                 }
             }
 
+            override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                super.onSelectedChanged(viewHolder, actionState)
+                isRecentSwipeActive = actionState == ItemTouchHelper.ACTION_STATE_SWIPE
+                recentsList.parent?.requestDisallowInterceptTouchEvent(
+                    actionState == ItemTouchHelper.ACTION_STATE_SWIPE
+                )
+            }
+
             override fun onChildDraw(
                 c: Canvas,
                 recyclerView: RecyclerView,
@@ -107,8 +126,8 @@ class HomeFragment : Fragment() {
                 isCurrentlyActive: Boolean
             ) {
                 val holder = viewHolder as RecentFilesAdapter.RecentFileViewHolder
-                val foregroundView = holder.foreground
-                val backgroundView = holder.background as CardView
+                val foregroundView = holder.card
+                val backgroundView = holder.cardRemoved
                 val activeSwipeColor = ContextCompat.getColor(requireContext(), R.color.dark_dark_red)
                 val idleSwipeColor = ContextCompat.getColor(requireContext(), R.color.red)
 
@@ -134,6 +153,12 @@ class HomeFragment : Fragment() {
                     if (isDeleteActionArmed) activeSwipeColor else idleSwipeColor
                 )
 
+                if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                    recyclerView.parent?.requestDisallowInterceptTouchEvent(
+                        isCurrentlyActive || clampedDx != 0F
+                    )
+                }
+
                 ItemTouchHelper.Callback.getDefaultUIUtil().onDraw(
                     c,
                     recyclerView,
@@ -147,10 +172,16 @@ class HomeFragment : Fragment() {
 
             override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
                 val holder = viewHolder as RecentFilesAdapter.RecentFileViewHolder
-                ItemTouchHelper.Callback.getDefaultUIUtil().clearView(holder.foreground)
-                (holder.background as CardView).setCardBackgroundColor(
+                ItemTouchHelper.Callback.getDefaultUIUtil().clearView(holder.card)
+                holder.cardRemoved.setCardBackgroundColor(
                     ContextCompat.getColor(requireContext(), R.color.red)
                 )
+                recyclerView.parent?.requestDisallowInterceptTouchEvent(false)
+                isRecentSwipeActive = false
+                if (hasPendingRecentsRefresh) {
+                    hasPendingRecentsRefresh = false
+                    view?.let { renderRecents(it) }
+                }
                 super.clearView(recyclerView, viewHolder)
             }
 
@@ -191,45 +222,18 @@ class HomeFragment : Fragment() {
     private fun renderRecents(root: View) {
         val emptyText: TextView = root.findViewById(R.id.textNoRecents)
 
+        if (isRecentSwipeActive) {
+            hasPendingRecentsRefresh = true
+            return
+        }
+
         val database = DatabaseHandler(requireContext())
         val recentFiles = database
             .getFiles()
             .sortedByDescending { it.lastUpdate.ifBlank { it.date } }
 
-        val validFiles = ArrayList<FilesModel>()
-        val invalidFileIds = ArrayList<String>()
-
-        recentFiles.forEach { file ->
-            val openUri = storedPathToUri(file)
-            if (openUri == null) {
-                invalidFileIds.add(file.id)
-            } else if (isDefinitelyMissingLocalFile(openUri)) {
-                invalidFileIds.add(file.id)
-            } else {
-                validFiles.add(file)
-            }
-        }
-
-        invalidFileIds.forEach { database.deleteFile(it) }
-
-        emptyText.isGone = validFiles.isNotEmpty()
-        recentsAdapter.submitList(validFiles)
-    }
-
-    private fun isDefinitelyMissingLocalFile(uri: Uri): Boolean {
-        return when (uri.scheme) {
-            "file" -> {
-                val file = File(uri.path ?: return true)
-                !file.exists() || !file.canRead()
-            }
-
-            null -> {
-                val file = File(uri.toString())
-                !file.exists() || !file.canRead()
-            }
-
-            else -> false
-        }
+        emptyText.isGone = recentFiles.isNotEmpty()
+        recentsAdapter.submitList(recentFiles)
     }
 
     private fun storedPathToUri(file: FilesModel): Uri? {

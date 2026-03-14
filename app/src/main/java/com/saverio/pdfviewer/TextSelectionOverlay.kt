@@ -689,6 +689,11 @@ class TextSelectionManager(private val context: Context) {
         return true
     }
 
+    fun getSelectedText(): String {
+        if (selectionRefs.isEmpty()) return ""
+        return buildText()
+    }
+
     private fun buildText(): String {
         if (selectionRefs.isEmpty()) return ""
         val sb = StringBuilder()

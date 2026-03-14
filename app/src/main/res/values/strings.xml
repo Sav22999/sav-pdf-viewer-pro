@@ -113,6 +113,7 @@
     <string name="text_selection_mode_active">Text selection mode</string>
     <string name="tooltip_close_selection_mode">Close selection</string>
     <string name="tooltip_copy_selection">Copy selection</string>
+    <string name="tooltip_share_selection" translatable="false">Share selection</string>
     <string name="tooltip_toggle_character_selection">Toggle character selection mode</string>
     <string name="selection_granularity_word">WORD</string>
     <string name="selection_granularity_character">CHAR</string>
@@ -164,4 +165,5 @@
     <string name="home_no_recents" translatable="false">No recent documents yet.</string>
     <string name="settings_version_label" translatable="false">Version %1$s</string>
     <string name="home_recent_item_content_description" translatable="false">Open recent document %1$s</string>
+    <string name="toast_recent_document_unreadable" translatable="false">Cannot open this recent document. Please select it again.</string>
 </resources>
