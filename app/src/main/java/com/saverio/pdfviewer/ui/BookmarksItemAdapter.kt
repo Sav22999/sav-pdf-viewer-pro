@@ -28,7 +28,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class BookmarksItemAdapter(
-    private val context: Context, private val items: ArrayList<BookmarksModel>
+    private val context: Context,
+    private val items: ArrayList<BookmarksModel>,
+    private val documentPassword: String = ""
 ) : RecyclerView.Adapter<BookmarksItemAdapter.ItemViewHolder>() {
     private val adapterScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
     private val previewCache = HashMap<String, Bitmap>()
@@ -140,7 +142,10 @@ class BookmarksItemAdapter(
         try {
             val pdfiumCore = PdfiumCore(context)
             context.contentResolver.openFileDescriptor(uri, "r")?.use { parcelFileDescriptor ->
-                val pdfDocument = pdfiumCore.newDocument(parcelFileDescriptor)
+                val pdfDocument = pdfiumCore.newDocument(
+                    parcelFileDescriptor,
+                    documentPassword.ifBlank { null }
+                )
                 try {
                     pdfiumCore.openPage(pdfDocument, lastPosition)
                     val originalWidth = pdfiumCore.getPageWidthPoint(pdfDocument, lastPosition)

@@ -1558,7 +1558,7 @@ class PDFViewer : AppCompatActivity() {
 
                 bookmarkItemsList.layoutManager = LinearLayoutManager(this)
                 bookmarkItemsList.setHasFixedSize(false)
-                val itemAdapter = BookmarksItemAdapter(this, bookmarks)
+                val itemAdapter = BookmarksItemAdapter(this, bookmarks, passwordToUse)
                 bookmarkItemsList.adapter = itemAdapter
 
                 val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
