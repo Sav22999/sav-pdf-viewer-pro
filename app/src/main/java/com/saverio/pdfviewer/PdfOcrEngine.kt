@@ -214,9 +214,11 @@ class PdfOcrEngine(private val context: Context) {
                 if (pageHits > 0) {
                     Log.d(TAG, "  page $page → $pageHits hits")
                     repeat(pageHits) { all.add(SearchResult(page)) }
-                    val snap = all.toList()
-                    withContext(Dispatchers.Main) { onResults?.invoke(snap, false) }
                 }
+
+                // Emit a progressive snapshot for every indexed page so the UI can react early.
+                val snap = all.toList()
+                withContext(Dispatchers.Main) { onResults?.invoke(snap, false) }
             }
 
             if (isActive) {

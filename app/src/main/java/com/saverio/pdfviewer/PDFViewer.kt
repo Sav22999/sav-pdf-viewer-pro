@@ -95,6 +95,7 @@ class PDFViewer : AppCompatActivity() {
 
     var isFullscreenEnabled = false
     private var openedExternally = true
+    private var keepTopBarVisibleForOpenError = false
     var showingTopBar = true
     var menuOpened = false
     private var compactTopBarVisible = false
@@ -135,13 +136,25 @@ class PDFViewer : AppCompatActivity() {
     var dialog: BottomSheetDialog? = null
     private val topBarUiHandler by lazy { Handler(Looper.getMainLooper()) }
     private val scheduleUiHandler by lazy { Handler(Looper.getMainLooper()) }
+    private val pagePersistenceHandler by lazy { Handler(Looper.getMainLooper()) }
+    private val pagePersistenceDebounceMs = 300L
+    private var pendingPagePersistPath: String? = null
+    private var pendingPagePersistPage: Int = -1
+    private val persistPageRunnable: Runnable = Runnable {
+        flushPendingPagePersistence()
+    }
     private val topBarAutoHideDelayMs = 5_000L
     private val scheduledAppearanceCheckDelayMs = 60_000L
     private var topBarAutoHideDeadlineAtMs = 0L
     private val topBarAutoHideRunnable: Runnable = Runnable {
         handleTopBarAutoHideTick()
     }
+
     private fun handleTopBarAutoHideTick() {
+        if (keepTopBarVisibleForOpenError) {
+            topBarAutoHideDeadlineAtMs = 0L
+            return
+        }
         val remainingDelayMs = topBarAutoHideDeadlineAtMs - SystemClock.uptimeMillis()
         if (remainingDelayMs > 0L) {
             if (showingTopBar && !menuOpened && !searchPanelVisible) {
@@ -154,6 +167,7 @@ class PDFViewer : AppCompatActivity() {
             hideTopBar(fullHiding = true)
         }
     }
+
     private var lastGoToVisibleState: Boolean? = null
     private var lastGoToBottomIconState: Boolean? = null
     private var skipNextInitialPageScrollHide = false
@@ -223,9 +237,11 @@ class PDFViewer : AppCompatActivity() {
         if (pageSize == null) return minZoomForCurrentLayout
 
         val availableWidth =
-            (pdfViewer.width - pdfViewer.paddingLeft - pdfViewer.paddingRight).toFloat().coerceAtLeast(1f)
+            (pdfViewer.width - pdfViewer.paddingLeft - pdfViewer.paddingRight).toFloat()
+                .coerceAtLeast(1f)
         val availableHeight =
-            (pdfViewer.height - pdfViewer.paddingTop - pdfViewer.paddingBottom).toFloat().coerceAtLeast(1f)
+            (pdfViewer.height - pdfViewer.paddingTop - pdfViewer.paddingBottom).toFloat()
+                .coerceAtLeast(1f)
         val fitWidthZoom = availableWidth / pageSize.width.coerceAtLeast(1f)
         val fitHeightZoom = availableHeight / pageSize.height.coerceAtLeast(1f)
 
@@ -270,9 +286,11 @@ class PDFViewer : AppCompatActivity() {
             it.logicalToViewerPage = ::mapLogicalPageToViewer
         }
     }
+
     private enum class SelectionDragState { NONE, RUBBER_BAND, START_HANDLE, END_HANDLE }
+
     private var selectionDragState = SelectionDragState.NONE
-    private var selectionDragPage  = -1
+    private var selectionDragPage = -1
     private var selectionDownViewX = Float.NaN
     private var selectionDownViewY = Float.NaN
     private lateinit var selectionGestureDetector: GestureDetector
@@ -291,7 +309,7 @@ class PDFViewer : AppCompatActivity() {
     var minPositionScrollbarHorizontal: Float = 0F
     var maxPositionScrollbarHorizontal: Float = 0F
     var startX = 0F
-    private val scrollbarSafetyMarginPx by lazy { 0F }
+    private val scrollbarSafetyMarginPx by lazy { dpToPx(6F).toFloat() }
     private val scrollbarMinimumLengthPx by lazy { dpToPx(50F) }
 
     private var applyingPdfOptions = false
@@ -514,7 +532,8 @@ class PDFViewer : AppCompatActivity() {
         val selectTextButton: ImageView = findViewById(R.id.buttonSelectTextToolbar)
         selectTextButton.setOnClickListener {
             // Text selection is activated via long-press on the document
-            Toast.makeText(this, getString(R.string.text_selection_mode_hint), Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.text_selection_mode_hint), Toast.LENGTH_SHORT)
+                .show()
             resetHideTopBarCounter()
         }
         selectTextButton.setOnLongClickListener {
@@ -711,6 +730,10 @@ class PDFViewer : AppCompatActivity() {
 
     private fun restartTopBarAutoHideCountdown() {
         topBarUiHandler.removeCallbacks(topBarAutoHideRunnable)
+        if (keepTopBarVisibleForOpenError) {
+            topBarAutoHideDeadlineAtMs = 0L
+            return
+        }
         if (showingTopBar && !menuOpened && !searchPanelVisible) {
             topBarAutoHideDeadlineAtMs = SystemClock.uptimeMillis() + topBarAutoHideDelayMs
             topBarUiHandler.postDelayed(topBarAutoHideRunnable, topBarAutoHideDelayMs)
@@ -759,7 +782,11 @@ class PDFViewer : AppCompatActivity() {
         return (calendar.get(Calendar.HOUR_OF_DAY) * 60) + calendar.get(Calendar.MINUTE)
     }
 
-    private fun isWithinScheduledRange(currentMinute: Int, startMinute: Int, endMinute: Int): Boolean {
+    private fun isWithinScheduledRange(
+        currentMinute: Int,
+        startMinute: Int,
+        endMinute: Int
+    ): Boolean {
         if (startMinute == endMinute) return true
         return if (startMinute < endMinute) {
             currentMinute in startMinute until endMinute
@@ -768,14 +795,13 @@ class PDFViewer : AppCompatActivity() {
         }
     }
 
-    private fun applyNightModeState(enabled: Boolean, persist: Boolean = true, refreshViewer: Boolean = true) {
+    private fun applyNightModeState(
+        enabled: Boolean,
+        persist: Boolean = true,
+        refreshViewer: Boolean = true
+    ) {
+        val stateChanged = (night_mode != enabled)
         night_mode = enabled
-        if (refreshViewer) {
-            pdfViewer.setNightMode(enabled)
-            if (totalPages > 0) {
-                pdfViewer.jumpTo(pdfViewer.currentPage, true)
-            }
-        }
 
         val buttonDarkFilter: ImageView = findViewById(R.id.buttonDarkFilter)
         buttonDarkFilter.setImageResource(
@@ -790,6 +816,13 @@ class PDFViewer : AppCompatActivity() {
 
         if (persist && !applyingPdfOptions) {
             saveCurrentPdfOptions()
+        }
+
+        // Reload the PDF so the night-mode colour filter is applied to
+        // freshly rendered tiles.  A simple invalidate() is not enough
+        // because the library caches bitmap tiles without the filter.
+        if (refreshViewer && stateChanged && uriOpened != null) {
+            selectPdfFromURI(uriOpened)
         }
     }
 
@@ -809,7 +842,11 @@ class PDFViewer : AppCompatActivity() {
         }
     }
 
-    private fun applyFullscreenState(enabled: Boolean, persist: Boolean = true, showCompactBar: Boolean = true) {
+    private fun applyFullscreenState(
+        enabled: Boolean,
+        persist: Boolean = true,
+        showCompactBar: Boolean = true
+    ) {
         val button: ImageView = findViewById(R.id.buttonFullScreenToolbar)
         if (enabled) {
             window.setFlags(
@@ -842,14 +879,22 @@ class PDFViewer : AppCompatActivity() {
         val currentMinute = currentMinuteOfDay()
         if (defaults.darkFilterAuto) {
             applyNightModeState(
-                isWithinScheduledRange(currentMinute, defaults.darkFilterStartMinute, defaults.darkFilterEndMinute),
+                isWithinScheduledRange(
+                    currentMinute,
+                    defaults.darkFilterStartMinute,
+                    defaults.darkFilterEndMinute
+                ),
                 persist = false,
                 refreshViewer = refreshViewer
             )
         }
         if (defaults.nightLightAuto) {
             applyContrastOverlayState(
-                isWithinScheduledRange(currentMinute, defaults.nightLightStartMinute, defaults.nightLightEndMinute),
+                isWithinScheduledRange(
+                    currentMinute,
+                    defaults.nightLightStartMinute,
+                    defaults.nightLightEndMinute
+                ),
                 persist = false
             )
         }
@@ -861,6 +906,9 @@ class PDFViewer : AppCompatActivity() {
                 selectPdfFromStorage()
                 return
             }
+            // Persist latest page before switching to another document.
+            flushPendingPagePersistence()
+            keepTopBarVisibleForOpenError = false
             if (uri.scheme == "content") {
                 try {
                     contentResolver.takePersistableUriPermission(
@@ -960,13 +1008,22 @@ class PDFViewer : AppCompatActivity() {
                 .onDrawAll { canvas, pageWidth, pageHeight, displayedPage ->
                     // Record page dimensions for text selection
                     textSelectionManager.recordPageSize(displayedPage, pageWidth, pageHeight)
-                    textSelectionManager.recordPageDrawGeometry(displayedPage, canvas, pageWidth, pageHeight)
+                    textSelectionManager.recordPageDrawGeometry(
+                        displayedPage,
+                        canvas,
+                        pageWidth,
+                        pageHeight
+                    )
 
                     // Draw search highlight rectangles on this page
                     if (currentSearchQuery.isNotBlank() && searchResults.isNotEmpty()) {
                         val logicalDisplayedPage = mapViewerPageToLogical(displayedPage)
                         val rects =
-                            ocrEngine.getHighlightsForPage(logicalDisplayedPage, currentSearchQuery, currentSearchOptions())
+                            ocrEngine.getHighlightsForPage(
+                                logicalDisplayedPage,
+                                currentSearchQuery,
+                                currentSearchOptions()
+                            )
                         // Determine which occurrence index within this page is active
                         val activeResult = searchResults.getOrNull(searchResultIndex)
                         val activeOnThisPage =
@@ -1016,6 +1073,7 @@ class PDFViewer : AppCompatActivity() {
                     */
                 }
                 .onRender { nbPages ->
+                    keepTopBarVisibleForOpenError = false
                     totalPages = nbPages
                     if (lastPosition >= totalPages) lastPosition = (totalPages - 1)
 
@@ -1027,7 +1085,7 @@ class PDFViewer : AppCompatActivity() {
 
                     refreshResidualViewMetrics()
 
-                    updatePdfPage(fileId, lastPosition)
+                    updatePdfPage(fileId, lastPosition, persistImmediately = true)
                     saveCurrentPdfOptions()
                     if (totalPages == 1) {
                         isSupportedGoTop = false
@@ -1040,6 +1098,7 @@ class PDFViewer : AppCompatActivity() {
                         isSupportedScrollbarButton = true
                     }
                     val targetViewerPage = mapLogicalPageToViewer(lastPosition)
+                    pdfViewer.jumpTo(targetViewerPage, false)
                     updateZoomBoundsForCurrentOrientation(targetViewerPage)
                     if (hasExplicitZoomPreference()) {
                         pdfViewer.zoomTo(zoomToRestore)
@@ -1071,6 +1130,11 @@ class PDFViewer : AppCompatActivity() {
                         buttonSideScroll.isGone = false
                         buttonBottomScroll.isGone = true
                     }
+
+                    // Force an immediate redraw so visual changes (night mode,
+                    // zoom, scroll direction, single-page, …) are rendered
+                    // straight away without requiring a scroll gesture first.
+                    pdfViewer.post { pdfViewer.invalidate() }
                 }.onError(OnErrorListener {
                     if (it.message.toString()
                             .contains("Password required or incorrect password.")
@@ -1080,6 +1144,8 @@ class PDFViewer : AppCompatActivity() {
                         passwordRequired = true
                         askThePassword(uri, passwordWrong)
                     } else {
+                        keepTopBarVisibleForOpenError = true
+                        showTopBar(showGoTop = false)
                         val errorMessage = it.message.toString()
                         if (
                             errorMessage.contains("Access", ignoreCase = true) &&
@@ -1127,7 +1193,8 @@ class PDFViewer : AppCompatActivity() {
                 }
         } catch (_: Exception) {
             null
-        } ?: (uri.lastPathSegment?.substringAfterLast('/')?.takeIf { it.isNotBlank() } ?: "document.pdf")
+        } ?: (uri.lastPathSegment?.substringAfterLast('/')?.takeIf { it.isNotBlank() }
+            ?: "document.pdf")
     }
 
     private fun sanitizePdfFileName(name: String): String {
@@ -1176,7 +1243,8 @@ class PDFViewer : AppCompatActivity() {
 
         val buttonOpen: TextView = findViewById(R.id.buttonOpenPassword)
         val buttonClose: TextView = findViewById(R.id.buttonClosePassword)
-        buttonClose.text = getString(if (openedExternally) R.string.button_close else R.string.button_back)
+        buttonClose.text =
+            getString(if (openedExternally) R.string.button_close else R.string.button_back)
         buttonClose.contentDescription = getString(
             if (openedExternally) R.string.tooltip_close_app else R.string.tooltip_back_to_home
         )
@@ -1377,17 +1445,41 @@ class PDFViewer : AppCompatActivity() {
         super.onBackPressed()
     }
 
-    private fun updatePdfPage(pathName: String, currentPage: Int) {
+    private fun updatePdfPage(
+        pathName: String,
+        currentPage: Int,
+        persistImmediately: Boolean = false
+    ) {
+        updateCurrentPageUi(pathName, currentPage)
+        if (persistImmediately) {
+            persistCurrentPageNow(pathName, currentPage)
+        } else {
+            schedulePersistCurrentPage(pathName, currentPage)
+        }
+    }
+
+    private fun updateCurrentPageUi(pathName: String, currentPage: Int) {
+        val currentPageText: TextView = findViewById(R.id.totalPagesToolbar)
+        currentPageText.text = (currentPage + 1).toString() + "/" + totalPages.toString()
+        currentPageText.isGone = false
+        savedCurrentPageOld = savedCurrentPage
+        savedCurrentPage = currentPage
+        //println("current page: $savedCurrentPage")
+        updateButtonBookmark(pathName = pathName, currentPage = currentPage)
+
+        if (!horizontal) setPositionScrollbarByPage((currentPage + 1).toFloat())
+        else setPositionBottomScrollbarByPage((currentPage + 1).toFloat())
+    }
+
+    private fun persistCurrentPageNow(pathName: String, currentPage: Int) {
         val pathNameTemp = getTheFileName(pathName, 0).toMD5() //file-id
         val databaseHandler = DatabaseHandler(this)
         val file = findStoredFileRecord(databaseHandler, pathNameTemp, pathName)
         if (file != null) {
-            //already exists -> update
-            file.lastPage = currentPage //update the lastPage variable
-            file.lastUpdate = getNow() //update the lastUpdate variable
+            file.lastPage = currentPage
+            file.lastUpdate = getNow()
             databaseHandler.updateFile(file = file)
         } else {
-            //not exists -> add
             val file = FilesModel(
                 id = pathNameTemp,
                 date = getNow(),
@@ -1405,19 +1497,23 @@ class PDFViewer : AppCompatActivity() {
             )
             databaseHandler.add(file = file)
         }
-        /*getSharedPreferences(pathNameTemp, Context.MODE_PRIVATE).edit()
-            .putInt(pathNameTemp, currentPage).apply()*/
+    }
 
-        val currentPageText: TextView = findViewById(R.id.totalPagesToolbar)
-        currentPageText.text = (currentPage + 1).toString() + "/" + totalPages.toString()
-        currentPageText.isGone = false
-        savedCurrentPageOld = savedCurrentPage
-        savedCurrentPage = currentPage
-        //println("current page: $savedCurrentPage")
-        updateButtonBookmark(pathName = pathName, currentPage = currentPage)
+    private fun schedulePersistCurrentPage(pathName: String, currentPage: Int) {
+        pendingPagePersistPath = pathName
+        pendingPagePersistPage = currentPage
+        pagePersistenceHandler.removeCallbacks(persistPageRunnable)
+        pagePersistenceHandler.postDelayed(persistPageRunnable, pagePersistenceDebounceMs)
+    }
 
-        if (!horizontal) setPositionScrollbarByPage((currentPage + 1).toFloat())
-        else setPositionBottomScrollbarByPage((currentPage + 1).toFloat())
+    private fun flushPendingPagePersistence() {
+        val pathToPersist = pendingPagePersistPath ?: return
+        val pageToPersist = pendingPagePersistPage
+        pendingPagePersistPath = null
+        pendingPagePersistPage = -1
+        pagePersistenceHandler.removeCallbacks(persistPageRunnable)
+        if (pageToPersist < 0) return
+        persistCurrentPageNow(pathToPersist, pageToPersist)
     }
 
     fun updateButtonBookmark(pathName: String, currentPage: Int) {
@@ -1485,7 +1581,8 @@ class PDFViewer : AppCompatActivity() {
         dialog!!.dismissWithAnimation = true
         dialog!!.setCancelable(true)
         dialog!!.setOnShowListener {
-            val bottomSheet = dialog!!.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+            val bottomSheet =
+                dialog!!.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
             val bottomSheetBehavior = bottomSheet?.let { BottomSheetBehavior.from(it) }
             val bookmarkItemsList: RecyclerView = view.findViewById(R.id.bookmarksList)
             val noBookmarksPresent: TextView = view.findViewById(R.id.noBookmarksPresentText)
@@ -1503,122 +1600,131 @@ class PDFViewer : AppCompatActivity() {
                 val itemAdapter = BookmarksItemAdapter(this, bookmarks, passwordToUse)
                 bookmarkItemsList.adapter = itemAdapter
 
-                val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
-                    override fun onMove(
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder,
-                        target: RecyclerView.ViewHolder
-                    ): Boolean = false
+                val swipeCallback =
+                    object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                        override fun onMove(
+                            recyclerView: RecyclerView,
+                            viewHolder: RecyclerView.ViewHolder,
+                            target: RecyclerView.ViewHolder
+                        ): Boolean = false
 
-                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                        val position = viewHolder.adapterPosition
-                        if (position == RecyclerView.NO_POSITION) {
-                            itemAdapter.notifyDataSetChanged()
-                            return
+                        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                            val position = viewHolder.adapterPosition
+                            if (position == RecyclerView.NO_POSITION) {
+                                itemAdapter.notifyDataSetChanged()
+                                return
+                            }
+
+                            val bookmark = itemAdapter.getItemAt(position)
+                            val bookmarkId = bookmark?.id
+                            if (bookmark == null || bookmarkId == null) {
+                                itemAdapter.notifyItemChanged(position)
+                                return
+                            }
+
+                            databaseHandler.deleteBookmark(bookmarkId)
+                            itemAdapter.removeItemAt(position)
+
+                            if (itemAdapter.itemCount == 0) {
+                                hideBottomSheet()
+                            }
                         }
 
-                        val bookmark = itemAdapter.getItemAt(position)
-                        val bookmarkId = bookmark?.id
-                        if (bookmark == null || bookmarkId == null) {
-                            itemAdapter.notifyItemChanged(position)
-                            return
+                        override fun onSelectedChanged(
+                            viewHolder: RecyclerView.ViewHolder?,
+                            actionState: Int
+                        ) {
+                            super.onSelectedChanged(viewHolder, actionState)
+                            bottomSheetBehavior?.isDraggable =
+                                actionState != ItemTouchHelper.ACTION_STATE_SWIPE
+                            bookmarkItemsList.parent?.requestDisallowInterceptTouchEvent(
+                                actionState == ItemTouchHelper.ACTION_STATE_SWIPE
+                            )
                         }
 
-                        databaseHandler.deleteBookmark(bookmarkId)
-                        itemAdapter.removeItemAt(position)
+                        override fun onChildDraw(
+                            c: Canvas,
+                            recyclerView: RecyclerView,
+                            viewHolder: RecyclerView.ViewHolder,
+                            dX: Float,
+                            dY: Float,
+                            actionState: Int,
+                            isCurrentlyActive: Boolean
+                        ) {
+                            val foregroundView =
+                                viewHolder.itemView.findViewById<View>(R.id.cardViewBookmark)
+                            val backgroundCard =
+                                viewHolder.itemView.findViewById<CardView>(R.id.cardViewBookmarkRemoved)
+                            val activeSwipeColor =
+                                ContextCompat.getColor(this@PDFViewer, R.color.dark_dark_red)
+                            val idleSwipeColor = ContextCompat.getColor(this@PDFViewer, R.color.red)
+                            if (dX >= 0F) {
+                                backgroundCard.setCardBackgroundColor(idleSwipeColor)
+                                ItemTouchHelper.Callback.getDefaultUIUtil().onDraw(
+                                    c,
+                                    recyclerView,
+                                    foregroundView,
+                                    0F,
+                                    dY,
+                                    actionState,
+                                    isCurrentlyActive
+                                )
+                                return
+                            }
+                            val maxSwipe = foregroundView.width * 0.90F
+                            val clampedDx = dX.coerceIn(-maxSwipe, 0F)
+                            val thresholdPx = foregroundView.width * getSwipeThreshold(viewHolder)
+                            val isDeleteActionArmed = kotlin.math.abs(clampedDx) >= thresholdPx
+                            backgroundCard.setCardBackgroundColor(
+                                if (isDeleteActionArmed) activeSwipeColor else idleSwipeColor
+                            )
+                            if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                                recyclerView.parent?.requestDisallowInterceptTouchEvent(
+                                    isCurrentlyActive || clampedDx != 0F
+                                )
+                            }
 
-                        if (itemAdapter.itemCount == 0) {
-                            hideBottomSheet()
-                        }
-                    }
-
-                    override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
-                        super.onSelectedChanged(viewHolder, actionState)
-                        bottomSheetBehavior?.isDraggable = actionState != ItemTouchHelper.ACTION_STATE_SWIPE
-                        bookmarkItemsList.parent?.requestDisallowInterceptTouchEvent(
-                            actionState == ItemTouchHelper.ACTION_STATE_SWIPE
-                        )
-                    }
-
-                    override fun onChildDraw(
-                        c: Canvas,
-                        recyclerView: RecyclerView,
-                        viewHolder: RecyclerView.ViewHolder,
-                        dX: Float,
-                        dY: Float,
-                        actionState: Int,
-                        isCurrentlyActive: Boolean
-                    ) {
-                        val foregroundView =
-                            viewHolder.itemView.findViewById<View>(R.id.cardViewBookmark)
-                        val backgroundCard =
-                            viewHolder.itemView.findViewById<CardView>(R.id.cardViewBookmarkRemoved)
-                        val activeSwipeColor = ContextCompat.getColor(this@PDFViewer, R.color.dark_dark_red)
-                        val idleSwipeColor = ContextCompat.getColor(this@PDFViewer, R.color.red)
-                        if (dX >= 0F) {
-                            backgroundCard.setCardBackgroundColor(idleSwipeColor)
                             ItemTouchHelper.Callback.getDefaultUIUtil().onDraw(
                                 c,
                                 recyclerView,
                                 foregroundView,
-                                0F,
+                                clampedDx,
                                 dY,
                                 actionState,
                                 isCurrentlyActive
                             )
-                            return
                         }
-                        val maxSwipe = foregroundView.width * 0.90F
-                        val clampedDx = dX.coerceIn(-maxSwipe, 0F)
-                        val thresholdPx = foregroundView.width * getSwipeThreshold(viewHolder)
-                        val isDeleteActionArmed = kotlin.math.abs(clampedDx) >= thresholdPx
-                        backgroundCard.setCardBackgroundColor(
-                            if (isDeleteActionArmed) activeSwipeColor else idleSwipeColor
-                        )
-                        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
-                            recyclerView.parent?.requestDisallowInterceptTouchEvent(
-                                isCurrentlyActive || clampedDx != 0F
+
+                        override fun clearView(
+                            recyclerView: RecyclerView,
+                            viewHolder: RecyclerView.ViewHolder
+                        ) {
+                            val foregroundView =
+                                viewHolder.itemView.findViewById<View>(R.id.cardViewBookmark)
+                            val backgroundCard =
+                                viewHolder.itemView.findViewById<CardView>(R.id.cardViewBookmarkRemoved)
+                            ItemTouchHelper.Callback.getDefaultUIUtil().clearView(foregroundView)
+                            backgroundCard.setCardBackgroundColor(
+                                ContextCompat.getColor(this@PDFViewer, R.color.red)
                             )
+                            bottomSheetBehavior?.isDraggable = true
+                            recyclerView.parent?.requestDisallowInterceptTouchEvent(false)
+                            super.clearView(recyclerView, viewHolder)
                         }
 
-                        ItemTouchHelper.Callback.getDefaultUIUtil().onDraw(
-                            c,
-                            recyclerView,
-                            foregroundView,
-                            clampedDx,
-                            dY,
-                            actionState,
-                            isCurrentlyActive
-                        )
-                    }
+                        override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+                            // Keep it forgiving enough for short rows in bottom sheet.
+                            return 0.24F
+                        }
 
-                    override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
-                        val foregroundView =
-                            viewHolder.itemView.findViewById<View>(R.id.cardViewBookmark)
-                        val backgroundCard =
-                            viewHolder.itemView.findViewById<CardView>(R.id.cardViewBookmarkRemoved)
-                        ItemTouchHelper.Callback.getDefaultUIUtil().clearView(foregroundView)
-                        backgroundCard.setCardBackgroundColor(
-                            ContextCompat.getColor(this@PDFViewer, R.color.red)
-                        )
-                        bottomSheetBehavior?.isDraggable = true
-                        recyclerView.parent?.requestDisallowInterceptTouchEvent(false)
-                        super.clearView(recyclerView, viewHolder)
-                    }
+                        override fun getSwipeEscapeVelocity(defaultValue: Float): Float {
+                            return defaultValue * 0.65F
+                        }
 
-                    override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
-                        // Keep it forgiving enough for short rows in bottom sheet.
-                        return 0.24F
+                        override fun getSwipeVelocityThreshold(defaultValue: Float): Float {
+                            return defaultValue * 0.85F
+                        }
                     }
-
-                    override fun getSwipeEscapeVelocity(defaultValue: Float): Float {
-                        return defaultValue * 0.65F
-                    }
-
-                    override fun getSwipeVelocityThreshold(defaultValue: Float): Float {
-                        return defaultValue * 0.85F
-                    }
-                }
                 ItemTouchHelper(swipeCallback).attachToRecyclerView(bookmarkItemsList)
 
                 loadingBookmarks.isGone = true
@@ -1799,6 +1905,30 @@ class PDFViewer : AppCompatActivity() {
 
             toolbar.isGone = false
             buttonClose.isGone = false
+
+            if (keepTopBarVisibleForOpenError) {
+                // In open-error mode keep only the close/back action visible.
+                buttonShare.isGone = true
+                buttonSearch.isGone = true
+                buttonFullscreen.isGone = true
+                buttonGoTop.isGone = true
+                buttonOpen.isGone = true
+                buttonMenu.isGone = true
+                buttonNightDay.isGone = true
+                buttonBookmark.isGone = true
+                currentPage.isGone = true
+                toolbarInvisible.isGone = true
+                findViewById<TextView>(R.id.buttonSideScroll).isGone = true
+                findViewById<TextView>(R.id.buttonBottomScroll).isGone = true
+                hideGoToDialog()
+                hideSearchPanel(clearState = true)
+                hideMenuPanel()
+                hideSelectionPanel()
+                hideMessageGuide1()
+                lastGoToVisibleState = false
+                return
+            }
+
             if (isSupportedShareFeature) buttonShare.isGone = false
             buttonSearch.isGone = false
             buttonFullscreen.isGone = false
@@ -1903,6 +2033,10 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun hideTopBar(fullHiding: Boolean = false, x: Float = 0F, y: Float = 0F) {
+        if (keepTopBarVisibleForOpenError) {
+            showTopBar(showGoTop = false)
+            return
+        }
         if (x == y) {
             if (!fullHiding) {
                 showCompactTopBar()
@@ -2349,10 +2483,31 @@ class PDFViewer : AppCompatActivity() {
         if (dialog != null) dialog!!.dismiss()
     }
 
+    private fun recalculateScrollbarButtonsForLogicalPage(logicalPage: Int) {
+        if (totalPages <= 1) {
+            updateScrollbarButtonsVisibility()
+            return
+        }
+        if (!refreshResidualViewMetrics()) return
+
+        val clampedLogicalPage = logicalPage.coerceIn(0, totalPages - 1)
+        setScrollBarSide(animation = false)
+        setScrollBarBottom(animation = false)
+        val pageForThumb = clampedLogicalPage + 1F
+        setPositionScrollbarByPage(pageForThumb)
+        setPositionBottomScrollbarByPage(pageForThumb)
+        updateScrollbarButtonsVisibility()
+    }
+
     private fun setScrollMode(mode: ScrollMode, reloadPdf: Boolean = true) {
+        val logicalPageBeforeModeChange =
+            if (totalPages > 0) savedCurrentPage.coerceIn(0, totalPages - 1) else 0
+
         scrollMode = mode
-        horizontal = mode == ScrollMode.HORIZONTAL_LEFT_TO_RIGHT || mode == ScrollMode.HORIZONTAL_RIGHT_TO_LEFT
-        reverseScroll = mode == ScrollMode.VERTICAL_BOTTOM_TO_TOP || mode == ScrollMode.HORIZONTAL_RIGHT_TO_LEFT
+        horizontal =
+            mode == ScrollMode.HORIZONTAL_LEFT_TO_RIGHT || mode == ScrollMode.HORIZONTAL_RIGHT_TO_LEFT
+        reverseScroll =
+            mode == ScrollMode.VERTICAL_BOTTOM_TO_TOP || mode == ScrollMode.HORIZONTAL_RIGHT_TO_LEFT
         saveScrollModePreference()
         updateScrollModeButtons()
         updateGoToEdgeButton()
@@ -2360,6 +2515,9 @@ class PDFViewer : AppCompatActivity() {
         if (!applyingPdfOptions) {
             saveCurrentPdfOptions()
         }
+
+        // Recompute thumb position immediately for the selected direction.
+        recalculateScrollbarButtonsForLogicalPage(logicalPageBeforeModeChange)
 
         if (reloadPdf && uriOpened != null) {
             selectPdfFromURI(uriOpened)
@@ -2431,7 +2589,8 @@ class PDFViewer : AppCompatActivity() {
         continuousPageButton.alpha = if (single_page) unselectedOptionAlpha else selectedOptionAlpha
 
         singlePageButton.contentDescription = getString(R.string.tooltip_single_page_scroll)
-        continuousPageButton.contentDescription = getString(R.string.tooltip_single_page_scroll_disabled)
+        continuousPageButton.contentDescription =
+            getString(R.string.tooltip_single_page_scroll_disabled)
     }
 
     private fun setRotationLockState(locked: Boolean, persist: Boolean = true) {
@@ -2497,7 +2656,8 @@ class PDFViewer : AppCompatActivity() {
 
     private fun updateGoToEdgeButtonVisibilityInternal() {
         val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
-        val shouldBeVisible = showingTopBar && !compactTopBarVisible && isSupportedGoTop && getCurrentLogicalPage() > 0
+        val shouldBeVisible =
+            showingTopBar && !compactTopBarVisible && isSupportedGoTop && getCurrentLogicalPage() > 0
         if (lastGoToVisibleState == shouldBeVisible) return
 
         buttonGoTop.isGone = !shouldBeVisible
@@ -2525,7 +2685,12 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun applyBottomPlacementImeOffset() {
+        // With adjustResize in the manifest, the activity window is resized
+        // when the keyboard appears, so the toolbar (constrained to the bottom
+        // of the parent ConstraintLayout) naturally moves above the keyboard.
+        // We still translate floating panels / arrows so they stay attached.
         val bottomOffset = if (isBottomToolbarPlacement()) imeBottomInset.toFloat() else 0f
+
         val idsToOffset = intArrayOf(
             R.id.messageSearch,
             R.id.messageGoTo,
@@ -2554,35 +2719,91 @@ class PDFViewer : AppCompatActivity() {
         constraintSet.clear(R.id.toolbarContainer, ConstraintSet.TOP)
         constraintSet.clear(R.id.toolbarContainer, ConstraintSet.BOTTOM)
         if (useBottomPlacement) {
-            constraintSet.connect(R.id.toolbarContainer, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+            constraintSet.connect(
+                R.id.toolbarContainer,
+                ConstraintSet.BOTTOM,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.BOTTOM
+            )
         } else {
-            constraintSet.connect(R.id.toolbarContainer, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+            constraintSet.connect(
+                R.id.toolbarContainer,
+                ConstraintSet.TOP,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.TOP
+            )
         }
 
         constraintSet.clear(R.id.residualView, ConstraintSet.TOP)
         constraintSet.clear(R.id.residualView, ConstraintSet.BOTTOM)
         if (useBottomPlacement) {
-            constraintSet.connect(R.id.residualView, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
-            constraintSet.connect(R.id.residualView, ConstraintSet.BOTTOM, R.id.toolbarContainer, ConstraintSet.TOP)
+            constraintSet.connect(
+                R.id.residualView,
+                ConstraintSet.TOP,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.TOP
+            )
+            constraintSet.connect(
+                R.id.residualView,
+                ConstraintSet.BOTTOM,
+                R.id.toolbarContainer,
+                ConstraintSet.TOP
+            )
         } else {
-            constraintSet.connect(R.id.residualView, ConstraintSet.TOP, R.id.toolbarContainer, ConstraintSet.BOTTOM)
-            constraintSet.connect(R.id.residualView, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+            constraintSet.connect(
+                R.id.residualView,
+                ConstraintSet.TOP,
+                R.id.toolbarContainer,
+                ConstraintSet.BOTTOM
+            )
+            constraintSet.connect(
+                R.id.residualView,
+                ConstraintSet.BOTTOM,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.BOTTOM
+            )
         }
 
         constraintSet.clear(R.id.buttonSideScroll, ConstraintSet.TOP)
         constraintSet.clear(R.id.buttonSideScroll, ConstraintSet.BOTTOM)
         if (useBottomPlacement) {
-            constraintSet.connect(R.id.buttonSideScroll, ConstraintSet.TOP, ConstraintSet.PARENT_ID, ConstraintSet.TOP)
+            constraintSet.connect(
+                R.id.buttonSideScroll,
+                ConstraintSet.TOP,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.TOP
+            )
         } else {
-            constraintSet.connect(R.id.buttonSideScroll, ConstraintSet.TOP, R.id.toolbarContainer, ConstraintSet.BOTTOM)
+            constraintSet.connect(
+                R.id.buttonSideScroll,
+                ConstraintSet.TOP,
+                R.id.toolbarContainer,
+                ConstraintSet.BOTTOM
+            )
         }
 
         constraintSet.clear(R.id.buttonBottomScroll, ConstraintSet.TOP)
         constraintSet.clear(R.id.buttonBottomScroll, ConstraintSet.BOTTOM)
         if (useBottomPlacement) {
-            constraintSet.connect(R.id.buttonBottomScroll, ConstraintSet.BOTTOM, R.id.toolbarContainer, ConstraintSet.TOP)
+            constraintSet.connect(
+                R.id.buttonBottomScroll,
+                ConstraintSet.BOTTOM,
+                R.id.toolbarContainer,
+                ConstraintSet.TOP
+            )
+            constraintSet.setMargin(
+                R.id.buttonBottomScroll,
+                ConstraintSet.BOTTOM,
+                scrollbarSafetyMarginPx.toInt()
+            )
         } else {
-            constraintSet.connect(R.id.buttonBottomScroll, ConstraintSet.BOTTOM, R.id.pdfView, ConstraintSet.BOTTOM)
+            constraintSet.connect(
+                R.id.buttonBottomScroll,
+                ConstraintSet.BOTTOM,
+                R.id.pdfView,
+                ConstraintSet.BOTTOM
+            )
+            constraintSet.setMargin(R.id.buttonBottomScroll, ConstraintSet.BOTTOM, 10)
         }
 
         val overlayPanelIds = intArrayOf(
@@ -2595,10 +2816,20 @@ class PDFViewer : AppCompatActivity() {
             constraintSet.clear(viewId, ConstraintSet.TOP)
             constraintSet.clear(viewId, ConstraintSet.BOTTOM)
             if (useBottomPlacement) {
-                constraintSet.connect(viewId, ConstraintSet.BOTTOM, R.id.toolbarContainer, ConstraintSet.TOP)
+                constraintSet.connect(
+                    viewId,
+                    ConstraintSet.BOTTOM,
+                    R.id.toolbarContainer,
+                    ConstraintSet.TOP
+                )
                 constraintSet.setMargin(viewId, ConstraintSet.BOTTOM, overlayMargin)
             } else {
-                constraintSet.connect(viewId, ConstraintSet.TOP, R.id.toolbarContainer, ConstraintSet.BOTTOM)
+                constraintSet.connect(
+                    viewId,
+                    ConstraintSet.TOP,
+                    R.id.toolbarContainer,
+                    ConstraintSet.BOTTOM
+                )
                 constraintSet.setMargin(viewId, ConstraintSet.TOP, overlayMargin)
             }
         }
@@ -2633,9 +2864,19 @@ class PDFViewer : AppCompatActivity() {
         constraintSet.clear(R.id.textSelectionBar, ConstraintSet.TOP)
         constraintSet.clear(R.id.textSelectionBar, ConstraintSet.BOTTOM)
         if (useBottomPlacement) {
-            constraintSet.connect(R.id.textSelectionBar, ConstraintSet.BOTTOM, R.id.toolbarContainer, ConstraintSet.TOP)
+            constraintSet.connect(
+                R.id.textSelectionBar,
+                ConstraintSet.BOTTOM,
+                R.id.toolbarContainer,
+                ConstraintSet.TOP
+            )
         } else {
-            constraintSet.connect(R.id.textSelectionBar, ConstraintSet.BOTTOM, ConstraintSet.PARENT_ID, ConstraintSet.BOTTOM)
+            constraintSet.connect(
+                R.id.textSelectionBar,
+                ConstraintSet.BOTTOM,
+                ConstraintSet.PARENT_ID,
+                ConstraintSet.BOTTOM
+            )
         }
         constraintSet.setMargin(R.id.textSelectionBar, ConstraintSet.BOTTOM, selectionBarMargin)
 
@@ -2679,27 +2920,28 @@ class PDFViewer : AppCompatActivity() {
         val residualW = fullW
         val residualH = (fullH - toolbarH).coerceAtLeast(0)
 
-        val currentStatus = if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            residualViewConfiguration["landscape"] = hashMapOf(
-                "width" to residualW,
-                "height" to residualH
-            )
-            residualViewConfiguration["portrait"] = hashMapOf(
-                "width" to residualH + toolbarH * (3 / 2),
-                "height" to residualW - toolbarH * 2
-            )
-            "landscape"
-        } else {
-            residualViewConfiguration["landscape"] = hashMapOf(
-                "width" to residualH + toolbarH,
-                "height" to residualW - toolbarH * 2
-            )
-            residualViewConfiguration["portrait"] = hashMapOf(
-                "width" to residualW - toolbarH / 2,
-                "height" to residualH
-            )
-            "portrait"
-        }
+        val currentStatus =
+            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+                residualViewConfiguration["landscape"] = hashMapOf(
+                    "width" to residualW,
+                    "height" to residualH
+                )
+                residualViewConfiguration["portrait"] = hashMapOf(
+                    "width" to residualH + toolbarH * (3 / 2),
+                    "height" to residualW - toolbarH * 2
+                )
+                "landscape"
+            } else {
+                residualViewConfiguration["landscape"] = hashMapOf(
+                    "width" to residualH + toolbarH,
+                    "height" to residualW - toolbarH * 2
+                )
+                residualViewConfiguration["portrait"] = hashMapOf(
+                    "width" to residualW - toolbarH / 2,
+                    "height" to residualH
+                )
+                "portrait"
+            }
 
         residualViewConfigurationConfigurated = true
         minPositionScrollbar = buttonSideScroll.y
@@ -2718,6 +2960,12 @@ class PDFViewer : AppCompatActivity() {
     private fun updateScrollbarButtonsVisibility() {
         val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
         val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
+
+        if (keepTopBarVisibleForOpenError) {
+            buttonSideScroll.isGone = true
+            buttonBottomScroll.isGone = true
+            return
+        }
 
         if (!isSupportedScrollbarButton || totalPages <= 1) {
             buttonSideScroll.isGone = true
@@ -2807,8 +3055,9 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun getVerticalScrollbarTrackMetrics(button: TextView): ScrollbarTrackMetrics {
+        val bottomSafety = if (isBottomToolbarPlacement()) scrollbarSafetyMarginPx else 0F
         val trackStart = minPositionScrollbar
-        val trackEnd = (maxPositionScrollbar + minPositionScrollbar - button.height)
+        val trackEnd = (maxPositionScrollbar + minPositionScrollbar - button.height - bottomSafety)
             .coerceAtLeast(trackStart)
         return ScrollbarTrackMetrics(
             start = trackStart,
@@ -2828,13 +3077,23 @@ class PDFViewer : AppCompatActivity() {
         )
     }
 
-    private fun alignSideScrollLabelToThumb(container: ConstraintLayout, thumb: TextView, thumbTop: Float, animationDuration: Long = 0L) {
+    private fun alignSideScrollLabelToThumb(
+        container: ConstraintLayout,
+        thumb: TextView,
+        thumbTop: Float,
+        animationDuration: Long = 0L
+    ) {
         val labelHeight = if (container.height > 0) container.height else dpToPx(50F)
         val centeredY = thumbTop + ((thumb.height - labelHeight) / 2F)
         container.animate().y(centeredY).setDuration(animationDuration).start()
     }
 
-    private fun alignBottomScrollLabelToThumb(container: ConstraintLayout, thumb: TextView, thumbLeft: Float, animationDuration: Long = 0L) {
+    private fun alignBottomScrollLabelToThumb(
+        container: ConstraintLayout,
+        thumb: TextView,
+        thumbLeft: Float,
+        animationDuration: Long = 0L
+    ) {
         val labelWidth = if (container.width > 0) container.width else thumb.width
         val centeredX = thumbLeft + ((thumb.width - labelWidth) / 2F)
         container.animate().x(centeredX).setDuration(animationDuration).start()
@@ -2896,18 +3155,25 @@ class PDFViewer : AppCompatActivity() {
         }
     }
 
-    private fun migrateLegacyPreferencesIfNeeded(fileKey: String, databaseHandler: DatabaseHandler) {
-        val migrationPreferences = getSharedPreferences(legacyMigrationPreferenceName, Context.MODE_PRIVATE)
+    private fun migrateLegacyPreferencesIfNeeded(
+        fileKey: String,
+        databaseHandler: DatabaseHandler
+    ) {
+        val migrationPreferences =
+            getSharedPreferences(legacyMigrationPreferenceName, Context.MODE_PRIVATE)
         val migrationKey = "migrated_$fileKey"
         if (migrationPreferences.getBoolean(migrationKey, false)) return
 
-        val oldPdfPreferences = getSharedPreferences(legacyPdfOptionsPreferenceName, Context.MODE_PRIVATE)
-        val oldGlobalScrollMode = getSharedPreferences(scrollModePreferenceName, Context.MODE_PRIVATE)
-            .getString(scrollModePreferenceKey, null)
+        val oldPdfPreferences =
+            getSharedPreferences(legacyPdfOptionsPreferenceName, Context.MODE_PRIVATE)
+        val oldGlobalScrollMode =
+            getSharedPreferences(scrollModePreferenceName, Context.MODE_PRIVATE)
+                .getString(scrollModePreferenceKey, null)
 
         var hasLegacyData = false
 
-        val legacyScrollMode = oldPdfPreferences.getString("scroll_mode_$fileKey", oldGlobalScrollMode)
+        val legacyScrollMode =
+            oldPdfPreferences.getString("scroll_mode_$fileKey", oldGlobalScrollMode)
         if (!legacyScrollMode.isNullOrBlank()) {
             try {
                 setScrollMode(ScrollMode.valueOf(legacyScrollMode), reloadPdf = false)
@@ -2930,7 +3196,8 @@ class PDFViewer : AppCompatActivity() {
             hasLegacyData = true
         }
         if (oldPdfPreferences.contains("rotation_locked_$fileKey")) {
-            rotation_locked = oldPdfPreferences.getBoolean("rotation_locked_$fileKey", rotation_locked)
+            rotation_locked =
+                oldPdfPreferences.getBoolean("rotation_locked_$fileKey", rotation_locked)
             hasLegacyData = true
         }
 
@@ -3082,10 +3349,17 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun buildMenuVerticalSeparator(): View {
-        val separatorWidth = resources.getDimensionPixelSize(R.dimen.menu_panel_vertical_separator_width)
+        val separatorWidth =
+            resources.getDimensionPixelSize(R.dimen.menu_panel_vertical_separator_width)
         return View(this).apply {
-            layoutParams = LinearLayout.LayoutParams(separatorWidth, ViewGroup.LayoutParams.MATCH_PARENT)
-            setBackgroundColor(resolveThemeColor(com.google.android.material.R.attr.colorSecondary, R.color.light_red))
+            layoutParams =
+                LinearLayout.LayoutParams(separatorWidth, ViewGroup.LayoutParams.MATCH_PARENT)
+            setBackgroundColor(
+                resolveThemeColor(
+                    com.google.android.material.R.attr.colorSecondary,
+                    R.color.light_red
+                )
+            )
         }
     }
 
@@ -3104,9 +3378,11 @@ class PDFViewer : AppCompatActivity() {
     private fun applyMenuPanelAdaptiveDimensions() {
         val iconSize = resources.getDimensionPixelSize(R.dimen.menu_panel_icon_size)
         val iconPadding = resources.getDimensionPixelSize(R.dimen.menu_panel_icon_padding)
-        val searchIconPadding = resources.getDimensionPixelSize(R.dimen.menu_panel_icon_padding_compact)
+        val searchIconPadding =
+            resources.getDimensionPixelSize(R.dimen.menu_panel_icon_padding_compact)
         val zoomTextSize = resources.getDimension(R.dimen.menu_panel_zoom_text_size)
-        val section6SeparatorWidth = resources.getDimensionPixelSize(R.dimen.menu_panel_vertical_separator_width)
+        val section6SeparatorWidth =
+            resources.getDimensionPixelSize(R.dimen.menu_panel_vertical_separator_width)
 
         val iconIds = intArrayOf(
             R.id.buttonDarkFilter,
@@ -3137,7 +3413,8 @@ class PDFViewer : AppCompatActivity() {
                 lp.height = iconSize
                 button.layoutParams = lp
             }
-            val targetPadding = if (id == R.id.buttonSearchToolbar) searchIconPadding else iconPadding
+            val targetPadding =
+                if (id == R.id.buttonSearchToolbar) searchIconPadding else iconPadding
             button.setPadding(targetPadding, targetPadding, targetPadding, targetPadding)
         }
 
@@ -3155,7 +3432,12 @@ class PDFViewer : AppCompatActivity() {
                 lp.width = section6SeparatorWidth
                 layoutParams = lp
             }
-            setBackgroundColor(resolveThemeColor(com.google.android.material.R.attr.colorSecondary, R.color.light_red))
+            setBackgroundColor(
+                resolveThemeColor(
+                    com.google.android.material.R.attr.colorSecondary,
+                    R.color.light_red
+                )
+            )
         }
     }
 
@@ -3223,11 +3505,11 @@ class PDFViewer : AppCompatActivity() {
         return databaseHandler.getFiles().firstOrNull { stored ->
             val storedNorm = safeNormalizedPath(stored.path)
             stored.path == pathHint ||
-                stored.path == fileId ||
-                stored.path == uriOpened?.toString() ||
-                (normalizedHint.isNotBlank() && storedNorm == normalizedHint) ||
-                (normalizedCurrent.isNotBlank() && storedNorm == normalizedCurrent) ||
-                (normalizedUri.isNotBlank() && storedNorm == normalizedUri)
+                    stored.path == fileId ||
+                    stored.path == uriOpened?.toString() ||
+                    (normalizedHint.isNotBlank() && storedNorm == normalizedHint) ||
+                    (normalizedCurrent.isNotBlank() && storedNorm == normalizedCurrent) ||
+                    (normalizedUri.isNotBlank() && storedNorm == normalizedUri)
         }
     }
 
@@ -3408,7 +3690,16 @@ class PDFViewer : AppCompatActivity() {
             section3.isGone = false
 
             rebuildRow(section5, listOf(scrollVTop, scrollVBottom, scrollHLeft, scrollHRight))
-            rebuildRow(section6, listOf(singlePage, continuousPage, section6VerticalSep, rotationLocked, rotationUnlocked))
+            rebuildRow(
+                section6,
+                listOf(
+                    singlePage,
+                    continuousPage,
+                    section6VerticalSep,
+                    rotationLocked,
+                    rotationUnlocked
+                )
+            )
             section6.isGone = false
         }
 
@@ -3424,6 +3715,11 @@ class PDFViewer : AppCompatActivity() {
         menuOpened = false
         if (showingTopBar) {
             restartTopBarAutoHideCountdown()
+        }
+        // Force immediate redraw so any visual changes (night mode, contrast, etc.)
+        // applied while the panel was open are visible straight away.
+        if (totalPages > 0) {
+            pdfViewer.invalidate()
         }
     }
 
@@ -3490,7 +3786,11 @@ class PDFViewer : AppCompatActivity() {
                         view.animate().y(clampedY).setDuration(0).start()
                         alignSideScrollLabelToThumb(container, button, clampedY)
 
-                        val progress = ((clampedY - trackMetrics.start) / trackMetrics.travelLength).coerceIn(0F, 1F)
+                        val progress =
+                            ((clampedY - trackMetrics.start) / trackMetrics.travelLength).coerceIn(
+                                0F,
+                                1F
+                            )
                         val pageN = (progress * (totalPages - 1)).roundToInt()
                             .coerceIn(0, totalPages - 1)
                         val logicalPage = mapViewerPageToLogical(pageN)
@@ -3542,20 +3842,22 @@ class PDFViewer : AppCompatActivity() {
             applyVerticalScrollbarThumbLength(button)
             button.isGone = true
             button.isGone = false
-            if (!page.isNaN() && minPositionScrollbar != 0F) {
-                if (totalPages <= 1) return
-                var pageToUse = 0F
-                if (page >= 0 && page <= totalPages) pageToUse = page
-                val logicalPageForPosition = (pageToUse.toInt() - 1).coerceIn(0, totalPages - 1)
-                val viewerPageForPosition = mapLogicalPageToViewer(logicalPageForPosition) + 1
-                val trackMetrics = getVerticalScrollbarTrackMetrics(button)
-                var initialPosition =
-                    (((viewerPageForPosition - 1) * trackMetrics.travelLength) / (totalPages - 1)) + trackMetrics.start
-                if (initialPosition.isNaN()) initialPosition = 0F
-                button.animate().y(initialPosition).setDuration(animationDuration).start()
-                alignSideScrollLabelToThumb(container, button, initialPosition, animationDuration)
-                textPage.text = pageToUse.toInt().toString()
-            }
+            if (page.isNaN() || totalPages <= 1) return
+            if (maxPositionScrollbar <= 0F && !refreshResidualViewMetrics()) return
+
+            var pageToUse = 0F
+            if (page >= 0 && page <= totalPages) pageToUse = page
+            val logicalPageForPosition = (pageToUse.toInt() - 1).coerceIn(0, totalPages - 1)
+            val viewerPageForPosition = mapLogicalPageToViewer(logicalPageForPosition) + 1
+            val trackMetrics = getVerticalScrollbarTrackMetrics(button)
+            if (trackMetrics.travelLength <= 0F) return
+
+            var initialPosition =
+                (((viewerPageForPosition - 1) * trackMetrics.travelLength) / (totalPages - 1)) + trackMetrics.start
+            if (initialPosition.isNaN()) initialPosition = 0F
+            button.animate().y(initialPosition).setDuration(animationDuration).start()
+            alignSideScrollLabelToThumb(container, button, initialPosition, animationDuration)
+            textPage.text = pageToUse.toInt().toString()
         }
     }
 
@@ -3596,7 +3898,11 @@ class PDFViewer : AppCompatActivity() {
                         view.animate().x(clampedX).setDuration(0).start()
                         alignBottomScrollLabelToThumb(container, button, clampedX)
 
-                        val progress = ((clampedX - trackMetrics.start) / trackMetrics.travelLength).coerceIn(0F, 1F)
+                        val progress =
+                            ((clampedX - trackMetrics.start) / trackMetrics.travelLength).coerceIn(
+                                0F,
+                                1F
+                            )
                         val pageN = (progress * (totalPages - 1)).roundToInt()
                             .coerceIn(0, totalPages - 1)
                         val logicalPage = mapViewerPageToLogical(pageN)
@@ -3648,21 +3954,22 @@ class PDFViewer : AppCompatActivity() {
             applyHorizontalScrollbarThumbLength(button)
             button.isGone = true
             button.isGone = false
-            if (!page.isNaN() && minPositionScrollbarHorizontal != 0F) {
-                if (totalPages <= 1) return
-                var pageToUse = 0F
-                if (page >= 0 && page <= totalPages) pageToUse = page
-                val logicalPageForPosition = (pageToUse.toInt() - 1).coerceIn(0, totalPages - 1)
-                val viewerPageForPosition = mapLogicalPageToViewer(logicalPageForPosition) + 1
-                val trackMetrics = getHorizontalScrollbarTrackMetrics(button)
-                if (trackMetrics.travelLength <= 0F) return
-                var initialPosition =
-                    (((viewerPageForPosition - 1) * trackMetrics.travelLength) / (totalPages - 1)) + trackMetrics.start
-                if (initialPosition.isNaN()) initialPosition = 0F
-                button.animate().x(initialPosition).setDuration(animationDuration).start()
-                alignBottomScrollLabelToThumb(container, button, initialPosition, animationDuration)
-                textPage.text = pageToUse.toInt().toString()
-            }
+            if (page.isNaN() || totalPages <= 1) return
+            if (maxPositionScrollbarHorizontal <= 0F && !refreshResidualViewMetrics()) return
+
+            var pageToUse = 0F
+            if (page >= 0 && page <= totalPages) pageToUse = page
+            val logicalPageForPosition = (pageToUse.toInt() - 1).coerceIn(0, totalPages - 1)
+            val viewerPageForPosition = mapLogicalPageToViewer(logicalPageForPosition) + 1
+            val trackMetrics = getHorizontalScrollbarTrackMetrics(button)
+            if (trackMetrics.travelLength <= 0F) return
+
+            var initialPosition =
+                (((viewerPageForPosition - 1) * trackMetrics.travelLength) / (totalPages - 1)) + trackMetrics.start
+            if (initialPosition.isNaN()) initialPosition = 0F
+            button.animate().x(initialPosition).setDuration(animationDuration).start()
+            alignBottomScrollLabelToThumb(container, button, initialPosition, animationDuration)
+            textPage.text = pageToUse.toInt().toString()
         }
     }
 
@@ -3867,6 +4174,8 @@ class PDFViewer : AppCompatActivity() {
     }
 
     override fun onDestroy() {
+        flushPendingPagePersistence()
+        pagePersistenceHandler.removeCallbacks(persistPageRunnable)
         goToUiHandler.removeCallbacks(goToVisibilityRunnable)
         topBarUiHandler.removeCallbacks(topBarAutoHideRunnable)
         scheduleUiHandler.removeCallbacks(scheduledAppearanceRunnable)
@@ -3936,11 +4245,13 @@ class PDFViewer : AppCompatActivity() {
             wordButton.alpha = if (charMode) 0.45f else 1.0f
             characterButton.alpha = if (charMode) 1.0f else 0.45f
             wordButton.contentDescription = getString(R.string.tooltip_selection_mode_word)
-            characterButton.contentDescription = getString(R.string.tooltip_selection_mode_character)
+            characterButton.contentDescription =
+                getString(R.string.tooltip_selection_mode_character)
         }
 
         // Build the GestureDetector that fires onLongPress on the PDFView
-        selectionGestureDetector = GestureDetector(this,
+        selectionGestureDetector = GestureDetector(
+            this,
             object : GestureDetector.SimpleOnGestureListener() {
                 override fun onDown(e: MotionEvent): Boolean {
                     return true
@@ -3954,7 +4265,8 @@ class PDFViewer : AppCompatActivity() {
                     val hit = textSelectionManager.viewToPage(pressX, pressY, pdfViewer.currentPage)
                     if (hit != null) {
                         val (page, normX, normY) = hit
-                        val selectedImmediately = textSelectionManager.selectWordAt(normX, normY, page)
+                        val selectedImmediately =
+                            textSelectionManager.selectWordAt(normX, normY, page)
                         if (!selectedImmediately && !textSelectionManager.hasPendingSelection()) {
                             return
                         }
@@ -3990,7 +4302,7 @@ class PDFViewer : AppCompatActivity() {
         }
 
         // Wire panel buttons
-        val copyBtn  = findViewById<ImageView>(R.id.buttonCopySelection)
+        val copyBtn = findViewById<ImageView>(R.id.buttonCopySelection)
         val shareBtn = findViewById<ImageView>(R.id.buttonShareSelection)
         val closeBtn = findViewById<android.widget.ImageView>(R.id.buttonCloseSelectionMode)
         val wordModeBtn = findViewById<ImageView>(R.id.buttonSelectionWordMode)
@@ -4014,14 +4326,16 @@ class PDFViewer : AppCompatActivity() {
             if (textSelectionManager.selectedWords.isNotEmpty()) {
                 textSelectionManager.copySelectedText()
             } else {
-                Toast.makeText(this, getString(R.string.select_text_no_text), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.select_text_no_text), Toast.LENGTH_SHORT)
+                    .show()
             }
             hideSelectionPanel()
         }
         shareBtn.setOnClickListener {
             val selectedText = textSelectionManager.getSelectedText().trim()
             if (selectedText.isBlank()) {
-                Toast.makeText(this, getString(R.string.select_text_no_text), Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.select_text_no_text), Toast.LENGTH_SHORT)
+                    .show()
                 return@setOnClickListener
             }
             val shareIntent = Intent().apply {
@@ -4054,7 +4368,7 @@ class PDFViewer : AppCompatActivity() {
         val location = IntArray(2)
         view.getLocationOnScreen(location)
         return rawX >= location[0] && rawX <= location[0] + view.width &&
-            rawY >= location[1] && rawY <= location[1] + view.height
+                rawY >= location[1] && rawY <= location[1] + view.height
     }
 
     private fun showSelectionPanel() {
@@ -4090,7 +4404,7 @@ class PDFViewer : AppCompatActivity() {
         val loc = IntArray(2)
         pdfViewer.getLocationOnScreen(loc)
         val onPdf = event.rawX >= loc[0] && event.rawX <= loc[0] + pdfViewer.width &&
-                    event.rawY >= loc[1] && event.rawY <= loc[1] + pdfViewer.height
+                event.rawY >= loc[1] && event.rawY <= loc[1] + pdfViewer.height
 
         if (event.actionMasked == MotionEvent.ACTION_DOWN) {
             selectionDownViewX = event.rawX - loc[0]
@@ -4107,6 +4421,7 @@ class PDFViewer : AppCompatActivity() {
                     selectionDragState = SelectionDragState.START_HANDLE
                     return true
                 }
+
                 2 -> {
                     selectionDragState = SelectionDragState.END_HANDLE
                     return true
@@ -4114,7 +4429,11 @@ class PDFViewer : AppCompatActivity() {
             }
         }
 
-        if (onPdf && selectionDragState == SelectionDragState.NONE && isSelectionGestureEligible(event.rawX, event.rawY)) {
+        if (onPdf && selectionDragState == SelectionDragState.NONE && isSelectionGestureEligible(
+                event.rawX,
+                event.rawY
+            )
+        ) {
             selectionGestureDetector.onTouchEvent(event)
         }
 
@@ -4124,13 +4443,14 @@ class PDFViewer : AppCompatActivity() {
                     MotionEvent.ACTION_MOVE -> {
                         val pdfX = event.rawX - loc[0]
                         val pdfY = event.rawY - loc[1]
-                        val hit  = textSelectionManager.viewToPage(pdfX, pdfY, selectionDragPage)
+                        val hit = textSelectionManager.viewToPage(pdfX, pdfY, selectionDragPage)
                         if (hit != null) {
                             textSelectionManager.onMove(hit.second, hit.third, hit.first)
                             pdfViewer.invalidate()
                         }
                         return true
                     }
+
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         textSelectionManager.onUp()
                         selectionDragState = SelectionDragState.NONE
@@ -4139,6 +4459,7 @@ class PDFViewer : AppCompatActivity() {
                     }
                 }
             }
+
             SelectionDragState.START_HANDLE -> {
                 when (event.actionMasked) {
                     MotionEvent.ACTION_MOVE -> {
@@ -4155,6 +4476,7 @@ class PDFViewer : AppCompatActivity() {
                         }
                         return true
                     }
+
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         selectionDragState = SelectionDragState.NONE
                         selectionDownViewX = Float.NaN
@@ -4163,6 +4485,7 @@ class PDFViewer : AppCompatActivity() {
                     }
                 }
             }
+
             SelectionDragState.END_HANDLE -> {
                 when (event.actionMasked) {
                     MotionEvent.ACTION_MOVE -> {
@@ -4179,6 +4502,7 @@ class PDFViewer : AppCompatActivity() {
                         }
                         return true
                     }
+
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                         selectionDragState = SelectionDragState.NONE
                         selectionDownViewX = Float.NaN
@@ -4187,6 +4511,7 @@ class PDFViewer : AppCompatActivity() {
                     }
                 }
             }
+
             SelectionDragState.NONE -> Unit
         }
         if (event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL) {
