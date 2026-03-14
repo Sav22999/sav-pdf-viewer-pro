@@ -691,6 +691,7 @@ class PDFViewer : AppCompatActivity() {
                 .onDrawAll { canvas, pageWidth, pageHeight, displayedPage ->
                     // Record page dimensions for text selection
                     textSelectionManager.recordPageSize(displayedPage, pageWidth, pageHeight)
+                    textSelectionManager.recordPageDrawGeometry(displayedPage, canvas, pageWidth, pageHeight)
 
                     // Draw search highlight rectangles on this page
                     if (currentSearchQuery.isNotBlank() && searchResults.isNotEmpty()) {

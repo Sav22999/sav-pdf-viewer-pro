@@ -5,6 +5,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.graphics.Canvas
 import android.graphics.Color
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.PointF
@@ -55,6 +56,7 @@ class TextSelectionManager(private val context: Context) {
 
     private val pageWidths = mutableMapOf<Int, Float>()
     private val pageHeights = mutableMapOf<Int, Float>()
+    private val pageDrawRects = mutableMapOf<Int, RectF>()
 
     private val handleRadiusPx = maxOf(18f, context.resources.displayMetrics.density * 12f)
     private val dropletSizePx = handleRadiusPx * 1.75f
@@ -95,12 +97,57 @@ class TextSelectionManager(private val context: Context) {
         pageHeights[page] = height
     }
 
+    fun recordPageDrawGeometry(page: Int, canvas: Canvas, width: Float, height: Float) {
+        recordPageSize(page, width, height)
+        val localOffset = getLocalPageDrawOffset(width, height)
+        val localRect = RectF(
+            localOffset.x,
+            localOffset.y,
+            localOffset.x + width,
+            localOffset.y + height
+        )
+        val mappedRect = RectF(localRect)
+        val drawMatrix = Matrix(canvas.matrix)
+        drawMatrix.mapRect(mappedRect)
+        pageDrawRects[page] = mappedRect
+    }
+
+    private fun getLocalPageDrawOffset(pageWidth: Float, pageHeight: Float): PointF {
+        val pdf = pdfView ?: return PointF(0f, 0f)
+        val contentWidth = pdf.width.toFloat().coerceAtLeast(1f)
+        val contentHeight = pdf.height.toFloat().coerceAtLeast(1f)
+
+        return if (pdf.isSwipeVertical) {
+            PointF(((contentWidth - pageWidth) / 2f).coerceAtLeast(0f), 0f)
+        } else {
+            PointF(0f, ((contentHeight - pageHeight) / 2f).coerceAtLeast(0f))
+        }
+    }
+
     private fun buildPageLayouts(): List<PageLayout> {
+        if (pageDrawRects.isNotEmpty()) {
+            return pageDrawRects.entries
+                .sortedBy { it.key }
+                .map { (viewerPage, rect) ->
+                    PageLayout(
+                        viewerPage = viewerPage,
+                        left = rect.left,
+                        top = rect.top,
+                        right = rect.right,
+                        bottom = rect.bottom,
+                        width = rect.width().coerceAtLeast(1f),
+                        height = rect.height().coerceAtLeast(1f)
+                    )
+                }
+        }
+
         val pdf = pdfView ?: return emptyList()
         val zoom = pdf.zoom
         val xOff = pdf.currentXOffset
         val yOff = pdf.currentYOffset
         val totalPages = pdf.pageCount
+        val contentWidth = (pdf.width - pdf.paddingLeft - pdf.paddingRight).toFloat().coerceAtLeast(1f)
+        val contentHeight = (pdf.height - pdf.paddingTop - pdf.paddingBottom).toFloat().coerceAtLeast(1f)
 
         val density = context.resources.displayMetrics.density
         val spacing = try {
@@ -111,12 +158,12 @@ class TextSelectionManager(private val context: Context) {
 
         val layouts = ArrayList<PageLayout>(totalPages)
         if (pdf.isSwipeVertical) {
-            var currentTop = yOff
+            var currentTop = yOff + pdf.paddingTop
             for (page in 0 until totalPages) {
                 val size = pdf.getPageSize(page) ?: continue
-                val pageW = pageWidths[page] ?: (size.width * zoom)
-                val pageH = pageHeights[page] ?: (size.height * zoom)
-                val left = xOff + (pdf.width - pageW) / 2f
+                val pageW = size.width * zoom
+                val pageH = size.height * zoom
+                val left = xOff + pdf.paddingLeft + (contentWidth - pageW) / 2f
                 layouts.add(
                     PageLayout(
                         viewerPage = page,
@@ -131,12 +178,12 @@ class TextSelectionManager(private val context: Context) {
                 currentTop += pageH + spacing
             }
         } else {
-            var currentLeft = xOff
+            var currentLeft = xOff + pdf.paddingLeft
             for (page in 0 until totalPages) {
                 val size = pdf.getPageSize(page) ?: continue
-                val pageW = pageWidths[page] ?: (size.width * zoom)
-                val pageH = pageHeights[page] ?: (size.height * zoom)
-                val top = yOff + (pdf.height - pageH) / 2f
+                val pageW = size.width * zoom
+                val pageH = size.height * zoom
+                val top = yOff + pdf.paddingTop + (contentHeight - pageH) / 2f
                 layouts.add(
                     PageLayout(
                         viewerPage = page,
@@ -156,13 +203,32 @@ class TextSelectionManager(private val context: Context) {
 
     fun viewToPage(viewX: Float, viewY: Float, currentPage: Int): Triple<Int, Float, Float>? {
         val layouts = buildPageLayouts()
-        val exact = layouts.firstOrNull {
-            viewX in it.left..it.right && viewY in it.top..it.bottom
+        if (layouts.isEmpty()) return null
+        val hitTolerancePx = 6f * context.resources.displayMetrics.density
+
+        val exactHits = layouts.filter {
+            viewX >= (it.left - hitTolerancePx) && viewX <= (it.right + hitTolerancePx) &&
+                viewY >= (it.top - hitTolerancePx) && viewY <= (it.bottom + hitTolerancePx)
+        }
+        val chosen = if (exactHits.isNotEmpty()) {
+            // In case of geometric overlaps (mixed page sizes / offset drift), pick the closest center.
+            exactHits.minByOrNull { layout ->
+                val cx = (layout.left + layout.right) / 2f
+                val cy = (layout.top + layout.bottom) / 2f
+                val dx = viewX - cx
+                val dy = viewY - cy
+                (dx * dx) + (dy * dy)
+            }
+        } else {
+            null
         } ?: return null
 
-        val normX = ((viewX - exact.left) / exact.width).coerceIn(0f, 1f)
-        val normY = ((viewY - exact.top) / exact.height).coerceIn(0f, 1f)
-        return Triple(exact.viewerPage, normX, normY)
+        val clampedX = viewX.coerceIn(chosen.left, chosen.right)
+        val clampedY = viewY.coerceIn(chosen.top, chosen.bottom)
+        val normX = ((clampedX - chosen.left) / chosen.width).coerceIn(0f, 1f)
+        val normY = ((clampedY - chosen.top) / chosen.height).coerceIn(0f, 1f)
+
+        return Triple(chosen.viewerPage, normX, normY)
     }
 
     fun viewToPageClamped(viewX: Float, viewY: Float, page: Int): Triple<Int, Float, Float>? {
@@ -497,6 +563,9 @@ class TextSelectionManager(private val context: Context) {
     }
 
     fun drawOnPage(canvas: Canvas, pageWidth: Float, pageHeight: Float, displayedPage: Int) {
+        val localOffset = getLocalPageDrawOffset(pageWidth, pageHeight)
+
+
         if (!active || selectionRefs.isEmpty()) return
         val logicalDisplayed = viewerToLogicalPage(displayedPage)
 
@@ -505,10 +574,10 @@ class TextSelectionManager(private val context: Context) {
 
         for (ref in pageRefs) {
             val w = ref.word
-            val l = w.rect.left * pageWidth
-            val t = w.rect.top * pageHeight
-            val r = w.rect.right * pageWidth
-            val b = w.rect.bottom * pageHeight
+            val l = localOffset.x + (w.rect.left * pageWidth)
+            val t = localOffset.y + (w.rect.top * pageHeight)
+            val r = localOffset.x + (w.rect.right * pageWidth)
+            val b = localOffset.y + (w.rect.bottom * pageHeight)
             canvas.drawRect(l, t, r, b, fillPaint)
             canvas.drawRect(l, t, r, b, borderPaint)
         }
@@ -518,17 +587,17 @@ class TextSelectionManager(private val context: Context) {
             val last = selectionRefs.last()
 
             if (first.logicalPage == logicalDisplayed) {
-                val sX = first.word.rect.left * pageWidth
-                val sTop = first.word.rect.top * pageHeight
-                val sBot = first.word.rect.bottom * pageHeight
+                val sX = localOffset.x + (first.word.rect.left * pageWidth)
+                val sTop = localOffset.y + (first.word.rect.top * pageHeight)
+                val sBot = localOffset.y + (first.word.rect.bottom * pageHeight)
                 canvas.drawLine(sX, sTop, sX, sBot, handleLinePaint)
                 drawDropletMarker(canvas, sX, sTop, dropletSizePx, SharpCorner.BOTTOM_RIGHT)
             }
 
             if (last.logicalPage == logicalDisplayed) {
-                val eX = last.word.rect.right * pageWidth
-                val eTop = last.word.rect.top * pageHeight
-                val eBot = last.word.rect.bottom * pageHeight
+                val eX = localOffset.x + (last.word.rect.right * pageWidth)
+                val eTop = localOffset.y + (last.word.rect.top * pageHeight)
+                val eBot = localOffset.y + (last.word.rect.bottom * pageHeight)
                 canvas.drawLine(eX, eTop, eX, eBot, handleLinePaint)
                 drawDropletMarker(canvas, eX, eBot, dropletSizePx, SharpCorner.TOP_LEFT)
             }
