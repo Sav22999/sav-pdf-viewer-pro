@@ -3057,8 +3057,8 @@ class PDFViewer : AppCompatActivity() {
             })
 
         // OCR page-indexed callback: refresh selection when words become available
-        ocrEngine.onPageIndexed = { page ->
-            if (textSelectionManager.active && textSelectionManager.getSelectionPage() == page) {
+        ocrEngine.onPageIndexed = { _ ->
+            if (textSelectionManager.active) {
                 textSelectionManager.refreshSelection()
                 pdfViewer.post {
                     if (textSelectionManager.selectedWords.isNotEmpty()) {
@@ -3192,10 +3192,13 @@ class PDFViewer : AppCompatActivity() {
                     MotionEvent.ACTION_MOVE -> {
                         val pdfX = event.rawX - loc[0]
                         val pdfY = event.rawY - loc[1]
-                        val page = textSelectionManager.getSelectionViewerPage()
-                        val hit  = textSelectionManager.viewToPageClamped(pdfX, pdfY, page)
+                        val hit = textSelectionManager.viewToPage(pdfX, pdfY, pdfViewer.currentPage)
+                            ?: run {
+                                val fallbackPage = textSelectionManager.getSelectionViewerPage()
+                                textSelectionManager.viewToPageClamped(pdfX, pdfY, fallbackPage)
+                            }
                         if (hit != null) {
-                            textSelectionManager.moveStartHandle(hit.second, hit.third)
+                            textSelectionManager.moveStartHandle(hit.second, hit.third, hit.first)
                             pdfViewer.invalidate()
                         }
                         return true
@@ -3213,10 +3216,13 @@ class PDFViewer : AppCompatActivity() {
                     MotionEvent.ACTION_MOVE -> {
                         val pdfX = event.rawX - loc[0]
                         val pdfY = event.rawY - loc[1]
-                        val page = textSelectionManager.getSelectionViewerPage()
-                        val hit  = textSelectionManager.viewToPageClamped(pdfX, pdfY, page)
+                        val hit = textSelectionManager.viewToPage(pdfX, pdfY, pdfViewer.currentPage)
+                            ?: run {
+                                val fallbackPage = textSelectionManager.getSelectionViewerPage()
+                                textSelectionManager.viewToPageClamped(pdfX, pdfY, fallbackPage)
+                            }
                         if (hit != null) {
-                            textSelectionManager.moveEndHandle(hit.second, hit.third)
+                            textSelectionManager.moveEndHandle(hit.second, hit.third, hit.first)
                             pdfViewer.invalidate()
                         }
                         return true

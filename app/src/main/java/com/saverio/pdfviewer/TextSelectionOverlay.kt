@@ -3,18 +3,18 @@ package com.saverio.pdfviewer
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.graphics.*
-import android.util.Log
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Path
+import android.graphics.PointF
+import android.graphics.RectF
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import com.github.barteksc.pdfviewer.PDFView
+import kotlin.math.abs
+import kotlin.math.hypot
 
-/**
- * Manages interactive text selection on the PDF.
- *
- * Drawing goes through [drawOnPage] called from the PDFView onDraw callback.
- * Touch coordinate conversion uses PDFView's public API properties.
- */
 class TextSelectionManager(private val context: Context) {
 
     var ocrEngine: PdfOcrEngine? = null
@@ -22,26 +22,44 @@ class TextSelectionManager(private val context: Context) {
     var viewerToLogicalPage: (Int) -> Int = { it }
     var logicalToViewerPage: (Int) -> Int = { it }
 
-    // ── public state ──────────────────────────────────────────────────────────
     var active = false; private set
     var selectedWords: List<PdfOcrEngine.WordElement> = emptyList(); private set
 
-    // ── internal state ────────────────────────────────────────────────────────
+    private data class SelectedWordRef(
+        val logicalPage: Int,
+        val wordIndex: Int,
+        val word: PdfOcrEngine.WordElement
+    )
+
+    private data class PageLayout(
+        val viewerPage: Int,
+        val left: Float,
+        val top: Float,
+        val right: Float,
+        val bottom: Float,
+        val width: Float,
+        val height: Float
+    )
+
+    private enum class SharpCorner {
+        TOP_LEFT,
+        BOTTOM_RIGHT
+    }
+
     private var selecting = false
-    private var selectionPage = -1
-    private var selectionStartIndex = -1
-    private var selectionEndIndex = -1
-    private var pendingSelectionPoint: PointF? = null
-    private val anchorNorm = PointF()
-    private val currentNorm = PointF()
+    private var pendingSelectionPoint: Triple<Int, Float, Float>? = null // logicalPage, normX, normY
+
+    private var startRef: SelectedWordRef? = null
+    private var endRef: SelectedWordRef? = null
+    private var selectionRefs: List<SelectedWordRef> = emptyList()
+
     private val pageWidths = mutableMapOf<Int, Float>()
     private val pageHeights = mutableMapOf<Int, Float>()
+
     private val handleRadiusPx = maxOf(18f, context.resources.displayMetrics.density * 12f)
-    private val handleOffsetPx = handleRadiusPx * 0.6f
     private val dropletSizePx = handleRadiusPx * 1.75f
     private val handlePath = Path()
 
-    // ── paints ────────────────────────────────────────────────────────────────
     private val fillPaint = Paint().apply {
         color = withAlpha(ContextCompat.getColor(context, R.color.light_red), 120)
         style = Paint.Style.FILL
@@ -63,424 +81,154 @@ class TextSelectionManager(private val context: Context) {
         isAntiAlias = true
     }
 
-    private enum class SharpCorner {
-        TOP_LEFT,
-        BOTTOM_RIGHT
-    }
-
     private fun withAlpha(color: Int, alpha: Int): Int {
         return Color.argb(alpha.coerceIn(0, 255), Color.red(color), Color.green(color), Color.blue(color))
     }
 
-    // ── mode toggle ───────────────────────────────────────────────────────────
-    fun activate() { active = true }
-
-    fun toggleMode(): Boolean {
-        active = !active; if (!active) clearSelection(); return active
-    }
-
     fun deactivate() {
-        active = false; clearSelection()
+        active = false
+        clearSelection()
     }
 
-    /**
-     * Records the actual rendered size of a page as reported by the PDFView's onDraw callback.
-     * This helps in accurately mapping view coordinates to page coordinates.
-     */
     fun recordPageSize(page: Int, width: Float, height: Float) {
         pageWidths[page] = width
         pageHeights[page] = height
     }
 
-    // ── touch → normalised page coords ────────────────────────────────────────
-    /**
-     * Convert a view-level touch (x,y relative to PDFView) to normalised (0..1) page coordinates.
-     * Uses PDFView.currentXOffset, currentYOffset, zoom, getPageSize(), spacingPx, isSwipeVertical.
-     */
-    fun viewToPage(viewX: Float, viewY: Float, currentPage: Int): Triple<Int, Float, Float>? {
-        val pdf = pdfView ?: return null
+    private fun buildPageLayouts(): List<PageLayout> {
+        val pdf = pdfView ?: return emptyList()
         val zoom = pdf.zoom
         val xOff = pdf.currentXOffset
         val yOff = pdf.currentYOffset
         val totalPages = pdf.pageCount
 
-        // spacing is set to 5dp in the configurator; convert to px
         val density = context.resources.displayMetrics.density
         val spacing = try {
-            pdf.spacingPx
+            pdf.spacingPx.toFloat()
         } catch (_: Exception) {
-            (5 * density).toInt()
+            (5 * density)
         }
 
-        Log.d(
-            "TextSelect",
-            "viewToPage: zoom=$zoom xOff=$xOff yOff=$yOff spacing=$spacing viewSize=(${pdf.width},${pdf.height})"
-        )
-
-        val lo = maxOf(0, currentPage - 2)
-        val hi = minOf(totalPages - 1, currentPage + 2)
-
-        for (page in lo..hi) {
-            val size = pdf.getPageSize(page) ?: continue
-            val pageW = pageWidths[page] ?: (size.width * zoom)
-            val pageH = pageHeights[page] ?: (size.height * zoom)
-
-            val pageX: Float
-            val pageY: Float
-            if (pdf.isSwipeVertical) {
-                pageX = xOff + (pdf.width - pageW) / 2f
-                var y = yOff
-                for (p in 0 until page) {
-                    val s = pdf.getPageSize(p)
-                    if (s != null) {
-                        val h = pageHeights[p] ?: (s.height * zoom)
-                        y += h + spacing
-                    }
-                }
-                pageY = y
-            } else {
-                pageY = yOff + (pdf.height - pageH) / 2f
-                var x = xOff
-                for (p in 0 until page) {
-                    val s = pdf.getPageSize(p)
-                    if (s != null) {
-                        val w = pageWidths[p] ?: (s.width * zoom)
-                        x += w + spacing
-                    }
-                }
-                pageX = x
+        val layouts = ArrayList<PageLayout>(totalPages)
+        if (pdf.isSwipeVertical) {
+            var currentTop = yOff
+            for (page in 0 until totalPages) {
+                val size = pdf.getPageSize(page) ?: continue
+                val pageW = pageWidths[page] ?: (size.width * zoom)
+                val pageH = pageHeights[page] ?: (size.height * zoom)
+                val left = xOff + (pdf.width - pageW) / 2f
+                layouts.add(
+                    PageLayout(
+                        viewerPage = page,
+                        left = left,
+                        top = currentTop,
+                        right = left + pageW,
+                        bottom = currentTop + pageH,
+                        width = pageW,
+                        height = pageH
+                    )
+                )
+                currentTop += pageH + spacing
             }
-
-            Log.d(
-                "TextSelect",
-                "viewToPage: touch=($viewX,$viewY) page=$page pageRect=($pageX,$pageY,${pageX + pageW},${pageY + pageH})"
-            )
-
-            if (viewX in pageX..(pageX + pageW) && viewY in pageY..(pageY + pageH)) {
-                val normX = ((viewX - pageX) / pageW).coerceIn(0f, 1f)
-                val normY = ((viewY - pageY) / pageH).coerceIn(0f, 1f)
-                Log.d("TextSelect", "HIT page=$page norm=($normX,$normY)")
-                return Triple(page, normX, normY)
+        } else {
+            var currentLeft = xOff
+            for (page in 0 until totalPages) {
+                val size = pdf.getPageSize(page) ?: continue
+                val pageW = pageWidths[page] ?: (size.width * zoom)
+                val pageH = pageHeights[page] ?: (size.height * zoom)
+                val top = yOff + (pdf.height - pageH) / 2f
+                layouts.add(
+                    PageLayout(
+                        viewerPage = page,
+                        left = currentLeft,
+                        top = top,
+                        right = currentLeft + pageW,
+                        bottom = top + pageH,
+                        width = pageW,
+                        height = pageH
+                    )
+                )
+                currentLeft += pageW + spacing
             }
         }
-        Log.d("TextSelect", "viewToPage: NO HIT")
-        return null
+        return layouts
+    }
+
+    fun viewToPage(viewX: Float, viewY: Float, currentPage: Int): Triple<Int, Float, Float>? {
+        val layouts = buildPageLayouts()
+        val exact = layouts.firstOrNull {
+            viewX in it.left..it.right && viewY in it.top..it.bottom
+        } ?: return null
+
+        val normX = ((viewX - exact.left) / exact.width).coerceIn(0f, 1f)
+        val normY = ((viewY - exact.top) / exact.height).coerceIn(0f, 1f)
+        return Triple(exact.viewerPage, normX, normY)
     }
 
     fun viewToPageClamped(viewX: Float, viewY: Float, page: Int): Triple<Int, Float, Float>? {
-        val pageRect = getViewerPageRect(page) ?: return null
-        val clampedX = viewX.coerceIn(pageRect.left, pageRect.right)
-        val clampedY = viewY.coerceIn(pageRect.top, pageRect.bottom)
-        val normX = ((clampedX - pageRect.left) / pageRect.width()).coerceIn(0f, 1f)
-        val normY = ((clampedY - pageRect.top) / pageRect.height()).coerceIn(0f, 1f)
+        val layout = buildPageLayouts().firstOrNull { it.viewerPage == page } ?: return null
+        val clampedX = viewX.coerceIn(layout.left, layout.right)
+        val clampedY = viewY.coerceIn(layout.top, layout.bottom)
+        val normX = ((clampedX - layout.left) / layout.width).coerceIn(0f, 1f)
+        val normY = ((clampedY - layout.top) / layout.height).coerceIn(0f, 1f)
         return Triple(page, normX, normY)
     }
 
-    private fun getViewerPageRect(page: Int): RectF? {
-        val pdf = pdfView ?: return null
-        val zoom = pdf.zoom
-        val xOff = pdf.currentXOffset
-        val yOff = pdf.currentYOffset
-        val density = context.resources.displayMetrics.density
-        val spacing = try {
-            pdf.spacingPx
-        } catch (_: Exception) {
-            (5 * density).toInt()
-        }
-        val size = pdf.getPageSize(page) ?: return null
-        val pageW = pageWidths[page] ?: (size.width * zoom)
-        val pageH = pageHeights[page] ?: (size.height * zoom)
-
-        val pageX: Float
-        val pageY: Float
-        if (pdf.isSwipeVertical) {
-            pageX = xOff + (pdf.width - pageW) / 2f
-            var y = yOff
-            for (p in 0 until page) {
-                val s = pdf.getPageSize(p)
-                if (s != null) {
-                    val h = pageHeights[p] ?: (s.height * zoom)
-                    y += h + spacing
-                }
-            }
-            pageY = y
-        } else {
-            pageY = yOff + (pdf.height - pageH) / 2f
-            var x = xOff
-            for (p in 0 until page) {
-                val s = pdf.getPageSize(p)
-                if (s != null) {
-                    val w = pageWidths[p] ?: (s.width * zoom)
-                    x += w + spacing
-                }
-            }
-            pageX = x
-        }
-
-        return RectF(pageX, pageY, pageX + pageW, pageY + pageH)
-    }
-
-    // ── page-normalised coords → PDFView view coords ──────────────────────────
-    /**
-     * Convert normalised (0..1) page coordinates to view-level coordinates (x,y relative to PDFView).
-     * Uses PDFView.currentXOffset, currentYOffset, zoom, getPageSize(), spacingPx, isSwipeVertical.
-     */
     fun pageNormToViewCoords(normX: Float, normY: Float, page: Int): PointF? {
-        val pdf = pdfView ?: return null
-        val zoom = pdf.zoom
-        val xOff = pdf.currentXOffset
-        val yOff = pdf.currentYOffset
-        val density = context.resources.displayMetrics.density
-        val spacing = try {
-            pdf.spacingPx
-        } catch (_: Exception) {
-            (5 * density).toInt()
-        }
-        val size = pdf.getPageSize(page) ?: return null
-        val pageW = pageWidths[page] ?: (size.width * zoom)
-        val pageH = pageHeights[page] ?: (size.height * zoom)
-
-        if (pdf.isSwipeVertical) {
-            val pageLeftX = xOff + (pdf.width - pageW) / 2f
-            var pageTopY = yOff
-            for (p in 0 until page) {
-                val s = pdf.getPageSize(p) ?: continue
-                val h = pageHeights[p] ?: (s.height * zoom)
-                pageTopY += h + spacing
-            }
-            return PointF(pageLeftX + normX * pageW, pageTopY + normY * pageH)
-        } else {
-            val pageTopY = yOff + (pdf.height - pageH) / 2f
-            var pageLeftX = xOff
-            for (p in 0 until page) {
-                val s = pdf.getPageSize(p) ?: continue
-                val w = pageWidths[p] ?: (s.width * zoom)
-                pageLeftX += w + spacing
-            }
-            return PointF(pageLeftX + normX * pageW, pageTopY + normY * pageH)
-        }
-    }
-
-    // ── handle positions (screen coords) ─────────────────────────────────────
-    /** Returns the start-handle position in screen (raw) coordinates, or null. */
-    fun getStartHandleScreenPos(): PointF? {
-        if (selectedWords.isEmpty() || selectionPage < 0) return null
-        val first = selectedWords.first()
-        val anchorPos = pageNormToViewCoords(
-            first.rect.left,
-            first.rect.top,
-            logicalToViewerPage(selectionPage)
-        ) ?: return null
-        val centerPos = markerCenterFromAnchor(
-            anchorX = anchorPos.x,
-            anchorY = anchorPos.y,
-            size = dropletSizePx,
-            sharpCorner = SharpCorner.BOTTOM_RIGHT
+        val layout = buildPageLayouts().firstOrNull { it.viewerPage == page } ?: return null
+        return PointF(
+            layout.left + normX * layout.width,
+            layout.top + normY * layout.height
         )
-        return pdfViewToScreen(centerPos)
     }
 
-    /** Returns the end-handle position in screen (raw) coordinates, or null. */
-    fun getEndHandleScreenPos(): PointF? {
-        if (selectedWords.isEmpty() || selectionPage < 0) return null
-        val last = selectedWords.last()
-        val anchorPos = pageNormToViewCoords(
-            last.rect.right,
-            last.rect.bottom,
-            logicalToViewerPage(selectionPage)
-        ) ?: return null
-        val centerPos = markerCenterFromAnchor(
-            anchorX = anchorPos.x,
-            anchorY = anchorPos.y,
-            size = dropletSizePx,
-            sharpCorner = SharpCorner.TOP_LEFT
-        )
-        return pdfViewToScreen(centerPos)
-    }
-
-    private fun pdfViewToScreen(viewCoords: PointF): PointF {
-        val pdf = pdfView ?: return viewCoords
-        val loc = IntArray(2)
-        pdf.getLocationOnScreen(loc)
-        return PointF(viewCoords.x + loc[0], viewCoords.y + loc[1])
-    }
-
-    /**
-     * Returns 1 if screenX/Y is near the start handle, 2 if near the end handle, 0 otherwise.
-     * Only meaningful when [selectedWords] is non-empty and not currently rubber-band selecting.
-     */
-    fun findHandleHit(screenX: Float, screenY: Float, hitRadiusPx: Float = handleRadiusPx * 3.5f): Int {
-        if (selectedWords.isEmpty() || selecting) return 0
-        val start = getStartHandleScreenPos() ?: return 0
-        val end   = getEndHandleScreenPos()   ?: return 0
-        fun dist(ax: Float, ay: Float, bx: Float, by: Float) =
-            Math.hypot((ax - bx).toDouble(), (ay - by).toDouble()).toFloat()
-        if (dist(screenX, screenY, start.x, start.y) < hitRadiusPx) return 1
-        if (dist(screenX, screenY, end.x,   end.y)   < hitRadiusPx) return 2
-        return 0
-    }
-
-    // ── touch handlers ────────────────────────────────────────────────────────
-    fun onDown(normX: Float, normY: Float, page: Int) {
-        if (selectedWords.isNotEmpty()) clearSelection()
-        selectionStartIndex = -1
-        selectionEndIndex = -1
-        pendingSelectionPoint = null
-        anchorNorm.set(normX, normY); currentNorm.set(normX, normY)
-        selectionPage = page; selecting = true
-        updateSelection()
-    }
-
-    fun onMove(normX: Float, normY: Float, page: Int) {
-        if (!selecting || page != selectionPage) return
-        currentNorm.set(normX, normY)
-        updateSelection()
-    }
-
-    fun onUp() { selecting = false }
-
-    fun selectWordAt(normX: Float, normY: Float, page: Int): Boolean {
-        active = true
-        selecting = false
-        selectionPage = viewerToLogicalPage(page)
-        anchorNorm.set(normX, normY)
-        currentNorm.set(normX, normY)
-
-        val words = getOrderedWordsForPage(selectionPage)
-        if (words == null) {
-            pendingSelectionPoint = PointF(normX, normY)
-            selectionStartIndex = -1
-            selectionEndIndex = -1
-            selectedWords = emptyList()
-            ocrEngine?.ensurePageIndexedAsync(selectionPage)
-            return false
-        }
-
-        val wordIndex = findBestWordIndexForTap(words, normX, normY)
-        if (wordIndex < 0) {
-            active = false
-            pendingSelectionPoint = null
-            selectionPage = -1
-            selectionStartIndex = -1
-            selectionEndIndex = -1
-            selectedWords = emptyList()
-            return false
-        }
-
-        pendingSelectionPoint = null
-        selectionStartIndex = wordIndex
-        selectionEndIndex = wordIndex
-        updateSelectedWordsFromIndices(words)
-        return true
-    }
-
-    /** Moves the start-handle anchor to a new position and refreshes selection. */
-    fun moveStartHandle(normX: Float, normY: Float) {
-        val words = getOrderedWordsForPage(selectionPage) ?: return
-        val wordIndex = findBestWordIndexForTap(words, normX, normY)
-        if (wordIndex < 0) return
-        if (selectionEndIndex < 0) selectionEndIndex = selectionStartIndex.takeIf { it >= 0 } ?: wordIndex
-        selectionStartIndex = wordIndex
-        pendingSelectionPoint = null
-        updateSelectedWordsFromIndices(words)
-    }
-
-    /** Moves the end-handle anchor to a new position and refreshes selection. */
-    fun moveEndHandle(normX: Float, normY: Float) {
-        val words = getOrderedWordsForPage(selectionPage) ?: return
-        val wordIndex = findBestWordIndexForTap(words, normX, normY)
-        if (wordIndex < 0) return
-        if (selectionStartIndex < 0) selectionStartIndex = selectionEndIndex.takeIf { it >= 0 } ?: wordIndex
-        selectionEndIndex = wordIndex
-        pendingSelectionPoint = null
-        updateSelectedWordsFromIndices(words)
-    }
-
-    /** Re-evaluates the selection after OCR words become available for the page. */
-    fun refreshSelection() {
-        if (selectionPage < 0) return
-        val words = getOrderedWordsForPage(selectionPage) ?: run {
-            ocrEngine?.ensurePageIndexedAsync(selectionPage)
-            return
-        }
-        if (selectionStartIndex >= 0 || selectionEndIndex >= 0) {
-            updateSelectedWordsFromIndices(words)
-            return
-        }
-        val pendingPoint = pendingSelectionPoint ?: return
-        val wordIndex = findBestWordIndexForTap(words, pendingPoint.x, pendingPoint.y)
-        if (wordIndex >= 0) {
-            selectionStartIndex = wordIndex
-            selectionEndIndex = wordIndex
-            pendingSelectionPoint = null
-            updateSelectedWordsFromIndices(words)
-        } else {
-            deactivate()
-        }
-    }
-
-    // ── selection logic ───────────────────────────────────────────────────────
-    private fun updateSelection() {
-        val words = getOrderedWordsForPage(selectionPage)
-        if (words == null) {
-            ocrEngine?.ensurePageIndexedAsync(selectionPage)
-            return
-        }
-        if (selectionStartIndex >= 0 || selectionEndIndex >= 0) {
-            updateSelectedWordsFromIndices(words)
-            return
-        }
-        val r = RectF(
-            minOf(anchorNorm.x, currentNorm.x), minOf(anchorNorm.y, currentNorm.y),
-            maxOf(anchorNorm.x, currentNorm.x), maxOf(anchorNorm.y, currentNorm.y)
-        )
-        selectedWords = words.filter { RectF.intersects(r, it.rect) }
-            .sortedWith(compareBy({ it.rect.top }, { it.rect.left }))
-    }
-
-    private fun getOrderedWordsForPage(page: Int): List<PdfOcrEngine.WordElement>? {
-        return ocrEngine?.getWordsForPage(page)
+    private fun getOrderedWordsForPage(logicalPage: Int): List<PdfOcrEngine.WordElement>? {
+        return ocrEngine?.getWordsForPage(logicalPage)
             ?.sortedWith(compareBy({ it.rect.top }, { it.rect.left }))
     }
 
-    private fun updateSelectedWordsFromIndices(words: List<PdfOcrEngine.WordElement>) {
-        if (words.isEmpty()) {
+    private fun compareRefs(a: SelectedWordRef, b: SelectedWordRef): Int {
+        if (a.logicalPage != b.logicalPage) return a.logicalPage.compareTo(b.logicalPage)
+        return a.wordIndex.compareTo(b.wordIndex)
+    }
+
+    private fun rebuildSelectionRange() {
+        val a = startRef
+        val b = endRef
+        if (a == null || b == null) {
+            selectionRefs = emptyList()
             selectedWords = emptyList()
             return
         }
-        val start = selectionStartIndex.coerceIn(0, words.lastIndex)
-        val end = selectionEndIndex.coerceIn(0, words.lastIndex)
-        val from = minOf(start, end)
-        val to = maxOf(start, end)
-        selectedWords = words.subList(from, to + 1)
-    }
 
-    private fun findBestWordIndexForTap(
-        words: List<PdfOcrEngine.WordElement>,
-        normX: Float,
-        normY: Float
-    ): Int {
-        if (words.isEmpty()) return -1
+        val from = if (compareRefs(a, b) <= 0) a else b
+        val to = if (compareRefs(a, b) <= 0) b else a
 
-        words.indexOfFirst { normX in it.rect.left..it.rect.right && normY in it.rect.top..it.rect.bottom }
-            .takeIf { it >= 0 }
-            ?.let { return it }
+        val refs = mutableListOf<SelectedWordRef>()
+        for (logicalPage in from.logicalPage..to.logicalPage) {
+            val words = getOrderedWordsForPage(logicalPage)
+            if (words == null) {
+                ocrEngine?.ensurePageIndexedAsync(logicalPage)
+                continue
+            }
 
-        val lineTolerance = 0.02f
-        val sameLineCandidates = words.withIndex().filter { (_, word) ->
-            normY >= (word.rect.top - lineTolerance) && normY <= (word.rect.bottom + lineTolerance)
-        }
-        if (sameLineCandidates.isNotEmpty()) {
-            return sameLineCandidates.minByOrNull { (_, word) ->
-                when {
-                    normX < word.rect.left -> word.rect.left - normX
-                    normX > word.rect.right -> normX - word.rect.right
-                    else -> 0f
-                }
-            }!!.index
+            val startIndex = when {
+                logicalPage == from.logicalPage -> from.wordIndex.coerceIn(0, words.lastIndex)
+                else -> 0
+            }
+            val endIndex = when {
+                logicalPage == to.logicalPage -> to.wordIndex.coerceIn(0, words.lastIndex)
+                else -> words.lastIndex
+            }
+            if (startIndex > endIndex) continue
+
+            for (idx in startIndex..endIndex) {
+                refs.add(SelectedWordRef(logicalPage, idx, words[idx]))
+            }
         }
 
-        return findNearestWordIndex(words, normX, normY, 0.0025f)
+        selectionRefs = refs
+        selectedWords = refs.map { it.word }
     }
 
     private fun findNearestWordIndex(
@@ -514,71 +262,193 @@ class TextSelectionManager(private val context: Context) {
                 bestIndex = index
             }
         }
+
         if (maxDistanceSq != null && bestDistance > maxDistanceSq) return -1
         return bestIndex
     }
 
-    fun clearSelection() {
-        selectedWords = emptyList(); selecting = false; selectionPage = -1
-        selectionStartIndex = -1
-        selectionEndIndex = -1
+    private fun findBestWordIndexForTap(
+        words: List<PdfOcrEngine.WordElement>,
+        normX: Float,
+        normY: Float
+    ): Int {
+        if (words.isEmpty()) return -1
+
+        words.indexOfFirst { normX in it.rect.left..it.rect.right && normY in it.rect.top..it.rect.bottom }
+            .takeIf { it >= 0 }
+            ?.let { return it }
+
+        val lineTolerance = 0.02f
+        val sameLineCandidates = words.withIndex().filter { (_, word) ->
+            normY >= (word.rect.top - lineTolerance) && normY <= (word.rect.bottom + lineTolerance)
+        }
+        if (sameLineCandidates.isNotEmpty()) {
+            return sameLineCandidates.minByOrNull { (_, word) ->
+                when {
+                    normX < word.rect.left -> word.rect.left - normX
+                    normX > word.rect.right -> normX - word.rect.right
+                    else -> 0f
+                }
+            }!!.index
+        }
+
+        return findNearestWordIndex(words, normX, normY, 0.0025f)
+    }
+
+    fun selectWordAt(normX: Float, normY: Float, page: Int): Boolean {
+        val logicalPage = viewerToLogicalPage(page)
+        active = true
+        selecting = false
+
+        val words = getOrderedWordsForPage(logicalPage)
+        if (words == null) {
+            pendingSelectionPoint = Triple(logicalPage, normX, normY)
+            ocrEngine?.ensurePageIndexedAsync(logicalPage)
+            startRef = null
+            endRef = null
+            rebuildSelectionRange()
+            return false
+        }
+
+        val index = findBestWordIndexForTap(words, normX, normY)
+        if (index < 0) {
+            deactivate()
+            return false
+        }
+
+        val ref = SelectedWordRef(logicalPage, index, words[index])
+        startRef = ref
+        endRef = ref
         pendingSelectionPoint = null
+        rebuildSelectionRange()
+        return true
+    }
+
+    // Legacy compatibility for old rubber-band flow.
+    fun onDown(normX: Float, normY: Float, page: Int) {
+        selectWordAt(normX, normY, page)
+        selecting = true
+    }
+
+    fun onMove(normX: Float, normY: Float, page: Int) {
+        if (!active) return
+        moveEndHandle(normX, normY, page)
+    }
+
+    fun onUp() {
+        selecting = false
+    }
+
+    fun moveStartHandle(normX: Float, normY: Float, page: Int = getSelectionViewerPage()) {
+        val logicalPage = viewerToLogicalPage(page)
+        val words = getOrderedWordsForPage(logicalPage) ?: run {
+            ocrEngine?.ensurePageIndexedAsync(logicalPage)
+            return
+        }
+        val index = findBestWordIndexForTap(words, normX, normY)
+        if (index < 0) return
+        startRef = SelectedWordRef(logicalPage, index, words[index])
+        if (endRef == null) endRef = startRef
+        pendingSelectionPoint = null
+        rebuildSelectionRange()
+    }
+
+    fun moveEndHandle(normX: Float, normY: Float, page: Int = getSelectionViewerPage()) {
+        val logicalPage = viewerToLogicalPage(page)
+        val words = getOrderedWordsForPage(logicalPage) ?: run {
+            ocrEngine?.ensurePageIndexedAsync(logicalPage)
+            return
+        }
+        val index = findBestWordIndexForTap(words, normX, normY)
+        if (index < 0) return
+        endRef = SelectedWordRef(logicalPage, index, words[index])
+        if (startRef == null) startRef = endRef
+        pendingSelectionPoint = null
+        rebuildSelectionRange()
+    }
+
+    fun refreshSelection() {
+        val pending = pendingSelectionPoint
+        if (pending != null) {
+            val (logicalPage, normX, normY) = pending
+            val words = getOrderedWordsForPage(logicalPage)
+            if (words == null) {
+                ocrEngine?.ensurePageIndexedAsync(logicalPage)
+                return
+            }
+            val index = findBestWordIndexForTap(words, normX, normY)
+            if (index < 0) {
+                deactivate()
+                return
+            }
+            val ref = SelectedWordRef(logicalPage, index, words[index])
+            startRef = ref
+            endRef = ref
+            pendingSelectionPoint = null
+        }
+
+        if (startRef != null && endRef != null) {
+            rebuildSelectionRange()
+        }
+    }
+
+    fun getSelectionPage(): Int {
+        return startRef?.logicalPage ?: -1
+    }
+
+    fun getSelectionViewerPage(): Int {
+        val logical = startRef?.logicalPage ?: return -1
+        return logicalToViewerPage(logical)
+    }
+
+    private fun getStartHandleScreenPos(): PointF? {
+        val ref = selectionRefs.firstOrNull() ?: return null
+        val anchorPos = pageNormToViewCoords(
+            ref.word.rect.left,
+            ref.word.rect.top,
+            logicalToViewerPage(ref.logicalPage)
+        ) ?: return null
+        val centerPos = markerCenterFromAnchor(anchorPos.x, anchorPos.y, dropletSizePx, SharpCorner.BOTTOM_RIGHT)
+        return pdfViewToScreen(centerPos)
+    }
+
+    private fun getEndHandleScreenPos(): PointF? {
+        val ref = selectionRefs.lastOrNull() ?: return null
+        val anchorPos = pageNormToViewCoords(
+            ref.word.rect.right,
+            ref.word.rect.bottom,
+            logicalToViewerPage(ref.logicalPage)
+        ) ?: return null
+        val centerPos = markerCenterFromAnchor(anchorPos.x, anchorPos.y, dropletSizePx, SharpCorner.TOP_LEFT)
+        return pdfViewToScreen(centerPos)
+    }
+
+    private fun pdfViewToScreen(viewCoords: PointF): PointF {
+        val pdf = pdfView ?: return viewCoords
+        val loc = IntArray(2)
+        pdf.getLocationOnScreen(loc)
+        return PointF(viewCoords.x + loc[0], viewCoords.y + loc[1])
+    }
+
+    fun findHandleHit(screenX: Float, screenY: Float, hitRadiusPx: Float = handleRadiusPx * 3.5f): Int {
+        if (selectionRefs.isEmpty() || selecting) return 0
+        val start = getStartHandleScreenPos() ?: return 0
+        val end = getEndHandleScreenPos() ?: return 0
+        if (hypot((screenX - start.x).toDouble(), (screenY - start.y).toDouble()) < hitRadiusPx) return 1
+        if (hypot((screenX - end.x).toDouble(), (screenY - end.y).toDouble()) < hitRadiusPx) return 2
+        return 0
+    }
+
+    fun clearSelection() {
+        selecting = false
+        pendingSelectionPoint = null
+        startRef = null
+        endRef = null
+        selectionRefs = emptyList()
+        selectedWords = emptyList()
     }
 
     fun hasPendingSelection(): Boolean = pendingSelectionPoint != null
-
-    fun getSelectionPage() = selectionPage
-    fun getSelectionViewerPage(): Int =
-        if (selectionPage < 0) -1 else logicalToViewerPage(selectionPage)
-
-    fun isSelecting() = selecting
-
-    // ── draw highlights + handles via onDraw ──────────────────────────────────
-    fun drawOnPage(canvas: Canvas, pageWidth: Float, pageHeight: Float, displayedPage: Int) {
-        if (!active || selectedWords.isEmpty() || displayedPage != logicalToViewerPage(selectionPage)) return
-
-        // Draw word highlights
-        for (w in selectedWords) {
-            val l = w.rect.left * pageWidth
-            val t = w.rect.top * pageHeight
-            val ri = w.rect.right * pageWidth
-            val b = w.rect.bottom * pageHeight
-            canvas.drawRect(l, t, ri, b, fillPaint)
-            canvas.drawRect(l, t, ri, b, borderPaint)
-        }
-
-        // Draw handles only when not actively rubber-band selecting
-        if (!selecting) {
-            val first = selectedWords.first()
-            val last  = selectedWords.last()
-
-            // Start handle: droplet anchored at first word top-left (sharp bottom-right)
-            val sX = first.rect.left * pageWidth
-            val sTop = first.rect.top * pageHeight
-            val sBot = first.rect.bottom * pageHeight
-            canvas.drawLine(sX, sTop, sX, sBot, handleLinePaint)
-            drawDropletMarker(
-                canvas = canvas,
-                anchorX = sX,
-                anchorY = sTop,
-                size = dropletSizePx,
-                sharpCorner = SharpCorner.BOTTOM_RIGHT
-            )
-
-            // End handle: droplet anchored at last word bottom-right (sharp top-left)
-            val eX = last.rect.right * pageWidth
-            val eTop = last.rect.top * pageHeight
-            val eBot = last.rect.bottom * pageHeight
-            canvas.drawLine(eX, eTop, eX, eBot, handleLinePaint)
-            drawDropletMarker(
-                canvas = canvas,
-                anchorX = eX,
-                anchorY = eBot,
-                size = dropletSizePx,
-                sharpCorner = SharpCorner.TOP_LEFT
-            )
-        }
-    }
 
     private fun markerCenterFromAnchor(
         anchorX: Float,
@@ -588,7 +458,6 @@ class TextSelectionManager(private val context: Context) {
     ): PointF {
         val half = size / 2f
         return when (sharpCorner) {
-            // Anchor the droplet by its sharp corner on both axes.
             SharpCorner.TOP_LEFT -> PointF(anchorX + half, anchorY + half)
             SharpCorner.BOTTOM_RIGHT -> PointF(anchorX - half, anchorY - half)
         }
@@ -606,12 +475,11 @@ class TextSelectionManager(private val context: Context) {
         val rect = RectF(center.x - half, center.y - half, center.x + half, center.y + half)
         val radius = size * 0.5f
         val radii = floatArrayOf(
-            radius, radius, // top-left
-            radius, radius, // top-right
-            radius, radius, // bottom-right
-            radius, radius  // bottom-left
+            radius, radius,
+            radius, radius,
+            radius, radius,
+            radius, radius
         )
-
         when (sharpCorner) {
             SharpCorner.TOP_LEFT -> {
                 radii[0] = 0f
@@ -622,37 +490,79 @@ class TextSelectionManager(private val context: Context) {
                 radii[5] = 0f
             }
         }
-
         handlePath.reset()
         handlePath.addRoundRect(rect, radii, Path.Direction.CW)
         canvas.drawPath(handlePath, handleFillPaint)
         canvas.drawPath(handlePath, handleLinePaint)
     }
 
-    // ── copy ──────────────────────────────────────────────────────────────────
+    fun drawOnPage(canvas: Canvas, pageWidth: Float, pageHeight: Float, displayedPage: Int) {
+        if (!active || selectionRefs.isEmpty()) return
+        val logicalDisplayed = viewerToLogicalPage(displayedPage)
+
+        val pageRefs = selectionRefs.filter { it.logicalPage == logicalDisplayed }
+        if (pageRefs.isEmpty()) return
+
+        for (ref in pageRefs) {
+            val w = ref.word
+            val l = w.rect.left * pageWidth
+            val t = w.rect.top * pageHeight
+            val r = w.rect.right * pageWidth
+            val b = w.rect.bottom * pageHeight
+            canvas.drawRect(l, t, r, b, fillPaint)
+            canvas.drawRect(l, t, r, b, borderPaint)
+        }
+
+        if (!selecting) {
+            val first = selectionRefs.first()
+            val last = selectionRefs.last()
+
+            if (first.logicalPage == logicalDisplayed) {
+                val sX = first.word.rect.left * pageWidth
+                val sTop = first.word.rect.top * pageHeight
+                val sBot = first.word.rect.bottom * pageHeight
+                canvas.drawLine(sX, sTop, sX, sBot, handleLinePaint)
+                drawDropletMarker(canvas, sX, sTop, dropletSizePx, SharpCorner.BOTTOM_RIGHT)
+            }
+
+            if (last.logicalPage == logicalDisplayed) {
+                val eX = last.word.rect.right * pageWidth
+                val eTop = last.word.rect.top * pageHeight
+                val eBot = last.word.rect.bottom * pageHeight
+                canvas.drawLine(eX, eTop, eX, eBot, handleLinePaint)
+                drawDropletMarker(canvas, eX, eBot, dropletSizePx, SharpCorner.TOP_LEFT)
+            }
+        }
+    }
+
     fun copySelectedText(): Boolean {
-        if (selectedWords.isEmpty()) return false
+        if (selectionRefs.isEmpty()) return false
         val text = buildText()
         val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
         clipboard.setPrimaryClip(ClipData.newPlainText("PDF Text", text))
-        val preview = if (text.length > 40) text.substring(0, 40) + "…" else text
+        val preview = if (text.length > 40) text.substring(0, 40) + "..." else text
         val msg = String.format(context.getString(R.string.text_copied_preview), preview)
         Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
         return true
     }
 
-    fun getSelectedText(): String = buildText()
-
     private fun buildText(): String {
-        if (selectedWords.isEmpty()) return ""
-        val sorted = selectedWords.sortedWith(compareBy({ it.rect.top }, { it.rect.left }))
+        if (selectionRefs.isEmpty()) return ""
         val sb = StringBuilder()
+        var lastPage = -1
         var lastTop = -1f
-        for (w in sorted) {
-            if (lastTop >= 0 && (w.rect.top - lastTop) > 0.01f) sb.append('\n')
-            else if (sb.isNotEmpty()) sb.append(' ')
-            sb.append(w.text)
-            lastTop = w.rect.top
+        for (ref in selectionRefs) {
+            if (lastPage != -1 && ref.logicalPage != lastPage) {
+                sb.append('\n')
+                sb.append('\n')
+                lastTop = -1f
+            }
+            val top = ref.word.rect.top
+            if (lastTop >= 0 && abs(top - lastTop) > 0.01f) sb.append('\n')
+            else if (sb.isNotEmpty() && sb.last() != '\n') sb.append(' ')
+            sb.append(ref.word.text)
+            lastPage = ref.logicalPage
+            lastTop = top
         }
         return sb.toString()
     }
