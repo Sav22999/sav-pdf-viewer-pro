@@ -4,4 +4,26 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.open.OpenFragment"/>
+    tools:context=".ui.open.OpenFragment">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonOpenFileFromTab"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginEnd="24dp"
+        android:text="@string/button_open"
+        android:textAllCaps="false"
+        android:textColor="@color/light_red"
+        app:backgroundTint="@color/transparent"
+        app:icon="@drawable/ic_open_file"
+        app:iconGravity="textStart"
+        app:iconTint="@color/light_red"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:strokeColor="@color/light_red"
+        app:strokeWidth="1dp" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

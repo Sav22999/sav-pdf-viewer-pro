@@ -1,84 +1,91 @@
 package com.saverio.pdfviewer
 
-import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
-import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.navigation.ui.setupWithNavController
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
 
-    val RECENT_FILES = "recents"
+    companion object {
+        const val EXTRA_URI = "uri"
+        const val EXTRA_OPENED_EXTERNALLY = "opened_externally"
+        const val EXTRA_FORCE_HOME_TAB = "force_home_tab"
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Opt out of edge-to-edge enforcement on Android 15+
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, true)
-        /*setContentView(R.layout.activity_main)
+        if (forwardToPdfViewerIfNeeded(intent)) return
+
+        setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
 
         val navController = findNavController(R.id.nav_host_fragment)
-        val appBarConfiguration = AppBarConfiguration(
-            setOf(
-                R.id.navigation_home, R.id.navigation_open, R.id.navigation_settings
-            )
-        )
-        setupActionBarWithNavController(navController, appBarConfiguration)
-        navView.setupWithNavController(navController)*/
+        navView.selectedItemId = R.id.navigation_home
+        navView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_open -> {
+                    openPDFFile(openedExternally = false)
+                    false
+                }
 
-        openPDFFile()
-    }
+                R.id.navigation_home -> {
+                    if (navController.currentDestination?.id != R.id.navigation_home) {
+                        navController.navigate(R.id.navigation_home)
+                    }
+                    true
+                }
 
-    fun loadRecents() {
-        val recentFiles: String? =
-            getSharedPreferences(RECENT_FILES, Context.MODE_PRIVATE).getString(RECENT_FILES, "")
-        var recentFilesToSave = ""
-        var recentFilesParts = recentFiles?.split("/:::/")
-        var i = 0
-        var added_i = 0
-        while (i < recentFilesParts!!.size) {
-            val recentFilesParts2 = recentFilesParts[i].split(":::")
+                R.id.navigation_settings -> {
+                    if (navController.currentDestination?.id != R.id.navigation_settings) {
+                        navController.navigate(R.id.navigation_settings)
+                    }
+                    true
+                }
 
-            if (recentFilesParts2.size == 3) {
-                if (added_i > 0) recentFilesToSave += "/:::/"
-                recentFilesToSave += "${recentFilesParts2[0]}:::${recentFilesParts2[1]}:::${recentFilesParts2[2]}"
-                added_i++
-                //println("Recent ${i}:\ndate:${recentFilesParts2[0]}\nuri:${recentFilesParts2[1]}\nfavourite:${recentFilesParts2[2]}\n\n")
+                else -> false
             }
-            i++
+        }
+        navView.setOnItemReselectedListener { item ->
+            if (item.itemId == R.id.navigation_open) {
+                openPDFFile(openedExternally = false)
+            }
         }
     }
 
-    fun loadFavourites() {
-        val recentFiles: String? =
-            getSharedPreferences(RECENT_FILES, Context.MODE_PRIVATE).getString(RECENT_FILES, "")
-        var recentFilesToSave = ""
-        var recentFilesParts = recentFiles?.split("/:::/")
-        var i = 0
-        var added_i = 0
-        while (i < recentFilesParts!!.size) {
-            val recentFilesParts2 = recentFilesParts[i].split(":::")
-
-            if (recentFilesParts2.size == 3 && recentFilesParts2[2] == "true") {
-                if (added_i > 0) recentFilesToSave += "/:::/"
-                recentFilesToSave += "${recentFilesParts2[0]}:::${recentFilesParts2[1]}:::${recentFilesParts2[2]}"
-                added_i++
-                //println("Recent ${i}:\ndate:${recentFilesParts2[0]}\nuri:${recentFilesParts2[1]}\nfavourite:${recentFilesParts2[2]}\n\n")
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        if (intent != null) {
+            setIntent(intent)
+            if (intent.getBooleanExtra(EXTRA_FORCE_HOME_TAB, false)) {
+                findViewById<BottomNavigationView>(R.id.nav_view).selectedItemId =
+                    R.id.navigation_home
+                intent.removeExtra(EXTRA_FORCE_HOME_TAB)
             }
-            i++
+            forwardToPdfViewerIfNeeded(intent)
         }
     }
 
-    fun openPDFFile() {
+    private fun forwardToPdfViewerIfNeeded(incomingIntent: Intent): Boolean {
+        val incomingUri = incomingIntent.data ?: return false
+        openPDFFile(incomingUri, true)
+        finish()
+        return true
+    }
+
+    fun openPDFFile(uri: Uri? = null, openedExternally: Boolean = false) {
         val intent = Intent(this@MainActivity, PDFViewer::class.java)
         val uriToOpen = Bundle()
-        uriToOpen.putString("uri", "") //Your id
+        uriToOpen.putString(EXTRA_URI, uri?.toString() ?: "")
+        uriToOpen.putBoolean(EXTRA_OPENED_EXTERNALLY, openedExternally)
         intent.putExtras(uriToOpen) //Put your id to your next Intent
+        if (uri != null) {
+            intent.data = uri
+        }
         startActivity(intent)
-        finish() //TODO: when it will implemented also MainActivity, this won't remain
     }
 }

@@ -74,6 +74,7 @@
     <string name="tooltip_close_app">Close app</string>
     <string name="tooltip_go_to_the_page">Go to the inserted page</string>
     <string name="tooltip_close_panel">Close this panel</string>
+    <string name="tooltip_back_to_home" translatable="false">Back to Home</string>
     <string name="tooltip_ok_button">OK, continue</string>
     <string name="tooltip_open_file_password">Open this file</string>
     <string name="tooltip_review_now">Go to your app store and review now</string>
@@ -83,6 +84,7 @@
     <string name="tooltip_see_all_bookmarks">See all bookmarks</string>
     <string name="tooltip_close_bookmarks">Close all bookmarks</string>
     <string name="tooltip_get_help">Get help</string>
+    <string name="tooltip_open_settings" translatable="false">Open viewer settings</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
 
     <!-- Search / OCR -->
@@ -117,4 +119,49 @@
     <string name="tooltip_selection_mode_word">Word selection mode</string>
     <string name="tooltip_selection_mode_character">Character selection mode</string>
     <string name="text_copied_preview">"%1$s" copied to clipboard</string>
+
+    <string name="viewer_defaults_title" translatable="false">Settings</string>
+    <string name="viewer_defaults_scroll_mode" translatable="false">Default direction for new documents</string>
+    <string name="viewer_defaults_zoom" translatable="false">Default zoom for new documents</string>
+    <string name="viewer_default_zoom_adapt" translatable="false">Adapt automatically</string>
+    <string name="viewer_default_zoom_percent" translatable="false">Use a fixed percentage</string>
+    <string name="viewer_default_zoom_percent_hint" translatable="false">Zoom percent (10-500)</string>
+    <string name="viewer_default_zoom_auto_content_description" translatable="false">Use adaptive zoom for new documents</string>
+    <string name="viewer_default_zoom_fixed_content_description" translatable="false">Use fixed zoom for new documents</string>
+    <string name="viewer_default_direction_v_ttb" translatable="false">Vertical: top to bottom</string>
+    <string name="viewer_default_direction_v_btt" translatable="false">Vertical: bottom to top</string>
+    <string name="viewer_default_direction_h_ltr" translatable="false">Horizontal: left to right</string>
+    <string name="viewer_default_direction_h_rtl" translatable="false">Horizontal: right to left</string>
+    <string name="viewer_defaults_single_page" translatable="false">Single page mode</string>
+    <string name="viewer_defaults_rotation_locked" translatable="false">Rotation locked</string>
+    <string name="viewer_defaults_fullscreen" translatable="false">Start in full screen</string>
+    <string name="viewer_defaults_night_mode" translatable="false">Use dark filter</string>
+    <string name="viewer_defaults_contrast_overlay" translatable="false">Use night light overlay</string>
+    <string name="viewer_defaults_dark_filter_schedule" translatable="false">Dark filter automatic schedule</string>
+    <string name="viewer_defaults_night_light_schedule" translatable="false">Night light automatic schedule</string>
+    <string name="viewer_defaults_schedule_on" translatable="false">Automatic schedule enabled</string>
+    <string name="viewer_defaults_schedule_off" translatable="false">Automatic schedule disabled</string>
+    <string name="viewer_defaults_start_time" translatable="false">Start time</string>
+    <string name="viewer_defaults_end_time" translatable="false">End time</string>
+    <string name="viewer_defaults_zoom_mode_auto" translatable="false">Auto</string>
+    <string name="viewer_defaults_zoom_mode_fixed" translatable="false">Fixed</string>
+    <string name="viewer_defaults_mode_always_on" translatable="false">Always on</string>
+    <string name="viewer_defaults_mode_auto" translatable="false">Auto</string>
+    <string name="viewer_defaults_mode_on_short" translatable="false">On</string>
+    <string name="viewer_defaults_mode_off" translatable="false">Off</string>
+    <string name="viewer_defaults_clear_recents" translatable="false">Clear all recents</string>
+    <string name="viewer_defaults_clear_recents_confirm_title" translatable="false">Clear recents</string>
+    <string name="viewer_defaults_clear_recents_confirm_message" translatable="false">Do you want to remove all recent documents?</string>
+    <string name="viewer_defaults_clear_recents_done" translatable="false">Recent documents removed</string>
+    <string name="viewer_defaults_reset_confirm_title" translatable="false">Reset settings</string>
+    <string name="viewer_defaults_reset_confirm_message" translatable="false">Do you want to reset all default settings?</string>
+    <string name="tooltip_delete_recent_document" translatable="false">Remove this recent document</string>
+    <string name="viewer_defaults_reset" translatable="false">Reset default settings</string>
+    <string name="viewer_defaults_reset_done" translatable="false">Default settings reset</string>
+    <string name="viewer_defaults_save" translatable="false">Save settings</string>
+    <string name="viewer_defaults_saved" translatable="false">Viewer defaults saved</string>
+    <string name="viewer_defaults_open_help" translatable="false">Open help</string>
+    <string name="home_no_recents" translatable="false">No recent documents yet.</string>
+    <string name="settings_version_label" translatable="false">Version %1$s</string>
+    <string name="home_recent_item_content_description" translatable="false">Open recent document %1$s</string>
 </resources>

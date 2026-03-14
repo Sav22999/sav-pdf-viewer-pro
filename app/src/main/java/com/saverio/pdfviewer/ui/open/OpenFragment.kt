@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.google.android.material.button.MaterialButton
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.saverio.pdfviewer.MainActivity
@@ -23,9 +24,10 @@ class OpenFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_open, container, false)
 
         val main = activity as MainActivity
-        main.openPDFFile()
-
-        main.onBackPressed()
+        val openButton: MaterialButton = root.findViewById(R.id.buttonOpenFileFromTab)
+        openButton.setOnClickListener {
+            main.openPDFFile()
+        }
 
         return root
     }

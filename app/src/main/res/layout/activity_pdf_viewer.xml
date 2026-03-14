@@ -712,6 +712,7 @@
                 android:contentDescription="@string/tooltip_get_help"
                 android:padding="18sp"
                 android:scaleType="centerInside"
+                android:visibility="gone"
                 app:srcCompat="@drawable/ic_get_help"
                 tools:ignore="VectorDrawableCompat" />
 

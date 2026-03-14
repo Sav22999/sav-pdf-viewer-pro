@@ -88,6 +88,7 @@ class PDFViewer : AppCompatActivity() {
     val timesAfterLiberaPay = 5000
 
     var isFullscreenEnabled = false
+    private var openedExternally = true
     var showingTopBar = true
     var menuOpened = false
     private var compactTopBarVisible = false
@@ -116,13 +117,16 @@ class PDFViewer : AppCompatActivity() {
     var single_page = false
     var night_mode = false
     var rotation_locked = false
+    var contrastOverlayEnabled = false
 
     var zoom_value = 0.2F
 
     var hideTopBarCounter = 0
     var dialog: BottomSheetDialog? = null
     private val topBarUiHandler by lazy { Handler(Looper.getMainLooper()) }
+    private val scheduleUiHandler by lazy { Handler(Looper.getMainLooper()) }
     private val topBarAutoHideDelayMs = 5_000L
+    private val scheduledAppearanceCheckDelayMs = 60_000L
     private var topBarAutoHideDeadlineAtMs = 0L
     private val topBarAutoHideRunnable: Runnable = Runnable {
         handleTopBarAutoHideTick()
@@ -147,6 +151,10 @@ class PDFViewer : AppCompatActivity() {
     private val goToVisibilityDebounceMs = 60L
     private val goToVisibilityRunnable = Runnable {
         updateGoToEdgeButtonVisibilityInternal()
+    }
+    private val scheduledAppearanceRunnable = Runnable {
+        reevaluateScheduledAppearance(refreshViewer = true)
+        restartScheduledAppearanceChecks()
     }
 
     // ── OCR Search ─────────────────────────────────────────────
@@ -305,7 +313,15 @@ class PDFViewer : AppCompatActivity() {
         var uriToUse: String? = ""
 
         val parameters = intent.extras
-        if (parameters != null) uriToUse = parameters.getString("uri", "")
+        if (parameters != null) {
+            uriToUse = parameters.getString(MainActivity.EXTRA_URI, "")
+            openedExternally = parameters.getBoolean(
+                MainActivity.EXTRA_OPENED_EXTERNALLY,
+                intent?.action == Intent.ACTION_VIEW || intent?.data != null
+            )
+        } else {
+            openedExternally = intent?.action == Intent.ACTION_VIEW || intent?.data != null
+        }
 
         try {
             val intent = intent
@@ -365,12 +381,23 @@ class PDFViewer : AppCompatActivity() {
         checkReviewFollowApp()
 
         val backButton: ImageView = findViewById(R.id.buttonGoBackToolbar)
+        updateBackButtonUi()
         backButton.setOnClickListener {
             resetHideTopBarCounter()
-            finish()
+            if (openedExternally) {
+                finish()
+            } else {
+                startActivity(
+                    Intent(this, MainActivity::class.java).apply {
+                        putExtra(MainActivity.EXTRA_FORCE_HOME_TAB, true)
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    }
+                )
+                finish()
+            }
         }
         backButton.setOnLongClickListener {
-            showTooltip(R.string.tooltip_close_app)
+            showTooltip(if (openedExternally) R.string.tooltip_close_app else R.string.tooltip_back_to_home)
             resetHideTopBarCounter()
             true
         }
@@ -410,7 +437,7 @@ class PDFViewer : AppCompatActivity() {
 
         val fullScreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
         fullScreenButton.setOnClickListener {
-            setFullscreenButton(fullScreenButton)
+            setFullscreenButton()
             resetHideTopBarCounter()
             hideMenuPanel()
         }
@@ -510,24 +537,18 @@ class PDFViewer : AppCompatActivity() {
             showTooltip(R.string.tooltip_zoom_out)
             true
         }
+        // Keep zoom menu row stable even before the first menu open/layout pass.
+        zoomOutButton.isGone = false
+        resetZoomButton.isGone = false
 
         val lightButton: ImageView = findViewById(R.id.buttonNightDayToolbar)
-        val comfortView: View = findViewById(R.id.nightThemeBackground)
         lightButton.setOnClickListener {
-            if (!comfortView.isGone) {
-                comfortView.isGone = true
-                lightButton.setImageResource(R.drawable.ic_light_on)
-                lightButton.contentDescription = getString(R.string.tooltip_night_light_on)
-            } else {
-                comfortView.isGone = false
-                lightButton.setImageResource(R.drawable.ic_light_off)
-                lightButton.contentDescription = getString(R.string.tooltip_night_light_off)
-            }
+            applyContrastOverlayState(!contrastOverlayEnabled, persist = true)
             resetHideTopBarCounter()
             hideMenuPanel()
         }
         lightButton.setOnLongClickListener {
-            if (comfortView.isGone) showTooltip(R.string.tooltip_night_light_on)
+            if (!contrastOverlayEnabled) showTooltip(R.string.tooltip_night_light_on)
             else showTooltip(R.string.tooltip_night_light_off)
             true
         }
@@ -560,24 +581,9 @@ class PDFViewer : AppCompatActivity() {
 
         val buttonDarkFilter: ImageView = findViewById(R.id.buttonDarkFilter)
         buttonDarkFilter.setOnClickListener {
-            if (!night_mode) {
-                night_mode = true
-                pdfViewer.setNightMode(true)
-                pdfViewer.jumpTo(pdfViewer.currentPage, true)
-                buttonDarkFilter.setImageResource(R.drawable.ic_dark_filter_disabled)
-                buttonDarkFilter.contentDescription = getString(R.string.tooltip_force_dark_filter_disable)
-                pdfViewer.setBackgroundResource(R.color.spacingPageDark)
-            } else {
-                night_mode = false
-                pdfViewer.setNightMode(false)
-                pdfViewer.jumpTo(pdfViewer.currentPage, true)
-                buttonDarkFilter.setImageResource(R.drawable.ic_dark_filter)
-                buttonDarkFilter.contentDescription = getString(R.string.tooltip_force_dark_filter)
-                pdfViewer.setBackgroundResource(R.color.spacingPage)
-            }
+            applyNightModeState(!night_mode, persist = true, refreshViewer = true)
             resetHideTopBarCounter()
             hideMenuPanel()
-            saveCurrentPdfOptions()
         }
         buttonDarkFilter.setOnLongClickListener {
             if (!night_mode) showTooltip(R.string.tooltip_force_dark_filter)
@@ -654,6 +660,10 @@ class PDFViewer : AppCompatActivity() {
         setupSearch()
         setupTextSelection()
         setupGestures()
+        findViewById<View>(R.id.messageMenuPanel).post {
+            configureMenuPanelRowsForOrientation()
+        }
+        restartScheduledAppearanceChecks()
     }
 
     private fun showTooltip(string: Int) {
@@ -700,8 +710,149 @@ class PDFViewer : AppCompatActivity() {
         topBarUiHandler.removeCallbacks(topBarAutoHideRunnable)
     }
 
+    private fun restartScheduledAppearanceChecks() {
+        scheduleUiHandler.removeCallbacks(scheduledAppearanceRunnable)
+        scheduleUiHandler.postDelayed(scheduledAppearanceRunnable, scheduledAppearanceCheckDelayMs)
+    }
+
+    private fun updateBackButtonUi() {
+        val buttonClose: ImageView = findViewById(R.id.buttonGoBackToolbar)
+        if (openedExternally) {
+            buttonClose.setImageResource(R.drawable.ic_close)
+            buttonClose.contentDescription = getString(R.string.tooltip_close_app)
+        } else {
+            buttonClose.setImageResource(R.drawable.ic_back)
+            buttonClose.contentDescription = getString(R.string.tooltip_back_to_home)
+        }
+    }
+
+    private fun currentMinuteOfDay(): Int {
+        val calendar = Calendar.getInstance()
+        return (calendar.get(Calendar.HOUR_OF_DAY) * 60) + calendar.get(Calendar.MINUTE)
+    }
+
+    private fun isWithinScheduledRange(currentMinute: Int, startMinute: Int, endMinute: Int): Boolean {
+        if (startMinute == endMinute) return true
+        return if (startMinute < endMinute) {
+            currentMinute in startMinute until endMinute
+        } else {
+            currentMinute >= startMinute || currentMinute < endMinute
+        }
+    }
+
+    private fun applyNightModeState(enabled: Boolean, persist: Boolean = true, refreshViewer: Boolean = true) {
+        night_mode = enabled
+        if (refreshViewer) {
+            pdfViewer.setNightMode(enabled)
+            if (totalPages > 0) {
+                pdfViewer.jumpTo(pdfViewer.currentPage, true)
+            }
+        }
+
+        val buttonDarkFilter: ImageView = findViewById(R.id.buttonDarkFilter)
+        buttonDarkFilter.setImageResource(
+            if (enabled) R.drawable.ic_dark_filter_disabled else R.drawable.ic_dark_filter
+        )
+        buttonDarkFilter.contentDescription = if (enabled) {
+            getString(R.string.tooltip_force_dark_filter_disable)
+        } else {
+            getString(R.string.tooltip_force_dark_filter)
+        }
+        pdfViewer.setBackgroundResource(if (enabled) R.color.spacingPageDark else R.color.spacingPage)
+
+        if (persist && !applyingPdfOptions) {
+            saveCurrentPdfOptions()
+        }
+    }
+
+    private fun applyContrastOverlayState(enabled: Boolean, persist: Boolean = true) {
+        contrastOverlayEnabled = enabled
+        val comfortView: View = findViewById(R.id.nightThemeBackground)
+        val lightButton: ImageView = findViewById(R.id.buttonNightDayToolbar)
+        comfortView.isGone = !enabled
+        lightButton.setImageResource(if (enabled) R.drawable.ic_light_off else R.drawable.ic_light_on)
+        lightButton.contentDescription = if (enabled) {
+            getString(R.string.tooltip_night_light_off)
+        } else {
+            getString(R.string.tooltip_night_light_on)
+        }
+        if (persist && !applyingPdfOptions) {
+            saveCurrentPdfOptions()
+        }
+    }
+
+    private fun applyFullscreenState(enabled: Boolean, persist: Boolean = true, showCompactBar: Boolean = true) {
+        val button: ImageView = findViewById(R.id.buttonFullScreenToolbar)
+        if (enabled) {
+            window.setFlags(
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN,
+            )
+            window.decorView.systemUiVisibility =
+                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN
+            button.setImageResource(R.drawable.ic_exit_fullscreen)
+            button.contentDescription = getString(R.string.tooltip_full_screen_off)
+            isFullscreenEnabled = true
+        } else {
+            window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN)
+            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
+            button.setImageResource(R.drawable.ic_fullscreen)
+            button.contentDescription = getString(R.string.tooltip_full_screen_on)
+            isFullscreenEnabled = false
+        }
+
+        if (persist && !applyingPdfOptions) {
+            saveCurrentPdfOptions()
+        }
+        if (showCompactBar) {
+            showCompactTopBar(force = true)
+        }
+    }
+
+    private fun reevaluateScheduledAppearance(refreshViewer: Boolean) {
+        val defaults = ViewerDefaultsStore.load(this)
+        val currentMinute = currentMinuteOfDay()
+        if (defaults.darkFilterAuto) {
+            applyNightModeState(
+                isWithinScheduledRange(currentMinute, defaults.darkFilterStartMinute, defaults.darkFilterEndMinute),
+                persist = false,
+                refreshViewer = refreshViewer
+            )
+        }
+        if (defaults.nightLightAuto) {
+            applyContrastOverlayState(
+                isWithinScheduledRange(currentMinute, defaults.nightLightStartMinute, defaults.nightLightEndMinute),
+                persist = false
+            )
+        }
+    }
+
     fun selectPdfFromURI(uri: Uri?) {
         try {
+            if (uri == null) {
+                selectPdfFromStorage()
+                return
+            }
+            if (uri.scheme == "content") {
+                try {
+                    contentResolver.takePersistableUriPermission(
+                        uri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    )
+                } catch (_: Exception) {
+                    // ignore: not all providers/current states allow taking persistent grants here
+                }
+
+                if (!canReadPdfUri(uri)) {
+                    Toast.makeText(
+                        this,
+                        "Access not permitted. Please reselect the document.",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    selectPdfFromStorageWithInitialUri(uri)
+                    return
+                }
+            }
             //Toast.makeText(this, fileOpened, Toast.LENGTH_LONG).show()
             //Toast.makeText(this, uri.toString(), Toast.LENGTH_LONG).show()
             cancelTopBarAutoHideCountdown()
@@ -710,6 +861,7 @@ class PDFViewer : AppCompatActivity() {
             fileId = (fileOpened ?: uri?.toString() ?: "").toString()
             textSelectionManager.clearPageGeometryCache()
             loadCurrentPdfOptions()
+            applyFullscreenState(isFullscreenEnabled, persist = false, showCompactBar = false)
             skipNextInitialPageScrollHide = true
             // Keep gesture and button zoom limits consistent until page metrics are available.
             pdfViewer.setMinZoom(0.1f)
@@ -923,6 +1075,7 @@ class PDFViewer : AppCompatActivity() {
                         }
                     }
                     setCurrentZoomStatus()
+                    configureMenuPanelRowsForOrientation()
                     showTopBar(showGoTop = lastPosition > 0)
 
                     checkFirstTimeShowMessageGuide()
@@ -946,18 +1099,50 @@ class PDFViewer : AppCompatActivity() {
                         passwordRequired = true
                         askThePassword(uri, passwordWrong)
                     } else {
-                        println("PDF load error: ${it.message}")
-                        Toast.makeText(
-                            this@PDFViewer,
-                            "Error: ${it.message}",
-                            Toast.LENGTH_LONG
-                        ).show()
+                        val errorMessage = it.message.toString()
+                        if (
+                            errorMessage.contains("Access", ignoreCase = true) &&
+                            errorMessage.contains("Permitted", ignoreCase = true)
+                        ) {
+                            Toast.makeText(
+                                this@PDFViewer,
+                                "Access not permitted. Please reselect the document.",
+                                Toast.LENGTH_LONG
+                            ).show()
+                            selectPdfFromStorageWithInitialUri(uri)
+                        } else {
+                            println("PDF load error: ${it.message}")
+                            Toast.makeText(
+                                this@PDFViewer,
+                                "Error: ${it.message}",
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
                     //PdfPasswordException
                 }).load()
         } catch (e: Exception) {
             println("Exception 1: ${e.message}")
         }
+    }
+
+    private fun canReadPdfUri(uri: Uri): Boolean {
+        return try {
+            contentResolver.openFileDescriptor(uri, "r")?.use { true } ?: false
+        } catch (_: Exception) {
+            false
+        }
+    }
+
+    private fun selectPdfFromStorageWithInitialUri(uri: Uri?) {
+        val browserStorage = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        browserStorage.type = "application/pdf"
+        browserStorage.addCategory(Intent.CATEGORY_OPENABLE)
+        browserStorage.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        if (uri != null) {
+            browserStorage.putExtra(android.provider.DocumentsContract.EXTRA_INITIAL_URI, uri)
+        }
+        startActivityForResult(browserStorage, PDF_SELECTION_CODE)
     }
 
     fun askThePassword(uri: Uri?, passwordWrong: Boolean = false) {
@@ -1199,6 +1384,13 @@ class PDFViewer : AppCompatActivity() {
                 lastUpdate = getNow(),
                 path = pathName,
                 lastPage = currentPage,
+                scrollMode = scrollMode.name,
+                singlePage = single_page,
+                nightMode = night_mode,
+                contrastOverlay = contrastOverlayEnabled,
+                zoom = if (pdfViewer.zoom > 0F) pdfViewer.zoom else zoomToRestore,
+                rotationLocked = rotation_locked,
+                fullscreen = isFullscreenEnabled,
                 notes = ""
             )
             databaseHandler.add(file = file)
@@ -1550,31 +1742,8 @@ class PDFViewer : AppCompatActivity() {
         setRotationLockState(!rotation_locked)
     }
 
-    fun setFullscreenButton(button: ImageView) {
-        if (!isFullscreenEnabled) {
-            //show fullscreen
-            getWindow().setFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                WindowManager.LayoutParams.FLAG_FULLSCREEN,
-            )
-            window.decorView.systemUiVisibility =
-                View.SYSTEM_UI_FLAG_HIDE_NAVIGATION or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY or View.SYSTEM_UI_FLAG_FULLSCREEN
-            button.setImageResource(R.drawable.ic_exit_fullscreen)
-            button.contentDescription = getString(R.string.tooltip_full_screen_off)
-            isFullscreenEnabled = true
-        } else {
-            //hide fullscreen
-            getWindow().clearFlags(
-                WindowManager.LayoutParams.FLAG_FULLSCREEN
-            )
-            window.decorView.systemUiVisibility = View.SYSTEM_UI_FLAG_VISIBLE
-            button.setImageResource(R.drawable.ic_fullscreen)
-            button.contentDescription = getString(R.string.tooltip_full_screen_on)
-            isFullscreenEnabled = false
-        }
-
-        // Requirement: on both fullscreen enter and exit, switch to transparent topbar.
-        showCompactTopBar(force = true)
+    fun setFullscreenButton() {
+        applyFullscreenState(!isFullscreenEnabled, persist = true, showCompactBar = true)
     }
 
     fun showTopBar(showGoTop: Boolean = true, x: Float = 0F, y: Float = 0F) {
@@ -2439,6 +2608,23 @@ class PDFViewer : AppCompatActivity() {
 
         applyingPdfOptions = true
         try {
+            val defaults = ViewerDefaultsStore.load(this)
+            try {
+                setScrollMode(ScrollMode.valueOf(defaults.scrollMode), reloadPdf = false)
+            } catch (_: Exception) {
+                setScrollMode(ScrollMode.VERTICAL_TOP_TO_BOTTOM, reloadPdf = false)
+            }
+            single_page = defaults.singlePage
+            night_mode = defaults.nightMode
+            contrastOverlayEnabled = defaults.contrastOverlay
+            rotation_locked = defaults.rotationLocked
+            isFullscreenEnabled = defaults.fullscreen
+            zoomToRestore = if (defaults.zoomMode == ViewerDefaultsStore.ZOOM_MODE_PERCENT) {
+                (defaults.zoomPercent.coerceIn(10, 500) / 100f)
+            } else {
+                1.0f
+            }
+
             val fileKey = getTheFileName(fileId, 0).toMD5()
             val databaseHandler = DatabaseHandler(this)
             val file = findStoredFileRecord(databaseHandler, fileKey, fileId)
@@ -2452,7 +2638,9 @@ class PDFViewer : AppCompatActivity() {
 
                 single_page = file.singlePage
                 night_mode = file.nightMode
+                contrastOverlayEnabled = file.contrastOverlay
                 rotation_locked = file.rotationLocked
+                isFullscreenEnabled = file.fullscreen
                 zoomToRestore = file.zoom
             }
 
@@ -2460,22 +2648,10 @@ class PDFViewer : AppCompatActivity() {
 
             updateSinglePageModeButtons()
 
-            val buttonDarkFilter: ImageView = findViewById(R.id.buttonDarkFilter)
-            buttonDarkFilter.setImageResource(
-                if (night_mode) R.drawable.ic_dark_filter_disabled else R.drawable.ic_dark_filter
-            )
-            buttonDarkFilter.contentDescription = if (night_mode) {
-                getString(R.string.tooltip_force_dark_filter_disable)
-            } else {
-                getString(R.string.tooltip_force_dark_filter)
-            }
-
             setRotationLockState(rotation_locked, persist = false)
-
-            pdfViewer.setNightMode(night_mode)
-            pdfViewer.setBackgroundResource(
-                if (night_mode) R.color.spacingPageDark else R.color.spacingPage
-            )
+            applyNightModeState(night_mode, persist = false, refreshViewer = false)
+            applyContrastOverlayState(contrastOverlayEnabled, persist = false)
+            reevaluateScheduledAppearance(refreshViewer = false)
         } finally {
             applyingPdfOptions = false
         }
@@ -2525,8 +2701,10 @@ class PDFViewer : AppCompatActivity() {
                 file.scrollMode = scrollMode.name
                 file.singlePage = single_page
                 file.nightMode = night_mode
+                file.contrastOverlay = contrastOverlayEnabled
                 file.zoom = zoomToRestore
                 file.rotationLocked = rotation_locked
+                file.fullscreen = isFullscreenEnabled
                 file.lastUpdate = getNow()
                 databaseHandler.updateFile(file)
             }
@@ -2547,8 +2725,10 @@ class PDFViewer : AppCompatActivity() {
             file.scrollMode = scrollMode.name
             file.singlePage = single_page
             file.nightMode = night_mode
+            file.contrastOverlay = contrastOverlayEnabled
             file.zoom = if (pdfViewer.zoom > 0F) pdfViewer.zoom else zoomToRestore
             file.rotationLocked = rotation_locked
+            file.fullscreen = isFullscreenEnabled
             file.lastUpdate = getNow()
             if (file.path.isBlank()) {
                 file.path = fileId
@@ -2564,8 +2744,10 @@ class PDFViewer : AppCompatActivity() {
                 scrollMode = scrollMode.name,
                 singlePage = single_page,
                 nightMode = night_mode,
+                contrastOverlay = contrastOverlayEnabled,
                 zoom = if (pdfViewer.zoom > 0F) pdfViewer.zoom else zoomToRestore,
                 rotationLocked = rotation_locked,
+                fullscreen = isFullscreenEnabled,
                 notes = ""
             )
             databaseHandler.add(file)
@@ -2612,7 +2794,6 @@ class PDFViewer : AppCompatActivity() {
         hideMessageGuide1()
         closeOverlayPanelsExcept(OverlayPanel.MENU)
         cancelTopBarAutoHideCountdown()
-        configureMenuPanelRowsForOrientation()
 
         val message: ConstraintLayout = findViewById(R.id.messageMenuPanel)
         val arrow: View = findViewById(R.id.arrowMenuPanel)
@@ -2656,6 +2837,9 @@ class PDFViewer : AppCompatActivity() {
         zoomInButton.isGone = false
         zoomOutButton.isGone = false
         resetZoomButton.isGone = false
+
+        // Configure after final visibility state to avoid wrong weight distribution on first open.
+        configureMenuPanelRowsForOrientation()
     }
 
     private fun buildMenuVerticalSeparator(): View {
@@ -2836,6 +3020,19 @@ class PDFViewer : AppCompatActivity() {
         return false
     }
 
+    private fun normalizeVisibleMenuWeightSum(section: LinearLayout) {
+        val visibleWeight = (0 until section.childCount)
+            .map { section.getChildAt(it) }
+            .filter { child -> !child.isGone }
+            .mapNotNull { child ->
+                (child.layoutParams as? LinearLayout.LayoutParams)?.weight
+            }
+            .sum()
+        if (visibleWeight > 0F) {
+            section.weightSum = visibleWeight
+        }
+    }
+
     private fun updateMenuRowAndSeparatorVisibility() {
         val section1: LinearLayout = findViewById(R.id.menuPanelSection1)
         val section2: LinearLayout = findViewById(R.id.menuPanelSection2)
@@ -2849,6 +3046,13 @@ class PDFViewer : AppCompatActivity() {
         val sep3_4: LinearLayout = findViewById(R.id.menuPanelSectionSeparator3_4)
         val sep4_5: LinearLayout = findViewById(R.id.menuPanelSectionSeparator4_5)
         val sep5_6: LinearLayout = findViewById(R.id.menuPanelSectionSeparator5_6)
+
+        normalizeVisibleMenuWeightSum(section1)
+        normalizeVisibleMenuWeightSum(section2)
+        normalizeVisibleMenuWeightSum(section3)
+        normalizeVisibleMenuWeightSum(section4)
+        normalizeVisibleMenuWeightSum(section5)
+        normalizeVisibleMenuWeightSum(section6)
 
         val has1 = hasVisibleMenuActions(section1)
         val has2 = hasVisibleMenuActions(section2)
@@ -3425,8 +3629,20 @@ class PDFViewer : AppCompatActivity() {
     override fun onDestroy() {
         goToUiHandler.removeCallbacks(goToVisibilityRunnable)
         topBarUiHandler.removeCallbacks(topBarAutoHideRunnable)
+        scheduleUiHandler.removeCallbacks(scheduledAppearanceRunnable)
         ocrEngine.close()
         super.onDestroy()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        reevaluateScheduledAppearance(refreshViewer = totalPages > 0)
+        restartScheduledAppearanceChecks()
+    }
+
+    override fun onPause() {
+        scheduleUiHandler.removeCallbacks(scheduledAppearanceRunnable)
+        super.onPause()
     }
 
     // ═══════════════════════════════════════════════════════════════
