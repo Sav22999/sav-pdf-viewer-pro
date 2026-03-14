@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Sav PDF Viewer</string>
+    <string name="title_activity_main2">Sav PDF Viewer</string>
+    <string name="search_hint">Search text…</string>
+    <string name="search_no_results">No results found</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indexing page %1$d of %2$d…</string>
+    <string name="search_ready">Ready</string>
+    <string name="tooltip_search">Search text in PDF</string>
+    <string name="tooltip_search_prev">Previous result</string>
+    <string name="tooltip_search_next">Next result</string>
+    <string name="tooltip_search_close">Close search</string>
+    <string name="tooltip_search_case_sensitive">Case sensitive</string>
+    <string name="tooltip_search_whole_word">Whole word</string>
+    <string name="select_text_title">Page text</string>
+    <string name="copy_all_text">Copy all</string>
+    <string name="tooltip_select_text">Select and copy text</string>
+    <string name="select_text_copied">Text copied to clipboard</string>
+    <string name="select_text_extracting">Extracting text…</string>
+    <string name="select_text_no_text">No text found on this page</string>
+    <string name="select_text_page_info">Page %1$d of %2$d</string>
+    <string name="text_selection_mode_hint">Long-press and drag to select text</string>
+    <string name="text_selection_count">%1$d words selected</string>
+    <string name="text_selection_mode_active">Text selection mode</string>
+    <string name="tooltip_close_selection_mode">Close selection</string>
+    <string name="tooltip_copy_selection">Copy selection</string>
+    <string name="tooltip_toggle_character_selection">Toggle character selection mode</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Word selection mode</string>
+    <string name="tooltip_selection_mode_character">Character selection mode</string>
+    <string name="text_copied_preview">"%1$s" copied to clipboard</string>
+</resources>

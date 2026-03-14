@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lưu trình xem PDF</string>
+    <string name="title_activity_main2">Lưu trình xem PDF</string>
+    <string name="search_hint">Tìm kiếm văn bản…</string>
+    <string name="search_no_results">Không tìm thấy kết quả nào</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Đang lập chỉ mục trang %1$d trong số %2$d…</string>
+    <string name="search_ready">Sẵn sàng</string>
+    <string name="tooltip_search">Tìm kiếm văn bản trong PDF</string>
+    <string name="tooltip_search_prev">Kết quả trước đó</string>
+    <string name="tooltip_search_next">Kết quả tiếp theo</string>
+    <string name="tooltip_search_close">Đóng tìm kiếm</string>
+    <string name="tooltip_search_case_sensitive">Phân biệt chữ hoa chữ thường</string>
+    <string name="tooltip_search_whole_word">Toàn bộ từ</string>
+    <string name="select_text_title">văn bản trang</string>
+    <string name="copy_all_text">Sao chép tất cả</string>
+    <string name="tooltip_select_text">Chọn và sao chép văn bản</string>
+    <string name="select_text_copied">Đã sao chép văn bản vào bảng nhớ tạm</string>
+    <string name="select_text_extracting">Đang trích xuất văn bản…</string>
+    <string name="select_text_no_text">Không tìm thấy văn bản trên trang này</string>
+    <string name="select_text_page_info">Trang %1$d trong tổng số %2$d</string>
+    <string name="text_selection_mode_hint">Nhấn và kéo để chọn văn bản</string>
+    <string name="text_selection_count">%1$d từ đã được chọn</string>
+    <string name="text_selection_mode_active">Chế độ chọn văn bản</string>
+    <string name="tooltip_close_selection_mode">Đóng lựa chọn</string>
+    <string name="tooltip_copy_selection">Sao chép lựa chọn</string>
+    <string name="tooltip_toggle_character_selection">Chuyển đổi chế độ chọn ký tự</string>
+    <string name="selection_granularity_word">TỪ</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Chế độ chọn từ</string>
+    <string name="tooltip_selection_mode_character">Chế độ chọn ký tự</string>
+    <string name="text_copied_preview">Đã sao chép "%1$s" vào bảng nhớ tạm</string>
+</resources>

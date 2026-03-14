@@ -313,8 +313,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
-        tools:visibility="visible">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
 
         <!-- Search input row -->
         <EditText
@@ -575,7 +574,8 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
+        tools:visibility="visible">
 
         <LinearLayout
             android:id="@+id/menuPanelSection4"

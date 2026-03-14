@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Visor de PDF guardado</string>
+    <string name="title_activity_main2">Visor de PDF guardado</string>
+    <string name="search_hint">Buscar texto…</string>
+    <string name="search_no_results">No se encontraron resultados</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Página de indexación %1$d de %2$d...</string>
+    <string name="search_ready">Listo</string>
+    <string name="tooltip_search">Buscar texto en PDF</string>
+    <string name="tooltip_search_prev">Resultado anterior</string>
+    <string name="tooltip_search_next">Siguiente resultado</string>
+    <string name="tooltip_search_close">Cerrar búsqueda</string>
+    <string name="tooltip_search_case_sensitive">Distingue mayúsculas y minúsculas</string>
+    <string name="tooltip_search_whole_word">palabra completa</string>
+    <string name="select_text_title">Texto de la página</string>
+    <string name="copy_all_text">Copiar todo</string>
+    <string name="tooltip_select_text">Seleccionar y copiar texto</string>
+    <string name="select_text_copied">Texto copiado al portapapeles</string>
+    <string name="select_text_extracting">Extrayendo texto…</string>
+    <string name="select_text_no_text">No se encontró texto en esta página.</string>
+    <string name="select_text_page_info">Página %1$d de %2$d</string>
+    <string name="text_selection_mode_hint">Mantenga presionado y arrastre para seleccionar texto</string>
+    <string name="text_selection_count">%1$d palabras seleccionadas</string>
+    <string name="text_selection_mode_active">Modo de selección de texto</string>
+    <string name="tooltip_close_selection_mode">Cerrar selección</string>
+    <string name="tooltip_copy_selection">Copiar selección</string>
+    <string name="tooltip_toggle_character_selection">Alternar modo de selección de personaje</string>
+    <string name="selection_granularity_word">PALABRA</string>
+    <string name="selection_granularity_character">CARBONIZARSE</string>
+    <string name="tooltip_selection_mode_word">Modo de selección de palabras</string>
+    <string name="tooltip_selection_mode_character">Modo de selección de personajes</string>
+    <string name="text_copied_preview">"%1$s" copiado al portapapeles</string>
+</resources>

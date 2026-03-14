@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">儲存 PDF 檢視器</string>
+    <string name="title_activity_main2">儲存 PDF 檢視器</string>
+    <string name="search_hint">搜尋文字...</string>
+    <string name="search_no_results">沒有找到結果</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">索引頁 %1$d（共 %2$d）...</string>
+    <string name="search_ready">準備好</string>
+    <string name="tooltip_search">在 PDF 中搜尋文本</string>
+    <string name="tooltip_search_prev">之前的結果</string>
+    <string name="tooltip_search_next">下一個結果</string>
+    <string name="tooltip_search_close">關閉搜尋</string>
+    <string name="tooltip_search_case_sensitive">區分大小寫</string>
+    <string name="tooltip_search_whole_word">整個詞</string>
+    <string name="select_text_title">頁面文字</string>
+    <string name="copy_all_text">全部複製</string>
+    <string name="tooltip_select_text">選擇並複製文字</string>
+    <string name="select_text_copied">文字已複製到剪貼簿</string>
+    <string name="select_text_extracting">正在提取文字...</string>
+    <string name="select_text_no_text">在此頁面上找不到文字</string>
+    <string name="select_text_page_info">第 %1$d 頁，共 %2$d 頁</string>
+    <string name="text_selection_mode_hint">長按並拖曳以選擇文本</string>
+    <string name="text_selection_count">已選擇 %1$d 個單字</string>
+    <string name="text_selection_mode_active">文字選擇模式</string>
+    <string name="tooltip_close_selection_mode">關閉選擇</string>
+    <string name="tooltip_copy_selection">複製選擇</string>
+    <string name="tooltip_toggle_character_selection">切換角色選擇模式</string>
+    <string name="selection_granularity_word">單字</string>
+    <string name="selection_granularity_character">字元</string>
+    <string name="tooltip_selection_mode_word">選詞模式</string>
+    <string name="tooltip_selection_mode_character">角色選擇模式</string>
+    <string name="text_copied_preview">“%1$s”複製到剪貼簿</string>
+</resources>

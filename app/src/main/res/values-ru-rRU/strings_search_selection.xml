@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Сохранить PDF-просмотрщик</string>
+    <string name="title_activity_main2">Сохранить PDF-просмотрщик</string>
+    <string name="search_hint">Поиск текста…</string>
+    <string name="search_no_results">Результаты не найдены</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Индексирование страницы %1$d из %2$d…</string>
+    <string name="search_ready">Готовый</string>
+    <string name="tooltip_search">Поиск текста в PDF</string>
+    <string name="tooltip_search_prev">Предыдущий результат</string>
+    <string name="tooltip_search_next">Следующий результат</string>
+    <string name="tooltip_search_close">Закрыть поиск</string>
+    <string name="tooltip_search_case_sensitive">С учетом регистра</string>
+    <string name="tooltip_search_whole_word">Целое слово</string>
+    <string name="select_text_title">Текст страницы</string>
+    <string name="copy_all_text">Скопировать все</string>
+    <string name="tooltip_select_text">Выделить и скопировать текст</string>
+    <string name="select_text_copied">Текст скопирован в буфер обмена</string>
+    <string name="select_text_extracting">Извлечение текста…</string>
+    <string name="select_text_no_text">На этой странице не найден текст</string>
+    <string name="select_text_page_info">Страница %1$d из %2$d</string>
+    <string name="text_selection_mode_hint">Нажмите и удерживайте и перетащите, чтобы выделить текст</string>
+    <string name="text_selection_count">Выбрано %1$d слов</string>
+    <string name="text_selection_mode_active">Режим выделения текста</string>
+    <string name="tooltip_close_selection_mode">Закрыть выбор</string>
+    <string name="tooltip_copy_selection">Копировать выделение</string>
+    <string name="tooltip_toggle_character_selection">Переключить режим выбора персонажа</string>
+    <string name="selection_granularity_word">СЛОВО</string>
+    <string name="selection_granularity_character">ЧАР</string>
+    <string name="tooltip_selection_mode_word">Режим выбора слов</string>
+    <string name="tooltip_selection_mode_character">Режим выбора персонажа</string>
+    <string name="text_copied_preview">«%1$s» скопировано в буфер обмена.</string>
+</resources>

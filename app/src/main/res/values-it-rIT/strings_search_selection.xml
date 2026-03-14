@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Visualizzatore PDF salvato</string>
+    <string name="title_activity_main2">Visualizzatore PDF salvato</string>
+    <string name="search_hint">Cerca testo...</string>
+    <string name="search_no_results">Nessun risultato trovato</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Pagina di indicizzazione %1$d di %2$d...</string>
+    <string name="search_ready">Pronto</string>
+    <string name="tooltip_search">Cerca testo nel PDF</string>
+    <string name="tooltip_search_prev">Risultato precedente</string>
+    <string name="tooltip_search_next">Prossimo risultato</string>
+    <string name="tooltip_search_close">Chiudi la ricerca</string>
+    <string name="tooltip_search_case_sensitive">Maiuscole e minuscole</string>
+    <string name="tooltip_search_whole_word">Parola intera</string>
+    <string name="select_text_title">Testo della pagina</string>
+    <string name="copy_all_text">Copia tutto</string>
+    <string name="tooltip_select_text">Seleziona e copia il testo</string>
+    <string name="select_text_copied">Testo copiato negli appunti</string>
+    <string name="select_text_extracting">Estrazione del testo…</string>
+    <string name="select_text_no_text">Nessun testo trovato in questa pagina</string>
+    <string name="select_text_page_info">Pagina %1$d di %2$d</string>
+    <string name="text_selection_mode_hint">Premi a lungo e trascina per selezionare il testo</string>
+    <string name="text_selection_count">%1$d parole selezionate</string>
+    <string name="text_selection_mode_active">Modalità di selezione del testo</string>
+    <string name="tooltip_close_selection_mode">Chiudi selezione</string>
+    <string name="tooltip_copy_selection">Copia selezione</string>
+    <string name="tooltip_toggle_character_selection">Attiva/disattiva la modalità di selezione del personaggio</string>
+    <string name="selection_granularity_word">PAROLA</string>
+    <string name="selection_granularity_character">CAR</string>
+    <string name="tooltip_selection_mode_word">Modalità di selezione delle parole</string>
+    <string name="tooltip_selection_mode_character">Modalità di selezione del carattere</string>
+    <string name="text_copied_preview">"%1$s" copiato negli appunti</string>
+</resources>

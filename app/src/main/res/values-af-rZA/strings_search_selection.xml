@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Save PDF Viewer</string>
+    <string name="title_activity_main2">Save PDF Viewer</string>
+    <string name="search_hint">Soek teks …</string>
+    <string name="search_no_results">Geen resultate gevind nie</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indekseer bladsy %1$d van %2$d...</string>
+    <string name="search_ready">Gereed</string>
+    <string name="tooltip_search">Soek teks in PDF</string>
+    <string name="tooltip_search_prev">Vorige resultaat</string>
+    <string name="tooltip_search_next">Volgende resultaat</string>
+    <string name="tooltip_search_close">Maak soektog toe</string>
+    <string name="tooltip_search_case_sensitive">Hooflettergevoelig</string>
+    <string name="tooltip_search_whole_word">Hele woord</string>
+    <string name="select_text_title">Bladsy teks</string>
+    <string name="copy_all_text">Kopieer alles</string>
+    <string name="tooltip_select_text">Kies en kopieer teks</string>
+    <string name="select_text_copied">Teks is na knipbord gekopieer</string>
+    <string name="select_text_extracting">Onttrek tans teks …</string>
+    <string name="select_text_no_text">Geen teks gevind op hierdie bladsy nie</string>
+    <string name="select_text_page_info">Bladsy %1$d van %2$d</string>
+    <string name="text_selection_mode_hint">Druk lank en sleep om teks te kies</string>
+    <string name="text_selection_count">%1$d woorde gekies</string>
+    <string name="text_selection_mode_active">Tekskeusemodus</string>
+    <string name="tooltip_close_selection_mode">Maak seleksie toe</string>
+    <string name="tooltip_copy_selection">Kopieer seleksie</string>
+    <string name="tooltip_toggle_character_selection">Wissel karakterkeusemodus</string>
+    <string name="selection_granularity_word">WOORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Woordkeusemodus</string>
+    <string name="tooltip_selection_mode_character">Karakterkeusemodus</string>
+    <string name="text_copied_preview">"%1$s" na knipbord gekopieer</string>
+</resources>
