@@ -179,6 +179,7 @@ class PDFViewer : AppCompatActivity() {
     private var applyingPdfOptions = false
     private val selectedOptionAlpha = 1.0F
     private val unselectedOptionAlpha = 0.45F
+    private var pendingSinglePageCenterLogicalPage: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -791,10 +792,18 @@ class PDFViewer : AppCompatActivity() {
                         isSupportedGoTop = true
                         isSupportedScrollbarButton = true
                     }
-                    pdfViewer.fitToWidth(0)
-                    pdfViewer.jumpTo(mapLogicalPageToViewer(lastPosition), false)
+                    val targetViewerPage = mapLogicalPageToViewer(lastPosition)
+                    pdfViewer.fitToWidth(targetViewerPage)
+                    pdfViewer.jumpTo(targetViewerPage, false)
                     if (zoomToRestore > 0F) {
                         pdfViewer.zoomTo(zoomToRestore)
+                    }
+                    val pageToCenter = pendingSinglePageCenterLogicalPage
+                    if (single_page && pageToCenter != null) {
+                        pendingSinglePageCenterLogicalPage = null
+                        pdfViewer.post {
+                            pdfViewer.jumpTo(mapLogicalPageToViewer(pageToCenter), true)
+                        }
                     }
                     setCurrentZoomStatus()
                     showTopBar(showGoTop = lastPosition > 0)
@@ -1946,9 +1955,14 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun setSinglePageMode(enabled: Boolean) {
+        val switchingFromContinuousToSingle = enabled && !single_page
         if (single_page == enabled && uriOpened != null) {
             updateSinglePageModeButtons()
             return
+        }
+
+        if (switchingFromContinuousToSingle && totalPages > 0) {
+            pendingSinglePageCenterLogicalPage = getCurrentLogicalPage()
         }
 
         single_page = enabled
@@ -2160,6 +2174,18 @@ class PDFViewer : AppCompatActivity() {
             end = trackEnd,
             travelLength = (trackEnd - trackStart).coerceAtLeast(1F)
         )
+    }
+
+    private fun alignSideScrollLabelToThumb(container: ConstraintLayout, thumb: TextView, thumbTop: Float, animationDuration: Long = 0L) {
+        val labelHeight = if (container.height > 0) container.height else dpToPx(50F)
+        val centeredY = thumbTop + ((thumb.height - labelHeight) / 2F)
+        container.animate().y(centeredY).setDuration(animationDuration).start()
+    }
+
+    private fun alignBottomScrollLabelToThumb(container: ConstraintLayout, thumb: TextView, thumbLeft: Float, animationDuration: Long = 0L) {
+        val labelWidth = if (container.width > 0) container.width else thumb.width
+        val centeredX = thumbLeft + ((thumb.width - labelWidth) / 2F)
+        container.animate().x(centeredX).setDuration(animationDuration).start()
     }
 
     private fun loadCurrentPdfOptions() {
@@ -2457,7 +2483,7 @@ class PDFViewer : AppCompatActivity() {
                         val clampedY = desiredY.coerceIn(trackMetrics.start, trackMetrics.end)
 
                         view.animate().y(clampedY).setDuration(0).start()
-                        container.animate().y(clampedY).setDuration(0).start()
+                        alignSideScrollLabelToThumb(container, button, clampedY)
 
                         val progress = ((clampedY - trackMetrics.start) / trackMetrics.travelLength).coerceIn(0F, 1F)
                         val pageN = (progress * (totalPages - 1)).roundToInt()
@@ -2522,7 +2548,7 @@ class PDFViewer : AppCompatActivity() {
                     (((viewerPageForPosition - 1) * trackMetrics.travelLength) / (totalPages - 1)) + trackMetrics.start
                 if (initialPosition.isNaN()) initialPosition = 0F
                 button.animate().y(initialPosition).setDuration(animationDuration).start()
-                container.animate().y(initialPosition).setDuration(animationDuration).start()
+                alignSideScrollLabelToThumb(container, button, initialPosition, animationDuration)
                 textPage.text = pageToUse.toInt().toString()
             }
         }
@@ -2563,7 +2589,7 @@ class PDFViewer : AppCompatActivity() {
                         val clampedX = desiredX.coerceIn(trackMetrics.start, trackMetrics.end)
 
                         view.animate().x(clampedX).setDuration(0).start()
-                        container.animate().x(clampedX).setDuration(0).start()
+                        alignBottomScrollLabelToThumb(container, button, clampedX)
 
                         val progress = ((clampedX - trackMetrics.start) / trackMetrics.travelLength).coerceIn(0F, 1F)
                         val pageN = (progress * (totalPages - 1)).roundToInt()
@@ -2629,7 +2655,7 @@ class PDFViewer : AppCompatActivity() {
                     (((viewerPageForPosition - 1) * trackMetrics.travelLength) / (totalPages - 1)) + trackMetrics.start
                 if (initialPosition.isNaN()) initialPosition = 0F
                 button.animate().x(initialPosition).setDuration(animationDuration).start()
-                container.animate().x(initialPosition).setDuration(animationDuration).start()
+                alignBottomScrollLabelToThumb(container, button, initialPosition, animationDuration)
                 textPage.text = pageToUse.toInt().toString()
             }
         }
