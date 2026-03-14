@@ -6,6 +6,7 @@ import android.content.Context
 import android.graphics.*
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.github.barteksc.pdfviewer.PDFView
 
 /**
@@ -37,20 +38,38 @@ class TextSelectionManager(private val context: Context) {
     private val pageHeights = mutableMapOf<Int, Float>()
     private val handleRadiusPx = maxOf(18f, context.resources.displayMetrics.density * 12f)
     private val handleOffsetPx = handleRadiusPx * 0.6f
+    private val dropletSizePx = handleRadiusPx * 1.75f
+    private val handlePath = Path()
 
     // ── paints ────────────────────────────────────────────────────────────────
     private val fillPaint = Paint().apply {
-        color = Color.argb(70, 33, 150, 243); style = Paint.Style.FILL
+        color = withAlpha(ContextCompat.getColor(context, R.color.light_red), 120)
+        style = Paint.Style.FILL
     }
     private val borderPaint = Paint().apply {
-        color = Color.argb(180, 33, 150, 243); style = Paint.Style.STROKE; strokeWidth = 2f
+        color = withAlpha(ContextCompat.getColor(context, R.color.dark_red), 195)
+        style = Paint.Style.STROKE
+        strokeWidth = 2f
     }
     private val handleFillPaint = Paint().apply {
-        color = Color.argb(230, 33, 150, 243); style = Paint.Style.FILL; isAntiAlias = true
+        color = withAlpha(ContextCompat.getColor(context, R.color.dark_red), 178)
+        style = Paint.Style.FILL
+        isAntiAlias = true
     }
     private val handleLinePaint = Paint().apply {
-        color = Color.argb(230, 33, 150, 243); style = Paint.Style.STROKE
-        strokeWidth = 4f; isAntiAlias = true
+        color = withAlpha(ContextCompat.getColor(context, R.color.dark_red), 178)
+        style = Paint.Style.STROKE
+        strokeWidth = 3f
+        isAntiAlias = true
+    }
+
+    private enum class SharpCorner {
+        TOP_LEFT,
+        BOTTOM_RIGHT
+    }
+
+    private fun withAlpha(color: Int, alpha: Int): Int {
+        return Color.argb(alpha.coerceIn(0, 255), Color.red(color), Color.green(color), Color.blue(color))
     }
 
     // ── mode toggle ───────────────────────────────────────────────────────────
@@ -247,26 +266,36 @@ class TextSelectionManager(private val context: Context) {
     fun getStartHandleScreenPos(): PointF? {
         if (selectedWords.isEmpty() || selectionPage < 0) return null
         val first = selectedWords.first()
-        val viewPos = pageNormToViewCoords(
+        val anchorPos = pageNormToViewCoords(
             first.rect.left,
             first.rect.top,
             logicalToViewerPage(selectionPage)
         ) ?: return null
-        viewPos.offset(0f, -handleOffsetPx)
-        return pdfViewToScreen(viewPos)
+        val centerPos = markerCenterFromAnchor(
+            anchorX = anchorPos.x,
+            anchorY = anchorPos.y,
+            size = dropletSizePx,
+            sharpCorner = SharpCorner.BOTTOM_RIGHT
+        )
+        return pdfViewToScreen(centerPos)
     }
 
     /** Returns the end-handle position in screen (raw) coordinates, or null. */
     fun getEndHandleScreenPos(): PointF? {
         if (selectedWords.isEmpty() || selectionPage < 0) return null
         val last = selectedWords.last()
-        val viewPos = pageNormToViewCoords(
+        val anchorPos = pageNormToViewCoords(
             last.rect.right,
             last.rect.bottom,
             logicalToViewerPage(selectionPage)
         ) ?: return null
-        viewPos.offset(0f, handleOffsetPx)
-        return pdfViewToScreen(viewPos)
+        val centerPos = markerCenterFromAnchor(
+            anchorX = anchorPos.x,
+            anchorY = anchorPos.y,
+            size = dropletSizePx,
+            sharpCorner = SharpCorner.TOP_LEFT
+        )
+        return pdfViewToScreen(centerPos)
     }
 
     private fun pdfViewToScreen(viewCoords: PointF): PointF {
@@ -522,22 +551,82 @@ class TextSelectionManager(private val context: Context) {
         if (!selecting) {
             val first = selectedWords.first()
             val last  = selectedWords.last()
-            val r = handleRadiusPx
 
-            // Start handle: circle above first word's top-left, line downward
+            // Start handle: droplet anchored at first word top-left (sharp bottom-right)
             val sX = first.rect.left * pageWidth
             val sTop = first.rect.top * pageHeight
             val sBot = first.rect.bottom * pageHeight
             canvas.drawLine(sX, sTop, sX, sBot, handleLinePaint)
-            canvas.drawCircle(sX, sTop - handleOffsetPx, r, handleFillPaint)
+            drawDropletMarker(
+                canvas = canvas,
+                anchorX = sX,
+                anchorY = sTop,
+                size = dropletSizePx,
+                sharpCorner = SharpCorner.BOTTOM_RIGHT
+            )
 
-            // End handle: circle below last word's bottom-right, line upward
+            // End handle: droplet anchored at last word bottom-right (sharp top-left)
             val eX = last.rect.right * pageWidth
             val eTop = last.rect.top * pageHeight
             val eBot = last.rect.bottom * pageHeight
             canvas.drawLine(eX, eTop, eX, eBot, handleLinePaint)
-            canvas.drawCircle(eX, eBot + handleOffsetPx, r, handleFillPaint)
+            drawDropletMarker(
+                canvas = canvas,
+                anchorX = eX,
+                anchorY = eBot,
+                size = dropletSizePx,
+                sharpCorner = SharpCorner.TOP_LEFT
+            )
         }
+    }
+
+    private fun markerCenterFromAnchor(
+        anchorX: Float,
+        anchorY: Float,
+        size: Float,
+        sharpCorner: SharpCorner
+    ): PointF {
+        val half = size / 2f
+        return when (sharpCorner) {
+            // Anchor the droplet by its sharp corner on both axes.
+            SharpCorner.TOP_LEFT -> PointF(anchorX + half, anchorY + half)
+            SharpCorner.BOTTOM_RIGHT -> PointF(anchorX - half, anchorY - half)
+        }
+    }
+
+    private fun drawDropletMarker(
+        canvas: Canvas,
+        anchorX: Float,
+        anchorY: Float,
+        size: Float,
+        sharpCorner: SharpCorner
+    ) {
+        val center = markerCenterFromAnchor(anchorX, anchorY, size, sharpCorner)
+        val half = size / 2f
+        val rect = RectF(center.x - half, center.y - half, center.x + half, center.y + half)
+        val radius = size * 0.5f
+        val radii = floatArrayOf(
+            radius, radius, // top-left
+            radius, radius, // top-right
+            radius, radius, // bottom-right
+            radius, radius  // bottom-left
+        )
+
+        when (sharpCorner) {
+            SharpCorner.TOP_LEFT -> {
+                radii[0] = 0f
+                radii[1] = 0f
+            }
+            SharpCorner.BOTTOM_RIGHT -> {
+                radii[4] = 0f
+                radii[5] = 0f
+            }
+        }
+
+        handlePath.reset()
+        handlePath.addRoundRect(rect, radii, Path.Direction.CW)
+        canvas.drawPath(handlePath, handleFillPaint)
+        canvas.drawPath(handlePath, handleLinePaint)
     }
 
     // ── copy ──────────────────────────────────────────────────────────────────

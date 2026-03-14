@@ -146,22 +146,38 @@ class PDFViewer : AppCompatActivity() {
     private var searchPanelVisible: Boolean = false
     private var currentSearchQuery: String = ""
     private val highlightPaint = Paint().apply {
-        color = android.graphics.Color.argb(90, 255, 235, 59) // semi-transparent yellow
         style = Paint.Style.FILL
     }
     private val highlightBorderPaint = Paint().apply {
-        color = android.graphics.Color.argb(180, 255, 152, 0) // orange border
         style = Paint.Style.STROKE
         strokeWidth = 2f
     }
     private val activeHighlightPaint = Paint().apply {
-        color = android.graphics.Color.argb(140, 255, 152, 0) // stronger orange fill
         style = Paint.Style.FILL
     }
     private val activeHighlightBorderPaint = Paint().apply {
-        color = android.graphics.Color.argb(220, 230, 81, 0) // dark orange border
         style = Paint.Style.STROKE
         strokeWidth = 3f
+    }
+
+    private fun withAlpha(color: Int, alpha: Int): Int {
+        return android.graphics.Color.argb(
+            alpha.coerceIn(0, 255),
+            android.graphics.Color.red(color),
+            android.graphics.Color.green(color),
+            android.graphics.Color.blue(color)
+        )
+    }
+
+    private fun applySearchHighlightThemeColors() {
+        val lightRed = ContextCompat.getColor(this, R.color.light_red)
+        val darkRed = ContextCompat.getColor(this, R.color.dark_red)
+        val darkDarkRed = ContextCompat.getColor(this, R.color.dark_dark_red)
+
+        highlightPaint.color = withAlpha(lightRed, 120)
+        highlightBorderPaint.color = withAlpha(darkRed, 175)
+        activeHighlightPaint.color = withAlpha(darkRed, 155)
+        activeHighlightBorderPaint.color = withAlpha(darkDarkRed, 210)
     }
 
     // ── Text Selection ────────────────────────────────────────
@@ -194,7 +210,7 @@ class PDFViewer : AppCompatActivity() {
     var minPositionScrollbarHorizontal: Float = 0F
     var maxPositionScrollbarHorizontal: Float = 0F
     var startX = 0F
-    private val scrollbarSafetyMarginPx by lazy { dpToPx(3F).toFloat() }
+    private val scrollbarSafetyMarginPx by lazy { 0F }
     private val scrollbarMinimumLengthPx by lazy { dpToPx(50F) }
 
     private var applyingPdfOptions = false
@@ -211,6 +227,7 @@ class PDFViewer : AppCompatActivity() {
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, true)
 
         setContentView(R.layout.activity_pdf_viewer)
+        applySearchHighlightThemeColors()
 
         // Extra safety: pad the toolbar for the status bar inset
         val toolbarContainer = findViewById<View>(R.id.toolbarContainer)
@@ -2284,7 +2301,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun applyVerticalScrollbarThumbLength(button: TextView) {
-        val availableSpan = (maxPositionScrollbar - (scrollbarSafetyMarginPx * 2F)).coerceAtLeast(1F)
+        val availableSpan = maxPositionScrollbar.coerceAtLeast(1F)
         val layoutParams = button.layoutParams
         layoutParams.height = computeScrollbarThumbLengthPx(availableSpan)
         button.layoutParams = layoutParams
@@ -2292,15 +2309,15 @@ class PDFViewer : AppCompatActivity() {
 
     private fun applyHorizontalScrollbarThumbLength(button: TextView) {
         val availableSpan =
-            ((maxPositionScrollbarHorizontal - minPositionScrollbarHorizontal) - (scrollbarSafetyMarginPx * 2F)).coerceAtLeast(1F)
+            (maxPositionScrollbarHorizontal - minPositionScrollbarHorizontal).coerceAtLeast(1F)
         val layoutParams = button.layoutParams
         layoutParams.width = computeScrollbarThumbLengthPx(availableSpan)
         button.layoutParams = layoutParams
     }
 
     private fun getVerticalScrollbarTrackMetrics(button: TextView): ScrollbarTrackMetrics {
-        val trackStart = minPositionScrollbar + scrollbarSafetyMarginPx
-        val trackEnd = (maxPositionScrollbar + minPositionScrollbar - button.height - scrollbarSafetyMarginPx)
+        val trackStart = minPositionScrollbar
+        val trackEnd = (maxPositionScrollbar + minPositionScrollbar - button.height)
             .coerceAtLeast(trackStart)
         return ScrollbarTrackMetrics(
             start = trackStart,
@@ -2310,8 +2327,8 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun getHorizontalScrollbarTrackMetrics(button: TextView): ScrollbarTrackMetrics {
-        val trackStart = minPositionScrollbarHorizontal + scrollbarSafetyMarginPx
-        val trackEnd = (maxPositionScrollbarHorizontal - button.width - scrollbarSafetyMarginPx)
+        val trackStart = minPositionScrollbarHorizontal
+        val trackEnd = (maxPositionScrollbarHorizontal - button.width)
             .coerceAtLeast(trackStart)
         return ScrollbarTrackMetrics(
             start = trackStart,
