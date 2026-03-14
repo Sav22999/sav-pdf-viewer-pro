@@ -542,12 +542,99 @@
         tools:visibility="visible">
 
         <LinearLayout
+            android:id="@+id/menuPanelSection4"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="90"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/menuPanelSectionSeparator3_4">
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuPanelSectionSeparator4_5"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="100"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/menuPanelSection4">
+
+            <View
+                android:id="@+id/spaceleft_separator4_5"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/separator4_5"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_weight="98"
+                android:background="?attr/colorSecondary"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/spaceright_separator4_5"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/menuPanelSection1"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
             android:weightSum="90">
+
+            <ImageView
+                android:id="@+id/buttonDarkFilter"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="30"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_force_dark_filter"
+                android:padding="18sp"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_dark_filter"
+                tools:ignore="VectorDrawableCompat" />
+
+            <ImageView
+                android:id="@+id/buttonNightDayToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="30"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_night_light_on"
+                android:padding="18sp"
+                android:scaleType="centerInside"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_light_on"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
 
             <ImageView
                 android:id="@+id/buttonFullScreenToolbar"
@@ -560,32 +647,6 @@
                 android:scaleType="centerInside"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_fullscreen"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <ImageView
-                android:id="@+id/buttonSearchToolbar"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_weight="30"
-                android:background="@color/transparent"
-                android:contentDescription="@string/tooltip_search"
-                android:padding="14sp"
-                android:scaleType="centerInside"
-                app:srcCompat="@drawable/ic_search"
-                tools:ignore="VectorDrawableCompat" />
-
-            <ImageView
-                android:id="@+id/buttonShareToolbar"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_weight="30"
-                android:background="@color/transparent"
-                android:contentDescription="@string/tooltip_share_file"
-                android:padding="19sp"
-                android:scaleType="centerInside"
-                android:visibility="gone"
-                app:srcCompat="@drawable/ic_share"
                 tools:ignore="VectorDrawableCompat"
                 tools:visibility="visible" />
 
@@ -645,16 +706,28 @@
             android:layout_height="fill_parent"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="90"
+            android:weightSum="100"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/menuPanelSectionSeparator1_2">
 
             <ImageView
+                android:id="@+id/buttonGetHelpToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="20"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_get_help"
+                android:padding="18sp"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_get_help"
+                tools:ignore="VectorDrawableCompat" />
+
+            <ImageView
                 android:id="@+id/buttonOpenToolbar"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_weight="30"
+                android:layout_weight="20"
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_open_new_file"
                 android:padding="18sp"
@@ -668,24 +741,12 @@
                 android:id="@+id/buttonAllBookmarksToolbar"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
-                android:layout_weight="30"
+                android:layout_weight="20"
                 android:background="@color/transparent"
                 android:contentDescription="@string/tooltip_see_all_bookmarks"
                 android:padding="19sp"
                 android:scaleType="centerInside"
                 app:srcCompat="@drawable/ic_all_bookmarks"
-                tools:ignore="VectorDrawableCompat" />
-
-            <ImageView
-                android:id="@+id/buttonGetHelpToolbar"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_weight="30"
-                android:background="@color/transparent"
-                android:contentDescription="@string/tooltip_get_help"
-                android:padding="18sp"
-                android:scaleType="centerInside"
-                app:srcCompat="@drawable/ic_get_help"
                 tools:ignore="VectorDrawableCompat" />
 
             <ImageView
@@ -699,6 +760,32 @@
                 android:scaleType="centerInside"
                 android:visibility="gone"
                 app:srcCompat="@drawable/ic_select_text"
+                tools:ignore="VectorDrawableCompat" />
+
+            <ImageView
+                android:id="@+id/buttonShareToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="20"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_share_file"
+                android:padding="19sp"
+                android:scaleType="centerInside"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_share"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <ImageView
+                android:id="@+id/buttonSearchToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="20"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_search"
+                android:padding="14sp"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_search"
                 tools:ignore="VectorDrawableCompat" />
         </LinearLayout>
 
@@ -740,6 +827,54 @@
 
             <View
                 android:id="@+id/spaceright_separator2_3"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuPanelSectionSeparator3_4"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="100"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/menuPanelSection3">
+
+            <View
+                android:id="@+id/spaceleft_separator3_4"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/separator3_4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_weight="98"
+                android:background="?attr/colorSecondary"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="gone" />
+
+            <View
+                android:id="@+id/spaceright_separator3_4"
                 android:layout_width="0dp"
                 android:layout_height="1dp"
                 android:layout_weight="1"
@@ -809,140 +944,6 @@
                 android:scaleType="centerInside"
                 app:srcCompat="@drawable/ic_zoom_in"
                 tools:ignore="VectorDrawableCompat" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/menuPanelSectionSeparator3_4"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="0dp"
-            android:layout_marginEnd="0dp"
-            android:backgroundTint="@color/transparent"
-            android:padding="0dp"
-            android:weightSum="100"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/menuPanelSection3">
-
-            <View
-                android:id="@+id/spaceleft_separator3_4"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
-                android:id="@+id/separator3_4"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_weight="98"
-                android:background="?attr/colorSecondary"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
-                android:id="@+id/spaceright_separator3_4"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/menuPanelSection4"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:backgroundTint="@color/transparent"
-            android:padding="0dp"
-            android:weightSum="60"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/menuPanelSectionSeparator3_4">
-
-            <ImageView
-                android:id="@+id/buttonNightDayToolbar"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_weight="30"
-                android:background="@color/transparent"
-                android:contentDescription="@string/tooltip_night_light_on"
-                android:padding="18sp"
-                android:scaleType="centerInside"
-                android:visibility="gone"
-                app:srcCompat="@drawable/ic_light_on"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <ImageView
-                android:id="@+id/buttonDarkFilter"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_weight="30"
-                android:background="@color/transparent"
-                android:contentDescription="@string/tooltip_force_dark_filter"
-                android:padding="18sp"
-                android:scaleType="centerInside"
-                app:srcCompat="@drawable/ic_dark_filter"
-                tools:ignore="VectorDrawableCompat" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/menuPanelSectionSeparator4_5"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="0dp"
-            android:layout_marginEnd="0dp"
-            android:backgroundTint="@color/transparent"
-            android:padding="0dp"
-            android:weightSum="100"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/menuPanelSection4">
-
-            <View
-                android:id="@+id/spaceleft_separator4_5"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
-                android:id="@+id/separator4_5"
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_weight="98"
-                android:background="?attr/colorSecondary"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
-                android:id="@+id/spaceright_separator4_5"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
         </LinearLayout>
 
         <LinearLayout
