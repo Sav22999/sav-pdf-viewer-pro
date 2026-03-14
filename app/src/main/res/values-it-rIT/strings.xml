@@ -31,6 +31,7 @@
     <string name="text_password_inserted_wrong">Password inserita errata</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Vai</string>
+    <string name="button_back">Indietro</string>
     <string name="button_close">Chiudi</string>
     <string name="button_open">Apri</string>
     <string name="zoom_status_perc">%d %</string>

@@ -391,17 +391,7 @@ class PDFViewer : AppCompatActivity() {
         updateBackButtonUi()
         backButton.setOnClickListener {
             resetHideTopBarCounter()
-            if (openedExternally) {
-                finish()
-            } else {
-                startActivity(
-                    Intent(this, MainActivity::class.java).apply {
-                        putExtra(MainActivity.EXTRA_FORCE_HOME_TAB, true)
-                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    }
-                )
-                finish()
-            }
+            navigateBackOrClose()
         }
         backButton.setOnLongClickListener {
             showTooltip(if (openedExternally) R.string.tooltip_close_app else R.string.tooltip_back_to_home)
@@ -730,6 +720,20 @@ class PDFViewer : AppCompatActivity() {
         } else {
             buttonClose.setImageResource(R.drawable.ic_back)
             buttonClose.contentDescription = getString(R.string.tooltip_back_to_home)
+        }
+    }
+
+    private fun navigateBackOrClose() {
+        if (openedExternally) {
+            finish()
+        } else {
+            startActivity(
+                Intent(this, MainActivity::class.java).apply {
+                    putExtra(MainActivity.EXTRA_FORCE_HOME_TAB, true)
+                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                }
+            )
+            finish()
         }
     }
 
@@ -1210,6 +1214,10 @@ class PDFViewer : AppCompatActivity() {
 
         val buttonOpen: TextView = findViewById(R.id.buttonOpenPassword)
         val buttonClose: TextView = findViewById(R.id.buttonClosePassword)
+        buttonClose.text = getString(if (openedExternally) R.string.button_close else R.string.button_back)
+        buttonClose.contentDescription = getString(
+            if (openedExternally) R.string.tooltip_close_app else R.string.tooltip_back_to_home
+        )
 
         val textboxPassword: EditText = findViewById(R.id.textboxPassword)
         showSoftKeyboard(textboxPassword)
@@ -1244,11 +1252,11 @@ class PDFViewer : AppCompatActivity() {
         }
 
         buttonClose.setOnClickListener {
-            finishAffinity()
+            navigateBackOrClose()
             resetHideTopBarCounter()
         }
         buttonClose.setOnLongClickListener {
-            showTooltip(R.string.tooltip_close_app)
+            showTooltip(if (openedExternally) R.string.tooltip_close_app else R.string.tooltip_back_to_home)
             resetHideTopBarCounter()
             true
         }

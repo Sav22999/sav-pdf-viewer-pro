@@ -42,6 +42,7 @@
 
     <string name="button_ok">OK</string>
     <string name="button_go">Go</string>
+    <string name="button_back">Back</string>
     <string name="button_close">Close</string>
     <string name="button_open">Open</string>
     <string name="zoom_status_perc">%d %</string>
