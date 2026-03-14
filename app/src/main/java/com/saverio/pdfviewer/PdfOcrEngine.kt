@@ -32,8 +32,11 @@ class PdfOcrEngine(private val context: Context) {
     // ── callbacks ─────────────────────────────────────────────────────────────
     var onResults: ((results: List<SearchResult>, finished: Boolean) -> Unit)? = null
     var onIndexingPage: ((page: Int, total: Int) -> Unit)? = null
+    /** Fired on the main thread when a single page finishes OCR indexing. */
+    var onPageIndexed: ((page: Int) -> Unit)? = null
 
     // ── internals ─────────────────────────────────────────────────────────────
+    private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private val recognizer by lazy {
         TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
     }
@@ -230,6 +233,7 @@ class PdfOcrEngine(private val context: Context) {
             }
             wordsCache[page] = words
             Log.d(TAG, "page $page: indexed ${words.size} words → [${words.take(20).joinToString { it.text }}]")
+            mainHandler.post { onPageIndexed?.invoke(page) }
         } catch (e: Exception) {
             Log.e(TAG, "page $page OCR failed: ${e.message}")
             wordsCache[page] = emptyList()

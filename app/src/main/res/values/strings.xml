@@ -106,6 +106,8 @@
     <string name="select_text_page_info">Page %1$d of %2$d</string>
     <string name="text_selection_mode_hint">Long-press and drag to select text</string>
     <string name="text_selection_count">%1$d words selected</string>
-    <string name="button_copy">Copy</string>
     <string name="text_selection_mode_active">Text selection mode</string>
+    <string name="tooltip_close_selection_mode">Close selection</string>
+    <string name="tooltip_copy_selection">Copy selection</string>
+    <string name="text_copied_preview">"%1$s" copied to clipboard</string>
 </resources>

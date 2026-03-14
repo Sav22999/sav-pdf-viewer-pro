@@ -46,6 +46,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Looper
 import android.os.SystemClock
+import android.view.GestureDetector
+import android.view.HapticFeedbackConstants
 import kotlinx.coroutines.*
 import kotlin.math.roundToInt
 
@@ -56,6 +58,13 @@ class PDFViewer : AppCompatActivity() {
         VERTICAL_BOTTOM_TO_TOP,
         HORIZONTAL_LEFT_TO_RIGHT,
         HORIZONTAL_RIGHT_TO_LEFT
+    }
+
+    private enum class OverlayPanel {
+        MENU,
+        SEARCH,
+        GOTO,
+        SELECTION
     }
 
     lateinit var pdfViewer: PDFView
@@ -160,9 +169,16 @@ class PDFViewer : AppCompatActivity() {
         TextSelectionManager(this).also {
             it.ocrEngine = ocrEngine
             it.pdfView = pdfViewer
+            it.viewerToLogicalPage = ::mapViewerPageToLogical
+            it.logicalToViewerPage = ::mapLogicalPageToViewer
         }
     }
-    private var selectionTouchActive = false  // true while finger is down in selection mode
+    private enum class SelectionDragState { NONE, RUBBER_BAND, START_HANDLE, END_HANDLE }
+    private var selectionDragState = SelectionDragState.NONE
+    private var selectionDragPage  = -1
+    private var selectionDownViewX = Float.NaN
+    private var selectionDownViewY = Float.NaN
+    private lateinit var selectionGestureDetector: GestureDetector
     // ──────────────────────────────────────────────────────────
 
     var residualViewConfigurationConfigurated = false
@@ -376,9 +392,9 @@ class PDFViewer : AppCompatActivity() {
 
         val selectTextButton: ImageView = findViewById(R.id.buttonSelectTextToolbar)
         selectTextButton.setOnClickListener {
-            toggleTextSelectionMode()
+            // Text selection is activated via long-press on the document
+            Toast.makeText(this, getString(R.string.text_selection_mode_hint), Toast.LENGTH_SHORT).show()
             resetHideTopBarCounter()
-            hideMenuPanel()
         }
         selectTextButton.setOnLongClickListener {
             showTooltip(R.string.tooltip_select_text)
@@ -556,6 +572,7 @@ class PDFViewer : AppCompatActivity() {
         buttonMenu.isGone = false
 
         setupSearch()
+        setupTextSelection()
         setupGestures()
     }
 
@@ -655,8 +672,8 @@ class PDFViewer : AppCompatActivity() {
                     requestGoToEdgeButtonVisibilityUpdate(debounced = true)
                 }
                 .onDraw { canvas, pageWidth, pageHeight, displayedPage ->
-                    // Record page dimensions for text selection (temporarily disabled)
-                    // textSelectionManager.recordPageSize(displayedPage, pageWidth, pageHeight)
+                    // Record page dimensions for text selection
+                    textSelectionManager.recordPageSize(displayedPage, pageWidth, pageHeight)
 
                     // Draw search highlight rectangles on this page
                     if (currentSearchQuery.isNotBlank() && searchResults.isNotEmpty()) {
@@ -698,8 +715,8 @@ class PDFViewer : AppCompatActivity() {
                         }
                     }
 
-                    // Draw text selection highlights (temporarily disabled)
-                    // textSelectionManager.drawOnPage(canvas, pageWidth, pageHeight, displayedPage)
+                    // Draw text selection highlights + handles
+                    textSelectionManager.drawOnPage(canvas, pageWidth, pageHeight, displayedPage)
                 }
                 .onLoad {
                     lastPosition = getPdfPage(fileId)
@@ -1432,7 +1449,6 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun setFullscreenButton(button: ImageView) {
-        showingTopBar = true
         if (!isFullscreenEnabled) {
             //show fullscreen
             getWindow().setFlags(
@@ -1454,6 +1470,9 @@ class PDFViewer : AppCompatActivity() {
             button.contentDescription = getString(R.string.tooltip_full_screen_on)
             isFullscreenEnabled = false
         }
+
+        // Requirement: on both fullscreen enter and exit, switch to transparent topbar.
+        showCompactTopBar(force = true)
     }
 
     fun showTopBar(showGoTop: Boolean = true, x: Float = 0F, y: Float = 0F) {
@@ -1937,8 +1956,7 @@ class PDFViewer : AppCompatActivity() {
             else showTopBar()
 
             hideMessageGuide1()
-            hideSearchPanel(clearState = false)
-            hideMenuPanel()
+            closeOverlayPanelsExcept(OverlayPanel.GOTO)
 
             val buttonHide: ImageView = findViewById(R.id.buttonHideMessageGoTo)
             val textAllPages: TextView = findViewById(R.id.textAllPagesGoTo)
@@ -2208,8 +2226,8 @@ class PDFViewer : AppCompatActivity() {
         }
     }
 
-    private fun showCompactTopBar() {
-        if (menuOpened || searchPanelVisible) return
+    private fun showCompactTopBar(force: Boolean = false) {
+        if (!force && (menuOpened || searchPanelVisible)) return
 
         val toolbar: View = findViewById(R.id.toolbar)
         val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
@@ -2488,8 +2506,7 @@ class PDFViewer : AppCompatActivity() {
 
     fun showMenuPanel() {
         hideMessageGuide1()
-        hideSearchPanel(clearState = false)
-        hideGoToDialog()
+        closeOverlayPanelsExcept(OverlayPanel.MENU)
         cancelTopBarAutoHideCountdown()
 
         val message: ConstraintLayout = findViewById(R.id.messageMenuPanel)
@@ -2915,8 +2932,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun showSearchPanel() {
-        hideGoToDialog()
-        hideMenuPanel()
+        closeOverlayPanelsExcept(OverlayPanel.SEARCH)
         cancelTopBarAutoHideCountdown()
         val panel: ConstraintLayout = findViewById(R.id.messageSearch)
         panel.isGone = false
@@ -2983,51 +2999,225 @@ class PDFViewer : AppCompatActivity() {
             )
     }
 
-    // ── Select & Copy Text (overlay mode) ────────────────────────────────────
+    // ── Select & Copy Text ────────────────────────────────────────────────────
 
-    private fun toggleTextSelectionMode() {
-        return // Temporarily disabled
-        val nowActive = textSelectionManager.toggleMode()
-        val bar = findViewById<LinearLayout>(R.id.textSelectionBar)
-        val copyBtn = findViewById<TextView>(R.id.buttonCopySelection)
-        val closeBtn = findViewById<ImageView>(R.id.buttonCloseSelectionMode)
+    private fun setupTextSelection() {
+        // Build the GestureDetector that fires onLongPress on the PDFView
+        selectionGestureDetector = GestureDetector(this,
+            object : GestureDetector.SimpleOnGestureListener() {
+                override fun onDown(e: MotionEvent): Boolean {
+                    return true
+                }
 
-        bar.isGone = !nowActive
+                override fun onLongPress(e: MotionEvent) {
+                    if (!isSelectionGestureEligible(e.rawX, e.rawY)) return
 
-        if (nowActive) {
-            updateSelectionBar()
-            ocrEngine.ensurePageIndexedAsync(getCurrentLogicalPage())
+                    val pressX = if (selectionDownViewX.isNaN()) e.x else selectionDownViewX
+                    val pressY = if (selectionDownViewY.isNaN()) e.y else selectionDownViewY
+                    val hit = textSelectionManager.viewToPage(pressX, pressY, pdfViewer.currentPage)
+                    if (hit != null) {
+                        val (page, normX, normY) = hit
+                        val selectedImmediately = textSelectionManager.selectWordAt(normX, normY, page)
+                        if (!selectedImmediately && !textSelectionManager.hasPendingSelection()) {
+                            return
+                        }
+                        selectionDragState = SelectionDragState.NONE
+                        selectionDragPage = page
+                        // Haptic feedback
+                        pdfViewer.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
+                        // Cancel PDFView's ongoing scroll gesture
+                        val cancel = MotionEvent.obtain(
+                            e.downTime, e.eventTime, MotionEvent.ACTION_CANCEL, pressX, pressY, 0
+                        )
+                        pdfViewer.onTouchEvent(cancel)
+                        cancel.recycle()
+                        if (selectedImmediately) {
+                            showSelectionPanel()
+                        }
+                        pdfViewer.invalidate()
+                    }
+                }
+            })
 
-            copyBtn.setOnClickListener {
-                textSelectionManager.copySelectedText()
-                textSelectionManager.clearSelection()
-                pdfViewer.invalidate()
-                updateSelectionBar()
+        // OCR page-indexed callback: refresh selection when words become available
+        ocrEngine.onPageIndexed = { page ->
+            if (textSelectionManager.active && textSelectionManager.getSelectionPage() == page) {
+                textSelectionManager.refreshSelection()
+                pdfViewer.post {
+                    if (textSelectionManager.selectedWords.isNotEmpty()) {
+                        showSelectionPanel()
+                    }
+                    pdfViewer.invalidate()
+                }
             }
-            closeBtn.setOnClickListener { toggleTextSelectionMode() }
+        }
 
-            Toast.makeText(this, getString(R.string.text_selection_mode_active), Toast.LENGTH_SHORT)
-                .show()
-        } else {
-            pdfViewer.invalidate()
+        // Wire panel buttons
+        val copyBtn  = findViewById<ImageView>(R.id.buttonCopySelection)
+        val closeBtn = findViewById<android.widget.ImageView>(R.id.buttonCloseSelectionMode)
+        copyBtn.setOnClickListener {
+            if (textSelectionManager.selectedWords.isNotEmpty()) {
+                textSelectionManager.copySelectedText()
+            } else {
+                Toast.makeText(this, getString(R.string.select_text_no_text), Toast.LENGTH_SHORT).show()
+            }
+            hideSelectionPanel()
+        }
+        closeBtn.setOnClickListener {
+            hideSelectionPanel()
         }
     }
 
-    private fun updateSelectionBar() {
-        val infoText = findViewById<TextView>(R.id.textSelectionInfo)
-        val copyBtn = findViewById<TextView>(R.id.buttonCopySelection)
-        val count = textSelectionManager.selectedWords.size
-        if (count > 0) {
-            infoText.text = String.format(getString(R.string.text_selection_count), count)
-            copyBtn.isGone = false
-        } else {
-            infoText.text = getString(R.string.text_selection_mode_hint)
-            copyBtn.isGone = true
+    private fun isSelectionGestureEligible(rawX: Float, rawY: Float): Boolean {
+        if (!findViewById<View>(R.id.messageMenuPanel).isGone) return false
+        if (!findViewById<View>(R.id.messageGoTo).isGone) return false
+        if (!findViewById<View>(R.id.messageSearch).isGone) return false
+        if (!findViewById<View>(R.id.messagePassword).isGone) return false
+
+        if (isPointInsideVisibleView(findViewById(R.id.toolbarContainer), rawX, rawY)) return false
+        if (isPointInsideVisibleView(findViewById(R.id.textSelectionBar), rawX, rawY)) return false
+
+        return true
+    }
+
+    private fun isPointInsideVisibleView(view: View?, rawX: Float, rawY: Float): Boolean {
+        if (view == null || view.isGone) return false
+        val location = IntArray(2)
+        view.getLocationOnScreen(location)
+        return rawX >= location[0] && rawX <= location[0] + view.width &&
+            rawY >= location[1] && rawY <= location[1] + view.height
+    }
+
+    private fun showSelectionPanel() {
+        val bar = findViewById<android.widget.LinearLayout>(R.id.textSelectionBar)
+        bar.visibility = View.VISIBLE
+        closeOverlayPanelsExcept(OverlayPanel.SELECTION)
+    }
+
+    private fun closeOverlayPanelsExcept(panelToKeep: OverlayPanel) {
+        if (panelToKeep != OverlayPanel.GOTO) {
+            hideGoToDialog()
         }
+        if (panelToKeep != OverlayPanel.SEARCH) {
+            hideSearchPanel(clearState = false)
+        }
+        if (panelToKeep != OverlayPanel.MENU) {
+            hideMenuPanel()
+        }
+        if (panelToKeep != OverlayPanel.SELECTION) {
+            hideSelectionPanel()
+        }
+    }
+
+    fun hideSelectionPanel() {
+        val bar = findViewById<android.widget.LinearLayout>(R.id.textSelectionBar)
+        bar.visibility = View.GONE
+        selectionDragState = SelectionDragState.NONE
+        textSelectionManager.deactivate()
+        pdfViewer.invalidate()
     }
 
     override fun dispatchTouchEvent(event: MotionEvent): Boolean {
-        // Text selection temporarily disabled
+        val loc = IntArray(2)
+        pdfViewer.getLocationOnScreen(loc)
+        val onPdf = event.rawX >= loc[0] && event.rawX <= loc[0] + pdfViewer.width &&
+                    event.rawY >= loc[1] && event.rawY <= loc[1] + pdfViewer.height
+
+        if (event.actionMasked == MotionEvent.ACTION_DOWN) {
+            selectionDownViewX = event.rawX - loc[0]
+            selectionDownViewY = event.rawY - loc[1]
+        }
+
+        if (selectionDragState == SelectionDragState.NONE &&
+            textSelectionManager.active &&
+            textSelectionManager.selectedWords.isNotEmpty() &&
+            event.actionMasked == MotionEvent.ACTION_DOWN
+        ) {
+            when (textSelectionManager.findHandleHit(event.rawX, event.rawY)) {
+                1 -> {
+                    selectionDragState = SelectionDragState.START_HANDLE
+                    return true
+                }
+                2 -> {
+                    selectionDragState = SelectionDragState.END_HANDLE
+                    return true
+                }
+            }
+        }
+
+        if (onPdf && selectionDragState == SelectionDragState.NONE && isSelectionGestureEligible(event.rawX, event.rawY)) {
+            selectionGestureDetector.onTouchEvent(event)
+        }
+
+        when (selectionDragState) {
+            SelectionDragState.RUBBER_BAND -> {
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_MOVE -> {
+                        val pdfX = event.rawX - loc[0]
+                        val pdfY = event.rawY - loc[1]
+                        val hit  = textSelectionManager.viewToPage(pdfX, pdfY, selectionDragPage)
+                        if (hit != null) {
+                            textSelectionManager.onMove(hit.second, hit.third, hit.first)
+                            pdfViewer.invalidate()
+                        }
+                        return true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        textSelectionManager.onUp()
+                        selectionDragState = SelectionDragState.NONE
+                        pdfViewer.invalidate()
+                        return true
+                    }
+                }
+            }
+            SelectionDragState.START_HANDLE -> {
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_MOVE -> {
+                        val pdfX = event.rawX - loc[0]
+                        val pdfY = event.rawY - loc[1]
+                        val page = textSelectionManager.getSelectionViewerPage()
+                        val hit  = textSelectionManager.viewToPageClamped(pdfX, pdfY, page)
+                        if (hit != null) {
+                            textSelectionManager.moveStartHandle(hit.second, hit.third)
+                            pdfViewer.invalidate()
+                        }
+                        return true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        selectionDragState = SelectionDragState.NONE
+                        selectionDownViewX = Float.NaN
+                        selectionDownViewY = Float.NaN
+                        return true
+                    }
+                }
+            }
+            SelectionDragState.END_HANDLE -> {
+                when (event.actionMasked) {
+                    MotionEvent.ACTION_MOVE -> {
+                        val pdfX = event.rawX - loc[0]
+                        val pdfY = event.rawY - loc[1]
+                        val page = textSelectionManager.getSelectionViewerPage()
+                        val hit  = textSelectionManager.viewToPageClamped(pdfX, pdfY, page)
+                        if (hit != null) {
+                            textSelectionManager.moveEndHandle(hit.second, hit.third)
+                            pdfViewer.invalidate()
+                        }
+                        return true
+                    }
+                    MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        selectionDragState = SelectionDragState.NONE
+                        selectionDownViewX = Float.NaN
+                        selectionDownViewY = Float.NaN
+                        return true
+                    }
+                }
+            }
+            SelectionDragState.NONE -> Unit
+        }
+        if (event.actionMasked == MotionEvent.ACTION_UP || event.actionMasked == MotionEvent.ACTION_CANCEL) {
+            selectionDownViewX = Float.NaN
+            selectionDownViewY = Float.NaN
+        }
         return super.dispatchTouchEvent(event)
     }
 }
