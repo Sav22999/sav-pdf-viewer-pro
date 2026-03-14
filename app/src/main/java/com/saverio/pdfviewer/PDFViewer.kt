@@ -16,17 +16,21 @@ import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
+import android.widget.FrameLayout
 import androidx.appcompat.app.AppCompatActivity
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.view.isGone
 import androidx.core.widget.addTextChangedListener
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.github.barteksc.pdfviewer.PDFView
 import com.github.barteksc.pdfviewer.link.DefaultLinkHandler
 import com.github.barteksc.pdfviewer.listener.OnErrorListener
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.saverio.pdfviewer.db.BookmarksModel
 import com.saverio.pdfviewer.db.DatabaseHandler
 import com.saverio.pdfviewer.db.FilesModel
@@ -38,6 +42,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.HashMap
 import android.content.pm.ActivityInfo
+import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Looper
 import android.os.SystemClock
@@ -1159,6 +1164,8 @@ class PDFViewer : AppCompatActivity() {
         dialog!!.dismissWithAnimation = true
         dialog!!.setCancelable(true)
         dialog!!.setOnShowListener {
+            val bottomSheet = dialog!!.findViewById<FrameLayout>(com.google.android.material.R.id.design_bottom_sheet)
+            val bottomSheetBehavior = bottomSheet?.let { BottomSheetBehavior.from(it) }
             val bookmarkItemsList: RecyclerView = view.findViewById(R.id.bookmarksList)
             val noBookmarksPresent: TextView = view.findViewById(R.id.noBookmarksPresentText)
             val loadingBookmarks: TextView = view.findViewById(R.id.loadingPreviewOfBookmarksText)
@@ -1174,6 +1181,125 @@ class PDFViewer : AppCompatActivity() {
                 bookmarkItemsList.setHasFixedSize(false)
                 val itemAdapter = BookmarksItemAdapter(this, bookmarks)
                 bookmarkItemsList.adapter = itemAdapter
+
+                val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+                    override fun onMove(
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder,
+                        target: RecyclerView.ViewHolder
+                    ): Boolean = false
+
+                    override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                        val position = viewHolder.adapterPosition
+                        if (position == RecyclerView.NO_POSITION) {
+                            itemAdapter.notifyDataSetChanged()
+                            return
+                        }
+
+                        val bookmark = itemAdapter.getItemAt(position)
+                        val bookmarkId = bookmark?.id
+                        if (bookmark == null || bookmarkId == null) {
+                            itemAdapter.notifyItemChanged(position)
+                            return
+                        }
+
+                        databaseHandler.deleteBookmark(bookmarkId)
+                        itemAdapter.removeItemAt(position)
+
+                        if (itemAdapter.itemCount == 0) {
+                            hideBottomSheet()
+                        }
+                    }
+
+                    override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+                        super.onSelectedChanged(viewHolder, actionState)
+                        bottomSheetBehavior?.isDraggable = actionState != ItemTouchHelper.ACTION_STATE_SWIPE
+                        bookmarkItemsList.parent?.requestDisallowInterceptTouchEvent(
+                            actionState == ItemTouchHelper.ACTION_STATE_SWIPE
+                        )
+                    }
+
+                    override fun onChildDraw(
+                        c: Canvas,
+                        recyclerView: RecyclerView,
+                        viewHolder: RecyclerView.ViewHolder,
+                        dX: Float,
+                        dY: Float,
+                        actionState: Int,
+                        isCurrentlyActive: Boolean
+                    ) {
+                        val foregroundView =
+                            viewHolder.itemView.findViewById<View>(R.id.cardViewBookmark)
+                        val backgroundCard =
+                            viewHolder.itemView.findViewById<CardView>(R.id.cardViewBookmarkRemoved)
+                        val activeSwipeColor = ContextCompat.getColor(this@PDFViewer, R.color.dark_dark_red)
+                        val idleSwipeColor = ContextCompat.getColor(this@PDFViewer, R.color.red)
+                        if (dX >= 0F) {
+                            backgroundCard.setCardBackgroundColor(idleSwipeColor)
+                            ItemTouchHelper.Callback.getDefaultUIUtil().onDraw(
+                                c,
+                                recyclerView,
+                                foregroundView,
+                                0F,
+                                dY,
+                                actionState,
+                                isCurrentlyActive
+                            )
+                            return
+                        }
+                        val maxSwipe = foregroundView.width * 0.90F
+                        val clampedDx = dX.coerceIn(-maxSwipe, 0F)
+                        val thresholdPx = foregroundView.width * getSwipeThreshold(viewHolder)
+                        val isDeleteActionArmed = kotlin.math.abs(clampedDx) >= thresholdPx
+                        backgroundCard.setCardBackgroundColor(
+                            if (isDeleteActionArmed) activeSwipeColor else idleSwipeColor
+                        )
+                        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE) {
+                            recyclerView.parent?.requestDisallowInterceptTouchEvent(
+                                isCurrentlyActive || clampedDx != 0F
+                            )
+                        }
+
+                        ItemTouchHelper.Callback.getDefaultUIUtil().onDraw(
+                            c,
+                            recyclerView,
+                            foregroundView,
+                            clampedDx,
+                            dY,
+                            actionState,
+                            isCurrentlyActive
+                        )
+                    }
+
+                    override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+                        val foregroundView =
+                            viewHolder.itemView.findViewById<View>(R.id.cardViewBookmark)
+                        val backgroundCard =
+                            viewHolder.itemView.findViewById<CardView>(R.id.cardViewBookmarkRemoved)
+                        ItemTouchHelper.Callback.getDefaultUIUtil().clearView(foregroundView)
+                        backgroundCard.setCardBackgroundColor(
+                            ContextCompat.getColor(this@PDFViewer, R.color.red)
+                        )
+                        bottomSheetBehavior?.isDraggable = true
+                        recyclerView.parent?.requestDisallowInterceptTouchEvent(false)
+                        super.clearView(recyclerView, viewHolder)
+                    }
+
+                    override fun getSwipeThreshold(viewHolder: RecyclerView.ViewHolder): Float {
+                        // Keep it forgiving enough for short rows in bottom sheet.
+                        return 0.24F
+                    }
+
+                    override fun getSwipeEscapeVelocity(defaultValue: Float): Float {
+                        return defaultValue * 0.65F
+                    }
+
+                    override fun getSwipeVelocityThreshold(defaultValue: Float): Float {
+                        return defaultValue * 0.85F
+                    }
+                }
+                ItemTouchHelper(swipeCallback).attachToRecyclerView(bookmarkItemsList)
+
                 loadingBookmarks.isGone = true
 
                 if (getBooleanData("firstTimeSeeAllBookmarks", true)) {
