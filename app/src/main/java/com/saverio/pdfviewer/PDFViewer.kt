@@ -133,6 +133,7 @@ class PDFViewer : AppCompatActivity() {
     }
     private var lastGoToVisibleState: Boolean? = null
     private var lastGoToBottomIconState: Boolean? = null
+    private var skipNextInitialPageScrollHide = false
     private val goToUiHandler by lazy { Handler(Looper.getMainLooper()) }
     private val goToVisibilityDebounceMs = 60L
     private val goToVisibilityRunnable = Runnable {
@@ -159,6 +160,7 @@ class PDFViewer : AppCompatActivity() {
         style = Paint.Style.STROKE
         strokeWidth = 3f
     }
+    private val highlightInsetPx = 2f
 
     private fun withAlpha(color: Int, alpha: Int): Int {
         return android.graphics.Color.argb(
@@ -646,6 +648,7 @@ class PDFViewer : AppCompatActivity() {
             var lastPosition = 0
             fileId = (fileOpened ?: uri?.toString() ?: "").toString()
             loadCurrentPdfOptions()
+            skipNextInitialPageScrollHide = true
             //Toast.makeText(this, fileId, Toast.LENGTH_LONG).show()
 
             pdfViewer.fromUri(uri)
@@ -671,7 +674,11 @@ class PDFViewer : AppCompatActivity() {
                 .onPageChange { page, pageCount ->
                     run {
                         totalPages = pageCount
-                        updatePdfPage(fileId, mapViewerPageToLogical(page))
+                        val logicalPage = mapViewerPageToLogical(page)
+                        updatePdfPage(fileId, logicalPage)
+                        if (logicalPage == 0) {
+                            showTopBar(showGoTop = false)
+                        }
                         updateGoToEdgeButtonVisibility()
                         //setPositionScrollbarByPage(page.toFloat())
                         // Pre-index OCR words for text selection (temporarily disabled)
@@ -681,7 +688,14 @@ class PDFViewer : AppCompatActivity() {
                     }
                 }
                 .onPageScroll { page, positionOffset ->
-                    hideTopBar(fullHiding = false)
+                    if (skipNextInitialPageScrollHide) {
+                        skipNextInitialPageScrollHide = false
+                    } else if (getCurrentLogicalPage() == 0) {
+                        // At first page always keep the classic top bar.
+                        showTopBar(showGoTop = false)
+                    } else {
+                        hideTopBar(fullHiding = false)
+                    }
                     hideGoToDialog()
                     hideMenuPanel()
 
@@ -713,22 +727,15 @@ class PDFViewer : AppCompatActivity() {
                             activeLocalIdx = localIdx
                         }
                         for ((localIdx, r) in rects.withIndex()) {
-                            val left = r.left * pageWidth
-                            val top = r.top * pageHeight
-                            val right = r.right * pageWidth
-                            val bottom = r.bottom * pageHeight
+                            val left = (r.left * pageWidth) - highlightInsetPx
+                            val top = (r.top * pageHeight) - highlightInsetPx
+                            val right = (r.right * pageWidth) + highlightInsetPx
+                            val bottom = (r.bottom * pageHeight) + highlightInsetPx
+                            if (right <= left || bottom <= top) continue
                             if (localIdx == activeLocalIdx) {
                                 canvas.drawRect(left, top, right, bottom, activeHighlightPaint)
-                                canvas.drawRect(
-                                    left,
-                                    top,
-                                    right,
-                                    bottom,
-                                    activeHighlightBorderPaint
-                                )
                             } else {
                                 canvas.drawRect(left, top, right, bottom, highlightPaint)
-                                canvas.drawRect(left, top, right, bottom, highlightBorderPaint)
                             }
                         }
                     }

@@ -60,6 +60,7 @@ class TextSelectionManager(private val context: Context) {
 
     private val handleRadiusPx = maxOf(18f, context.resources.displayMetrics.density * 12f)
     private val dropletSizePx = handleRadiusPx * 1.75f
+    private val selectionInsetPx = 2f
     private val handlePath = Path()
 
     private val fillPaint = Paint().apply {
@@ -574,12 +575,12 @@ class TextSelectionManager(private val context: Context) {
 
         for (ref in pageRefs) {
             val w = ref.word
-            val l = localOffset.x + (w.rect.left * pageWidth)
-            val t = localOffset.y + (w.rect.top * pageHeight)
-            val r = localOffset.x + (w.rect.right * pageWidth)
-            val b = localOffset.y + (w.rect.bottom * pageHeight)
+            val l = localOffset.x + (w.rect.left * pageWidth) - selectionInsetPx
+            val t = localOffset.y + (w.rect.top * pageHeight) - selectionInsetPx
+            val r = localOffset.x + (w.rect.right * pageWidth) + selectionInsetPx
+            val b = localOffset.y + (w.rect.bottom * pageHeight) + selectionInsetPx
+            if (r <= l || b <= t) continue
             canvas.drawRect(l, t, r, b, fillPaint)
-            canvas.drawRect(l, t, r, b, borderPaint)
         }
 
         if (!selecting) {
