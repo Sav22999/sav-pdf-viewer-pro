@@ -10,7 +10,6 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.net.toUri
 import androidx.core.view.isGone
 import androidx.core.view.isInvisible
 import androidx.recyclerview.widget.RecyclerView
@@ -19,6 +18,7 @@ import com.saverio.pdfviewer.R
 import com.saverio.pdfviewer.db.BookmarksModel
 import com.saverio.pdfviewer.db.DatabaseHandler
 import com.shockwave.pdfium.PdfiumCore
+import java.io.File
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -121,7 +121,13 @@ class BookmarksItemAdapter(
         }
 
         val uri = try {
-            databaseHandler.getFiles(fileId).firstOrNull()?.path?.toUri()
+            databaseHandler.getFiles(fileId).firstOrNull()?.path?.let { path ->
+                if (path.contains("://")) {
+                    Uri.parse(path)
+                } else {
+                    Uri.fromFile(File(path))
+                }
+            }
         } catch (e: Exception) {
             null
         }
@@ -137,12 +143,22 @@ class BookmarksItemAdapter(
                 val pdfDocument = pdfiumCore.newDocument(parcelFileDescriptor)
                 try {
                     pdfiumCore.openPage(pdfDocument, lastPosition)
-                    val width = pdfiumCore.getPageWidthPoint(pdfDocument, lastPosition)
-                    val height = pdfiumCore.getPageHeightPoint(pdfDocument, lastPosition)
+                    val originalWidth = pdfiumCore.getPageWidthPoint(pdfDocument, lastPosition)
+                    val originalHeight = pdfiumCore.getPageHeightPoint(pdfDocument, lastPosition)
 
-                    if (width <= 0 || height <= 0) return null
+                    if (originalWidth <= 0 || originalHeight <= 0) return null
 
-                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.RGB_565)
+                    val density = context.resources.displayMetrics.density
+                    val targetWidthPx = (100f * density).toInt().coerceAtLeast(1)
+                    val targetHeightPx = (70f * density).toInt().coerceAtLeast(1)
+                    val scale = maxOf(
+                        targetWidthPx.toFloat() / originalWidth.toFloat(),
+                        targetHeightPx.toFloat() / originalHeight.toFloat()
+                    )
+                    val width = (originalWidth * scale).toInt().coerceAtLeast(1)
+                    val height = (originalHeight * scale).toInt().coerceAtLeast(1)
+
+                    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                     pdfiumCore.renderPageBitmap(
                         pdfDocument,
                         bitmap,
