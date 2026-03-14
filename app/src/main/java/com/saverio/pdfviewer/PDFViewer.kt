@@ -10,6 +10,7 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
@@ -48,11 +49,19 @@ import android.os.Looper
 import android.os.SystemClock
 import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
+import android.view.ViewGroup
 import kotlinx.coroutines.*
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 
 class PDFViewer : AppCompatActivity() {
+    private data class MenuActionLayoutSnapshot(
+        val width: Int,
+        val height: Int,
+        val weight: Float
+    )
+
     private enum class ScrollMode {
         VERTICAL_TOP_TO_BOTTOM,
         VERTICAL_BOTTOM_TO_TOP,
@@ -148,6 +157,9 @@ class PDFViewer : AppCompatActivity() {
     private var currentSearchQuery: String = ""
     private var searchCaseSensitive: Boolean = false
     private var searchWholeWord: Boolean = false
+    private var minZoomForCurrentLayout: Float = 0.1F
+    private val menuActionDefaultLayoutParams = HashMap<Int, MenuActionLayoutSnapshot>()
+    private val menuSectionDefaultWeightSum = HashMap<Int, Float>()
     private val highlightPaint = Paint().apply {
         style = Paint.Style.FILL
     }
@@ -182,6 +194,46 @@ class PDFViewer : AppCompatActivity() {
         highlightBorderPaint.color = withAlpha(darkRed, 175)
         activeHighlightPaint.color = withAlpha(darkRed, 155)
         activeHighlightBorderPaint.color = withAlpha(darkDarkRed, 210)
+    }
+
+    private fun hasExplicitZoomPreference(): Boolean {
+        return zoomToRestore > 0f && abs(zoomToRestore - 1f) > 0.01f
+    }
+
+    private fun computeZoomForCurrentOrientation(viewerPage: Int): Float {
+        val pageSize = pdfViewer.getPageSize(viewerPage)
+        if (pageSize == null) return minZoomForCurrentLayout
+
+        val availableWidth =
+            (pdfViewer.width - pdfViewer.paddingLeft - pdfViewer.paddingRight).toFloat().coerceAtLeast(1f)
+        val availableHeight =
+            (pdfViewer.height - pdfViewer.paddingTop - pdfViewer.paddingBottom).toFloat().coerceAtLeast(1f)
+        val fitWidthZoom = availableWidth / pageSize.width.coerceAtLeast(1f)
+        val fitHeightZoom = availableHeight / pageSize.height.coerceAtLeast(1f)
+
+        return if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            fitHeightZoom
+        } else {
+            fitWidthZoom
+        }.coerceAtLeast(0.1f)
+    }
+
+    private fun updateZoomBoundsForCurrentOrientation(viewerPage: Int) {
+        val minZoom = computeZoomForCurrentOrientation(viewerPage).coerceAtMost(10.0f)
+        minZoomForCurrentLayout = minZoom
+        pdfViewer.setMinZoom(minZoom)
+        pdfViewer.setMidZoom(maxOf(2.5f, minZoom + 0.5f))
+        pdfViewer.setMaxZoom(10.0f)
+    }
+
+    private fun fitPageForCurrentOrientation(viewerPage: Int) {
+        if (hasExplicitZoomPreference()) return
+        if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            pdfViewer.zoomTo(computeZoomForCurrentOrientation(viewerPage))
+        } else {
+            // fitToWidth also recenters horizontally in portrait
+            pdfViewer.fitToWidth(viewerPage)
+        }
     }
 
     private fun currentSearchOptions(): PdfOcrEngine.SearchOptions {
@@ -656,8 +708,13 @@ class PDFViewer : AppCompatActivity() {
             resetHideTopBarCounter()
             var lastPosition = 0
             fileId = (fileOpened ?: uri?.toString() ?: "").toString()
+            textSelectionManager.clearPageGeometryCache()
             loadCurrentPdfOptions()
             skipNextInitialPageScrollHide = true
+            // Keep gesture and button zoom limits consistent until page metrics are available.
+            pdfViewer.setMinZoom(0.1f)
+            pdfViewer.setMidZoom(2.5f)
+            pdfViewer.setMaxZoom(10.0f)
             //Toast.makeText(this, fileId, Toast.LENGTH_LONG).show()
 
             pdfViewer.fromUri(uri)
@@ -683,6 +740,7 @@ class PDFViewer : AppCompatActivity() {
                 .onPageChange { page, pageCount ->
                     run {
                         totalPages = pageCount
+                        updateZoomBoundsForCurrentOrientation(page)
                         val logicalPage = mapViewerPageToLogical(page)
                         updatePdfPage(fileId, logicalPage)
                         if (logicalPage == 0) {
@@ -849,11 +907,14 @@ class PDFViewer : AppCompatActivity() {
                         isSupportedScrollbarButton = true
                     }
                     val targetViewerPage = mapLogicalPageToViewer(lastPosition)
-                    pdfViewer.fitToWidth(targetViewerPage)
-                    pdfViewer.jumpTo(targetViewerPage, false)
-                    if (zoomToRestore > 0F) {
+                    updateZoomBoundsForCurrentOrientation(targetViewerPage)
+                    if (hasExplicitZoomPreference()) {
                         pdfViewer.zoomTo(zoomToRestore)
+                    } else {
+                        fitPageForCurrentOrientation(targetViewerPage)
                     }
+                    // Re-apply page position after zoom/fit so horizontal offset is stable at first render.
+                    pdfViewer.jumpTo(targetViewerPage, false)
                     val pageToCenter = pendingSinglePageCenterLogicalPage
                     if (single_page && pageToCenter != null) {
                         pendingSinglePageCenterLogicalPage = null
@@ -995,6 +1056,10 @@ class PDFViewer : AppCompatActivity() {
 
 
     override fun onConfigurationChanged(newConfig: Configuration) {
+        textSelectionManager.clearPageGeometryCache()
+        selectionDragState = SelectionDragState.NONE
+        selectionDownViewX = Float.NaN
+        selectionDownViewY = Float.NaN
         var currentStatus: String = "portrait"
         if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
             //LANDSCAPE
@@ -1005,7 +1070,9 @@ class PDFViewer : AppCompatActivity() {
         }
         val savedPageToUse = savedCurrentPage
         Handler().postDelayed({
-            pdfViewer.fitToWidth(savedCurrentPage)
+            val viewerPage = mapLogicalPageToViewer(savedCurrentPage)
+            updateZoomBoundsForCurrentOrientation(viewerPage)
+            fitPageForCurrentOrientation(viewerPage)
             val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
             val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
             if (minPositionScrollbar == 0F) minPositionScrollbar = buttonSideScroll.y
@@ -1025,6 +1092,7 @@ class PDFViewer : AppCompatActivity() {
 
             //restore the visited page
             goToPage(savedPageToUse, animation = true)
+            pdfViewer.invalidate()
             pdfViewer.isEnabled = true
         }, 100)
 
@@ -1117,9 +1185,9 @@ class PDFViewer : AppCompatActivity() {
     private fun updatePdfPage(pathName: String, currentPage: Int) {
         val pathNameTemp = getTheFileName(pathName, 0).toMD5() //file-id
         val databaseHandler = DatabaseHandler(this)
-        if (databaseHandler.checkFile(id = pathNameTemp)) {
+        val file = findStoredFileRecord(databaseHandler, pathNameTemp, pathName)
+        if (file != null) {
             //already exists -> update
-            val file = databaseHandler.getFiles(id = pathNameTemp)[0]
             file.lastPage = currentPage //update the lastPage variable
             file.lastUpdate = getNow() //update the lastUpdate variable
             databaseHandler.updateFile(file = file)
@@ -2373,9 +2441,7 @@ class PDFViewer : AppCompatActivity() {
         try {
             val fileKey = getTheFileName(fileId, 0).toMD5()
             val databaseHandler = DatabaseHandler(this)
-            val file = if (databaseHandler.checkFile(fileKey)) {
-                databaseHandler.getFiles(fileKey).firstOrNull()
-            } else null
+            val file = findStoredFileRecord(databaseHandler, fileKey, fileId)
 
             if (file != null) {
                 try {
@@ -2474,15 +2540,19 @@ class PDFViewer : AppCompatActivity() {
 
         val databaseHandler = DatabaseHandler(this)
         val fileKey = getTheFileName(fileId, 0).toMD5()
+        val existing = findStoredFileRecord(databaseHandler, fileKey, fileId)
 
-        if (databaseHandler.checkFile(fileKey)) {
-            val file = databaseHandler.getFiles(fileKey).firstOrNull() ?: return
+        if (existing != null) {
+            val file = existing
             file.scrollMode = scrollMode.name
             file.singlePage = single_page
             file.nightMode = night_mode
             file.zoom = if (pdfViewer.zoom > 0F) pdfViewer.zoom else zoomToRestore
             file.rotationLocked = rotation_locked
             file.lastUpdate = getNow()
+            if (file.path.isBlank()) {
+                file.path = fileId
+            }
             databaseHandler.updateFile(file)
         } else {
             val file = FilesModel(
@@ -2542,6 +2612,7 @@ class PDFViewer : AppCompatActivity() {
         hideMessageGuide1()
         closeOverlayPanelsExcept(OverlayPanel.MENU)
         cancelTopBarAutoHideCountdown()
+        configureMenuPanelRowsForOrientation()
 
         val message: ConstraintLayout = findViewById(R.id.messageMenuPanel)
         val arrow: View = findViewById(R.id.arrowMenuPanel)
@@ -2585,6 +2656,320 @@ class PDFViewer : AppCompatActivity() {
         zoomInButton.isGone = false
         zoomOutButton.isGone = false
         resetZoomButton.isGone = false
+    }
+
+    private fun buildMenuVerticalSeparator(): View {
+        val separatorWidth = resources.getDimensionPixelSize(R.dimen.menu_panel_vertical_separator_width)
+        return View(this).apply {
+            layoutParams = LinearLayout.LayoutParams(separatorWidth, ViewGroup.LayoutParams.MATCH_PARENT)
+            setBackgroundColor(resolveThemeColor(com.google.android.material.R.attr.colorSecondary, R.color.light_red))
+        }
+    }
+
+    private fun resolveThemeColor(attrRes: Int, fallbackColorRes: Int): Int {
+        val typedValue = TypedValue()
+        if (theme.resolveAttribute(attrRes, typedValue, true)) {
+            return if (typedValue.resourceId != 0) {
+                ContextCompat.getColor(this, typedValue.resourceId)
+            } else {
+                typedValue.data
+            }
+        }
+        return ContextCompat.getColor(this, fallbackColorRes)
+    }
+
+    private fun applyMenuPanelAdaptiveDimensions() {
+        val iconSize = resources.getDimensionPixelSize(R.dimen.menu_panel_icon_size)
+        val iconPadding = resources.getDimensionPixelSize(R.dimen.menu_panel_icon_padding)
+        val searchIconPadding = resources.getDimensionPixelSize(R.dimen.menu_panel_icon_padding_compact)
+        val zoomTextSize = resources.getDimension(R.dimen.menu_panel_zoom_text_size)
+        val section6SeparatorWidth = resources.getDimensionPixelSize(R.dimen.menu_panel_vertical_separator_width)
+
+        val iconIds = intArrayOf(
+            R.id.buttonDarkFilter,
+            R.id.buttonNightDayToolbar,
+            R.id.buttonFullScreenToolbar,
+            R.id.buttonGetHelpToolbar,
+            R.id.buttonOpenToolbar,
+            R.id.buttonAllBookmarksToolbar,
+            R.id.buttonSelectTextToolbar,
+            R.id.buttonShareToolbar,
+            R.id.buttonSearchToolbar,
+            R.id.buttonZoomOutToolbar,
+            R.id.buttonZoomInToolbar,
+            R.id.buttonScrollVerticalTopToBottom,
+            R.id.buttonScrollVerticalBottomToTop,
+            R.id.buttonScrollHorizontalLeftToRight,
+            R.id.buttonScrollHorizontalRightToLeft,
+            R.id.buttonSinglePage,
+            R.id.buttonContinuousPage,
+            R.id.buttonRotationToolbar,
+            R.id.buttonRotationUnlockedMode
+        )
+
+        iconIds.forEach { id ->
+            val button = findViewById<ImageView>(id)
+            (button.layoutParams as? LinearLayout.LayoutParams)?.let { lp ->
+                lp.width = iconSize
+                lp.height = iconSize
+                button.layoutParams = lp
+            }
+            val targetPadding = if (id == R.id.buttonSearchToolbar) searchIconPadding else iconPadding
+            button.setPadding(targetPadding, targetPadding, targetPadding, targetPadding)
+        }
+
+        findViewById<TextView>(R.id.buttonResetZoomToolbar).apply {
+            (layoutParams as? LinearLayout.LayoutParams)?.let { lp ->
+                lp.width = iconSize
+                lp.height = iconSize
+                layoutParams = lp
+            }
+            textSize = zoomTextSize / resources.displayMetrics.scaledDensity
+        }
+
+        findViewById<View>(R.id.menuPanelSection6VerticalSeparator).apply {
+            (layoutParams as? LinearLayout.LayoutParams)?.let { lp ->
+                lp.width = section6SeparatorWidth
+                layoutParams = lp
+            }
+            setBackgroundColor(resolveThemeColor(com.google.android.material.R.attr.colorSecondary, R.color.light_red))
+        }
+    }
+
+    private fun captureMenuActionDefaultLayoutParamsIfNeeded() {
+        if (menuActionDefaultLayoutParams.isNotEmpty()) return
+
+        val actionIds = intArrayOf(
+            R.id.buttonDarkFilter,
+            R.id.buttonNightDayToolbar,
+            R.id.buttonFullScreenToolbar,
+            R.id.buttonZoomOutToolbar,
+            R.id.buttonResetZoomToolbar,
+            R.id.buttonZoomInToolbar,
+            R.id.buttonScrollVerticalTopToBottom,
+            R.id.buttonScrollVerticalBottomToTop,
+            R.id.buttonScrollHorizontalLeftToRight,
+            R.id.buttonScrollHorizontalRightToLeft,
+            R.id.buttonSinglePage,
+            R.id.buttonContinuousPage,
+            R.id.buttonRotationToolbar,
+            R.id.buttonRotationUnlockedMode
+        )
+
+        actionIds.forEach { id ->
+            val view = findViewById<View>(id)
+            val lp = view.layoutParams as? LinearLayout.LayoutParams ?: return@forEach
+            menuActionDefaultLayoutParams[id] = MenuActionLayoutSnapshot(
+                width = lp.width,
+                height = lp.height,
+                weight = lp.weight
+            )
+        }
+    }
+
+    private fun captureMenuSectionDefaultWeightSumIfNeeded() {
+        if (menuSectionDefaultWeightSum.isNotEmpty()) return
+        val sectionIds = intArrayOf(
+            R.id.menuPanelSection1,
+            R.id.menuPanelSection3,
+            R.id.menuPanelSection5,
+            R.id.menuPanelSection6
+        )
+        sectionIds.forEach { id ->
+            menuSectionDefaultWeightSum[id] = findViewById<LinearLayout>(id).weightSum
+        }
+    }
+
+    private fun safeNormalizedPath(value: String?): String {
+        if (value.isNullOrBlank()) return ""
+        return getTheFileName(value, 0)
+    }
+
+    private fun findStoredFileRecord(
+        databaseHandler: DatabaseHandler,
+        fileKey: String,
+        pathHint: String
+    ): FilesModel? {
+        val byId = databaseHandler.getFiles(fileKey).firstOrNull()
+        if (byId != null) return byId
+
+        val normalizedHint = safeNormalizedPath(pathHint)
+        val normalizedCurrent = safeNormalizedPath(fileId)
+        val normalizedUri = safeNormalizedPath(uriOpened?.toString())
+
+        return databaseHandler.getFiles().firstOrNull { stored ->
+            val storedNorm = safeNormalizedPath(stored.path)
+            stored.path == pathHint ||
+                stored.path == fileId ||
+                stored.path == uriOpened?.toString() ||
+                (normalizedHint.isNotBlank() && storedNorm == normalizedHint) ||
+                (normalizedCurrent.isNotBlank() && storedNorm == normalizedCurrent) ||
+                (normalizedUri.isNotBlank() && storedNorm == normalizedUri)
+        }
+    }
+
+    private fun normalizeMenuActionLayoutParams(view: View, useFixedActionWidth: Boolean) {
+        if (view !is ImageView && view !is TextView) return
+
+        (view.layoutParams as? LinearLayout.LayoutParams)?.let { lp ->
+            if (useFixedActionWidth) {
+                val defaults = menuActionDefaultLayoutParams[view.id]
+                lp.width = 0
+                lp.weight = defaults?.weight?.coerceAtLeast(1F) ?: 1F
+            } else {
+                val defaults = menuActionDefaultLayoutParams[view.id] ?: return@let
+                lp.width = defaults.width
+                lp.height = defaults.height
+                lp.weight = defaults.weight
+            }
+            view.layoutParams = lp
+        }
+    }
+
+    private fun hasVisibleMenuActions(section: LinearLayout): Boolean {
+        for (i in 0 until section.childCount) {
+            val child = section.getChildAt(i)
+            if (!child.isGone && (child is ImageView || child is TextView)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun updateMenuRowAndSeparatorVisibility() {
+        val section1: LinearLayout = findViewById(R.id.menuPanelSection1)
+        val section2: LinearLayout = findViewById(R.id.menuPanelSection2)
+        val section3: LinearLayout = findViewById(R.id.menuPanelSection3)
+        val section4: LinearLayout = findViewById(R.id.menuPanelSection4)
+        val section5: LinearLayout = findViewById(R.id.menuPanelSection5)
+        val section6: LinearLayout = findViewById(R.id.menuPanelSection6)
+
+        val sep1_2: LinearLayout = findViewById(R.id.menuPanelSectionSeparator1_2)
+        val sep2_3: LinearLayout = findViewById(R.id.menuPanelSectionSeparator2_3)
+        val sep3_4: LinearLayout = findViewById(R.id.menuPanelSectionSeparator3_4)
+        val sep4_5: LinearLayout = findViewById(R.id.menuPanelSectionSeparator4_5)
+        val sep5_6: LinearLayout = findViewById(R.id.menuPanelSectionSeparator5_6)
+
+        val has1 = hasVisibleMenuActions(section1)
+        val has2 = hasVisibleMenuActions(section2)
+        val has3 = hasVisibleMenuActions(section3)
+        val has4 = hasVisibleMenuActions(section4)
+        val has5 = hasVisibleMenuActions(section5)
+        val has6 = hasVisibleMenuActions(section6)
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+        section4.isGone = !has4
+
+        if (isLandscape) {
+            // Landscape has three effective rows: (1+3), 2, (5+6).
+            sep1_2.isGone = !(has1 && has2)
+            sep2_3.isGone = !(has2 && has5)
+            sep3_4.isGone = true
+            sep4_5.isGone = true
+            sep5_6.isGone = true
+        } else {
+            sep1_2.isGone = !(has1 && has2)
+            sep2_3.isGone = !(has2 && has3)
+            val showCollapsed3To5Separator = has3 && !has4 && has5
+            sep3_4.isGone = !(showCollapsed3To5Separator || (has3 && has4))
+            sep4_5.isGone = !(has4 && has5)
+            sep5_6.isGone = !(has5 && has6)
+        }
+    }
+
+    private fun rebuildRow(
+        container: LinearLayout,
+        orderedViews: List<View>,
+        withSeparatorAfter: Int? = null,
+        useFixedActionWidth: Boolean = false
+    ) {
+        container.removeAllViews()
+        orderedViews.forEachIndexed { index, v ->
+            (v.parent as? ViewGroup)?.removeView(v)
+            normalizeMenuActionLayoutParams(v, useFixedActionWidth)
+            container.addView(v)
+            if (withSeparatorAfter != null && index == withSeparatorAfter) {
+                container.addView(buildMenuVerticalSeparator())
+            }
+        }
+
+        if (useFixedActionWidth) {
+            val dynamicWeightSum = (0 until container.childCount)
+                .mapNotNull { idx ->
+                    (container.getChildAt(idx).layoutParams as? LinearLayout.LayoutParams)?.weight
+                }
+                .sum()
+            container.weightSum = dynamicWeightSum.coerceAtLeast(1F)
+        } else {
+            container.weightSum = menuSectionDefaultWeightSum[container.id] ?: container.weightSum
+        }
+    }
+
+    private fun configureMenuPanelRowsForOrientation() {
+        captureMenuActionDefaultLayoutParamsIfNeeded()
+        captureMenuSectionDefaultWeightSumIfNeeded()
+        applyMenuPanelAdaptiveDimensions()
+
+        val section1: LinearLayout = findViewById(R.id.menuPanelSection1)
+        val section3: LinearLayout = findViewById(R.id.menuPanelSection3)
+        val section5: LinearLayout = findViewById(R.id.menuPanelSection5)
+        val section6: LinearLayout = findViewById(R.id.menuPanelSection6)
+        val darkFilter: ImageView = findViewById(R.id.buttonDarkFilter)
+        val nightDay: ImageView = findViewById(R.id.buttonNightDayToolbar)
+        val fullScreen: ImageView = findViewById(R.id.buttonFullScreenToolbar)
+        val zoomOut: ImageView = findViewById(R.id.buttonZoomOutToolbar)
+        val zoomReset: TextView = findViewById(R.id.buttonResetZoomToolbar)
+        val zoomIn: ImageView = findViewById(R.id.buttonZoomInToolbar)
+
+        val scrollVTop: ImageView = findViewById(R.id.buttonScrollVerticalTopToBottom)
+        val scrollVBottom: ImageView = findViewById(R.id.buttonScrollVerticalBottomToTop)
+        val scrollHLeft: ImageView = findViewById(R.id.buttonScrollHorizontalLeftToRight)
+        val scrollHRight: ImageView = findViewById(R.id.buttonScrollHorizontalRightToLeft)
+        val singlePage: ImageView = findViewById(R.id.buttonSinglePage)
+        val continuousPage: ImageView = findViewById(R.id.buttonContinuousPage)
+        val rotationLocked: ImageView = findViewById(R.id.buttonRotationToolbar)
+        val rotationUnlocked: ImageView = findViewById(R.id.buttonRotationUnlockedMode)
+        val section6VerticalSep: View = findViewById(R.id.menuPanelSection6VerticalSeparator)
+
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+        if (isLandscape) {
+            rebuildRow(
+                section1,
+                listOf(darkFilter, nightDay, fullScreen, zoomOut, zoomReset, zoomIn),
+                withSeparatorAfter = 2,
+                useFixedActionWidth = true
+            )
+            section3.isGone = true
+
+            rebuildRow(
+                section5,
+                listOf(
+                    scrollVTop,
+                    scrollVBottom,
+                    scrollHLeft,
+                    scrollHRight,
+                    singlePage,
+                    continuousPage,
+                    section6VerticalSep,
+                    rotationLocked,
+                    rotationUnlocked
+                ),
+                withSeparatorAfter = 3,
+                useFixedActionWidth = true
+            )
+            section6.isGone = true
+        } else {
+            rebuildRow(section1, listOf(darkFilter, nightDay, fullScreen))
+            rebuildRow(section3, listOf(zoomOut, zoomReset, zoomIn))
+            section3.isGone = false
+
+            rebuildRow(section5, listOf(scrollVTop, scrollVBottom, scrollHLeft, scrollHRight))
+            rebuildRow(section6, listOf(singlePage, continuousPage, section6VerticalSep, rotationLocked, rotationUnlocked))
+            section6.isGone = false
+        }
+
+        updateMenuRowAndSeparatorVisibility()
     }
 
     fun hideMenuPanel() {
@@ -3047,18 +3432,24 @@ class PDFViewer : AppCompatActivity() {
     // ═══════════════════════════════════════════════════════════════
 
     fun zoomIn() {
+        textSelectionManager.clearPageGeometryCache()
         if (pdfViewer.zoom <= (10.0F - zoom_value)) pdfViewer.zoomWithAnimation(pdfViewer.zoom + zoom_value)
         setCurrentZoomStatus()
         saveCurrentPdfOptions()
     }
 
     fun zoomOut() {
-        if (pdfViewer.zoom >= (0.0F + zoom_value)) pdfViewer.zoomWithAnimation(pdfViewer.zoom - zoom_value)
+        textSelectionManager.clearPageGeometryCache()
+        val targetZoom = (pdfViewer.zoom - zoom_value).coerceAtLeast(minZoomForCurrentLayout)
+        if (targetZoom < pdfViewer.zoom - 0.001F) {
+            pdfViewer.zoomWithAnimation(targetZoom)
+        }
         setCurrentZoomStatus()
         saveCurrentPdfOptions()
     }
 
     fun resetZoom() {
+        textSelectionManager.clearPageGeometryCache()
         pdfViewer.resetZoomWithAnimation()
         setCurrentZoomStatus()
         saveCurrentPdfOptions()

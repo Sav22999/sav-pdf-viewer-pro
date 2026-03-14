@@ -68,6 +68,7 @@
         android:padding="10dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
+        android:contentDescription="@string/tooltip_go_to_feature"
         android:textColor="?attr/colorOnPrimary"
         android:textSize="20sp"
         android:textStyle="normal"
@@ -127,6 +128,7 @@
         android:padding="10dp"
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
+        android:contentDescription="@string/tooltip_go_to_feature"
         android:textColor="?attr/colorOnPrimary"
         android:textSize="20sp"
         android:textStyle="normal"
@@ -244,7 +246,7 @@
             android:layout_width="0dp"
             android:layout_height="56dp"
             android:background="@color/dark_red"
-            android:gravity="left|center_vertical"
+            android:gravity="start|center_vertical"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:textColor="@color/white"
@@ -285,7 +287,7 @@
             android:layout_height="56dp"
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_go_to_feature"
-            android:gravity="right|center_vertical"
+            android:gravity="end|center_vertical"
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:textColor="?attr/colorOnPrimary"
@@ -326,6 +328,7 @@
             android:ems="10"
             android:gravity="start|center_vertical"
             android:hint="@string/search_hint"
+            android:autofillHints=""
             android:imeOptions="actionSearch"
             android:inputType="text"
             android:paddingLeft="15dp"
@@ -479,6 +482,7 @@
             android:layout_marginEnd="10dp"
             android:background="@drawable/textbox_rounded"
             android:ems="10"
+            android:autofillHints=""
             android:gravity="center"
             android:inputType="numberSigned"
             android:paddingLeft="20dp"
@@ -524,7 +528,7 @@
             android:contentDescription="@string/tooltip_close_panel"
             android:padding="10sp"
             android:scaleType="fitCenter"
-            android:tint="@color/white"
+            app:tint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_close"
@@ -579,9 +583,10 @@
 
         <LinearLayout
             android:id="@+id/menuPanelSection4"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:backgroundTint="@color/transparent"
+            android:orientation="horizontal"
             android:padding="0dp"
             android:weightSum="90"
             app:layout_constraintEnd_toEndOf="parent"
@@ -592,59 +597,36 @@
 
         <LinearLayout
             android:id="@+id/menuPanelSectionSeparator4_5"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="100"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/menuPanelSection4">
 
             <View
-                android:id="@+id/spaceleft_separator4_5"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
                 android:id="@+id/separator4_5"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_weight="98"
                 android:background="?attr/colorSecondary"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
-                android:id="@+id/spaceright_separator4_5"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
                 tools:ignore="VectorDrawableCompat"
                 tools:visibility="visible" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/menuPanelSection1"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="90">
+            android:weightSum="90"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageView
                 android:id="@+id/buttonDarkFilter"
@@ -690,56 +672,30 @@
 
         <LinearLayout
             android:id="@+id/menuPanelSectionSeparator1_2"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="100"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/menuPanelSection1">
 
             <View
-                android:id="@+id/spaceleft_separator1_2"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
                 android:id="@+id/separator1_2"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_weight="98"
                 android:background="?attr/colorSecondary"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
-                android:id="@+id/spaceright_separator1_2"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
                 tools:ignore="VectorDrawableCompat"
                 tools:visibility="visible" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/menuPanelSection2"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
             android:weightSum="100"
@@ -827,104 +783,52 @@
 
         <LinearLayout
             android:id="@+id/menuPanelSectionSeparator2_3"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="100"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/menuPanelSection2">
 
             <View
-                android:id="@+id/spaceleft_separator2_3"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
                 android:id="@+id/separator2_3"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_weight="98"
                 android:background="?attr/colorSecondary"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
-                android:id="@+id/spaceright_separator2_3"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
                 tools:ignore="VectorDrawableCompat"
                 tools:visibility="visible" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/menuPanelSectionSeparator3_4"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="100"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/menuPanelSection3">
 
             <View
-                android:id="@+id/spaceleft_separator3_4"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
                 android:id="@+id/separator3_4"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_weight="98"
                 android:background="?attr/colorSecondary"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
                 tools:ignore="VectorDrawableCompat"
                 tools:visibility="gone" />
-
-            <View
-                android:id="@+id/spaceright_separator3_4"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/menuPanelSection3"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
             android:weightSum="100"
@@ -984,8 +888,8 @@
 
         <LinearLayout
             android:id="@+id/menuPanelSection5"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
             android:weightSum="120"
@@ -1044,56 +948,30 @@
 
         <LinearLayout
             android:id="@+id/menuPanelSectionSeparator5_6"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="0dp"
             android:layout_marginTop="0dp"
             android:layout_marginEnd="0dp"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="100"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/menuPanelSection5">
 
             <View
-                android:id="@+id/spaceleft_separator5_6"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
                 android:id="@+id/separator5_6"
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:layout_weight="98"
                 android:background="?attr/colorSecondary"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
-                tools:ignore="VectorDrawableCompat"
-                tools:visibility="visible" />
-
-            <View
-                android:id="@+id/spaceright_separator5_6"
-                android:layout_width="0dp"
-                android:layout_height="1dp"
-                android:layout_weight="1"
-                android:background="@color/transparent"
-                android:padding="18sp"
-                android:scaleType="fitCenter"
                 tools:ignore="VectorDrawableCompat"
                 tools:visibility="visible" />
         </LinearLayout>
 
         <LinearLayout
             android:id="@+id/menuPanelSection6"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
             android:weightSum="120"
@@ -1331,7 +1209,7 @@
             android:contentDescription="@string/tooltip_close_panel"
             android:padding="10sp"
             android:scaleType="fitCenter"
-            android:tint="@color/white"
+            app:tint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_close"
@@ -1409,7 +1287,7 @@
             android:contentDescription="@string/tooltip_close_panel"
             android:padding="10sp"
             android:scaleType="fitCenter"
-            android:tint="@color/white"
+            app:tint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@drawable/ic_close"
@@ -1582,6 +1460,7 @@
             android:layout_marginEnd="5dp"
             android:background="@drawable/textbox_rounded"
             android:ems="10"
+            android:autofillHints="password"
             android:gravity="center"
             android:inputType="textPassword"
             android:paddingLeft="20dp"

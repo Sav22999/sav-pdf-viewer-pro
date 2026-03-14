@@ -112,12 +112,11 @@ class TextSelectionManager(private val context: Context) {
 
     fun recordPageDrawGeometry(page: Int, canvas: Canvas, width: Float, height: Float) {
         recordPageSize(page, width, height)
-        val localOffset = getLocalPageDrawOffset(width, height)
         val localRect = RectF(
-            localOffset.x,
-            localOffset.y,
-            localOffset.x + width,
-            localOffset.y + height
+            0f,
+            0f,
+            width,
+            height
         )
         val mappedRect = RectF(localRect)
         val drawMatrix = Matrix(canvas.matrix)
@@ -586,6 +585,12 @@ class TextSelectionManager(private val context: Context) {
         selectedWords = emptyList()
     }
 
+    fun clearPageGeometryCache() {
+        pageDrawRects.clear()
+        pageWidths.clear()
+        pageHeights.clear()
+    }
+
     fun hasPendingSelection(): Boolean = pendingSelectionPoint != null
 
     private fun markerCenterFromAnchor(
@@ -635,9 +640,6 @@ class TextSelectionManager(private val context: Context) {
     }
 
     fun drawOnPage(canvas: Canvas, pageWidth: Float, pageHeight: Float, displayedPage: Int) {
-        val localOffset = getLocalPageDrawOffset(pageWidth, pageHeight)
-
-
         if (!active || selectionRefs.isEmpty()) return
         val logicalDisplayed = viewerToLogicalPage(displayedPage)
 
@@ -646,10 +648,10 @@ class TextSelectionManager(private val context: Context) {
 
         for (ref in pageRefs) {
             val w = ref.word
-            val l = localOffset.x + (w.rect.left * pageWidth) - selectionInsetPx
-            val t = localOffset.y + (w.rect.top * pageHeight) - selectionInsetPx
-            val r = localOffset.x + (w.rect.right * pageWidth) + selectionInsetPx
-            val b = localOffset.y + (w.rect.bottom * pageHeight) + selectionInsetPx
+            val l = (w.rect.left * pageWidth) - selectionInsetPx
+            val t = (w.rect.top * pageHeight) - selectionInsetPx
+            val r = (w.rect.right * pageWidth) + selectionInsetPx
+            val b = (w.rect.bottom * pageHeight) + selectionInsetPx
             if (r <= l || b <= t) continue
             canvas.drawRect(l, t, r, b, fillPaint)
         }
@@ -659,17 +661,17 @@ class TextSelectionManager(private val context: Context) {
             val last = selectionRefs.last()
 
             if (first.logicalPage == logicalDisplayed) {
-                val sX = localOffset.x + (first.word.rect.left * pageWidth)
-                val sTop = localOffset.y + (first.word.rect.top * pageHeight)
-                val sBot = localOffset.y + (first.word.rect.bottom * pageHeight)
+                val sX = first.word.rect.left * pageWidth
+                val sTop = first.word.rect.top * pageHeight
+                val sBot = first.word.rect.bottom * pageHeight
                 canvas.drawLine(sX, sTop, sX, sBot, handleLinePaint)
                 drawDropletMarker(canvas, sX, sTop, dropletSizePx, SharpCorner.BOTTOM_RIGHT)
             }
 
             if (last.logicalPage == logicalDisplayed) {
-                val eX = localOffset.x + (last.word.rect.right * pageWidth)
-                val eTop = localOffset.y + (last.word.rect.top * pageHeight)
-                val eBot = localOffset.y + (last.word.rect.bottom * pageHeight)
+                val eX = last.word.rect.right * pageWidth
+                val eTop = last.word.rect.top * pageHeight
+                val eBot = last.word.rect.bottom * pageHeight
                 canvas.drawLine(eX, eTop, eX, eBot, handleLinePaint)
                 drawDropletMarker(canvas, eX, eBot, dropletSizePx, SharpCorner.TOP_LEFT)
             }
