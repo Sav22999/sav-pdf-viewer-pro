@@ -31,7 +31,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
+                android:gravity="start"
                 android:text="@string/title_settings"
                 android:textColor="@color/dark_red"
                 android:textSize="26sp"
