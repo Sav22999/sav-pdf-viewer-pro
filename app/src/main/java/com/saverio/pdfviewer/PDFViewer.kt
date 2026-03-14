@@ -177,6 +177,8 @@ class PDFViewer : AppCompatActivity() {
     private val scrollbarMinimumLengthPx by lazy { dpToPx(50F) }
 
     private var applyingPdfOptions = false
+    private val selectedOptionAlpha = 1.0F
+    private val unselectedOptionAlpha = 0.45F
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -284,16 +286,23 @@ class PDFViewer : AppCompatActivity() {
 
         val rotationButton: ImageView = findViewById(R.id.buttonRotationToolbar)
         rotationButton.setOnClickListener {
-            setRotationLock()
+            setRotationLockState(locked = true)
             resetHideTopBarCounter()
             hideMenuPanel()
         }
         rotationButton.setOnLongClickListener {
-            if (rotation_locked) {
-                showTooltip(R.string.tooltip_unlock_rotation)
-            } else {
-                showTooltip(R.string.tooltip_lock_rotation)
-            }
+            showTooltip(R.string.tooltip_lock_rotation)
+            true
+        }
+
+        val rotationUnlockedButton: ImageView = findViewById(R.id.buttonRotationUnlockedMode)
+        rotationUnlockedButton.setOnClickListener {
+            setRotationLockState(locked = false)
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        rotationUnlockedButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_unlock_rotation)
             true
         }
 
@@ -425,30 +434,27 @@ class PDFViewer : AppCompatActivity() {
 
         val buttonSinglePage: ImageView = findViewById(R.id.buttonSinglePage)
         buttonSinglePage.setOnClickListener {
-            if (!single_page) {
-                single_page = true
-                pdfViewer.setPageSnap(true)
-                pdfViewer.setPageFling(true)
-                buttonSinglePage.setImageResource(R.drawable.ic_single_page_disabled)
-                buttonSinglePage.contentDescription = getString(R.string.tooltip_single_page_scroll_disabled)
-            } else {
-                single_page = false
-                pdfViewer.setPageSnap(false)
-                pdfViewer.setPageFling(false)
-                buttonSinglePage.setImageResource(R.drawable.ic_single_page)
-                buttonSinglePage.contentDescription = getString(R.string.tooltip_single_page_scroll)
-            }
+            setSinglePageMode(enabled = true)
             resetHideTopBarCounter()
             hideMenuPanel()
-            saveCurrentPdfOptions()
-            selectPdfFromURI(uriOpened)
         }
         buttonSinglePage.setOnLongClickListener {
-            if (!single_page) showTooltip(R.string.tooltip_single_page_scroll)
-            else showTooltip(R.string.tooltip_single_page_scroll_disabled)
+            showTooltip(R.string.tooltip_single_page_scroll)
             true
         }
         buttonSinglePage.isGone = false
+
+        val buttonContinuousPage: ImageView = findViewById(R.id.buttonContinuousPage)
+        buttonContinuousPage.setOnClickListener {
+            setSinglePageMode(enabled = false)
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        buttonContinuousPage.setOnLongClickListener {
+            showTooltip(R.string.tooltip_single_page_scroll_disabled)
+            true
+        }
+        buttonContinuousPage.isGone = false
 
         val buttonDarkFilter: ImageView = findViewById(R.id.buttonDarkFilter)
         buttonDarkFilter.setOnClickListener {
@@ -527,6 +533,8 @@ class PDFViewer : AppCompatActivity() {
         }
 
         updateScrollModeButtons()
+        updateSinglePageModeButtons()
+        updateRotationModeButtons()
 
         val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
         buttonMenu.setOnClickListener {
@@ -991,7 +999,6 @@ class PDFViewer : AppCompatActivity() {
                 val zoomInButton: ImageView = findViewById(R.id.buttonZoomInToolbar)
                 val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
                 val zoomOutButton: ImageView = findViewById(R.id.buttonZoomOutToolbar)
-                val rotationButton: ImageView = findViewById(R.id.buttonRotationToolbar)
                 shareButton.isGone = true
                 menuButton.isGone = true
                 fullscreenButton.isGone = true
@@ -1012,14 +1019,7 @@ class PDFViewer : AppCompatActivity() {
                 }
                 val pagesNumber: TextView = findViewById(R.id.totalPagesToolbar)
                 pagesNumber.isGone = true
-
-                if (rotation_locked) {
-                    rotationButton.setImageResource(R.drawable.ic_rotation_unlocked)
-                    rotationButton.contentDescription = getString(R.string.tooltip_unlock_rotation)
-                } else {
-                    rotationButton.setImageResource(R.drawable.ic_rotation_locked)
-                    rotationButton.contentDescription = getString(R.string.tooltip_lock_rotation)
-                }
+                updateRotationModeButtons()
 
                 //setTitle(getTheFileName(selectedPdf.toString(), -1))
 
@@ -1293,21 +1293,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun setRotationLock() {
-        val rotationButton: ImageView = findViewById(R.id.buttonRotationToolbar)
-        if (rotation_locked) {
-            //unlock rotation
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            rotationButton.setImageResource(R.drawable.ic_rotation_locked)
-            rotationButton.contentDescription = getString(R.string.tooltip_lock_rotation)
-            rotation_locked = false
-        } else {
-            //lock rotation
-            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
-            rotationButton.setImageResource(R.drawable.ic_rotation_unlocked)
-            rotationButton.contentDescription = getString(R.string.tooltip_unlock_rotation)
-            rotation_locked = true
-        }
-        saveCurrentPdfOptions()
+        setRotationLockState(!rotation_locked)
     }
 
     fun setFullscreenButton(button: ImageView) {
@@ -1816,6 +1802,7 @@ class PDFViewer : AppCompatActivity() {
             else showTopBar()
 
             hideMessageGuide1()
+            hideSearchPanel(clearState = false)
             hideMenuPanel()
 
             val buttonHide: ImageView = findViewById(R.id.buttonHideMessageGoTo)
@@ -1948,17 +1935,68 @@ class PDFViewer : AppCompatActivity() {
         val horizontalLeftToRight: ImageView = findViewById(R.id.buttonScrollHorizontalLeftToRight)
         val horizontalRightToLeft: ImageView = findViewById(R.id.buttonScrollHorizontalRightToLeft)
 
-        val selectedAlpha = 1.0F
-        val unselectedAlpha = 0.45F
-
         verticalTopToBottom.alpha =
-            if (scrollMode == ScrollMode.VERTICAL_TOP_TO_BOTTOM) selectedAlpha else unselectedAlpha
+            if (scrollMode == ScrollMode.VERTICAL_TOP_TO_BOTTOM) selectedOptionAlpha else unselectedOptionAlpha
         verticalBottomToTop.alpha =
-            if (scrollMode == ScrollMode.VERTICAL_BOTTOM_TO_TOP) selectedAlpha else unselectedAlpha
+            if (scrollMode == ScrollMode.VERTICAL_BOTTOM_TO_TOP) selectedOptionAlpha else unselectedOptionAlpha
         horizontalLeftToRight.alpha =
-            if (scrollMode == ScrollMode.HORIZONTAL_LEFT_TO_RIGHT) selectedAlpha else unselectedAlpha
+            if (scrollMode == ScrollMode.HORIZONTAL_LEFT_TO_RIGHT) selectedOptionAlpha else unselectedOptionAlpha
         horizontalRightToLeft.alpha =
-            if (scrollMode == ScrollMode.HORIZONTAL_RIGHT_TO_LEFT) selectedAlpha else unselectedAlpha
+            if (scrollMode == ScrollMode.HORIZONTAL_RIGHT_TO_LEFT) selectedOptionAlpha else unselectedOptionAlpha
+    }
+
+    private fun setSinglePageMode(enabled: Boolean) {
+        if (single_page == enabled && uriOpened != null) {
+            updateSinglePageModeButtons()
+            return
+        }
+
+        single_page = enabled
+        pdfViewer.setPageSnap(single_page)
+        pdfViewer.setPageFling(single_page)
+        updateSinglePageModeButtons()
+
+        if (!applyingPdfOptions) {
+            saveCurrentPdfOptions()
+            if (uriOpened != null) {
+                selectPdfFromURI(uriOpened)
+            }
+        }
+    }
+
+    private fun updateSinglePageModeButtons() {
+        val singlePageButton: ImageView = findViewById(R.id.buttonSinglePage)
+        val continuousPageButton: ImageView = findViewById(R.id.buttonContinuousPage)
+
+        singlePageButton.alpha = if (single_page) selectedOptionAlpha else unselectedOptionAlpha
+        continuousPageButton.alpha = if (single_page) unselectedOptionAlpha else selectedOptionAlpha
+
+        singlePageButton.contentDescription = getString(R.string.tooltip_single_page_scroll)
+        continuousPageButton.contentDescription = getString(R.string.tooltip_single_page_scroll_disabled)
+    }
+
+    private fun setRotationLockState(locked: Boolean, persist: Boolean = true) {
+        rotation_locked = locked
+        requestedOrientation = if (rotation_locked) {
+            ActivityInfo.SCREEN_ORIENTATION_LOCKED
+        } else {
+            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+        }
+        updateRotationModeButtons()
+        if (persist && !applyingPdfOptions) {
+            saveCurrentPdfOptions()
+        }
+    }
+
+    private fun updateRotationModeButtons() {
+        val lockButton: ImageView = findViewById(R.id.buttonRotationToolbar)
+        val unlockButton: ImageView = findViewById(R.id.buttonRotationUnlockedMode)
+
+        lockButton.alpha = if (rotation_locked) selectedOptionAlpha else unselectedOptionAlpha
+        unlockButton.alpha = if (rotation_locked) unselectedOptionAlpha else selectedOptionAlpha
+
+        lockButton.contentDescription = getString(R.string.tooltip_lock_rotation)
+        unlockButton.contentDescription = getString(R.string.tooltip_unlock_rotation)
     }
 
     private fun isVerticalBottomToTopMode(): Boolean {
@@ -2150,15 +2188,7 @@ class PDFViewer : AppCompatActivity() {
 
             migrateLegacyPreferencesIfNeeded(fileKey, databaseHandler)
 
-            val buttonSinglePage: ImageView = findViewById(R.id.buttonSinglePage)
-            buttonSinglePage.setImageResource(
-                if (single_page) R.drawable.ic_single_page_disabled else R.drawable.ic_single_page
-            )
-            buttonSinglePage.contentDescription = if (single_page) {
-                getString(R.string.tooltip_single_page_scroll_disabled)
-            } else {
-                getString(R.string.tooltip_single_page_scroll)
-            }
+            updateSinglePageModeButtons()
 
             val buttonDarkFilter: ImageView = findViewById(R.id.buttonDarkFilter)
             buttonDarkFilter.setImageResource(
@@ -2170,21 +2200,7 @@ class PDFViewer : AppCompatActivity() {
                 getString(R.string.tooltip_force_dark_filter)
             }
 
-            val rotationButton: ImageView = findViewById(R.id.buttonRotationToolbar)
-            rotationButton.setImageResource(
-                if (rotation_locked) R.drawable.ic_rotation_unlocked else R.drawable.ic_rotation_locked
-            )
-            rotationButton.contentDescription = if (rotation_locked) {
-                getString(R.string.tooltip_unlock_rotation)
-            } else {
-                getString(R.string.tooltip_lock_rotation)
-            }
-
-            requestedOrientation = if (rotation_locked) {
-                ActivityInfo.SCREEN_ORIENTATION_LOCKED
-            } else {
-                ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
-            }
+            setRotationLockState(rotation_locked, persist = false)
 
             pdfViewer.setNightMode(night_mode)
             pdfViewer.setBackgroundResource(
@@ -2320,6 +2336,7 @@ class PDFViewer : AppCompatActivity() {
 
     fun showMenuPanel() {
         hideMessageGuide1()
+        hideSearchPanel(clearState = false)
         hideGoToDialog()
         cancelTopBarAutoHideCountdown()
 
@@ -2757,14 +2774,20 @@ class PDFViewer : AppCompatActivity() {
         showSoftKeyboard(textbox)
     }
 
-    fun hideSearchPanel() {
-        val panel: ConstraintLayout = findViewById(R.id.messageSearch)
-        panel.isGone = true
-        searchPanelVisible = false
+    private fun clearSearchState() {
         currentSearchQuery = ""
         searchResults = emptyList()
         searchResultIndex = 0
         pdfViewer.invalidate() // remove highlights
+    }
+
+    fun hideSearchPanel(clearState: Boolean = true) {
+        val panel: ConstraintLayout = findViewById(R.id.messageSearch)
+        panel.isGone = true
+        searchPanelVisible = false
+        if (clearState) {
+            clearSearchState()
+        }
         val textbox: EditText = findViewById(R.id.textboxSearch)
         hideKeyboard(textbox)
         if (showingTopBar) {

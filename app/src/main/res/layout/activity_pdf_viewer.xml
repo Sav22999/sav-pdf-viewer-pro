@@ -547,7 +547,7 @@
             android:layout_height="fill_parent"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="120">
+            android:weightSum="90">
 
             <ImageView
                 android:id="@+id/buttonFullScreenToolbar"
@@ -562,18 +562,6 @@
                 app:srcCompat="@drawable/ic_fullscreen"
                 tools:ignore="VectorDrawableCompat"
                 tools:visibility="visible" />
-
-            <ImageView
-                android:id="@+id/buttonRotationToolbar"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_weight="30"
-                android:background="@color/transparent"
-                android:contentDescription="@string/tooltip_lock_rotation"
-                android:padding="15sp"
-                android:scaleType="centerInside"
-                app:srcCompat="@drawable/ic_rotation_locked"
-                tools:ignore="VectorDrawableCompat" />
 
             <ImageView
                 android:id="@+id/buttonSearchToolbar"
@@ -630,7 +618,7 @@
 
             <View
                 android:id="@+id/separator1_2"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="98"
                 android:background="?attr/colorSecondary"
@@ -741,7 +729,7 @@
 
             <View
                 android:id="@+id/separator2_3"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="98"
                 android:background="?attr/colorSecondary"
@@ -850,7 +838,7 @@
 
             <View
                 android:id="@+id/separator3_4"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="98"
                 android:background="?attr/colorSecondary"
@@ -877,22 +865,10 @@
             android:layout_height="fill_parent"
             android:backgroundTint="@color/transparent"
             android:padding="0dp"
-            android:weightSum="90"
+            android:weightSum="60"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/menuPanelSectionSeparator3_4">
-
-            <ImageView
-                android:id="@+id/buttonSinglePage"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:layout_weight="30"
-                android:background="@color/transparent"
-                android:contentDescription="@string/tooltip_single_page_scroll"
-                android:padding="18sp"
-                android:scaleType="centerInside"
-                app:srcCompat="@drawable/ic_single_page"
-                tools:ignore="VectorDrawableCompat" />
 
             <ImageView
                 android:id="@+id/buttonNightDayToolbar"
@@ -948,7 +924,7 @@
 
             <View
                 android:id="@+id/separator4_5"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_weight="98"
                 android:background="?attr/colorSecondary"
@@ -1026,6 +1002,121 @@
                 android:padding="18sp"
                 android:scaleType="centerInside"
                 app:srcCompat="@drawable/ic_scroll_horizontally_right2left"
+                tools:ignore="VectorDrawableCompat" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuPanelSectionSeparator5_6"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="100"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/menuPanelSection5">
+
+            <View
+                android:id="@+id/spaceleft_separator5_6"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/separator5_6"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_weight="98"
+                android:background="?attr/colorSecondary"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <View
+                android:id="@+id/spaceright_separator5_6"
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1"
+                android:background="@color/transparent"
+                android:padding="18sp"
+                android:scaleType="fitCenter"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/menuPanelSection6"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:backgroundTint="@color/transparent"
+            android:padding="0dp"
+            android:weightSum="120"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/menuPanelSectionSeparator5_6">
+
+            <ImageView
+                android:id="@+id/buttonSinglePage"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="30"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_single_page_scroll"
+                android:padding="18sp"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_single_page"
+                tools:ignore="VectorDrawableCompat" />
+
+            <ImageView
+                android:id="@+id/buttonContinuousPage"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="30"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_single_page_scroll_disabled"
+                android:padding="18sp"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_single_page_disabled"
+                tools:ignore="VectorDrawableCompat" />
+
+            <View
+                android:id="@+id/menuPanelSection6VerticalSeparator"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_vertical"
+                android:background="?attr/colorSecondary" />
+
+            <ImageView
+                android:id="@+id/buttonRotationToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="30"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_lock_rotation"
+                android:padding="15sp"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_rotation_locked"
+                tools:ignore="VectorDrawableCompat" />
+
+            <ImageView
+                android:id="@+id/buttonRotationUnlockedMode"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="30"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_unlock_rotation"
+                android:padding="15sp"
+                android:scaleType="centerInside"
+                app:srcCompat="@drawable/ic_rotation_unlocked"
                 tools:ignore="VectorDrawableCompat" />
         </LinearLayout>
 
