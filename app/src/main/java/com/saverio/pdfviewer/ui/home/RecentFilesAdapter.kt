@@ -7,6 +7,7 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
+import com.saverio.pdfviewer.DocumentNameResolver
 import com.saverio.pdfviewer.R
 import com.saverio.pdfviewer.db.FilesModel
 
@@ -34,9 +35,11 @@ class RecentFilesAdapter(
         holder.card.visibility = View.VISIBLE
         holder.cardRemoved.visibility = View.VISIBLE
         holder.cardRemoved.setCardBackgroundColor(holder.colorRed)
-        val fileName = file.path.substringAfterLast('/').ifBlank {
-            file.path.ifBlank { file.id }
-        }
+        val fileName = DocumentNameResolver.resolveDisplayName(
+            holder.itemView.context,
+            file.path,
+            file.id
+        )
         holder.title.text = fileName
         holder.date.text = file.lastUpdate.ifBlank { file.date }
         holder.foreground.contentDescription = holder.foreground.context.getString(
