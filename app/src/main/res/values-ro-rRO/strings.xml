@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Arată lumina nopții</string>
     <string name="tooltip_night_light_off">Ascunde lumina de noapte</string>
     <string name="tooltip_go_to_feature">Deschide opțiunea \"Mergi la\"</string>
+    <string name="tooltip_go_to_bottom">Mergi la sfârșitul fișierului</string>
     <string name="tooltip_go_to_top">Mergeți la prima pagină a fișierului</string>
     <string name="tooltip_open_new_file">Deschide un fișier nou</string>
-    <string name="tooltip_scroll_horizontally">Derulare orizontală</string>
-    <string name="tooltip_scroll_vertically">Derulare verticală</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Derulare verticală de sus în jos</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Derulare verticală de jos în sus</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Derulare orizontală de la stânga la dreapta</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Derulare orizontală de la dreapta la stânga</string>
     <string name="tooltip_force_dark_filter">A activat filtrul întunecat forțat</string>
     <string name="tooltip_force_dark_filter_disable">Dezactivează filtrul întunecat forțat</string>
     <string name="tooltip_single_page_scroll">Activare mod vizualizare o singură pagină</string>

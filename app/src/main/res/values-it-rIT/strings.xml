@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Mostra luce notturna</string>
     <string name="tooltip_night_light_off">Nascondi luce notturna</string>
     <string name="tooltip_go_to_feature">Apri la funzione \'Vai a\'</string>
+    <string name="tooltip_go_to_bottom">Vai in fondo al file</string>
     <string name="tooltip_go_to_top">Va alla prima pagina del documento</string>
     <string name="tooltip_open_new_file">Apre un nuovo documento</string>
-    <string name="tooltip_scroll_horizontally">Scorri orizzontalmente</string>
-    <string name="tooltip_scroll_vertically">Scorri verticalmente</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Scorri verticalmente dall\'alto verso il basso</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Scorri verticalmente dal basso verso l\'alto</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Scorri orizzontalmente da sinistra a destra</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Scorri orizzontalmente da destra a sinistra</string>
     <string name="tooltip_force_dark_filter">Abilitato il filtro forzato-scuro</string>
     <string name="tooltip_force_dark_filter_disable">Disabilita il filtro scuro forzato</string>
     <string name="tooltip_single_page_scroll">Abilita la modalità di visualizzazione a singola pagina</string>

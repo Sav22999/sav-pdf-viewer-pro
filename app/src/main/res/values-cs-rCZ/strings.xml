@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Zobrazit noční světlo</string>
     <string name="tooltip_night_light_off">Skrýt noční světlo</string>
     <string name="tooltip_go_to_feature">Otevřít funkci \'Přejít na\'</string>
+    <string name="tooltip_go_to_bottom">Přejít na konec souboru</string>
     <string name="tooltip_go_to_top">Přejít na první stránku souboru</string>
     <string name="tooltip_open_new_file">Otevřít nový soubor</string>
-    <string name="tooltip_scroll_horizontally">Posunout vodorovně</string>
-    <string name="tooltip_scroll_vertically">Posunout svisle</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Posouvat svisle shora dolů</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Posouvat svisle zdola nahoru</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Posouvat vodorovně zleva doprava</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Posouvat vodorovně zprava doleva</string>
     <string name="tooltip_force_dark_filter">Povoleno nucené tmavé filtry</string>
     <string name="tooltip_force_dark_filter_disable">Zakázat vynucený tmavý filtr</string>
     <string name="tooltip_single_page_scroll">Povolit režim prohlížení na jedné stránce</string>

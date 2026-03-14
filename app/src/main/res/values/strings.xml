@@ -51,14 +51,13 @@
     <string name="tooltip_night_light_on">Show night light</string>
     <string name="tooltip_night_light_off">Hide night light</string>
     <string name="tooltip_go_to_feature">Open \'Go to\' feature</string>
+    <string name="tooltip_go_to_bottom">Go to the bottom of the file</string>
     <string name="tooltip_go_to_top">Go to the first page of the file</string>
     <string name="tooltip_open_new_file">Open a new file</string>
-    <string name="tooltip_scroll_horizontally">Scroll horizontally</string>
-    <string name="tooltip_scroll_vertically">Scroll vertically</string>
-    <string name="tooltip_scroll_vertical_top_to_bottom" translatable="false">Scroll vertically from top to bottom</string>
-    <string name="tooltip_scroll_vertical_bottom_to_top" translatable="false">Scroll vertically from bottom to top</string>
-    <string name="tooltip_scroll_horizontal_left_to_right" translatable="false">Scroll horizontally from left to right</string>
-    <string name="tooltip_scroll_horizontal_right_to_left" translatable="false">Scroll horizontally from right to left</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Scroll vertically from top to bottom</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Scroll vertically from bottom to top</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Scroll horizontally from left to right</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Scroll horizontally from right to left</string>
     <string name="tooltip_force_dark_filter">Enabled the forced-dark filter</string>
     <string name="tooltip_force_dark_filter_disable">Disable the forced-dark filter</string>
     <string name="tooltip_single_page_scroll">Enable single page viewing mode</string>

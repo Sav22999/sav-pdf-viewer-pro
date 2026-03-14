@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">夜間ライトを表示</string>
     <string name="tooltip_night_light_off">夜間ライトを隠す</string>
     <string name="tooltip_go_to_feature">「移動先」機能を開く</string>
+    <string name="tooltip_go_to_bottom">ファイルの末尾へ移動</string>
     <string name="tooltip_go_to_top">ファイルの最初のページに移動</string>
     <string name="tooltip_open_new_file">新しいファイルを開く</string>
-    <string name="tooltip_scroll_horizontally">横にスクロール</string>
-    <string name="tooltip_scroll_vertically">垂直スクロール</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">上から下へ縦にスクロール</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">下から上へ縦にスクロール</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">左から右へ横にスクロール</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">右から左へ横にスクロール</string>
     <string name="tooltip_force_dark_filter">強制ダークフィルタを有効にしました</string>
     <string name="tooltip_force_dark_filter_disable">強制ダークフィルタを無効にする</string>
     <string name="tooltip_single_page_scroll">単一ページ表示モードを有効にする</string>

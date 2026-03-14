@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Gece lambasını göster</string>
     <string name="tooltip_night_light_off">Gece lambasını gizle</string>
     <string name="tooltip_go_to_feature">\'Git\' özelliğini açın</string>
+    <string name="tooltip_go_to_bottom">Dosyanın sonuna git</string>
     <string name="tooltip_go_to_top">Dosyanın ilk sayfasına git</string>
     <string name="tooltip_open_new_file">Yeni bir dosya aç</string>
-    <string name="tooltip_scroll_horizontally">Yatay olarak kaydır</string>
-    <string name="tooltip_scroll_vertically">Dikey olarak kaydır</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Yukarıdan aşağıya dikey kaydır</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Aşağıdan yukarıya dikey kaydır</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Soldan sağa yatay kaydır</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Sağdan sola yatay kaydır</string>
     <string name="tooltip_force_dark_filter">Zorlanmış karanlık filtresi etkinleştirildi</string>
     <string name="tooltip_force_dark_filter_disable">Zorlanmış karanlık filtresini devre dışı bırak</string>
     <string name="tooltip_single_page_scroll">Tek sayfa görüntüleme modunu etkinleştir</string>

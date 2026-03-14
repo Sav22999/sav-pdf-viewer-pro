@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Εμφάνιση νυχτερινού φωτός</string>
     <string name="tooltip_night_light_off">Απόκρυψη νυχτερινού φωτός</string>
     <string name="tooltip_go_to_feature">Άνοιγμα του χαρακτηριστικού \'Μετάβαση σε\'</string>
+    <string name="tooltip_go_to_bottom">Μετάβαση στο τέλος του αρχείου</string>
     <string name="tooltip_go_to_top">Μετάβαση στην πρώτη σελίδα του αρχείου</string>
     <string name="tooltip_open_new_file">Άνοιγμα νέου αρχείου</string>
-    <string name="tooltip_scroll_horizontally">Κύλιση οριζόντια</string>
-    <string name="tooltip_scroll_vertically">Κύλιση κατακόρυφα</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Κύλιση κάθετα από πάνω προς τα κάτω</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Κύλιση κάθετα από κάτω προς τα πάνω</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Κύλιση οριζόντια από αριστερά προς τα δεξιά</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Κύλιση οριζόντια από δεξιά προς τα αριστερά</string>
     <string name="tooltip_force_dark_filter">Ενεργοποιημένο το εξαναγκασμένο-σκοτεινό φίλτρο</string>
     <string name="tooltip_force_dark_filter_disable">Απενεργοποίηση του εξαναγκασμού-σκοτεινού φίλτρου</string>
     <string name="tooltip_single_page_scroll">Ενεργοποίηση λειτουργίας προβολής μίας σελίδας</string>

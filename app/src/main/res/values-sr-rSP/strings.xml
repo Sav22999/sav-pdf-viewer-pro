@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Show night light</string>
     <string name="tooltip_night_light_off">Hide night light</string>
     <string name="tooltip_go_to_feature">Open \'Go to\' feature</string>
+    <string name="tooltip_go_to_bottom">Idi na kraj fajla</string>
     <string name="tooltip_go_to_top">Go to the first page of the file</string>
     <string name="tooltip_open_new_file">Open a new file</string>
-    <string name="tooltip_scroll_horizontally">Scroll horizontally</string>
-    <string name="tooltip_scroll_vertically">Scroll vertically</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Pomeraj vertikalno od vrha ka dnu</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Pomeraj vertikalno od dna ka vrhu</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Pomeraj horizontalno s leva na desno</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Pomeraj horizontalno s desna na levo</string>
     <string name="tooltip_force_dark_filter">Enabled the forced-dark filter</string>
     <string name="tooltip_force_dark_filter_disable">Disable the forced-dark filter</string>
     <string name="tooltip_single_page_scroll">Enable single page viewing mode</string>

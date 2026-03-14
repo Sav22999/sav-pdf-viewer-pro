@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Visa nattljus</string>
     <string name="tooltip_night_light_off">Dölj nattljus</string>
     <string name="tooltip_go_to_feature">Öppna \'Gå till\' funktionen</string>
+    <string name="tooltip_go_to_bottom">Gå till slutet av filen</string>
     <string name="tooltip_go_to_top">Gå till första sidan i filen</string>
     <string name="tooltip_open_new_file">Öppna en ny fil</string>
-    <string name="tooltip_scroll_horizontally">Rulla horisontellt</string>
-    <string name="tooltip_scroll_vertically">Rulla vertikalt</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Rulla vertikalt uppifrån och ner</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Rulla vertikalt nerifrån och upp</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Rulla horisontellt från vänster till höger</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Rulla horisontellt från höger till vänster</string>
     <string name="tooltip_force_dark_filter">Aktiverade det tvångs-mörka filtret</string>
     <string name="tooltip_force_dark_filter_disable">Inaktivera det tvångs-mörka filtret</string>
     <string name="tooltip_single_page_scroll">Aktivera visningsläge för enstaka sidor</string>

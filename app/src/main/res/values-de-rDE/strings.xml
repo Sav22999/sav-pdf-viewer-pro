@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Nachtlicht anzeigen</string>
     <string name="tooltip_night_light_off">Nachtlicht ausblenden</string>
     <string name="tooltip_go_to_feature">\"Gehe zu\" Funktion öffnen</string>
+    <string name="tooltip_go_to_bottom">Zum Ende der Datei gehen</string>
     <string name="tooltip_go_to_top">Gehe zur ersten Seite der Datei</string>
     <string name="tooltip_open_new_file">Neue Datei öffnen</string>
-    <string name="tooltip_scroll_horizontally">Horizontal scrollen</string>
-    <string name="tooltip_scroll_vertically">Vertikal scrollen</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Vertikal von oben nach unten scrollen</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Vertikal von unten nach oben scrollen</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Horizontal von links nach rechts scrollen</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Horizontal von rechts nach links scrollen</string>
     <string name="tooltip_force_dark_filter">Erzwungener dunkler Filter aktiviert</string>
     <string name="tooltip_force_dark_filter_disable">Den erzwungenen dunklen Filter deaktivieren</string>
     <string name="tooltip_single_page_scroll">Einzelseitenbetrachtungsmodus aktivieren</string>

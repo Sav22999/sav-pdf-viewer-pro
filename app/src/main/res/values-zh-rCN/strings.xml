@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">显示夜间指示灯</string>
     <string name="tooltip_night_light_off">隐藏夜间指示灯</string>
     <string name="tooltip_go_to_feature">打开“转到”功能</string>
+    <string name="tooltip_go_to_bottom">跳转到文件底部</string>
     <string name="tooltip_go_to_top">转到文件的第一页</string>
     <string name="tooltip_open_new_file">打开一个新文件</string>
-    <string name="tooltip_scroll_horizontally">水平滚动</string>
-    <string name="tooltip_scroll_vertically">垂直滚动</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">从上到下垂直滚动</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">从下到上垂直滚动</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">从左到右水平滚动</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">从右到左水平滚动</string>
     <string name="tooltip_force_dark_filter">启用强制暗色滤镜</string>
     <string name="tooltip_force_dark_filter_disable">禁用强制暗色滤镜</string>
     <string name="tooltip_single_page_scroll">启用单页浏览模式</string>

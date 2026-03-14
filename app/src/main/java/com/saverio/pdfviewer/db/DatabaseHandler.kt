@@ -23,6 +23,11 @@ class DatabaseHandler(context: Context) :
                 "  `${COLUMN_LAST_UPDATE_FILES}` TEXT NOT NULL," +
                 "  `${COLUMN_FILE_PATH_FILES}` TEXT NOT NULL," +
                 "  `${COLUMN_LAST_PAGE_FILES}` INTEGER NOT NULL," +
+                "  `${COLUMN_SCROLL_MODE_FILES}` TEXT NOT NULL DEFAULT 'VERTICAL_TOP_TO_BOTTOM'," +
+                "  `${COLUMN_SINGLE_PAGE_FILES}` INTEGER NOT NULL DEFAULT 0," +
+                "  `${COLUMN_NIGHT_MODE_FILES}` INTEGER NOT NULL DEFAULT 0," +
+                "  `${COLUMN_ZOOM_FILES}` REAL NOT NULL DEFAULT 1.0," +
+                "  `${COLUMN_ROTATION_LOCKED_FILES}` INTEGER NOT NULL DEFAULT 0," +
                 "  `${COLUMN_NOTES_FILES}` TEXT NOT NULL" +
                 ")"
         database.execSQL(query)
@@ -39,10 +44,72 @@ class DatabaseHandler(context: Context) :
     }
 
     override fun onUpgrade(database: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        //println("onUpgrade")
-        database.execSQL("DROP TABLE IF EXISTS `${TABLE_NAME_FILES}`")
-        database.execSQL("DROP TABLE IF EXISTS `${TABLE_NAME_BOOKMARKS}`")
-        onCreate(database)
+        // Keep existing data and migrate incrementally.
+        if (oldVersion < 3) {
+            addColumnIfMissing(
+                database,
+                TABLE_NAME_FILES,
+                COLUMN_SCROLL_MODE_FILES,
+                "TEXT NOT NULL DEFAULT 'VERTICAL_TOP_TO_BOTTOM'"
+            )
+            addColumnIfMissing(
+                database,
+                TABLE_NAME_FILES,
+                COLUMN_SINGLE_PAGE_FILES,
+                "INTEGER NOT NULL DEFAULT 0"
+            )
+            addColumnIfMissing(
+                database,
+                TABLE_NAME_FILES,
+                COLUMN_NIGHT_MODE_FILES,
+                "INTEGER NOT NULL DEFAULT 0"
+            )
+            addColumnIfMissing(
+                database,
+                TABLE_NAME_FILES,
+                COLUMN_ZOOM_FILES,
+                "REAL NOT NULL DEFAULT 1.0"
+            )
+            addColumnIfMissing(
+                database,
+                TABLE_NAME_FILES,
+                COLUMN_ROTATION_LOCKED_FILES,
+                "INTEGER NOT NULL DEFAULT 0"
+            )
+        }
+    }
+
+    private fun addColumnIfMissing(
+        database: SQLiteDatabase,
+        tableName: String,
+        columnName: String,
+        columnDefinition: String
+    ) {
+        if (!hasColumn(database, tableName, columnName)) {
+            database.execSQL(
+                "ALTER TABLE `$tableName` ADD COLUMN `$columnName` $columnDefinition"
+            )
+        }
+    }
+
+    private fun hasColumn(database: SQLiteDatabase, tableName: String, columnName: String): Boolean {
+        var cursor: Cursor? = null
+        return try {
+            cursor = database.rawQuery("PRAGMA table_info(`$tableName`)", null)
+            var found = false
+            if (cursor.moveToFirst()) {
+                do {
+                    val currentColumn = cursor.getString(cursor.getColumnIndexOrThrow("name"))
+                    if (currentColumn == columnName) {
+                        found = true
+                        break
+                    }
+                } while (cursor.moveToNext())
+            }
+            found
+        } finally {
+            cursor?.close()
+        }
     }
 
 
@@ -56,6 +123,11 @@ class DatabaseHandler(context: Context) :
         contentValues.put(COLUMN_LAST_UPDATE_FILES, file.lastUpdate)
         contentValues.put(COLUMN_LAST_PAGE_FILES, file.lastPage)
         contentValues.put(COLUMN_FILE_PATH_FILES, file.path)
+        contentValues.put(COLUMN_SCROLL_MODE_FILES, file.scrollMode)
+        contentValues.put(COLUMN_SINGLE_PAGE_FILES, if (file.singlePage) 1 else 0)
+        contentValues.put(COLUMN_NIGHT_MODE_FILES, if (file.nightMode) 1 else 0)
+        contentValues.put(COLUMN_ZOOM_FILES, file.zoom)
+        contentValues.put(COLUMN_ROTATION_LOCKED_FILES, if (file.rotationLocked) 1 else 0)
         contentValues.put(COLUMN_NOTES_FILES, file.notes)
         val success = database.insert(TABLE_NAME_FILES, null, contentValues)
         database.close()
@@ -89,6 +161,14 @@ class DatabaseHandler(context: Context) :
                 val lastUpdate = cursor.getString(cursor.getColumnIndex(COLUMN_LAST_UPDATE_FILES))
                 val path = cursor.getString(cursor.getColumnIndex(COLUMN_FILE_PATH_FILES))
                 val lastPage = cursor.getInt(cursor.getColumnIndex(COLUMN_LAST_PAGE_FILES))
+                val scrollMode =
+                    cursor.getString(cursor.getColumnIndex(COLUMN_SCROLL_MODE_FILES))
+                        ?: "VERTICAL_TOP_TO_BOTTOM"
+                val singlePage = cursor.getInt(cursor.getColumnIndex(COLUMN_SINGLE_PAGE_FILES)) == 1
+                val nightMode = cursor.getInt(cursor.getColumnIndex(COLUMN_NIGHT_MODE_FILES)) == 1
+                val zoom = cursor.getFloat(cursor.getColumnIndex(COLUMN_ZOOM_FILES))
+                val rotationLocked =
+                    cursor.getInt(cursor.getColumnIndex(COLUMN_ROTATION_LOCKED_FILES)) == 1
                 val notes = cursor.getString(cursor.getColumnIndex(COLUMN_NOTES_FILES))
 
                 val fileToAdd = FilesModel(
@@ -97,6 +177,11 @@ class DatabaseHandler(context: Context) :
                     lastUpdate = lastUpdate,
                     path = path,
                     lastPage = lastPage,
+                    scrollMode = scrollMode,
+                    singlePage = singlePage,
+                    nightMode = nightMode,
+                    zoom = zoom,
+                    rotationLocked = rotationLocked,
                     notes = notes
                 )
 
@@ -118,6 +203,11 @@ class DatabaseHandler(context: Context) :
         contentValues.put(COLUMN_LAST_UPDATE_FILES, file.lastUpdate)
         contentValues.put(COLUMN_FILE_PATH_FILES, file.path)
         contentValues.put(COLUMN_LAST_PAGE_FILES, file.lastPage)
+        contentValues.put(COLUMN_SCROLL_MODE_FILES, file.scrollMode)
+        contentValues.put(COLUMN_SINGLE_PAGE_FILES, if (file.singlePage) 1 else 0)
+        contentValues.put(COLUMN_NIGHT_MODE_FILES, if (file.nightMode) 1 else 0)
+        contentValues.put(COLUMN_ZOOM_FILES, file.zoom)
+        contentValues.put(COLUMN_ROTATION_LOCKED_FILES, if (file.rotationLocked) 1 else 0)
         contentValues.put(COLUMN_NOTES_FILES, file.notes)
 
         val success =
@@ -345,7 +435,7 @@ class DatabaseHandler(context: Context) :
     companion object {
         //general
         private val DATABASE_NAME = "PDFFiles"
-        private val DATABASE_VERSION = 2 //TODO: change this manually
+        private val DATABASE_VERSION = 3 //TODO: change this manually
 
         //"files" table
         val TABLE_NAME_FILES = "files"
@@ -354,6 +444,11 @@ class DatabaseHandler(context: Context) :
         val COLUMN_DATE_FILES = "date"
         val COLUMN_LAST_UPDATE_FILES = "last_update"
         val COLUMN_LAST_PAGE_FILES = "page"
+        val COLUMN_SCROLL_MODE_FILES = "scroll_mode"
+        val COLUMN_SINGLE_PAGE_FILES = "single_page"
+        val COLUMN_NIGHT_MODE_FILES = "night_mode"
+        val COLUMN_ZOOM_FILES = "zoom"
+        val COLUMN_ROTATION_LOCKED_FILES = "rotation_locked"
         val COLUMN_NOTES_FILES = "notes"
 
         //"bookmarks" table

@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Näytä yövalo</string>
     <string name="tooltip_night_light_off">Piilota yövalo</string>
     <string name="tooltip_go_to_feature">Avaa \'Mene kohtaan\' -ominaisuus</string>
+    <string name="tooltip_go_to_bottom">Siirry tiedoston loppuun</string>
     <string name="tooltip_go_to_top">Mene tiedoston ensimmäiselle sivulle</string>
     <string name="tooltip_open_new_file">Avaa uusi tiedosto</string>
-    <string name="tooltip_scroll_horizontally">Vieritä vaakasuunnassa</string>
-    <string name="tooltip_scroll_vertically">Vieritä pystysuoraan</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Vieritä pystysuunnassa ylhäältä alas</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Vieritä pystysuunnassa alhaalta ylös</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Vieritä vaakasuunnassa vasemmalta oikealle</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Vieritä vaakasuunnassa oikealta vasemmalle</string>
     <string name="tooltip_force_dark_filter">Käytössä pakko-tumma suodatin</string>
     <string name="tooltip_force_dark_filter_disable">Poista pakko-tumma suodatin käytöstä</string>
     <string name="tooltip_single_page_scroll">Ota yhden sivun katselutila käyttöön</string>

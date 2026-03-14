@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Mostrar luz nocturna</string>
     <string name="tooltip_night_light_off">Ocultar luz nocturna</string>
     <string name="tooltip_go_to_feature">Abrir función \'Ir a\'</string>
+    <string name="tooltip_go_to_bottom">Ir al final del archivo</string>
     <string name="tooltip_go_to_top">Ir a la primera página del archivo</string>
     <string name="tooltip_open_new_file">Abrir un nuevo archivo</string>
-    <string name="tooltip_scroll_horizontally">Desplazar horizontalmente</string>
-    <string name="tooltip_scroll_vertically">Desplazar verticalmente</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Desplazar verticalmente de arriba hacia abajo</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Desplazar verticalmente de abajo hacia arriba</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Desplazar horizontalmente de izquierda a derecha</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Desplazar horizontalmente de derecha a izquierda</string>
     <string name="tooltip_force_dark_filter">Habilitar el filtro forzado oscuro</string>
     <string name="tooltip_force_dark_filter_disable">Desactivar el filtro forzado oscuro</string>
     <string name="tooltip_single_page_scroll">Activar modo de visualización de una página</string>

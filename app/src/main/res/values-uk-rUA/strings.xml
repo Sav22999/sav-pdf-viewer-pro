@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Показувати світловий екран</string>
     <string name="tooltip_night_light_off">Приховати нічну лампу</string>
     <string name="tooltip_go_to_feature">Відкрити функцію \"Перейти до\"</string>
+    <string name="tooltip_go_to_bottom">Перейти в кінець файлу</string>
     <string name="tooltip_go_to_top">Перейти на першу сторінку файлу</string>
     <string name="tooltip_open_new_file">Відкрити новий файл</string>
-    <string name="tooltip_scroll_horizontally">Гортати по горизонталі</string>
-    <string name="tooltip_scroll_vertically">Прокручування по вертикалі</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Прокручувати вертикально зверху вниз</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Прокручувати вертикально знизу вгору</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Прокручувати горизонтально зліва направо</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Прокручувати горизонтально справа наліво</string>
     <string name="tooltip_force_dark_filter">Увімкнено примусово темний фільтр</string>
     <string name="tooltip_force_dark_filter_disable">Вимкнути посилений темний фільтр</string>
     <string name="tooltip_single_page_scroll">Увімкнути режим перегляду однієї сторінки</string>

@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Mostrar luz noturna</string>
     <string name="tooltip_night_light_off">Esconder luz noturna</string>
     <string name="tooltip_go_to_feature">Abrir recurso \'Ir Para\'</string>
+    <string name="tooltip_go_to_bottom">Ir para o fim do ficheiro</string>
     <string name="tooltip_go_to_top">Ir para a primeira página do arquivo</string>
     <string name="tooltip_open_new_file">Abrir um novo arquivo</string>
-    <string name="tooltip_scroll_horizontally">Rolar horizontalmente</string>
-    <string name="tooltip_scroll_vertically">Rolar verticalmente</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Rolar verticalmente de cima para baixo</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Rolar verticalmente de baixo para cima</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Rolar horizontalmente da esquerda para a direita</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Rolar horizontalmente da direita para a esquerda</string>
     <string name="tooltip_force_dark_filter">Ativar filtro forçado-escuro</string>
     <string name="tooltip_force_dark_filter_disable">Desativar o filtro forçado-escuro</string>
     <string name="tooltip_single_page_scroll">Ativar modo de visualização de página única</string>

@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Nachtlicht weergeven</string>
     <string name="tooltip_night_light_off">Nachtlicht verbergen</string>
     <string name="tooltip_go_to_feature">Open \'Ga naar\' functie</string>
+    <string name="tooltip_go_to_bottom">Ga naar het einde van het bestand</string>
     <string name="tooltip_go_to_top">Ga naar de eerste pagina van het bestand</string>
     <string name="tooltip_open_new_file">Open een nieuw bestand</string>
-    <string name="tooltip_scroll_horizontally">Scroll horizontaal</string>
-    <string name="tooltip_scroll_vertically">Scroll verticaal</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Verticaal scrollen van boven naar beneden</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Verticaal scrollen van beneden naar boven</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Horizontaal scrollen van links naar rechts</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Horizontaal scrollen van rechts naar links</string>
     <string name="tooltip_force_dark_filter">Het geforceerde donkere filter ingeschakeld</string>
     <string name="tooltip_force_dark_filter_disable">Schakel het geforceerde donkere filter uit</string>
     <string name="tooltip_single_page_scroll">Schakel één pagina weergavemodus in</string>

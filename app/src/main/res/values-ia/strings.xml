@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Monstrar luce nocturne</string>
     <string name="tooltip_night_light_off">Celar luce nocturne</string>
     <string name="tooltip_go_to_feature">Aperir function \'Ir a\'</string>
+    <string name="tooltip_go_to_bottom">Ir al fin del file</string>
     <string name="tooltip_go_to_top">Ir al prime pagina del file</string>
     <string name="tooltip_open_new_file">Aperir un nove file</string>
-    <string name="tooltip_scroll_horizontally">Rolar horizontalmente</string>
-    <string name="tooltip_scroll_vertically">Rolar verticalmente</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Rolar verticalmente de alto a basso</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Rolar verticalmente de basso a alto</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Rolar horizontalmente de sinistra a dextra</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Rolar horizontalmente de dextra a sinistra</string>
     <string name="tooltip_force_dark_filter">Activate le filtro obscur fortiate</string>
     <string name="tooltip_force_dark_filter_disable">Disactivar le filtro obscur fortiate</string>
     <string name="tooltip_single_page_scroll">Activar modo de visualisation a pagina singule</string>

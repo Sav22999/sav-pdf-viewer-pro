@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">إظهار الضوء الليلي</string>
     <string name="tooltip_night_light_off">إخفاء الضوء الليلي</string>
     <string name="tooltip_go_to_feature">فتح ميزة \'الذهاب إلى\'</string>
+    <string name="tooltip_go_to_bottom">الانتقال إلى نهاية الملف</string>
     <string name="tooltip_go_to_top">الذهاب إلى الصفحة الأولى من الملف</string>
     <string name="tooltip_open_new_file">فتح ملف جديد</string>
-    <string name="tooltip_scroll_horizontally">تمرير أفقياً</string>
-    <string name="tooltip_scroll_vertically">تمرير عمودياً</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">تمرير عمودياً من الأعلى إلى الأسفل</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">تمرير عمودياً من الأسفل إلى الأعلى</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">تمرير أفقياً من اليسار إلى اليمين</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">تمرير أفقياً من اليمين إلى اليسار</string>
     <string name="tooltip_force_dark_filter">تمكين الفلتر الظلام القسري</string>
     <string name="tooltip_force_dark_filter_disable">تعطيل الفلتر الظلام القسري</string>
     <string name="tooltip_single_page_scroll">تمكين وضع عرض الصفحة الواحدة</string>
