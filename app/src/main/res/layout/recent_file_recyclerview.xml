@@ -66,11 +66,14 @@
             <LinearLayout
                 android:id="@+id/recentItemForeground"
                 android:layout_width="match_parent"
-                android:layout_height="70dp"
+                android:layout_height="wrap_content"
+                android:minHeight="70dp"
                 android:clickable="true"
                 android:focusable="true"
                 android:gravity="center_vertical"
                 android:orientation="vertical"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
                 android:paddingStart="14dp"
                 android:paddingEnd="14dp">
 
@@ -78,6 +81,8 @@
                     android:id="@+id/textRecentTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="2"
                     android:textColor="@color/white"
                     android:textSize="16sp"
                     android:textStyle="bold" />

@@ -116,6 +116,7 @@ class PDFViewer : AppCompatActivity() {
     private var toolbarPlacement = ViewerDefaultsStore.TOOLBAR_PLACEMENT_TOP
     private var toolbarSystemTopInset = 0
     private var toolbarSystemBottomInset = 0
+    private var imeBottomInset = 0
 
     private val scrollModePreferenceName = "scroll_mode"
     private val scrollModePreferenceKey = "scroll_mode"
@@ -310,13 +311,19 @@ class PDFViewer : AppCompatActivity() {
         applySearchHighlightThemeColors()
         toolbarPlacement = ViewerDefaultsStore.load(this).toolbarPlacement
 
-        // Extra safety: pad the toolbar for the status bar inset
-        val toolbarContainer = findViewById<View>(R.id.toolbarContainer)
-        ViewCompat.setOnApplyWindowInsetsListener(toolbarContainer) { _, insets ->
+        // Keep toolbar/panels aligned with system bars and IME.
+        val rootContainer = findViewById<View>(R.id.pdfViewerContainer)
+        ViewCompat.setOnApplyWindowInsetsListener(rootContainer) { _, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             toolbarSystemTopInset = systemBars.top
             toolbarSystemBottomInset = systemBars.bottom
+            imeBottomInset = if (insets.isVisible(WindowInsetsCompat.Type.ime())) {
+                insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+            } else {
+                0
+            }
             applyToolbarContainerInsets()
+            applyBottomPlacementImeOffset()
             insets
         }
 
@@ -2517,6 +2524,26 @@ class PDFViewer : AppCompatActivity() {
         )
     }
 
+    private fun applyBottomPlacementImeOffset() {
+        val bottomOffset = if (isBottomToolbarPlacement()) imeBottomInset.toFloat() else 0f
+        val idsToOffset = intArrayOf(
+            R.id.messageSearch,
+            R.id.messageGoTo,
+            R.id.messageMenuPanel,
+            R.id.messageGuide1,
+            R.id.arrowMessageGoTo,
+            R.id.arrowMenuPanel,
+            R.id.arrowLeft,
+            R.id.arrowRight,
+            R.id.arrowRight2,
+            R.id.arrowRight3,
+            R.id.textSelectionBar
+        )
+        idsToOffset.forEach { id ->
+            findViewById<View>(id).translationY = -bottomOffset
+        }
+    }
+
     private fun applyToolbarPlacement(force: Boolean = false) {
         val root: ConstraintLayout = findViewById(R.id.pdfViewerContainer)
         val useBottomPlacement = isBottomToolbarPlacement()
@@ -2614,12 +2641,13 @@ class PDFViewer : AppCompatActivity() {
 
         constraintSet.applyTo(root)
         applyToolbarContainerInsets()
+        applyBottomPlacementImeOffset()
 
         arrowIds.forEach { arrowId ->
             findViewById<View>(arrowId).scaleY = if (useBottomPlacement) -1f else 1f
         }
 
-        ViewCompat.requestApplyInsets(findViewById(R.id.toolbarContainer))
+        ViewCompat.requestApplyInsets(root)
 
         minPositionScrollbar = 0F
         minPositionScrollbarHorizontal = 0F
@@ -3827,10 +3855,11 @@ class PDFViewer : AppCompatActivity() {
         val panel: ConstraintLayout = findViewById(R.id.messageSearch)
         panel.isGone = true
         searchPanelVisible = false
+        val textbox: EditText = findViewById(R.id.textboxSearch)
         if (clearState) {
             clearSearchState()
+            textbox.setText("")
         }
-        val textbox: EditText = findViewById(R.id.textboxSearch)
         hideKeyboard(textbox)
         if (showingTopBar) {
             restartTopBarAutoHideCountdown()
@@ -4039,7 +4068,7 @@ class PDFViewer : AppCompatActivity() {
             hideGoToDialog()
         }
         if (panelToKeep != OverlayPanel.SEARCH) {
-            hideSearchPanel(clearState = false)
+            hideSearchPanel(clearState = true)
         }
         if (panelToKeep != OverlayPanel.MENU) {
             hideMenuPanel()

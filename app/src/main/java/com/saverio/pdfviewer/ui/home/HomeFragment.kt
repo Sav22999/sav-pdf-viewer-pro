@@ -79,6 +79,7 @@ class HomeFragment : Fragment() {
         recentsList.layoutManager = LinearLayoutManager(requireContext())
         recentsList.adapter = recentsAdapter
         recentsList.setHasFixedSize(false)
+        recentsList.isNestedScrollingEnabled = false
 
         val swipeCallback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
             override fun onMove(
