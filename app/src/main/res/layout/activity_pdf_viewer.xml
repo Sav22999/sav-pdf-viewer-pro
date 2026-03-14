@@ -313,7 +313,8 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
+        tools:visibility="visible">
 
         <!-- Search input row -->
         <EditText
@@ -364,22 +365,57 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:gravity="start|center_vertical"
             android:textColor="?attr/colorOnPrimary"
             android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonSearchPrev"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/buttonSearchWholeWord"
             app:layout_constraintTop_toBottomOf="@+id/textboxSearch"
             tools:text="2 / 5" />
 
         <ImageView
+            android:id="@+id/buttonSearchCaseSensitive"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="5dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/tooltip_search_case_sensitive"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textboxSearch"
+            app:srcCompat="@drawable/ic_search_case_sensitive"
+            app:tint="?attr/colorOnPrimary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/buttonSearchWholeWord"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="5dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/tooltip_search_whole_word"
+            android:padding="8dp"
+            android:scaleType="fitCenter"
+            app:layout_constraintStart_toEndOf="@+id/buttonSearchCaseSensitive"
+            app:layout_constraintTop_toBottomOf="@+id/textboxSearch"
+            app:srcCompat="@drawable/ic_search_whole_word"
+            app:tint="?attr/colorOnPrimary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
             android:id="@+id/buttonSearchPrev"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="5dp"
             android:layout_marginBottom="5dp"
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_search_prev"
-            android:padding="10dp"
+            android:padding="4sp"
             android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/buttonSearchNext"
@@ -389,13 +425,14 @@
 
         <ImageView
             android:id="@+id/buttonSearchNext"
-            android:layout_width="44dp"
-            android:layout_height="44dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="5dp"
             android:layout_marginEnd="5dp"
             android:layout_marginBottom="5dp"
             android:background="@color/transparent"
             android:contentDescription="@string/tooltip_search_next"
-            android:padding="10dp"
+            android:padding="4sp"
             android:scaleType="fitCenter"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -538,8 +575,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
-        tools:visibility="visible">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
 
         <LinearLayout
             android:id="@+id/menuPanelSection4"
@@ -1620,16 +1656,17 @@
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
+        app:layout_constraintStart_toStartOf="parent"
+        tools:visibility="visible">
 
         <ImageView
             android:id="@+id/buttonCloseSelectionMode"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/tooltip_close_selection_mode"
-            android:padding="10dp"
-            android:scaleType="fitCenter"
+            android:padding="8sp"
+            android:scaleType="centerInside"
             app:srcCompat="@drawable/ic_close"
             app:tint="?attr/colorOnPrimary"
             tools:ignore="VectorDrawableCompat" />
@@ -1640,12 +1677,53 @@
             android:layout_weight="1" />
 
         <ImageView
+            android:id="@+id/buttonSelectionWordMode"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/tooltip_selection_mode_word"
+            android:padding="6sp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_selection_word"
+            app:tint="?attr/colorOnPrimary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <ImageView
+            android:id="@+id/buttonSelectionCharacterMode"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginStart="4dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/tooltip_selection_mode_character"
+            android:padding="6sp"
+            android:scaleType="fitCenter"
+            app:srcCompat="@drawable/ic_selection_character"
+            app:tint="?attr/colorOnPrimary"
+            tools:ignore="VectorDrawableCompat" />
+
+        <View
+            android:layout_width="8dp"
+            android:layout_height="1dp"
+            android:background="@color/transparent" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_vertical"
+            android:background="?attr/colorSecondary" />
+
+        <View
+            android:layout_width="8dp"
+            android:layout_height="1dp"
+            android:background="@color/transparent" />
+
+        <ImageView
             android:id="@+id/buttonCopySelection"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/tooltip_copy_selection"
-            android:padding="10sp"
+            android:padding="8sp"
             android:scaleType="fitCenter"
             app:srcCompat="@drawable/ic_copy"
             app:tint="?attr/colorOnPrimary"

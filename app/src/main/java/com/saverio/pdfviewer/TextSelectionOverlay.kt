@@ -29,6 +29,7 @@ class TextSelectionManager(private val context: Context) {
     private data class SelectedWordRef(
         val logicalPage: Int,
         val wordIndex: Int,
+        val charIndex: Int? = null,
         val word: PdfOcrEngine.WordElement
     )
 
@@ -48,6 +49,7 @@ class TextSelectionManager(private val context: Context) {
     }
 
     private var selecting = false
+    private var characterSelectionEnabled = false
     private var pendingSelectionPoint: Triple<Int, Float, Float>? = null // logicalPage, normX, normY
 
     private var startRef: SelectedWordRef? = null
@@ -91,6 +93,16 @@ class TextSelectionManager(private val context: Context) {
     fun deactivate() {
         active = false
         clearSelection()
+    }
+
+    fun isCharacterSelectionEnabled(): Boolean = characterSelectionEnabled
+
+    fun setCharacterSelectionEnabled(enabled: Boolean) {
+        if (characterSelectionEnabled == enabled) return
+        characterSelectionEnabled = enabled
+        if (startRef != null && endRef != null) {
+            rebuildSelectionRange()
+        }
     }
 
     fun recordPageSize(page: Int, width: Float, height: Float) {
@@ -256,7 +268,38 @@ class TextSelectionManager(private val context: Context) {
 
     private fun compareRefs(a: SelectedWordRef, b: SelectedWordRef): Int {
         if (a.logicalPage != b.logicalPage) return a.logicalPage.compareTo(b.logicalPage)
-        return a.wordIndex.compareTo(b.wordIndex)
+        if (a.wordIndex != b.wordIndex) return a.wordIndex.compareTo(b.wordIndex)
+        val aChar = a.charIndex ?: 0
+        val bChar = b.charIndex ?: 0
+        return aChar.compareTo(bChar)
+    }
+
+    private fun toCharIndex(word: PdfOcrEngine.WordElement, normX: Float): Int {
+        val len = word.text.length.coerceAtLeast(1)
+        val width = (word.rect.right - word.rect.left).coerceAtLeast(0.0001f)
+        val rel = ((normX - word.rect.left) / width).coerceIn(0f, 1f)
+        return (rel * len).toInt().coerceIn(0, len - 1)
+    }
+
+    private fun buildWordSegment(
+        word: PdfOcrEngine.WordElement,
+        charStart: Int,
+        charEnd: Int
+    ): PdfOcrEngine.WordElement {
+        val len = word.text.length.coerceAtLeast(1)
+        val start = charStart.coerceIn(0, len - 1)
+        val end = charEnd.coerceIn(start, len - 1)
+        val width = word.rect.right - word.rect.left
+        val startFrac = start.toFloat() / len.toFloat()
+        val endFrac = (end + 1).toFloat() / len.toFloat()
+        val left = word.rect.left + (width * startFrac)
+        val right = word.rect.left + (width * endFrac)
+        val text = if (word.text.isNotEmpty()) {
+            word.text.substring(start, end + 1)
+        } else {
+            ""
+        }
+        return PdfOcrEngine.WordElement(text = text, rect = RectF(left, word.rect.top, right, word.rect.bottom))
     }
 
     private fun rebuildSelectionRange() {
@@ -290,7 +333,31 @@ class TextSelectionManager(private val context: Context) {
             if (startIndex > endIndex) continue
 
             for (idx in startIndex..endIndex) {
-                refs.add(SelectedWordRef(logicalPage, idx, words[idx]))
+                val srcWord = words[idx]
+                if (!characterSelectionEnabled) {
+                    refs.add(SelectedWordRef(logicalPage, idx, null, srcWord))
+                    continue
+                }
+
+                val startChar = when {
+                    logicalPage == from.logicalPage && idx == from.wordIndex -> from.charIndex ?: 0
+                    else -> 0
+                }
+                val endChar = when {
+                    logicalPage == to.logicalPage && idx == to.wordIndex ->
+                        to.charIndex ?: (srcWord.text.length.coerceAtLeast(1) - 1)
+                    else -> (srcWord.text.length.coerceAtLeast(1) - 1)
+                }
+
+                if (startChar > endChar) continue
+                refs.add(
+                    SelectedWordRef(
+                        logicalPage = logicalPage,
+                        wordIndex = idx,
+                        charIndex = if (logicalPage == from.logicalPage && idx == from.wordIndex) startChar else null,
+                        word = buildWordSegment(srcWord, startChar, endChar)
+                    )
+                )
             }
         }
 
@@ -383,7 +450,8 @@ class TextSelectionManager(private val context: Context) {
             return false
         }
 
-        val ref = SelectedWordRef(logicalPage, index, words[index])
+        val charIndex = if (characterSelectionEnabled) toCharIndex(words[index], normX) else null
+        val ref = SelectedWordRef(logicalPage, index, charIndex, words[index])
         startRef = ref
         endRef = ref
         pendingSelectionPoint = null
@@ -414,7 +482,8 @@ class TextSelectionManager(private val context: Context) {
         }
         val index = findBestWordIndexForTap(words, normX, normY)
         if (index < 0) return
-        startRef = SelectedWordRef(logicalPage, index, words[index])
+        val charIndex = if (characterSelectionEnabled) toCharIndex(words[index], normX) else null
+        startRef = SelectedWordRef(logicalPage, index, charIndex, words[index])
         if (endRef == null) endRef = startRef
         pendingSelectionPoint = null
         rebuildSelectionRange()
@@ -428,7 +497,8 @@ class TextSelectionManager(private val context: Context) {
         }
         val index = findBestWordIndexForTap(words, normX, normY)
         if (index < 0) return
-        endRef = SelectedWordRef(logicalPage, index, words[index])
+        val charIndex = if (characterSelectionEnabled) toCharIndex(words[index], normX) else null
+        endRef = SelectedWordRef(logicalPage, index, charIndex, words[index])
         if (startRef == null) startRef = endRef
         pendingSelectionPoint = null
         rebuildSelectionRange()
@@ -448,7 +518,8 @@ class TextSelectionManager(private val context: Context) {
                 deactivate()
                 return
             }
-            val ref = SelectedWordRef(logicalPage, index, words[index])
+            val charIndex = if (characterSelectionEnabled) toCharIndex(words[index], normX) else null
+            val ref = SelectedWordRef(logicalPage, index, charIndex, words[index])
             startRef = ref
             endRef = ref
             pendingSelectionPoint = null

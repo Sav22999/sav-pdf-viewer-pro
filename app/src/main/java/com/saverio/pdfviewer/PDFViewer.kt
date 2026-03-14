@@ -146,6 +146,8 @@ class PDFViewer : AppCompatActivity() {
     private var searchResultIndex: Int = 0
     private var searchPanelVisible: Boolean = false
     private var currentSearchQuery: String = ""
+    private var searchCaseSensitive: Boolean = false
+    private var searchWholeWord: Boolean = false
     private val highlightPaint = Paint().apply {
         style = Paint.Style.FILL
     }
@@ -180,6 +182,13 @@ class PDFViewer : AppCompatActivity() {
         highlightBorderPaint.color = withAlpha(darkRed, 175)
         activeHighlightPaint.color = withAlpha(darkRed, 155)
         activeHighlightBorderPaint.color = withAlpha(darkDarkRed, 210)
+    }
+
+    private fun currentSearchOptions(): PdfOcrEngine.SearchOptions {
+        return PdfOcrEngine.SearchOptions(
+            caseSensitive = searchCaseSensitive,
+            wholeWord = searchWholeWord
+        )
     }
 
     // ── Text Selection ────────────────────────────────────────
@@ -711,7 +720,7 @@ class PDFViewer : AppCompatActivity() {
                     if (currentSearchQuery.isNotBlank() && searchResults.isNotEmpty()) {
                         val logicalDisplayedPage = mapViewerPageToLogical(displayedPage)
                         val rects =
-                            ocrEngine.getHighlightsForPage(logicalDisplayedPage, currentSearchQuery)
+                            ocrEngine.getHighlightsForPage(logicalDisplayedPage, currentSearchQuery, currentSearchOptions())
                         // Determine which occurrence index within this page is active
                         val activeResult = searchResults.getOrNull(searchResultIndex)
                         val activeOnThisPage =
@@ -2843,6 +2852,13 @@ class PDFViewer : AppCompatActivity() {
     // ═══════════════════════════════════════════════════════════════
 
     fun setupSearch() {
+        fun updateSearchOptionButtonsUi() {
+            val caseSensitiveButton: ImageView = findViewById(R.id.buttonSearchCaseSensitive)
+            val wholeWordButton: ImageView = findViewById(R.id.buttonSearchWholeWord)
+            caseSensitiveButton.alpha = if (searchCaseSensitive) 1.0f else 0.45f
+            wholeWordButton.alpha = if (searchWholeWord) 1.0f else 0.45f
+        }
+
         // Wire the "Search" button in the menu panel
         val buttonSearch: ImageView = findViewById(R.id.buttonSearchToolbar)
         buttonSearch.setOnClickListener {
@@ -2882,6 +2898,36 @@ class PDFViewer : AppCompatActivity() {
             true
         }
 
+        val buttonCaseSensitive: ImageView = findViewById(R.id.buttonSearchCaseSensitive)
+        buttonCaseSensitive.setOnClickListener {
+            searchCaseSensitive = !searchCaseSensitive
+            updateSearchOptionButtonsUi()
+            if (currentSearchQuery.isNotBlank()) {
+                triggerSearch()
+            }
+            resetHideTopBarCounter()
+        }
+        buttonCaseSensitive.setOnLongClickListener {
+            showTooltip(R.string.tooltip_search_case_sensitive)
+            true
+        }
+
+        val buttonWholeWord: ImageView = findViewById(R.id.buttonSearchWholeWord)
+        buttonWholeWord.setOnClickListener {
+            searchWholeWord = !searchWholeWord
+            updateSearchOptionButtonsUi()
+            if (currentSearchQuery.isNotBlank()) {
+                triggerSearch()
+            }
+            resetHideTopBarCounter()
+        }
+        buttonWholeWord.setOnLongClickListener {
+            showTooltip(R.string.tooltip_search_whole_word)
+            true
+        }
+
+        updateSearchOptionButtonsUi()
+
         val textbox: EditText = findViewById(R.id.textboxSearch)
         textbox.setOnEditorActionListener { _, _, _ ->
             triggerSearch()
@@ -2902,12 +2948,13 @@ class PDFViewer : AppCompatActivity() {
         ocrEngine.onResults = { results, finished ->
             searchResults = results
             updateSearchStatus(finished)
+            // Always redraw so old highlights are cleared when filters change/no results.
+            pdfViewer.invalidate()
             // Navigate to first result automatically
             if (results.isNotEmpty() && searchResultIndex == 0) {
                 if (getCurrentLogicalPage() != results[0].pageIndex) {
                     goToPage(results[0].pageIndex, true)
                 }
-                pdfViewer.invalidate()
             }
         }
     }
@@ -2918,9 +2965,11 @@ class PDFViewer : AppCompatActivity() {
         searchResults = emptyList()
         searchResultIndex = 0
         currentSearchQuery = textbox.text.toString().trim()
+        // Clear previous highlights immediately before running a filtered search.
+        pdfViewer.invalidate()
         val status: TextView = findViewById(R.id.textSearchStatus)
         status.text = String.format(getString(R.string.search_indexing), 0, totalPages)
-        ocrEngine.search(currentSearchQuery)
+        ocrEngine.search(currentSearchQuery, currentSearchOptions())
     }
 
     private fun updateSearchStatus(finished: Boolean) {
@@ -3027,6 +3076,14 @@ class PDFViewer : AppCompatActivity() {
     // ── Select & Copy Text ────────────────────────────────────────────────────
 
     private fun setupTextSelection() {
+        fun updateSelectionGranularityButtonUi(wordButton: ImageView, characterButton: ImageView) {
+            val charMode = textSelectionManager.isCharacterSelectionEnabled()
+            wordButton.alpha = if (charMode) 0.45f else 1.0f
+            characterButton.alpha = if (charMode) 1.0f else 0.45f
+            wordButton.contentDescription = getString(R.string.tooltip_selection_mode_word)
+            characterButton.contentDescription = getString(R.string.tooltip_selection_mode_character)
+        }
+
         // Build the GestureDetector that fires onLongPress on the PDFView
         selectionGestureDetector = GestureDetector(this,
             object : GestureDetector.SimpleOnGestureListener() {
@@ -3080,6 +3137,23 @@ class PDFViewer : AppCompatActivity() {
         // Wire panel buttons
         val copyBtn  = findViewById<ImageView>(R.id.buttonCopySelection)
         val closeBtn = findViewById<android.widget.ImageView>(R.id.buttonCloseSelectionMode)
+        val wordModeBtn = findViewById<ImageView>(R.id.buttonSelectionWordMode)
+        val characterModeBtn = findViewById<ImageView>(R.id.buttonSelectionCharacterMode)
+
+        updateSelectionGranularityButtonUi(wordModeBtn, characterModeBtn)
+        wordModeBtn.setOnClickListener {
+            textSelectionManager.setCharacterSelectionEnabled(false)
+            updateSelectionGranularityButtonUi(wordModeBtn, characterModeBtn)
+            pdfViewer.invalidate()
+            resetHideTopBarCounter()
+        }
+        characterModeBtn.setOnClickListener {
+            textSelectionManager.setCharacterSelectionEnabled(true)
+            updateSelectionGranularityButtonUi(wordModeBtn, characterModeBtn)
+            pdfViewer.invalidate()
+            resetHideTopBarCounter()
+        }
+
         copyBtn.setOnClickListener {
             if (textSelectionManager.selectedWords.isNotEmpty()) {
                 textSelectionManager.copySelectedText()

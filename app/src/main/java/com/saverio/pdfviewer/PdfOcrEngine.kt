@@ -26,6 +26,11 @@ import java.util.concurrent.TimeUnit
  */
 class PdfOcrEngine(private val context: Context) {
 
+    data class SearchOptions(
+        val caseSensitive: Boolean = false,
+        val wholeWord: Boolean = false
+    )
+
     /** One search hit — one occurrence on one page. */
     data class SearchResult(val pageIndex: Int)
 
@@ -42,7 +47,7 @@ class PdfOcrEngine(private val context: Context) {
     }
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
-    /** word text (lower-case) + normalised bounding rect (0‥1) */
+    /** word text + normalised bounding rect (0‥1) */
     data class WordElement(val text: String, val rect: RectF)
 
     /** page index → list of words with bounding boxes */
@@ -110,22 +115,29 @@ class PdfOcrEngine(private val context: Context) {
      * on [pageIndex].  Called from the UI thread (onDraw) at render time,
      * so it must be fast and non-blocking.
      */
-    fun getHighlightsForPage(pageIndex: Int, query: String): List<RectF> {
+    fun getHighlightsForPage(
+        pageIndex: Int,
+        query: String,
+        options: SearchOptions = SearchOptions()
+    ): List<RectF> {
         if (query.isBlank()) return emptyList()
-        val q = query.trim().lowercase()
+        val q = query.trim()
         val words = wordsCache[pageIndex]
         if (words == null) {
             Log.d(TAG, "getHighlightsForPage($pageIndex): wordsCache is NULL")
             return emptyList()
         }
-        Log.d(TAG, "getHighlightsForPage($pageIndex): ${words.size} words in cache, searching '$q'")
+        Log.d(
+            TAG,
+            "getHighlightsForPage($pageIndex): ${words.size} words in cache, searching '$q' cs=${options.caseSensitive} ww=${options.wholeWord}"
+        )
         val rects = mutableListOf<RectF>()
         for (w in words) {
-            var idx = w.text.indexOf(q)
-            while (idx >= 0) {
+            val matchRanges = findMatchRanges(w.text, q, options)
+            for (range in matchRanges) {
                 val len = w.text.length.coerceAtLeast(1)
-                val frac0 = idx.toFloat() / len
-                val frac1 = (idx + q.length).toFloat() / len
+                val frac0 = range.first.toFloat() / len
+                val frac1 = range.lastExclusive.toFloat() / len
                 val width = w.rect.right - w.rect.left
                 rects.add(RectF(
                     w.rect.left + width * frac0,
@@ -133,11 +145,36 @@ class PdfOcrEngine(private val context: Context) {
                     w.rect.left + width * frac1,
                     w.rect.bottom
                 ))
-                idx = w.text.indexOf(q, idx + 1)
             }
         }
         Log.d(TAG, "getHighlightsForPage($pageIndex): found ${rects.size} rects")
         return rects
+    }
+
+    private data class MatchRange(val first: Int, val lastExclusive: Int)
+
+    private fun findMatchRanges(text: String, query: String, options: SearchOptions): List<MatchRange> {
+        if (query.isBlank() || text.isBlank()) return emptyList()
+
+        if (options.wholeWord) {
+            val pattern = "\\b${Regex.escape(query)}\\b"
+            val regex = if (options.caseSensitive) {
+                Regex(pattern)
+            } else {
+                Regex(pattern, RegexOption.IGNORE_CASE)
+            }
+            return regex.findAll(text).map { MatchRange(it.range.first, it.range.last + 1) }.toList()
+        }
+
+        val haystack = if (options.caseSensitive) text else text.lowercase()
+        val needle = if (options.caseSensitive) query else query.lowercase()
+        val out = mutableListOf<MatchRange>()
+        var idx = haystack.indexOf(needle)
+        while (idx >= 0) {
+            out.add(MatchRange(idx, idx + needle.length))
+            idx = haystack.indexOf(needle, idx + 1)
+        }
+        return out
     }
 
     /**
@@ -146,18 +183,18 @@ class PdfOcrEngine(private val context: Context) {
      * This uses [getHighlightsForPage] as the **single source of truth**
      * — the exact same function that onDraw uses to paint highlights.
      */
-    fun search(query: String) {
+    fun search(query: String, options: SearchOptions = SearchOptions()) {
         searchJob?.cancel()
         if (query.isBlank()) {
             onResults?.invoke(emptyList(), true)
             return
         }
-        val q = query.trim().lowercase()
+        val q = query.trim()
         val uri = pdfUri ?: run { onResults?.invoke(emptyList(), true); return }
         val total = pageCount
         if (total == 0) { onResults?.invoke(emptyList(), true); return }
 
-        Log.d(TAG, "search  q='$q'  pages=$total")
+        Log.d(TAG, "search  q='$q'  pages=$total cs=${options.caseSensitive} ww=${options.wholeWord}")
 
         searchJob = scope.launch {
             val all = mutableListOf<SearchResult>()
@@ -171,7 +208,7 @@ class PdfOcrEngine(private val context: Context) {
 
                 // Use getHighlightsForPage — THE SAME function onDraw uses.
                 // Number of rects = number of occurrences on this page.
-                val rects = getHighlightsForPage(page, q)
+                val rects = getHighlightsForPage(page, q, options)
                 val pageHits = rects.size
 
                 if (pageHits > 0) {
@@ -222,7 +259,7 @@ class PdfOcrEngine(private val context: Context) {
                     for (elem in line.elements) {
                         val b = elem.boundingBox ?: continue
                         words.add(WordElement(
-                            text = elem.text.lowercase(),
+                            text = elem.text,
                             rect = RectF(
                                 b.left / bmpW, b.top / bmpH,
                                 b.right / bmpW, b.bottom / bmpH

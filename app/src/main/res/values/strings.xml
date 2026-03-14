@@ -95,6 +95,8 @@
     <string name="tooltip_search_prev">Previous result</string>
     <string name="tooltip_search_next">Next result</string>
     <string name="tooltip_search_close">Close search</string>
+    <string name="tooltip_search_case_sensitive">Case sensitive</string>
+    <string name="tooltip_search_whole_word">Whole word</string>
 
     <!-- Select / Copy text -->
     <string name="select_text_title">Page text</string>
@@ -109,5 +111,10 @@
     <string name="text_selection_mode_active">Text selection mode</string>
     <string name="tooltip_close_selection_mode">Close selection</string>
     <string name="tooltip_copy_selection">Copy selection</string>
+    <string name="tooltip_toggle_character_selection">Toggle character selection mode</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Word selection mode</string>
+    <string name="tooltip_selection_mode_character">Character selection mode</string>
     <string name="text_copied_preview">"%1$s" copied to clipboard</string>
 </resources>
