@@ -10,6 +10,7 @@ import android.content.res.Configuration
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
+import android.provider.OpenableColumns
 import android.util.TypedValue
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -37,6 +38,8 @@ import com.saverio.pdfviewer.db.DatabaseHandler
 import com.saverio.pdfviewer.db.FilesModel
 import com.saverio.pdfviewer.ui.BookmarksItemAdapter
 import com.saverio.pdfviewer.ui.SavPdfViewerLinkHandler
+import java.io.File
+import java.io.FileOutputStream
 import java.net.URLDecoder
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
@@ -857,6 +860,9 @@ class PDFViewer : AppCompatActivity() {
                     return
                 }
             }
+            ensureDurableExternalPdfCopy(uri)?.let { durablePath ->
+                fileOpened = durablePath
+            }
             //Toast.makeText(this, fileOpened, Toast.LENGTH_LONG).show()
             //Toast.makeText(this, uri.toString(), Toast.LENGTH_LONG).show()
             cancelTopBarAutoHideCountdown()
@@ -1140,6 +1146,51 @@ class PDFViewer : AppCompatActivity() {
             contentResolver.openFileDescriptor(uri, "r")?.use { true } ?: false
         } catch (_: Exception) {
             false
+        }
+    }
+
+    private fun getDisplayNameForUri(uri: Uri): String {
+        return try {
+            contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+                ?.use { cursor ->
+                    if (cursor.moveToFirst()) {
+                        cursor.getString(0)?.takeIf { it.isNotBlank() }
+                    } else {
+                        null
+                    }
+                }
+        } catch (_: Exception) {
+            null
+        } ?: (uri.lastPathSegment?.substringAfterLast('/')?.takeIf { it.isNotBlank() } ?: "document.pdf")
+    }
+
+    private fun sanitizePdfFileName(name: String): String {
+        val trimmed = name.trim().ifBlank { "document.pdf" }
+        val safe = trimmed.replace(Regex("[^A-Za-z0-9._ -]"), "_")
+        return if (safe.lowercase(Locale.ROOT).endsWith(".pdf")) safe else "$safe.pdf"
+    }
+
+    private fun ensureDurableExternalPdfCopy(uri: Uri): String? {
+        if (!openedExternally || uri.scheme != "content") return null
+
+        return try {
+            val displayName = sanitizePdfFileName(getDisplayNameForUri(uri))
+            val bucketDir = File(filesDir, "external_recents/${uri.toString().toMD5()}")
+            if (!bucketDir.exists()) {
+                bucketDir.mkdirs()
+            }
+            val destinationFile = File(bucketDir, displayName)
+
+            contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(destinationFile).use { output ->
+                    input.copyTo(output)
+                }
+            } ?: return null
+
+            destinationFile.absolutePath
+        } catch (e: Exception) {
+            println("Exception external copy: ${e.message}")
+            null
         }
     }
 
