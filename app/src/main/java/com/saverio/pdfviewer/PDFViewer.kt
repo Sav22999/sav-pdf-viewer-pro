@@ -1780,11 +1780,31 @@ class PDFViewer : AppCompatActivity() {
         return joinToString("") { "%02x".format(it) }
     }
 
+    private fun getCurrentDocumentDisplayName(): String {
+        val preferredSource = when {
+            !fileOpened.isNullOrBlank() -> fileOpened
+            uriOpened != null -> uriOpened.toString()
+            fileId.isNotBlank() -> fileId
+            else -> null
+        }
+
+        val resolved = DocumentNameResolver.resolveDisplayName(
+            this,
+            preferredSource,
+            fileId
+        ).trim()
+
+        if (resolved.isBlank()) return "document.pdf"
+        return if (resolved.lowercase(Locale.ROOT).endsWith(".pdf")) resolved else "$resolved.pdf"
+    }
+
     fun setShareButton() {
+        val documentName = getCurrentDocumentDisplayName()
         val shareIntent = Intent().apply {
             action = Intent.ACTION_SEND
             putExtra(Intent.EXTRA_STREAM, uriOpened)
-            putExtra(Intent.EXTRA_TITLE, "CustomFileName.pdf") // Add your custom title here
+            putExtra(Intent.EXTRA_TITLE, documentName)
+            putExtra(Intent.EXTRA_SUBJECT, documentName)
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             type = "application/pdf"
         }
