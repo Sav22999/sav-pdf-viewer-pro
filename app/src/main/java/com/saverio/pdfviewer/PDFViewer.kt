@@ -688,7 +688,7 @@ class PDFViewer : AppCompatActivity() {
                     updateScrollbarButtonsVisibility()
                     requestGoToEdgeButtonVisibilityUpdate(debounced = true)
                 }
-                .onDraw { canvas, pageWidth, pageHeight, displayedPage ->
+                .onDrawAll { canvas, pageWidth, pageHeight, displayedPage ->
                     // Record page dimensions for text selection
                     textSelectionManager.recordPageSize(displayedPage, pageWidth, pageHeight)
 
