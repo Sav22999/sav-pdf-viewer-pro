@@ -44,6 +44,13 @@ import kotlinx.coroutines.*
 
 
 class PDFViewer : AppCompatActivity() {
+    private enum class ScrollMode {
+        VERTICAL_TOP_TO_BOTTOM,
+        VERTICAL_BOTTOM_TO_TOP,
+        HORIZONTAL_LEFT_TO_RIGHT,
+        HORIZONTAL_RIGHT_TO_LEFT
+    }
+
     lateinit var pdfViewer: PDFView
     val PDF_SELECTION_CODE = 100
 
@@ -71,6 +78,12 @@ class PDFViewer : AppCompatActivity() {
     var savedCurrentPage = 0
 
     var horizontal = false
+    var reverseScroll = false
+    private var scrollMode = ScrollMode.VERTICAL_TOP_TO_BOTTOM
+
+    private val scrollModePreferenceName = "scroll_mode"
+    private val scrollModePreferenceKey = "scroll_mode"
+
     var single_page = false
     var night_mode = false
     var rotation_locked = false
@@ -148,6 +161,7 @@ class PDFViewer : AppCompatActivity() {
         }
 
         pdfViewer = findViewById(R.id.pdfView)
+        loadScrollModePreference()
         var uriToUse: String? = ""
 
         val parameters = intent.extras
@@ -261,7 +275,7 @@ class PDFViewer : AppCompatActivity() {
 
         val goTopButton: ImageView = findViewById(R.id.buttonGoTopToolbar)
         goTopButton.setOnClickListener {
-            pdfViewer.jumpTo(0, true)
+            goToPage(0, true)
             resetHideTopBarCounter()
         }
         goTopButton.setOnLongClickListener {
@@ -418,25 +432,55 @@ class PDFViewer : AppCompatActivity() {
         }
         buttonDarkFilter.isGone = false
 
-        val buttonHorizontallyScroll: ImageView = findViewById(R.id.buttonHorizontallyScroll)
-        buttonHorizontallyScroll.setOnClickListener {
-            if (!horizontal) {
-                horizontal = true
-                buttonHorizontallyScroll.setImageResource(R.drawable.ic_scroll_vertically)
-            } else {
-                horizontal = false
-                buttonHorizontallyScroll.setImageResource(R.drawable.ic_scroll_horizontally)
-            }
+        val buttonScrollVerticalTopToBottom: ImageView =
+            findViewById(R.id.buttonScrollVerticalTopToBottom)
+        buttonScrollVerticalTopToBottom.setOnClickListener {
+            setScrollMode(ScrollMode.VERTICAL_TOP_TO_BOTTOM)
             resetHideTopBarCounter()
             hideMenuPanel()
-            selectPdfFromURI(uriOpened)
         }
-        buttonHorizontallyScroll.setOnLongClickListener {
-            if (!horizontal) showTooltip(R.string.tooltip_scroll_horizontally)
-            else showTooltip(R.string.tooltip_scroll_vertically)
+        buttonScrollVerticalTopToBottom.setOnLongClickListener {
+            showTooltip(R.string.tooltip_scroll_vertical_top_to_bottom)
             true
         }
-        buttonHorizontallyScroll.isGone = false
+
+        val buttonScrollVerticalBottomToTop: ImageView =
+            findViewById(R.id.buttonScrollVerticalBottomToTop)
+        buttonScrollVerticalBottomToTop.setOnClickListener {
+            setScrollMode(ScrollMode.VERTICAL_BOTTOM_TO_TOP)
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        buttonScrollVerticalBottomToTop.setOnLongClickListener {
+            showTooltip(R.string.tooltip_scroll_vertical_bottom_to_top)
+            true
+        }
+
+        val buttonScrollHorizontalLeftToRight: ImageView =
+            findViewById(R.id.buttonScrollHorizontalLeftToRight)
+        buttonScrollHorizontalLeftToRight.setOnClickListener {
+            setScrollMode(ScrollMode.HORIZONTAL_LEFT_TO_RIGHT)
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        buttonScrollHorizontalLeftToRight.setOnLongClickListener {
+            showTooltip(R.string.tooltip_scroll_horizontal_left_to_right)
+            true
+        }
+
+        val buttonScrollHorizontalRightToLeft: ImageView =
+            findViewById(R.id.buttonScrollHorizontalRightToLeft)
+        buttonScrollHorizontalRightToLeft.setOnClickListener {
+            setScrollMode(ScrollMode.HORIZONTAL_RIGHT_TO_LEFT)
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        buttonScrollHorizontalRightToLeft.setOnLongClickListener {
+            showTooltip(R.string.tooltip_scroll_horizontal_right_to_left)
+            true
+        }
+
+        updateScrollModeButtons()
 
         val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
         buttonMenu.setOnClickListener {
@@ -522,7 +566,8 @@ class PDFViewer : AppCompatActivity() {
                 //.onPageError { page, t -> println(page) }
                 .onPageChange { page, pageCount ->
                     run {
-                        updatePdfPage(fileId, page)
+                        totalPages = pageCount
+                        updatePdfPage(fileId, mapViewerPageToLogical(page))
                         //setPositionScrollbarByPage(page.toFloat())
                         // Pre-index OCR words for text selection (temporarily disabled)
                         // if (textSelectionManager.active) {
@@ -564,19 +609,20 @@ class PDFViewer : AppCompatActivity() {
 
                     // Draw search highlight rectangles on this page
                     if (currentSearchQuery.isNotBlank() && searchResults.isNotEmpty()) {
+                        val logicalDisplayedPage = mapViewerPageToLogical(displayedPage)
                         val rects =
-                            ocrEngine.getHighlightsForPage(displayedPage, currentSearchQuery)
+                            ocrEngine.getHighlightsForPage(logicalDisplayedPage, currentSearchQuery)
                         // Determine which occurrence index within this page is active
                         val activeResult = searchResults.getOrNull(searchResultIndex)
                         val activeOnThisPage =
-                            activeResult != null && activeResult.pageIndex == displayedPage
+                            activeResult != null && activeResult.pageIndex == logicalDisplayedPage
                         // Find which local rect index corresponds to the active global index
                         var activeLocalIdx = -1
                         if (activeOnThisPage) {
                             // Count how many results before searchResultIndex are on this same page
                             var localIdx = 0
                             for (i in 0 until searchResultIndex) {
-                                if (searchResults[i].pageIndex == displayedPage) localIdx++
+                                if (searchResults[i].pageIndex == logicalDisplayedPage) localIdx++
                             }
                             activeLocalIdx = localIdx
                         }
@@ -700,7 +746,7 @@ class PDFViewer : AppCompatActivity() {
                         isSupportedScrollbarButton = true
                     }
                     pdfViewer.fitToWidth(0)
-                    pdfViewer.jumpTo(lastPosition, false)
+                    pdfViewer.jumpTo(mapLogicalPageToViewer(lastPosition), false)
                     if (lastPosition.toString() == "0") {
                         showTopBar(showGoTop = false)
                     } else {
@@ -873,7 +919,7 @@ class PDFViewer : AppCompatActivity() {
 
         pdfViewer.isEnabled = false
 
-        if (pdfViewer.currentPage == 0) showTopBar(showGoTop = false)
+        if (getCurrentLogicalPage() == 0) showTopBar(showGoTop = false)
         else hideTopBar()
 
         super.onConfigurationChanged(newConfig)
@@ -1094,7 +1140,7 @@ class PDFViewer : AppCompatActivity() {
         }
         dialog!!.setOnDismissListener {
             showTopBar(showGoTop = !(pdfViewer.currentYOffset == 0F))
-            updateButtonBookmark(pathName, pdfViewer.currentPage)
+            updateButtonBookmark(pathName, getCurrentLogicalPage())
             dialog = null
         }
         dialog!!.show()
@@ -1266,7 +1312,7 @@ class PDFViewer : AppCompatActivity() {
             if (isSupportedShareFeature) buttonShare.isGone = false
             buttonSearch.isGone = false
             buttonFullscreen.isGone = false
-            if (isSupportedGoTop && showGoTop && pdfViewer.currentPage > 0) buttonGoTop.isGone =
+            if (isSupportedGoTop && showGoTop && getCurrentLogicalPage() > 0) buttonGoTop.isGone =
                 false
             buttonOpen.isGone = false
             buttonMenu.isGone = false
@@ -1712,7 +1758,7 @@ class PDFViewer : AppCompatActivity() {
 
     fun showGoToDialog(x: Float = 0F, y: Float = 0F) {
         if (x == y) {
-            if (pdfViewer.currentPage == 0) showTopBar(showGoTop = false)
+            if (getCurrentLogicalPage() == 0) showTopBar(showGoTop = false)
             else showTopBar()
 
             hideMessageGuide1()
@@ -1724,7 +1770,7 @@ class PDFViewer : AppCompatActivity() {
             val buttonGoTo: TextView = findViewById(R.id.buttonGoTo)
 
             textAllPages.text = "/ $totalPages"
-            textbox.setText((pdfViewer.currentPage + 1).toString())
+            textbox.setText((getCurrentLogicalPage() + 1).toString())
 
             val message: ConstraintLayout = findViewById(R.id.messageGoTo)
             val arrow: View = findViewById(R.id.arrowMessageGoTo)
@@ -1781,7 +1827,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun goToFeature(textbox: EditText) {
-        var valueToGo = pdfViewer.currentPage + 1
+        var valueToGo = getCurrentLogicalPage() + 1
 
         val valueTemp = textbox.text.toString().replace(" ", "")
         if (valueTemp != "" && valueTemp != "-") {
@@ -1802,8 +1848,73 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun goToPage(valueToGo: Int, animation: Boolean = true) {
-        pdfViewer.jumpTo(valueToGo, true)
+        val target = mapLogicalPageToViewer(valueToGo)
+        pdfViewer.jumpTo(target, animation)
         if (dialog != null) dialog!!.dismiss()
+    }
+
+    private fun setScrollMode(mode: ScrollMode, reloadPdf: Boolean = true) {
+        scrollMode = mode
+        horizontal = mode == ScrollMode.HORIZONTAL_LEFT_TO_RIGHT || mode == ScrollMode.HORIZONTAL_RIGHT_TO_LEFT
+        reverseScroll = mode == ScrollMode.VERTICAL_BOTTOM_TO_TOP || mode == ScrollMode.HORIZONTAL_RIGHT_TO_LEFT
+        saveScrollModePreference()
+        updateScrollModeButtons()
+
+        if (reloadPdf && uriOpened != null) {
+            selectPdfFromURI(uriOpened)
+        }
+    }
+
+    private fun loadScrollModePreference() {
+        val modeName = getSharedPreferences(scrollModePreferenceName, Context.MODE_PRIVATE)
+            .getString(scrollModePreferenceKey, ScrollMode.VERTICAL_TOP_TO_BOTTOM.name)
+        val mode = try {
+            ScrollMode.valueOf(modeName ?: ScrollMode.VERTICAL_TOP_TO_BOTTOM.name)
+        } catch (_: Exception) {
+            ScrollMode.VERTICAL_TOP_TO_BOTTOM
+        }
+        setScrollMode(mode, reloadPdf = false)
+    }
+
+    private fun saveScrollModePreference() {
+        getSharedPreferences(scrollModePreferenceName, Context.MODE_PRIVATE).edit()
+            .putString(scrollModePreferenceKey, scrollMode.name)
+            .apply()
+    }
+
+    private fun updateScrollModeButtons() {
+        val verticalTopToBottom: ImageView = findViewById(R.id.buttonScrollVerticalTopToBottom)
+        val verticalBottomToTop: ImageView = findViewById(R.id.buttonScrollVerticalBottomToTop)
+        val horizontalLeftToRight: ImageView = findViewById(R.id.buttonScrollHorizontalLeftToRight)
+        val horizontalRightToLeft: ImageView = findViewById(R.id.buttonScrollHorizontalRightToLeft)
+
+        val selectedAlpha = 1.0F
+        val unselectedAlpha = 0.45F
+
+        verticalTopToBottom.alpha =
+            if (scrollMode == ScrollMode.VERTICAL_TOP_TO_BOTTOM) selectedAlpha else unselectedAlpha
+        verticalBottomToTop.alpha =
+            if (scrollMode == ScrollMode.VERTICAL_BOTTOM_TO_TOP) selectedAlpha else unselectedAlpha
+        horizontalLeftToRight.alpha =
+            if (scrollMode == ScrollMode.HORIZONTAL_LEFT_TO_RIGHT) selectedAlpha else unselectedAlpha
+        horizontalRightToLeft.alpha =
+            if (scrollMode == ScrollMode.HORIZONTAL_RIGHT_TO_LEFT) selectedAlpha else unselectedAlpha
+    }
+
+    private fun mapViewerPageToLogical(viewerPage: Int): Int {
+        if (!reverseScroll || totalPages <= 0) return viewerPage
+        return (totalPages - 1 - viewerPage).coerceIn(0, totalPages - 1)
+    }
+
+    private fun mapLogicalPageToViewer(logicalPage: Int): Int {
+        if (totalPages <= 0) return logicalPage
+        val clamped = logicalPage.coerceIn(0, totalPages - 1)
+        if (!reverseScroll) return clamped
+        return (totalPages - 1 - clamped).coerceIn(0, totalPages - 1)
+    }
+
+    private fun getCurrentLogicalPage(): Int {
+        return mapViewerPageToLogical(pdfViewer.currentPage)
     }
 
     fun hideKeyboard(view: View) {
@@ -1955,7 +2066,8 @@ class PDFViewer : AppCompatActivity() {
                                 .start()
                         }
                         val pageN = ((totalPages - 1) * scrolled) / maxPositionScrollbar
-                        textPage.text = (pageN.toInt() + 1).toString()
+                        val logicalPage = mapViewerPageToLogical(pageN.toInt())
+                        textPage.text = (logicalPage + 1).toString()
                         container.isGone = false
                         //goToPage(pageN.toInt(), false)
                     }
@@ -1967,8 +2079,9 @@ class PDFViewer : AppCompatActivity() {
                         startY_moving = null
 
                         val pageN = ((totalPages - 1) * scrolled) / maxPositionScrollbar
+                        val logicalPage = mapViewerPageToLogical(pageN.toInt())
 
-                        goToPage(pageN.toInt(), animation)
+                        goToPage(logicalPage, animation)
                         container.isGone = true
                     }
 
@@ -1980,8 +2093,9 @@ class PDFViewer : AppCompatActivity() {
                         startY_moving = null
 
                         val pageN = ((totalPages - 1) * scrolled) / maxPositionScrollbar
+                        val logicalPage = mapViewerPageToLogical(pageN.toInt())
 
-                        goToPage(pageN.toInt(), animation)
+                        goToPage(logicalPage, animation)
                         container.isGone = true
                     }
                 }
@@ -2007,8 +2121,9 @@ class PDFViewer : AppCompatActivity() {
             if (!page.isNaN() && minPositionScrollbar != 0F) {
                 var pageToUse = 0F
                 if (page >= 0 && page <= totalPages) pageToUse = page
+                val viewerPageForPosition = mapLogicalPageToViewer(pageToUse.toInt()) + 1
                 var initialPosition =
-                    (((pageToUse - 1) * maxPositionScrollbar) / (totalPages - 1)) + minPositionScrollbar
+                    (((viewerPageForPosition - 1) * maxPositionScrollbar) / (totalPages - 1)) + minPositionScrollbar
                 if (initialPosition.isNaN()) initialPosition = 0F
                 button.animate().y(initialPosition).setDuration(animationDuration).start()
                 container.animate().y(initialPosition).setDuration(animationDuration).start()
@@ -2068,7 +2183,8 @@ class PDFViewer : AppCompatActivity() {
                         }
                         var pageN = ((totalPages + 1) * scrolled) / maxPositionScrollbarHorizontal
                         if (pageN > totalPages) pageN = totalPages.toFloat() - 1
-                        textPage.text = (pageN.toInt() + 1).toString()
+                        val logicalPage = mapViewerPageToLogical(pageN.toInt())
+                        textPage.text = (logicalPage + 1).toString()
                         container.isGone = false
                         //goToPage(pageN.toInt(), false)
                     }
@@ -2080,8 +2196,9 @@ class PDFViewer : AppCompatActivity() {
                         startX_moving = null
 
                         val pageN = ((totalPages + 1) * scrolled) / maxPositionScrollbarHorizontal
+                        val logicalPage = mapViewerPageToLogical(pageN.toInt())
 
-                        goToPage(pageN.toInt(), animation)
+                        goToPage(logicalPage, animation)
                         container.isGone = true
                     }
 
@@ -2093,8 +2210,9 @@ class PDFViewer : AppCompatActivity() {
                         startX_moving = null
 
                         val pageN = ((totalPages + 1) * scrolled) / maxPositionScrollbarHorizontal
+                        val logicalPage = mapViewerPageToLogical(pageN.toInt())
 
-                        goToPage(pageN.toInt(), animation)
+                        goToPage(logicalPage, animation)
                         container.isGone = true
                     }
                 }
@@ -2120,8 +2238,9 @@ class PDFViewer : AppCompatActivity() {
             if (!page.isNaN() && minPositionScrollbarHorizontal != 0F) {
                 var pageToUse = 0F
                 if (page >= 0 && page <= totalPages) pageToUse = page
+                val viewerPageForPosition = mapLogicalPageToViewer(pageToUse.toInt()) + 1
                 var initialPosition =
-                    (((pageToUse - 1) * maxPositionScrollbarHorizontal) / (totalPages + 1)) + minPositionScrollbarHorizontal
+                    (((viewerPageForPosition - 1) * maxPositionScrollbarHorizontal) / (totalPages + 1)) + minPositionScrollbarHorizontal
                 if (initialPosition.isNaN()) initialPosition = 0F
                 button.animate().x(initialPosition).setDuration(animationDuration).start()
                 container.animate().x(initialPosition).setDuration(animationDuration).start()
@@ -2205,8 +2324,8 @@ class PDFViewer : AppCompatActivity() {
             updateSearchStatus(finished)
             // Navigate to first result automatically
             if (results.isNotEmpty() && searchResultIndex == 0) {
-                if (pdfViewer.currentPage != results[0].pageIndex) {
-                    pdfViewer.jumpTo(results[0].pageIndex, true)
+                if (getCurrentLogicalPage() != results[0].pageIndex) {
+                    goToPage(results[0].pageIndex, true)
                 }
                 pdfViewer.invalidate()
             }
@@ -2253,7 +2372,7 @@ class PDFViewer : AppCompatActivity() {
         }
         updateSearchStatus(true)
         val page = searchResults[searchResultIndex].pageIndex
-        pdfViewer.jumpTo(page, true)
+        goToPage(page, true)
         pdfViewer.invalidate() // force redraw to update highlights
     }
 
@@ -2324,7 +2443,7 @@ class PDFViewer : AppCompatActivity() {
 
         if (nowActive) {
             updateSelectionBar()
-            ocrEngine.ensurePageIndexedAsync(pdfViewer.currentPage)
+            ocrEngine.ensurePageIndexedAsync(getCurrentLogicalPage())
 
             copyBtn.setOnClickListener {
                 textSelectionManager.copySelectedText()
