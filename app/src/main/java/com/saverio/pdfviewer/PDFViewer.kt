@@ -157,12 +157,12 @@ class PDFViewer : AppCompatActivity() {
         }
         val remainingDelayMs = topBarAutoHideDeadlineAtMs - SystemClock.uptimeMillis()
         if (remainingDelayMs > 0L) {
-            if (showingTopBar && !menuOpened && !searchPanelVisible) {
+            if (showingTopBar && !menuOpened && !searchPanelVisible && !isGoToDialogVisible()) {
                 topBarUiHandler.postDelayed(topBarAutoHideRunnable, remainingDelayMs)
             }
             return
         }
-        if (showingTopBar && !menuOpened && !searchPanelVisible) {
+        if (showingTopBar && !menuOpened && !searchPanelVisible && !isGoToDialogVisible()) {
             topBarAutoHideDeadlineAtMs = 0L
             hideTopBar(fullHiding = true)
         }
@@ -500,11 +500,7 @@ class PDFViewer : AppCompatActivity() {
         val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
         currentPage.setOnClickListener {
             if (findViewById<ConstraintLayout>(R.id.messageGoTo).isGone) {
-                val currentPosition1 = pdfViewer.positionOffset
-                Handler().postDelayed({
-                    val currentPosition2 = pdfViewer.positionOffset
-                    showGoToDialog(x = currentPosition1, y = currentPosition2)
-                }, 100)
+                showGoToDialog()
             } else hideGoToDialog()
             resetHideTopBarCounter()
         }
@@ -740,7 +736,7 @@ class PDFViewer : AppCompatActivity() {
             topBarAutoHideDeadlineAtMs = 0L
             return
         }
-        if (showingTopBar && !menuOpened && !searchPanelVisible) {
+        if (showingTopBar && !menuOpened && !searchPanelVisible && !isGoToDialogVisible()) {
             topBarAutoHideDeadlineAtMs = SystemClock.uptimeMillis() + topBarAutoHideDelayMs
             topBarUiHandler.postDelayed(topBarAutoHideRunnable, topBarAutoHideDelayMs)
         } else {
@@ -1719,6 +1715,11 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun showAllBookmarks(pathName: String) {
+        hideGoToDialog()
+        hideMenuPanel()
+        hideSearchPanel(clearState = false)
+        hideSelectionPanel()
+
         val pathNameTemp = getTheFileName(pathName, 0).toMD5() //file-id
         val databaseHandler = DatabaseHandler(this)
         val bookmarks = databaseHandler.getBookmarks(fileId = pathNameTemp)
@@ -2538,6 +2539,7 @@ class PDFViewer : AppCompatActivity() {
             if (getCurrentLogicalPage() == 0) showTopBar(showGoTop = false)
             else showTopBar()
 
+            cancelTopBarAutoHideCountdown()
             hideMessageGuide1()
             closeOverlayPanelsExcept(OverlayPanel.GOTO)
 
@@ -3187,7 +3189,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun showCompactTopBar(force: Boolean = false) {
-        if (!force && (menuOpened || searchPanelVisible)) return
+        if (!force && (menuOpened || searchPanelVisible || isGoToDialogVisible())) return
 
         val toolbar: View = findViewById(R.id.toolbar)
         val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
@@ -3553,11 +3555,19 @@ class PDFViewer : AppCompatActivity() {
         }
     }
 
+    private fun isGoToDialogVisible(): Boolean {
+        return !findViewById<ConstraintLayout>(R.id.messageGoTo).isGone
+    }
+
     fun hideGoToDialog() {
         val message: ConstraintLayout = findViewById(R.id.messageGoTo)
         val arrow: View = findViewById(R.id.arrowMessageGoTo)
+        val wasVisible = !message.isGone
         message.isGone = true
         arrow.isGone = true
+        if (wasVisible) {
+            restartTopBarAutoHideCountdown()
+        }
     }
 
     fun showMenuPanel() {
