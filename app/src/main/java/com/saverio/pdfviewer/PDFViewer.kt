@@ -172,6 +172,9 @@ class PDFViewer : AppCompatActivity() {
     private var lastGoToBottomIconState: Boolean? = null
     private var skipNextInitialPageScrollHide = false
     private var goToDialogShownAtMs: Long = 0
+    private var suppressPageCallbacksDuringRestore = false
+    private var pendingRestoredLogicalPage: Int? = null
+    private var pendingScrollbarSyncProgress: Float? = null
     private val goToUiHandler by lazy { Handler(Looper.getMainLooper()) }
     private val goToVisibilityDebounceMs = 60L
     private val goToVisibilityRunnable = Runnable {
@@ -310,6 +313,7 @@ class PDFViewer : AppCompatActivity() {
     var minPositionScrollbarHorizontal: Float = 0F
     var maxPositionScrollbarHorizontal: Float = 0F
     var startX = 0F
+    private var lastLogicalScrollProgress = 0F
     private val scrollbarSafetyMarginPx by lazy { dpToPx(6F).toFloat() }
     private val scrollbarMinimumLengthPx by lazy { dpToPx(50F) }
 
@@ -948,6 +952,8 @@ class PDFViewer : AppCompatActivity() {
             loadCurrentPdfOptions()
             applyFullscreenState(isFullscreenEnabled, persist = false, showCompactBar = false)
             skipNextInitialPageScrollHide = true
+            suppressPageCallbacksDuringRestore = true
+            pendingRestoredLogicalPage = null
             // Keep gesture and button zoom limits consistent until page metrics are available.
             pdfViewer.setMinZoom(0.1f)
             pdfViewer.setMidZoom(2.5f)
@@ -978,7 +984,16 @@ class PDFViewer : AppCompatActivity() {
                     run {
                         totalPages = pageCount
                         updateZoomBoundsForCurrentOrientation(page)
+                        rememberLogicalScrollProgressFromViewerPosition(page.toFloat())
                         val logicalPage = mapViewerPageToLogical(page)
+                        if (suppressPageCallbacksDuringRestore) {
+                            val expectedLogicalPage = pendingRestoredLogicalPage
+                            if (expectedLogicalPage == null || logicalPage != expectedLogicalPage) {
+                                return@run
+                            }
+                            suppressPageCallbacksDuringRestore = false
+                            pendingRestoredLogicalPage = null
+                        }
                         updatePdfPage(fileId, logicalPage)
                         if (logicalPage == 0) {
                             showTopBar(showGoTop = false)
@@ -992,6 +1007,8 @@ class PDFViewer : AppCompatActivity() {
                     }
                 }
                 .onPageScroll { page, positionOffset ->
+                    rememberLogicalScrollProgressFromViewerPosition(page + positionOffset)
+                    updateScrollbarThumbFromCurrentProgress()
                     if (skipNextInitialPageScrollHide) {
                         skipNextInitialPageScrollHide = false
                     } else if (getCurrentLogicalPage() == 0) {
@@ -1079,6 +1096,10 @@ class PDFViewer : AppCompatActivity() {
                     keepTopBarVisibleForOpenError = false
                     totalPages = nbPages
                     if (lastPosition >= totalPages) lastPosition = (totalPages - 1)
+                    val targetLogicalPage =
+                        (pendingRestoredLogicalPage ?: lastPosition)
+                            .coerceIn(0, (totalPages - 1).coerceAtLeast(0))
+                    pendingRestoredLogicalPage = targetLogicalPage
 
                     // Notify OCR engine of the newly opened document
                     if (uri != null) ocrEngine.open(uri, totalPages)
@@ -1088,7 +1109,7 @@ class PDFViewer : AppCompatActivity() {
 
                     refreshResidualViewMetrics()
 
-                    updatePdfPage(fileId, lastPosition, persistImmediately = true)
+                    updatePdfPage(fileId, targetLogicalPage, persistImmediately = true)
                     saveCurrentPdfOptions()
                     if (totalPages == 1) {
                         isSupportedGoTop = false
@@ -1100,7 +1121,7 @@ class PDFViewer : AppCompatActivity() {
                         isSupportedGoTop = true
                         isSupportedScrollbarButton = true
                     }
-                    val targetViewerPage = mapLogicalPageToViewer(lastPosition)
+                    val targetViewerPage = mapLogicalPageToViewer(targetLogicalPage)
                     pdfViewer.jumpTo(targetViewerPage, false)
                     updateZoomBoundsForCurrentOrientation(targetViewerPage)
                     if (hasExplicitZoomPreference()) {
@@ -1119,19 +1140,39 @@ class PDFViewer : AppCompatActivity() {
                     }
                     setCurrentZoomStatus()
                     configureMenuPanelRowsForOrientation()
-                    showTopBar(showGoTop = lastPosition > 0)
+                    showTopBar(showGoTop = targetLogicalPage > 0)
 
                     checkFirstTimeShowMessageGuide()
 
-                    setScrollBarSide()
-                    setScrollBarBottom()
-                    updateScrollbarButtonsVisibility()
+                    val progressToSync = pendingScrollbarSyncProgress
+                        ?: normalizeLogicalProgressFromPage(targetLogicalPage)
+                    pendingScrollbarSyncProgress = null
+                    synchronizePageAndScrollbarUi(
+                        logicalPage = logicalPageFromProgress(progressToSync),
+                        updatePageCounter = true,
+                        postToLayout = true
+                    )
+                    findViewById<View>(R.id.pdfViewerContainer).post {
+                        if (suppressPageCallbacksDuringRestore) {
+                            suppressPageCallbacksDuringRestore = false
+                            pendingRestoredLogicalPage = null
+                            val settledLogicalPage = mapViewerPageToLogical(pdfViewer.currentPage)
+                            updatePdfPage(fileId, settledLogicalPage)
+                            synchronizePageAndScrollbarUi(
+                                settledLogicalPage,
+                                updatePageCounter = true
+                            )
+                        }
+                    }
 
                     // Force an immediate redraw so visual changes (night mode,
                     // zoom, scroll direction, single-page, …) are rendered
                     // straight away without requiring a scroll gesture first.
                     pdfViewer.post { pdfViewer.invalidate() }
                 }.onError(OnErrorListener {
+                    suppressPageCallbacksDuringRestore = false
+                    pendingRestoredLogicalPage = null
+                    pendingScrollbarSyncProgress = null
                     if (it.message.toString()
                             .contains("Password required or incorrect password.")
                     ) {
@@ -1165,6 +1206,9 @@ class PDFViewer : AppCompatActivity() {
                     //PdfPasswordException
                 }).load()
         } catch (e: Exception) {
+            suppressPageCallbacksDuringRestore = false
+            pendingRestoredLogicalPage = null
+            pendingScrollbarSyncProgress = null
             println("Exception 1: ${e.message}")
         }
     }
@@ -1345,9 +1389,11 @@ class PDFViewer : AppCompatActivity() {
             val viewerPage = mapLogicalPageToViewer(savedCurrentPage)
             updateZoomBoundsForCurrentOrientation(viewerPage)
             fitPageForCurrentOrientation(viewerPage)
-            refreshResidualViewMetrics()
-            setScrollBarSide()
-            setScrollBarBottom()
+            synchronizePageAndScrollbarUi(
+                logicalPage = savedPageToUse,
+                updatePageCounter = totalPages > 0,
+                postToLayout = true
+            )
 
             //restore the visited page
             goToPage(savedPageToUse, animation = true)
@@ -1454,17 +1500,71 @@ class PDFViewer : AppCompatActivity() {
         }
     }
 
-    private fun updateCurrentPageUi(pathName: String, currentPage: Int) {
+    private fun getCurrentDocumentPage(): Int {
+        if (totalPages <= 0) return 0
+        return getCurrentLogicalPage().coerceIn(0, totalPages - 1)
+    }
+
+    private fun buildPageCounterText(logicalPage: Int): String {
+        if (totalPages <= 0) return "0/0"
+        val visualPage = logicalPage.coerceIn(0, totalPages - 1) + 1
+        return "$visualPage/$totalPages"
+    }
+
+    private fun applyPageNumberUi(logicalPage: Int) {
         val currentPageText: TextView = findViewById(R.id.totalPagesToolbar)
-        currentPageText.text = (currentPage + 1).toString() + "/" + totalPages.toString()
+        currentPageText.text = buildPageCounterText(logicalPage)
         currentPageText.isGone = false
+    }
+
+    private fun synchronizePageAndScrollbarUi(
+        logicalPage: Int,
+        updatePageCounter: Boolean = true,
+        postToLayout: Boolean = false
+    ) {
+        val normalizedProgress = normalizeLogicalProgressFromPage(logicalPage)
+        val work = {
+            if (updatePageCounter) {
+                applyPageNumberUi(logicalPage)
+            }
+            recalculateScrollbarButtonsForLogicalProgress(normalizedProgress)
+        }
+
+        if (postToLayout) {
+            findViewById<View>(R.id.pdfViewerContainer).post { work() }
+        } else {
+            work()
+        }
+    }
+
+    private fun updateScrollbarThumbFromCurrentProgress() {
+        if (totalPages <= 1) return
+        val clampedProgress = lastLogicalScrollProgress.coerceIn(0F, 1F)
+        if (horizontal) {
+            val button: TextView = findViewById(R.id.buttonBottomScroll)
+            val container: ConstraintLayout = findViewById(R.id.containerBottomScroll)
+            button.layoutParams.height = 30
+            applyHorizontalScrollbarThumbLength(button)
+            button.requestLayout()
+            placeHorizontalScrollbarThumbByLogicalProgress(button, container, clampedProgress)
+        } else {
+            val button: TextView = findViewById(R.id.buttonSideScroll)
+            val container: ConstraintLayout = findViewById(R.id.containerSideScroll)
+            button.layoutParams.width = 30
+            applyVerticalScrollbarThumbLength(button)
+            button.requestLayout()
+            placeVerticalScrollbarThumbByLogicalProgress(button, container, clampedProgress)
+        }
+    }
+
+    private fun updateCurrentPageUi(pathName: String, currentPage: Int) {
+        applyPageNumberUi(currentPage)
         savedCurrentPageOld = savedCurrentPage
         savedCurrentPage = currentPage
+        lastLogicalScrollProgress = normalizeLogicalProgressFromPage(currentPage)
         //println("current page: $savedCurrentPage")
         updateButtonBookmark(pathName = pathName, currentPage = currentPage)
-
-        if (!horizontal) setPositionScrollbarByPage((currentPage + 1).toFloat())
-        else setPositionBottomScrollbarByPage((currentPage + 1).toFloat())
+        synchronizePageAndScrollbarUi(currentPage, updatePageCounter = false)
     }
 
     private fun persistCurrentPageNow(pathName: String, currentPage: Int) {
@@ -2395,7 +2495,7 @@ class PDFViewer : AppCompatActivity() {
             val buttonGoTo: TextView = findViewById(R.id.buttonGoTo)
 
             textAllPages.text = "/ $totalPages"
-            textbox.setText((getCurrentLogicalPage() + 1).toString())
+            textbox.setText((getCurrentDocumentPage() + 1).toString())
 
             val message: ConstraintLayout = findViewById(R.id.messageGoTo)
             val arrow: View = findViewById(R.id.arrowMessageGoTo)
@@ -2453,20 +2553,21 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun goToFeature(textbox: EditText) {
-        var valueToGo = getCurrentLogicalPage() + 1
+        var visualPageToGo = getCurrentDocumentPage() + 1
 
         val valueTemp = textbox.text.toString().replace(" ", "")
         if (valueTemp != "" && valueTemp != "-") {
             if (valueTemp.toInt() < 0) {
-                valueToGo = 0
+                visualPageToGo = 1
             } else if (valueTemp.toInt() > totalPages) {
-                valueToGo = totalPages
+                visualPageToGo = totalPages
             } else {
-                valueToGo = valueTemp.toInt() - 1
+                visualPageToGo = valueTemp.toInt()
             }
         }
         try {
-            goToPage(valueToGo, true)
+            val targetLogicalPage = (visualPageToGo - 1).coerceIn(0, totalPages - 1)
+            goToPage(targetLogicalPage, true)
             textbox.clearFocus()
         } catch (e: Exception) {
             println("Exception 11")
@@ -2475,30 +2576,48 @@ class PDFViewer : AppCompatActivity() {
 
     fun goToPage(valueToGo: Int, animation: Boolean = true) {
         if (totalPages <= 0) return
-        val target = mapLogicalPageToViewer(valueToGo.coerceIn(0, totalPages - 1))
+        val logicalTarget = valueToGo.coerceIn(0, totalPages - 1)
+        if (suppressPageCallbacksDuringRestore) {
+            pendingRestoredLogicalPage = logicalTarget
+            pendingScrollbarSyncProgress = normalizeLogicalProgressFromPage(logicalTarget)
+        }
+        lastLogicalScrollProgress = normalizeLogicalProgressFromPage(logicalTarget)
+        val target = mapLogicalPageToViewer(logicalTarget)
         pdfViewer.jumpTo(target, animation)
+        updatePdfPage(fileId, logicalTarget)
         if (dialog != null) dialog!!.dismiss()
     }
 
     private fun recalculateScrollbarButtonsForLogicalPage(logicalPage: Int) {
+        recalculateScrollbarButtonsForLogicalProgress(normalizeLogicalProgressFromPage(logicalPage))
+    }
+
+    private fun recalculateScrollbarButtonsForLogicalProgress(logicalProgress: Float) {
         if (totalPages <= 1) {
             updateScrollbarButtonsVisibility()
             return
         }
         if (!refreshResidualViewMetrics()) return
 
-        val clampedLogicalPage = logicalPage.coerceIn(0, totalPages - 1)
-        setScrollBarSide(animation = false)
-        setScrollBarBottom(animation = false)
-        val pageForThumb = clampedLogicalPage + 1F
+        // Keep listeners stable; only recompute size/position here.
+        val pageForThumb = logicalPageFromProgress(logicalProgress) + 1F
         setPositionScrollbarByPage(pageForThumb)
         setPositionBottomScrollbarByPage(pageForThumb)
         updateScrollbarButtonsVisibility()
     }
 
     private fun setScrollMode(mode: ScrollMode, reloadPdf: Boolean = true) {
-        val logicalPageBeforeModeChange =
-            if (totalPages > 0) savedCurrentPage.coerceIn(0, totalPages - 1) else 0
+        val logicalProgressBeforeModeChange =
+            if (totalPages > 1) {
+                val fallback = normalizeLogicalProgressFromPage(savedCurrentPage)
+                if (lastLogicalScrollProgress.isFinite()) {
+                    lastLogicalScrollProgress.coerceIn(0F, 1F)
+                } else {
+                    fallback
+                }
+            } else {
+                0F
+            }
 
         scrollMode = mode
         horizontal =
@@ -2513,12 +2632,18 @@ class PDFViewer : AppCompatActivity() {
             saveCurrentPdfOptions()
         }
 
-        // Recompute thumb position immediately for the selected direction.
-        recalculateScrollbarButtonsForLogicalPage(logicalPageBeforeModeChange)
-
         if (reloadPdf && uriOpened != null) {
+            pendingScrollbarSyncProgress = logicalProgressBeforeModeChange
             selectPdfFromURI(uriOpened)
+            return
         }
+
+        // Recompute page/scrollbar UI immediately only when no reload is needed.
+        val logicalPageToSync = logicalPageFromProgress(logicalProgressBeforeModeChange)
+        synchronizePageAndScrollbarUi(
+            logicalPage = logicalPageToSync,
+            updatePageCounter = totalPages > 0
+        )
     }
 
     private fun loadScrollModePreference() {
@@ -2890,17 +3015,13 @@ class PDFViewer : AppCompatActivity() {
         minPositionScrollbar = 0F
         minPositionScrollbarHorizontal = 0F
         if (force || totalPages > 0) {
-            root.post {
-                if (!refreshResidualViewMetrics()) return@post
-                setScrollBarSide(animation = false)
-                setScrollBarBottom(animation = false)
-                if (totalPages > 0) {
-                    val currentLogicalPage = getCurrentLogicalPage() + 1F
-                    setPositionScrollbarByPage(currentLogicalPage)
-                    setPositionBottomScrollbarByPage(currentLogicalPage)
-                }
-                updateScrollbarButtonsVisibility()
-            }
+            val logicalPageToSync =
+                if (totalPages > 0) getCurrentLogicalPage() else savedCurrentPage.coerceAtLeast(0)
+            synchronizePageAndScrollbarUi(
+                logicalPage = logicalPageToSync,
+                updatePageCounter = totalPages > 0,
+                postToLayout = true
+            )
         }
     }
 
@@ -2914,41 +3035,34 @@ class PDFViewer : AppCompatActivity() {
         val toolbarH = toolbarContainer.measuredHeight
         if (fullW <= 0 || fullH <= 0) return false
 
-        val residualW = fullW
-        val residualH = (fullH - toolbarH).coerceAtLeast(0)
+        val residualW = fullW.coerceAtLeast(1)
+        val verticalTrackStart = buttonSideScroll.top.toFloat().coerceAtLeast(0F)
+        val verticalTrackBoundary = if (isBottomToolbarPlacement()) {
+            (toolbarContainer.top.toFloat() - scrollbarSafetyMarginPx).coerceAtLeast(
+                verticalTrackStart
+            )
+        } else {
+            fullH.toFloat()
+        }
+        val residualH = (verticalTrackBoundary - verticalTrackStart).roundToInt().coerceAtLeast(1)
 
-        val currentStatus =
-            if (resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-                residualViewConfiguration["landscape"] = hashMapOf(
-                    "width" to residualW,
-                    "height" to residualH
-                )
-                residualViewConfiguration["portrait"] = hashMapOf(
-                    "width" to residualH + toolbarH * (3 / 2),
-                    "height" to residualW - toolbarH * 2
-                )
-                "landscape"
-            } else {
-                residualViewConfiguration["landscape"] = hashMapOf(
-                    "width" to residualH + toolbarH,
-                    "height" to residualW - toolbarH * 2
-                )
-                residualViewConfiguration["portrait"] = hashMapOf(
-                    "width" to residualW - toolbarH / 2,
-                    "height" to residualH
-                )
-                "portrait"
-            }
+        residualViewConfiguration["landscape"] = hashMapOf(
+            "width" to residualW,
+            "height" to residualH
+        )
+        residualViewConfiguration["portrait"] = hashMapOf(
+            "width" to residualW,
+            "height" to residualH
+        )
 
         residualViewConfigurationConfigurated = true
-        minPositionScrollbar = buttonSideScroll.y
-        maxPositionScrollbar =
-            residualViewConfiguration[currentStatus]!!["height"]!!.toFloat() - minPositionScrollbar
+        minPositionScrollbar = verticalTrackStart
+        maxPositionScrollbar = residualH.toFloat().coerceAtLeast(1F)
         startY = minPositionScrollbar
 
-        minPositionScrollbarHorizontal = buttonBottomScroll.x
+        minPositionScrollbarHorizontal = buttonBottomScroll.left.toFloat().coerceAtLeast(0F)
         maxPositionScrollbarHorizontal =
-            residualViewConfiguration[currentStatus]!!["width"]!!.toFloat() - minPositionScrollbarHorizontal
+            (residualW.toFloat() - minPositionScrollbarHorizontal).coerceAtLeast(1F)
         startX = minPositionScrollbarHorizontal
 
         return true
@@ -3051,9 +3165,8 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun getVerticalScrollbarTrackMetrics(button: TextView): ScrollbarTrackMetrics {
-        val bottomSafety = if (isBottomToolbarPlacement()) scrollbarSafetyMarginPx else 0F
         val trackStart = minPositionScrollbar
-        val trackEnd = (maxPositionScrollbar + minPositionScrollbar - button.height - bottomSafety)
+        val trackEnd = (trackStart + maxPositionScrollbar - button.height)
             .coerceAtLeast(trackStart)
         return ScrollbarTrackMetrics(
             start = trackStart,
@@ -3064,13 +3177,75 @@ class PDFViewer : AppCompatActivity() {
 
     private fun getHorizontalScrollbarTrackMetrics(button: TextView): ScrollbarTrackMetrics {
         val trackStart = minPositionScrollbarHorizontal
-        val trackEnd = (maxPositionScrollbarHorizontal + minPositionScrollbarHorizontal - button.width)
+        val trackEnd = (trackStart + maxPositionScrollbarHorizontal - button.width)
             .coerceAtLeast(trackStart)
         return ScrollbarTrackMetrics(
             start = trackStart,
             end = trackEnd,
             travelLength = (trackEnd - trackStart).coerceAtLeast(1F)
         )
+    }
+
+    private fun normalizeLogicalProgressFromPage(logicalPage: Int): Float {
+        if (totalPages <= 1) return 0F
+        val clampedPage = logicalPage.coerceIn(0, totalPages - 1)
+        return clampedPage.toFloat() / (totalPages - 1).toFloat()
+    }
+
+    private fun normalizeLogicalProgressFromViewerPosition(viewerPosition: Float): Float {
+        if (totalPages <= 1) return 0F
+        val maxPageIndex = (totalPages - 1).toFloat().coerceAtLeast(1F)
+        val viewerProgress = (viewerPosition / maxPageIndex).coerceIn(0F, 1F)
+        return if (reverseScroll) 1F - viewerProgress else viewerProgress
+    }
+
+    private fun viewerProgressFromLogicalProgress(logicalProgress: Float): Float {
+        val clampedProgress = logicalProgress.coerceIn(0F, 1F)
+        return if (reverseScroll) 1F - clampedProgress else clampedProgress
+    }
+
+    private fun logicalPageFromProgress(logicalProgress: Float): Int {
+        if (totalPages <= 1) return 0
+        return (logicalProgress.coerceIn(0F, 1F) * (totalPages - 1)).roundToInt()
+            .coerceIn(0, totalPages - 1)
+    }
+
+    private fun rememberLogicalScrollProgressFromViewerPosition(viewerPosition: Float) {
+        lastLogicalScrollProgress = normalizeLogicalProgressFromViewerPosition(viewerPosition)
+    }
+
+    private fun placeVerticalScrollbarThumbByLogicalProgress(
+        button: TextView,
+        container: ConstraintLayout,
+        logicalProgress: Float,
+        animationDuration: Long = 0L
+    ): Boolean {
+        if (totalPages <= 1) return false
+        if (maxPositionScrollbar <= 0F && !refreshResidualViewMetrics()) return false
+        val trackMetrics = getVerticalScrollbarTrackMetrics(button)
+        val viewerProgress = viewerProgressFromLogicalProgress(logicalProgress)
+        val targetY = (trackMetrics.start + (trackMetrics.travelLength * viewerProgress))
+            .coerceIn(trackMetrics.start, trackMetrics.end)
+        button.animate().y(targetY).setDuration(animationDuration).start()
+        alignSideScrollLabelToThumb(container, button, targetY, animationDuration)
+        return true
+    }
+
+    private fun placeHorizontalScrollbarThumbByLogicalProgress(
+        button: TextView,
+        container: ConstraintLayout,
+        logicalProgress: Float,
+        animationDuration: Long = 0L
+    ): Boolean {
+        if (totalPages <= 1) return false
+        if (maxPositionScrollbarHorizontal <= 0F && !refreshResidualViewMetrics()) return false
+        val trackMetrics = getHorizontalScrollbarTrackMetrics(button)
+        val viewerProgress = viewerProgressFromLogicalProgress(logicalProgress)
+        val targetX = (trackMetrics.start + (trackMetrics.travelLength * viewerProgress))
+            .coerceIn(trackMetrics.start, trackMetrics.end)
+        button.animate().x(targetX).setDuration(animationDuration).start()
+        alignBottomScrollLabelToThumb(container, button, targetX, animationDuration)
+        return true
     }
 
     private fun alignSideScrollLabelToThumb(
@@ -3761,18 +3936,22 @@ class PDFViewer : AppCompatActivity() {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         selectedLogicalPage = getCurrentLogicalPage()
+                        lastLogicalScrollProgress =
+                            normalizeLogicalProgressFromPage(selectedLogicalPage)
                         textPage.text = (selectedLogicalPage + 1).toString()
                         touchOffsetY = event.rawY - view.y
                     }
 
                     MotionEvent.ACTION_MOVE -> {
-                        if (totalPages <= 1 || maxPositionScrollbar <= 0F) return@OnTouchListener true
+                        if (totalPages <= 1) return@OnTouchListener true
+                        if (maxPositionScrollbar <= 0F && !refreshResidualViewMetrics()) {
+                            return@OnTouchListener true
+                        }
                         hideTopBar(fullHiding = false)
 
                         button.layoutParams.width = 60;
                         applyVerticalScrollbarThumbLength(button)
-                        button.isGone = true
-                        button.isGone = false
+                        button.requestLayout()
                         val trackMetrics = getVerticalScrollbarTrackMetrics(button)
 
                         if (touchOffsetY == null) touchOffsetY = event.rawY - view.y
@@ -3787,20 +3966,19 @@ class PDFViewer : AppCompatActivity() {
                                 0F,
                                 1F
                             )
-                        val pageN = (progress * (totalPages - 1)).roundToInt()
-                            .coerceIn(0, totalPages - 1)
-                        val logicalPage = mapViewerPageToLogical(pageN)
+                        val logicalProgress = if (reverseScroll) 1F - progress else progress
+                        val logicalPage = logicalPageFromProgress(logicalProgress)
+                        lastLogicalScrollProgress = logicalProgress
                         selectedLogicalPage = logicalPage
                         textPage.text = (logicalPage + 1).toString()
                         container.isGone = false
                     }
 
                     MotionEvent.ACTION_UP -> {
-                        if (totalPages <= 1 || maxPositionScrollbar <= 0F) return@OnTouchListener true
+                        if (totalPages <= 1) return@OnTouchListener true
                         button.layoutParams.width = 30;
                         applyVerticalScrollbarThumbLength(button)
-                        button.isGone = true
-                        button.isGone = false
+                        button.requestLayout()
                         touchOffsetY = null
 
                         goToPage(selectedLogicalPage, animation)
@@ -3808,11 +3986,10 @@ class PDFViewer : AppCompatActivity() {
                     }
 
                     MotionEvent.ACTION_CANCEL -> {
-                        if (totalPages <= 1 || maxPositionScrollbar <= 0F) return@OnTouchListener true
+                        if (totalPages <= 1) return@OnTouchListener true
                         button.layoutParams.width = 30;
                         applyVerticalScrollbarThumbLength(button)
-                        button.isGone = true
-                        button.isGone = false
+                        button.requestLayout()
                         touchOffsetY = null
 
                         goToPage(selectedLogicalPage, animation)
@@ -3836,24 +4013,22 @@ class PDFViewer : AppCompatActivity() {
             val container: ConstraintLayout = findViewById(R.id.containerSideScroll)
             button.layoutParams.width = 30;
             applyVerticalScrollbarThumbLength(button)
-            button.isGone = true
-            button.isGone = false
+            button.requestLayout()
             if (page.isNaN() || totalPages <= 1) return
-            if (maxPositionScrollbar <= 0F && !refreshResidualViewMetrics()) return
-
-            var pageToUse = 0F
-            if (page >= 0 && page <= totalPages) pageToUse = page
-            val logicalPageForPosition = (pageToUse.toInt() - 1).coerceIn(0, totalPages - 1)
-            val viewerPageForPosition = mapLogicalPageToViewer(logicalPageForPosition) + 1
-            val trackMetrics = getVerticalScrollbarTrackMetrics(button)
-            if (trackMetrics.travelLength <= 0F) return
-
-            var initialPosition =
-                (((viewerPageForPosition - 1) * trackMetrics.travelLength) / (totalPages - 1)) + trackMetrics.start
-            if (initialPosition.isNaN()) initialPosition = 0F
-            button.animate().y(initialPosition).setDuration(animationDuration).start()
-            alignSideScrollLabelToThumb(container, button, initialPosition, animationDuration)
-            textPage.text = pageToUse.toInt().toString()
+            val clampedPage = page.coerceIn(1F, totalPages.toFloat())
+            val logicalProgress =
+                ((clampedPage - 1F) / (totalPages - 1).toFloat()).coerceIn(0F, 1F)
+            if (!placeVerticalScrollbarThumbByLogicalProgress(
+                    button = button,
+                    container = container,
+                    logicalProgress = logicalProgress,
+                    animationDuration = animationDuration
+                )
+            ) {
+                return
+            }
+            lastLogicalScrollProgress = logicalProgress
+            textPage.text = (logicalPageFromProgress(logicalProgress) + 1).toString()
         }
     }
 
@@ -3872,6 +4047,8 @@ class PDFViewer : AppCompatActivity() {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         selectedLogicalPage = getCurrentLogicalPage()
+                        lastLogicalScrollProgress =
+                            normalizeLogicalProgressFromPage(selectedLogicalPage)
                         textPage.text = (selectedLogicalPage + 1).toString()
                         touchOffsetX = event.rawX - view.x
                     }
@@ -3885,8 +4062,7 @@ class PDFViewer : AppCompatActivity() {
 
                         button.layoutParams.height = 60;
                         applyHorizontalScrollbarThumbLength(button)
-                        button.isGone = true
-                        button.isGone = false
+                        button.requestLayout()
                         val trackMetrics = getHorizontalScrollbarTrackMetrics(button)
                         if (trackMetrics.travelLength <= 0F) return@OnTouchListener true
 
@@ -3902,9 +4078,9 @@ class PDFViewer : AppCompatActivity() {
                                 0F,
                                 1F
                             )
-                        val pageN = (progress * (totalPages - 1)).roundToInt()
-                            .coerceIn(0, totalPages - 1)
-                        val logicalPage = mapViewerPageToLogical(pageN)
+                        val logicalProgress = if (reverseScroll) 1F - progress else progress
+                        val logicalPage = logicalPageFromProgress(logicalProgress)
+                        lastLogicalScrollProgress = logicalProgress
                         selectedLogicalPage = logicalPage
                         textPage.text = (logicalPage + 1).toString()
                         container.isGone = false
@@ -3914,8 +4090,7 @@ class PDFViewer : AppCompatActivity() {
                         if (totalPages <= 1) return@OnTouchListener true
                         button.layoutParams.height = 30;
                         applyHorizontalScrollbarThumbLength(button)
-                        button.isGone = true
-                        button.isGone = false
+                        button.requestLayout()
                         touchOffsetX = null
 
                         goToPage(selectedLogicalPage, animation)
@@ -3926,8 +4101,7 @@ class PDFViewer : AppCompatActivity() {
                         if (totalPages <= 1) return@OnTouchListener true
                         button.layoutParams.height = 30;
                         applyHorizontalScrollbarThumbLength(button)
-                        button.isGone = true
-                        button.isGone = false
+                        button.requestLayout()
                         touchOffsetX = null
 
                         goToPage(selectedLogicalPage, animation)
@@ -3951,24 +4125,22 @@ class PDFViewer : AppCompatActivity() {
             val container: ConstraintLayout = findViewById(R.id.containerBottomScroll)
             button.layoutParams.height = 30;
             applyHorizontalScrollbarThumbLength(button)
-            button.isGone = true
-            button.isGone = false
+            button.requestLayout()
             if (page.isNaN() || totalPages <= 1) return
-            if (maxPositionScrollbarHorizontal <= 0F && !refreshResidualViewMetrics()) return
-
-            var pageToUse = 0F
-            if (page >= 0 && page <= totalPages) pageToUse = page
-            val logicalPageForPosition = (pageToUse.toInt() - 1).coerceIn(0, totalPages - 1)
-            val viewerPageForPosition = mapLogicalPageToViewer(logicalPageForPosition) + 1
-            val trackMetrics = getHorizontalScrollbarTrackMetrics(button)
-            if (trackMetrics.travelLength <= 0F) return
-
-            var initialPosition =
-                (((viewerPageForPosition - 1) * trackMetrics.travelLength) / (totalPages - 1)) + trackMetrics.start
-            if (initialPosition.isNaN()) initialPosition = 0F
-            button.animate().x(initialPosition).setDuration(animationDuration).start()
-            alignBottomScrollLabelToThumb(container, button, initialPosition, animationDuration)
-            textPage.text = pageToUse.toInt().toString()
+            val clampedPage = page.coerceIn(1F, totalPages.toFloat())
+            val logicalProgress =
+                ((clampedPage - 1F) / (totalPages - 1).toFloat()).coerceIn(0F, 1F)
+            if (!placeHorizontalScrollbarThumbByLogicalProgress(
+                    button = button,
+                    container = container,
+                    logicalProgress = logicalProgress,
+                    animationDuration = animationDuration
+                )
+            ) {
+                return
+            }
+            lastLogicalScrollProgress = logicalProgress
+            textPage.text = (logicalPageFromProgress(logicalProgress) + 1).toString()
         }
     }
 
