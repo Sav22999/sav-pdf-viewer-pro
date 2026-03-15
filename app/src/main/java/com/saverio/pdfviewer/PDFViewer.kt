@@ -171,6 +171,7 @@ class PDFViewer : AppCompatActivity() {
     private var lastGoToVisibleState: Boolean? = null
     private var lastGoToBottomIconState: Boolean? = null
     private var skipNextInitialPageScrollHide = false
+    private var goToDialogShownAtMs: Long = 0
     private val goToUiHandler by lazy { Handler(Looper.getMainLooper()) }
     private val goToVisibilityDebounceMs = 60L
     private val goToVisibilityRunnable = Runnable {
@@ -999,7 +1000,9 @@ class PDFViewer : AppCompatActivity() {
                     } else {
                         hideTopBar(fullHiding = false)
                     }
-                    hideGoToDialog()
+                    if (SystemClock.uptimeMillis() - goToDialogShownAtMs > 500) {
+                        hideGoToDialog()
+                    }
                     hideMenuPanel()
 
                     updateScrollbarButtonsVisibility()
@@ -2398,6 +2401,7 @@ class PDFViewer : AppCompatActivity() {
             val arrow: View = findViewById(R.id.arrowMessageGoTo)
             message.isGone = false
             arrow.isGone = false
+            goToDialogShownAtMs = SystemClock.uptimeMillis()
 
             val pageNumberTextViewToolbar: TextView = findViewById(R.id.totalPagesToolbar)
             pageNumberTextViewToolbar.isGone = false
