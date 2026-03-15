@@ -174,6 +174,7 @@ class PDFViewer : AppCompatActivity() {
     private var goToDialogShownAtMs: Long = 0
     private var suppressPageCallbacksDuringRestore = false
     private var pendingRestoredLogicalPage: Int? = null
+    private var pendingProgrammaticLogicalPage: Int? = null
     private var pendingScrollbarSyncProgress: Float? = null
     private val goToUiHandler by lazy { Handler(Looper.getMainLooper()) }
     private val goToVisibilityDebounceMs = 60L
@@ -986,6 +987,13 @@ class PDFViewer : AppCompatActivity() {
                         updateZoomBoundsForCurrentOrientation(page)
                         rememberLogicalScrollProgressFromViewerPosition(page.toFloat())
                         val logicalPage = mapViewerPageToLogical(page)
+                        val pendingProgrammaticPage = pendingProgrammaticLogicalPage
+                        if (pendingProgrammaticPage != null) {
+                            if (logicalPage != pendingProgrammaticPage) {
+                                return@run
+                            }
+                            pendingProgrammaticLogicalPage = null
+                        }
                         if (suppressPageCallbacksDuringRestore) {
                             val expectedLogicalPage = pendingRestoredLogicalPage
                             if (expectedLogicalPage == null || logicalPage != expectedLogicalPage) {
@@ -1007,7 +1015,12 @@ class PDFViewer : AppCompatActivity() {
                     }
                 }
                 .onPageScroll { page, positionOffset ->
-                    rememberLogicalScrollProgressFromViewerPosition(page + positionOffset)
+                    val pendingProgrammaticPage = pendingProgrammaticLogicalPage
+                    if (pendingProgrammaticPage != null) {
+                        lastLogicalScrollProgress = normalizeLogicalProgressFromPage(pendingProgrammaticPage)
+                    } else {
+                        rememberLogicalScrollProgressFromViewerPosition(page + positionOffset)
+                    }
                     updateScrollbarThumbFromCurrentProgress()
                     if (skipNextInitialPageScrollHide) {
                         skipNextInitialPageScrollHide = false
@@ -1502,12 +1515,51 @@ class PDFViewer : AppCompatActivity() {
 
     private fun getCurrentDocumentPage(): Int {
         if (totalPages <= 0) return 0
-        return getCurrentLogicalPage().coerceIn(0, totalPages - 1)
+        return getCurrentVisualPageNumber() - 1
+    }
+
+    private fun isVisualOrderReversed(): Boolean {
+        return reverseScroll
+    }
+
+    private fun viewerPageToVisualPageNumber(viewerPage: Int): Int {
+        if (totalPages <= 0) return 1
+        val clampedViewerPage = viewerPage.coerceIn(0, totalPages - 1)
+        return if (isVisualOrderReversed()) {
+            totalPages - clampedViewerPage
+        } else {
+            clampedViewerPage + 1
+        }
+    }
+
+    private fun visualPageNumberToViewerPage(visualPageNumber: Int): Int {
+        if (totalPages <= 0) return 0
+        val clampedVisualPage = visualPageNumber.coerceIn(1, totalPages)
+        return if (isVisualOrderReversed()) {
+            totalPages - clampedVisualPage
+        } else {
+            clampedVisualPage - 1
+        }
+    }
+
+    private fun getCurrentVisualPageNumber(): Int {
+        if (totalPages <= 0) return 1
+        return viewerPageToVisualPageNumber(pdfViewer.currentPage)
+    }
+
+    private fun logicalPageToVisualPageNumber(logicalPage: Int): Int {
+        if (totalPages <= 0) return 1
+        return viewerPageToVisualPageNumber(mapLogicalPageToViewer(logicalPage))
+    }
+
+    private fun visualPageNumberToLogicalPage(visualPageNumber: Int): Int {
+        if (totalPages <= 0) return 0
+        return mapViewerPageToLogical(visualPageNumberToViewerPage(visualPageNumber))
     }
 
     private fun buildPageCounterText(logicalPage: Int): String {
         if (totalPages <= 0) return "0/0"
-        val visualPage = logicalPage.coerceIn(0, totalPages - 1) + 1
+        val visualPage = logicalPageToVisualPageNumber(logicalPage)
         return "$visualPage/$totalPages"
     }
 
@@ -2495,7 +2547,7 @@ class PDFViewer : AppCompatActivity() {
             val buttonGoTo: TextView = findViewById(R.id.buttonGoTo)
 
             textAllPages.text = "/ $totalPages"
-            textbox.setText((getCurrentDocumentPage() + 1).toString())
+            textbox.setText(logicalPageToVisualPageNumber(getCurrentLogicalPage()).toString())
 
             val message: ConstraintLayout = findViewById(R.id.messageGoTo)
             val arrow: View = findViewById(R.id.arrowMessageGoTo)
@@ -2553,7 +2605,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun goToFeature(textbox: EditText) {
-        var visualPageToGo = getCurrentDocumentPage() + 1
+        var visualPageToGo = getCurrentVisualPageNumber()
 
         val valueTemp = textbox.text.toString().replace(" ", "")
         if (valueTemp != "" && valueTemp != "-") {
@@ -2566,25 +2618,66 @@ class PDFViewer : AppCompatActivity() {
             }
         }
         try {
-            val targetLogicalPage = (visualPageToGo - 1).coerceIn(0, totalPages - 1)
-            goToPage(targetLogicalPage, true)
+            goToVisualPageNumber(visualPageToGo)
             textbox.clearFocus()
         } catch (e: Exception) {
             println("Exception 11")
         }
     }
 
+    private fun goToVisualPageNumber(visualPageNumber: Int) {
+        val targetViewerPage = visualPageNumberToViewerPage(visualPageNumber)
+        val targetLogicalPage = mapViewerPageToLogical(targetViewerPage)
+        navigateToPageTarget(targetLogicalPage, targetViewerPage, animation = false)
+    }
+
+    private fun navigateToPageTarget(
+        logicalTarget: Int,
+        viewerTarget: Int = mapLogicalPageToViewer(logicalTarget),
+        animation: Boolean = true
+    ) {
+        if (totalPages <= 0) return
+        val clampedLogicalTarget = logicalTarget.coerceIn(0, totalPages - 1)
+        val clampedViewerTarget = viewerTarget.coerceIn(0, totalPages - 1)
+        if (suppressPageCallbacksDuringRestore) {
+            pendingRestoredLogicalPage = clampedLogicalTarget
+            pendingScrollbarSyncProgress = normalizeLogicalProgressFromPage(clampedLogicalTarget)
+        }
+        pendingProgrammaticLogicalPage = clampedLogicalTarget
+        lastLogicalScrollProgress = normalizeLogicalProgressFromPage(clampedLogicalTarget)
+        pendingScrollbarSyncProgress = lastLogicalScrollProgress
+        pdfViewer.jumpTo(clampedViewerTarget, animation)
+        if (!animation) {
+            // Immediately sync scrollbar to the target logical page, using
+            // postToLayout so the thumb is placed after the container is laid
+            // out – exactly like the onRender / last-position-restore flow.
+            synchronizePageAndScrollbarUi(
+                logicalPage = clampedLogicalTarget,
+                updatePageCounter = true,
+                postToLayout = true
+            )
+            // After the view has settled, re-sync with the actual viewer
+            // position to account for any rounding by the PDF viewer.
+            pdfViewer.post {
+                pendingProgrammaticLogicalPage = null
+                val settledViewerPage = pdfViewer.currentPage.coerceIn(0, totalPages - 1)
+                val settledLogicalPage = mapViewerPageToLogical(settledViewerPage)
+                rememberLogicalScrollProgressFromViewerPosition(settledViewerPage.toFloat())
+                refreshResidualViewMetrics()
+                updatePdfPage(fileId, settledLogicalPage, persistImmediately = true)
+                synchronizePageAndScrollbarUi(
+                    settledLogicalPage,
+                    updatePageCounter = true,
+                    postToLayout = true
+                )
+            }
+        }
+    }
+
     fun goToPage(valueToGo: Int, animation: Boolean = true) {
         if (totalPages <= 0) return
         val logicalTarget = valueToGo.coerceIn(0, totalPages - 1)
-        if (suppressPageCallbacksDuringRestore) {
-            pendingRestoredLogicalPage = logicalTarget
-            pendingScrollbarSyncProgress = normalizeLogicalProgressFromPage(logicalTarget)
-        }
-        lastLogicalScrollProgress = normalizeLogicalProgressFromPage(logicalTarget)
-        val target = mapLogicalPageToViewer(logicalTarget)
-        pdfViewer.jumpTo(target, animation)
-        updatePdfPage(fileId, logicalTarget)
+        navigateToPageTarget(logicalTarget, animation = animation)
         if (dialog != null) dialog!!.dismiss()
     }
 
