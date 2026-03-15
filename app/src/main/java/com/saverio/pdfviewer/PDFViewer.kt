@@ -1122,14 +1122,7 @@ class PDFViewer : AppCompatActivity() {
 
                     setScrollBarSide()
                     setScrollBarBottom()
-
-                    if (horizontal) {
-                        buttonSideScroll.isGone = true
-                        buttonBottomScroll.isGone = false
-                    } else {
-                        buttonSideScroll.isGone = false
-                        buttonBottomScroll.isGone = true
-                    }
+                    updateScrollbarButtonsVisibility()
 
                     // Force an immediate redraw so visual changes (night mode,
                     // zoom, scroll direction, single-page, …) are rendered
@@ -2176,7 +2169,7 @@ class PDFViewer : AppCompatActivity() {
             val arrow: View = findViewById(R.id.arrowLeft)
             val messageText: TextView = findViewById(R.id.messageTextGuide1)
             val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
-            val buttonBottomScroll: TextView = findViewById(R.id.buttonSideScroll)
+            val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
             messageText.setText(getString(R.string.text_scroll_to_show_the_top_bar_again))
             message.isGone = false
             arrow.isGone = true
@@ -3047,8 +3040,7 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun applyHorizontalScrollbarThumbLength(button: TextView) {
-        val availableSpan =
-            (maxPositionScrollbarHorizontal - minPositionScrollbarHorizontal).coerceAtLeast(1F)
+        val availableSpan = maxPositionScrollbarHorizontal.coerceAtLeast(1F)
         val layoutParams = button.layoutParams
         layoutParams.width = computeScrollbarThumbLengthPx(availableSpan)
         button.layoutParams = layoutParams
@@ -3068,7 +3060,7 @@ class PDFViewer : AppCompatActivity() {
 
     private fun getHorizontalScrollbarTrackMetrics(button: TextView): ScrollbarTrackMetrics {
         val trackStart = minPositionScrollbarHorizontal
-        val trackEnd = (maxPositionScrollbarHorizontal - button.width)
+        val trackEnd = (maxPositionScrollbarHorizontal + minPositionScrollbarHorizontal - button.width)
             .coerceAtLeast(trackStart)
         return ScrollbarTrackMetrics(
             start = trackStart,
@@ -3882,6 +3874,9 @@ class PDFViewer : AppCompatActivity() {
 
                     MotionEvent.ACTION_MOVE -> {
                         if (totalPages <= 1) return@OnTouchListener true
+                        if (maxPositionScrollbarHorizontal <= 0F && !refreshResidualViewMetrics()) {
+                            return@OnTouchListener true
+                        }
                         hideTopBar(fullHiding = false)
 
                         button.layoutParams.height = 60;

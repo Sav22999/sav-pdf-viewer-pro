@@ -42,6 +42,22 @@ class HomeFragment : Fragment() {
     private lateinit var recentsAdapter: RecentFilesAdapter
     private var isRecentSwipeActive = false
     private var hasPendingRecentsRefresh = false
+    private val payoffHideHandler = Handler(Looper.getMainLooper())
+    private val payoffHideDelayMs = 20_000L
+    private val payoffHideDurationMs = 350L
+    private var payoffText: TextView? = null
+    private val payoffHideRunnable = Runnable {
+        val payoff = payoffText ?: return@Runnable
+        if (payoff.isGone) return@Runnable
+        payoff.animate()
+            .alpha(0f)
+            .translationY(-payoff.resources.displayMetrics.density * 6f)
+            .setDuration(payoffHideDurationMs)
+            .withEndAction {
+                payoff.isGone = true
+            }
+            .start()
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,6 +67,7 @@ class HomeFragment : Fragment() {
         homeViewModel =
             ViewModelProvider(this).get(HomeViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_home, container, false)
+        payoffText = root.findViewById(R.id.textHomePayoff)
 
         val main = activity as MainActivity
         val recentsList: RecyclerView = root.findViewById(R.id.recentsList)
@@ -205,6 +222,7 @@ class HomeFragment : Fragment() {
         }
 
         renderRecents(root)
+        resetAndSchedulePayoffHide()
 
         return root
     }
@@ -213,11 +231,29 @@ class HomeFragment : Fragment() {
         super.onResume()
         recentsRefreshHandler.removeCallbacks(recentsRefreshRunnable)
         recentsRefreshRunnable.run()
+        resetAndSchedulePayoffHide()
     }
 
     override fun onPause() {
         recentsRefreshHandler.removeCallbacks(recentsRefreshRunnable)
+        payoffHideHandler.removeCallbacks(payoffHideRunnable)
         super.onPause()
+    }
+
+    override fun onDestroyView() {
+        payoffHideHandler.removeCallbacks(payoffHideRunnable)
+        payoffText = null
+        super.onDestroyView()
+    }
+
+    private fun resetAndSchedulePayoffHide() {
+        val payoff = payoffText ?: return
+        payoffHideHandler.removeCallbacks(payoffHideRunnable)
+        payoff.animate().cancel()
+        payoff.alpha = 1f
+        payoff.translationY = 0f
+        payoff.isGone = false
+        payoffHideHandler.postDelayed(payoffHideRunnable, payoffHideDelayMs)
     }
 
     private fun renderRecents(root: View) {

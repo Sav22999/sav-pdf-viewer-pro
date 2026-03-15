@@ -169,6 +169,7 @@
     <string name="viewer_defaults_saved" translatable="false">Viewer defaults saved</string>
     <string name="viewer_defaults_open_help" translatable="false">Open help</string>
     <string name="home_no_recents" translatable="false">No recent documents yet.</string>
+    <string name="home_privacy_payoff" translatable="false">Your privacy is important. You are important.</string>
     <string name="settings_version_label" translatable="false">Version %1$s</string>
     <string name="home_recent_item_content_description" translatable="false">Open recent document %1$s</string>
     <string name="toast_recent_document_unreadable" translatable="false">Cannot open this recent document. Please select it again.</string>
