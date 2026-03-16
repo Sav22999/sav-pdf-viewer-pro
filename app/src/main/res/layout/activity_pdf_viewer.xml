@@ -120,10 +120,9 @@
     <TextView
         android:id="@+id/buttonBottomScroll"
         android:layout_width="50dp"
-        android:layout_height="15dp"
+        android:layout_height="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginBottom="10dp"
-        android:width="15dp"
         android:background="@drawable/button_rounded"
         android:padding="10dp"
         android:paddingStart="20dp"
@@ -578,8 +577,7 @@
         android:visibility="gone"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer"
-        tools:visibility="visible">
+        app:layout_constraintTop_toBottomOf="@+id/toolbarContainer">
 
         <LinearLayout
             android:id="@+id/menuPanelSection4"

@@ -1129,6 +1129,8 @@ class PDFViewer : AppCompatActivity() {
                     } else {
                         isSupportedGoTop = true
                         isSupportedScrollbarButton = true
+                        setScrollBarSide()
+                        setScrollBarBottom()
                     }
                     val targetViewerPage = mapLogicalPageToViewer(targetLogicalPage)
                     pdfViewer.jumpTo(targetViewerPage, false)
@@ -4036,6 +4038,8 @@ class PDFViewer : AppCompatActivity() {
             applyVerticalScrollbarThumbLength(button)
 
             button.setOnTouchListener(View.OnTouchListener { view, event ->
+                val normalWidth = dpToPx(10F)
+                val dragWidth = dpToPx(20F)
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         selectedLogicalPage = getCurrentLogicalPage()
@@ -4043,6 +4047,11 @@ class PDFViewer : AppCompatActivity() {
                             normalizeLogicalProgressFromPage(selectedLogicalPage)
                         textPage.text = (selectedLogicalPage + 1).toString()
                         touchOffsetY = event.rawY - view.y
+                        button.layoutParams.width = dragWidth
+                        button.setWidth(dragWidth)
+                        applyVerticalScrollbarThumbLength(button)
+                        button.requestLayout()
+                        container.isGone = false
                     }
 
                     MotionEvent.ACTION_MOVE -> {
@@ -4052,7 +4061,8 @@ class PDFViewer : AppCompatActivity() {
                         }
                         hideTopBar(fullHiding = false)
 
-                        button.layoutParams.width = 60;
+                        button.layoutParams.width = dragWidth
+                        button.setWidth(dragWidth)
                         applyVerticalScrollbarThumbLength(button)
                         button.requestLayout()
                         val trackMetrics = getVerticalScrollbarTrackMetrics(button)
@@ -4079,7 +4089,8 @@ class PDFViewer : AppCompatActivity() {
 
                     MotionEvent.ACTION_UP -> {
                         if (totalPages <= 1) return@OnTouchListener true
-                        button.layoutParams.width = 30;
+                        button.layoutParams.width = normalWidth
+                        button.setWidth(normalWidth)
                         applyVerticalScrollbarThumbLength(button)
                         button.requestLayout()
                         touchOffsetY = null
@@ -4090,7 +4101,8 @@ class PDFViewer : AppCompatActivity() {
 
                     MotionEvent.ACTION_CANCEL -> {
                         if (totalPages <= 1) return@OnTouchListener true
-                        button.layoutParams.width = 30;
+                        button.layoutParams.width = normalWidth
+                        button.setWidth(normalWidth)
                         applyVerticalScrollbarThumbLength(button)
                         button.requestLayout()
                         touchOffsetY = null
@@ -4114,7 +4126,9 @@ class PDFViewer : AppCompatActivity() {
             val button: TextView = findViewById(R.id.buttonSideScroll)
             val textPage: TextView = findViewById(R.id.textSideScroll)
             val container: ConstraintLayout = findViewById(R.id.containerSideScroll)
-            button.layoutParams.width = 30;
+            val normalWidth = dpToPx(10F)
+            button.layoutParams.width = normalWidth
+            button.setWidth(normalWidth)
             applyVerticalScrollbarThumbLength(button)
             button.requestLayout()
             if (page.isNaN() || totalPages <= 1) return
@@ -4147,6 +4161,8 @@ class PDFViewer : AppCompatActivity() {
             applyHorizontalScrollbarThumbLength(button)
 
             button.setOnTouchListener(View.OnTouchListener { view, event ->
+                val normalHeight = dpToPx(10F)
+                val dragHeight = dpToPx(20F)
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
                         selectedLogicalPage = getCurrentLogicalPage()
@@ -4154,6 +4170,10 @@ class PDFViewer : AppCompatActivity() {
                             normalizeLogicalProgressFromPage(selectedLogicalPage)
                         textPage.text = (selectedLogicalPage + 1).toString()
                         touchOffsetX = event.rawX - view.x
+                        button.layoutParams.height = dragHeight
+                        applyHorizontalScrollbarThumbLength(button)
+                        button.requestLayout()
+                        container.isGone = false
                     }
 
                     MotionEvent.ACTION_MOVE -> {
@@ -4163,7 +4183,7 @@ class PDFViewer : AppCompatActivity() {
                         }
                         hideTopBar(fullHiding = false)
 
-                        button.layoutParams.height = 60;
+                        button.layoutParams.height = dragHeight
                         applyHorizontalScrollbarThumbLength(button)
                         button.requestLayout()
                         val trackMetrics = getHorizontalScrollbarTrackMetrics(button)
@@ -4191,7 +4211,7 @@ class PDFViewer : AppCompatActivity() {
 
                     MotionEvent.ACTION_UP -> {
                         if (totalPages <= 1) return@OnTouchListener true
-                        button.layoutParams.height = 30;
+                        button.layoutParams.height = normalHeight
                         applyHorizontalScrollbarThumbLength(button)
                         button.requestLayout()
                         touchOffsetX = null
@@ -4202,7 +4222,7 @@ class PDFViewer : AppCompatActivity() {
 
                     MotionEvent.ACTION_CANCEL -> {
                         if (totalPages <= 1) return@OnTouchListener true
-                        button.layoutParams.height = 30;
+                        button.layoutParams.height = normalHeight
                         applyHorizontalScrollbarThumbLength(button)
                         button.requestLayout()
                         touchOffsetX = null
@@ -4226,7 +4246,7 @@ class PDFViewer : AppCompatActivity() {
             val button: TextView = findViewById(R.id.buttonBottomScroll)
             val textPage: TextView = findViewById(R.id.textBottomScroll)
             val container: ConstraintLayout = findViewById(R.id.containerBottomScroll)
-            button.layoutParams.height = 30;
+            button.layoutParams.height = dpToPx(10F)
             applyHorizontalScrollbarThumbLength(button)
             button.requestLayout()
             if (page.isNaN() || totalPages <= 1) return
@@ -4633,6 +4653,8 @@ class PDFViewer : AppCompatActivity() {
 
         if (isPointInsideVisibleView(findViewById(R.id.toolbarContainer), rawX, rawY)) return false
         if (isPointInsideVisibleView(findViewById(R.id.textSelectionBar), rawX, rawY)) return false
+        if (isPointInsideVisibleView(findViewById(R.id.buttonSideScroll), rawX, rawY)) return false
+        if (isPointInsideVisibleView(findViewById(R.id.buttonBottomScroll), rawX, rawY)) return false
 
         return true
     }
