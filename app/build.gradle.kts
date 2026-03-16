@@ -11,11 +11,10 @@ android {
         applicationId = "com.saverio.pdfviewer.beta"
         minSdk = 21
         targetSdk = 35
-        versionCode = 68
-        versionName = "2.0#2"
+        versionCode = 70
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        versionNameSuffix = "-beta"
 
         // Disable generating PNGs from vector drawables (reproducible builds)
         vectorDrawables.useSupportLibrary = true
