@@ -16,11 +16,16 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         versionNameSuffix = "-beta"
+
+        // Disable generating PNGs from vector drawables (reproducible builds)
+        vectorDrawables.useSupportLibrary = true
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
+            // Disable PNG crunching for reproducible builds
+            isCrunchPngs = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
