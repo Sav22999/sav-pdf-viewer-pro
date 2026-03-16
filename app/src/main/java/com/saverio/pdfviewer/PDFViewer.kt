@@ -817,14 +817,19 @@ class PDFViewer : AppCompatActivity() {
         pdfViewer.setBackgroundResource(if (enabled) R.color.spacingPageDark else R.color.spacingPage)
 
         if (persist && !applyingPdfOptions) {
-            saveCurrentPdfOptions()
+            ViewerDefaultsStore.saveNightMode(this, enabled)
         }
 
         // Reload the PDF so the night-mode colour filter is applied to
         // freshly rendered tiles.  A simple invalidate() is not enough
         // because the library caches bitmap tiles without the filter.
         if (refreshViewer && stateChanged && uriOpened != null) {
+            val savedContrastState = contrastOverlayEnabled
             selectPdfFromURI(uriOpened)
+            // Restore night light state – dark filter toggle must not affect it
+            if (contrastOverlayEnabled != savedContrastState) {
+                applyContrastOverlayState(savedContrastState, persist = false)
+            }
         }
     }
 
@@ -840,7 +845,7 @@ class PDFViewer : AppCompatActivity() {
             getString(R.string.tooltip_night_light_on)
         }
         if (persist && !applyingPdfOptions) {
-            saveCurrentPdfOptions()
+            ViewerDefaultsStore.saveContrastOverlay(this, enabled)
         }
     }
 
@@ -1634,8 +1639,7 @@ class PDFViewer : AppCompatActivity() {
                 lastPage = currentPage,
                 scrollMode = scrollMode.name,
                 singlePage = single_page,
-                nightMode = night_mode,
-                contrastOverlay = contrastOverlayEnabled,
+                // nightMode and contrastOverlay are global – not saved per-document
                 zoom = if (pdfViewer.zoom > 0F) pdfViewer.zoom else zoomToRestore,
                 rotationLocked = rotation_locked,
                 fullscreen = isFullscreenEnabled,
@@ -3403,8 +3407,7 @@ class PDFViewer : AppCompatActivity() {
                 }
 
                 single_page = file.singlePage
-                night_mode = file.nightMode
-                contrastOverlayEnabled = file.contrastOverlay
+                // nightMode and contrastOverlay are global settings – not per-document
                 rotation_locked = file.rotationLocked
                 isFullscreenEnabled = file.fullscreen
                 zoomToRestore = file.zoom
@@ -3455,10 +3458,7 @@ class PDFViewer : AppCompatActivity() {
             single_page = oldPdfPreferences.getBoolean("single_page_$fileKey", single_page)
             hasLegacyData = true
         }
-        if (oldPdfPreferences.contains("night_mode_$fileKey")) {
-            night_mode = oldPdfPreferences.getBoolean("night_mode_$fileKey", night_mode)
-            hasLegacyData = true
-        }
+        // night_mode is now a global setting – skip per-document migration
         if (oldPdfPreferences.contains("zoom_$fileKey")) {
             zoomToRestore = oldPdfPreferences.getFloat("zoom_$fileKey", zoomToRestore)
             hasLegacyData = true
@@ -3474,8 +3474,7 @@ class PDFViewer : AppCompatActivity() {
             if (file != null) {
                 file.scrollMode = scrollMode.name
                 file.singlePage = single_page
-                file.nightMode = night_mode
-                file.contrastOverlay = contrastOverlayEnabled
+                // nightMode and contrastOverlay are global – not saved per-document
                 file.zoom = zoomToRestore
                 file.rotationLocked = rotation_locked
                 file.fullscreen = isFullscreenEnabled
@@ -3498,8 +3497,7 @@ class PDFViewer : AppCompatActivity() {
             val file = existing
             file.scrollMode = scrollMode.name
             file.singlePage = single_page
-            file.nightMode = night_mode
-            file.contrastOverlay = contrastOverlayEnabled
+            // nightMode and contrastOverlay are global – not saved per-document
             file.zoom = if (pdfViewer.zoom > 0F) pdfViewer.zoom else zoomToRestore
             file.rotationLocked = rotation_locked
             file.fullscreen = isFullscreenEnabled
@@ -3517,8 +3515,7 @@ class PDFViewer : AppCompatActivity() {
                 lastPage = savedCurrentPage,
                 scrollMode = scrollMode.name,
                 singlePage = single_page,
-                nightMode = night_mode,
-                contrastOverlay = contrastOverlayEnabled,
+                // nightMode and contrastOverlay are global – not saved per-document
                 zoom = if (pdfViewer.zoom > 0F) pdfViewer.zoom else zoomToRestore,
                 rotationLocked = rotation_locked,
                 fullscreen = isFullscreenEnabled,

@@ -108,5 +108,17 @@ object ViewerDefaultsStore {
     fun reset(context: Context) {
         save(context, defaultDefaults())
     }
+
+    /** Save dark-filter state globally, disabling auto schedule. */
+    fun saveNightMode(context: Context, enabled: Boolean) {
+        val current = load(context)
+        save(context, current.copy(nightMode = enabled, darkFilterAuto = false))
+    }
+
+    /** Save night-light state globally, disabling auto schedule. */
+    fun saveContrastOverlay(context: Context, enabled: Boolean) {
+        val current = load(context)
+        save(context, current.copy(contrastOverlay = enabled, nightLightAuto = false))
+    }
 }
 

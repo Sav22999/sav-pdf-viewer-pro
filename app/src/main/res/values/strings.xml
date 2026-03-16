@@ -134,14 +134,14 @@
     <string name="viewer_default_direction_v_btt" translatable="false">Vertical: bottom to top</string>
     <string name="viewer_default_direction_h_ltr" translatable="false">Horizontal: left to right</string>
     <string name="viewer_default_direction_h_rtl" translatable="false">Horizontal: right to left</string>
-    <string name="viewer_defaults_single_page" translatable="false">Single page mode</string>
-    <string name="viewer_defaults_rotation_locked" translatable="false">Rotation locked</string>
+    <string name="viewer_defaults_single_page" translatable="false">Single page mode for new documents</string>
+    <string name="viewer_defaults_rotation_locked" translatable="false">Rotation locked for new documents</string>
     <string name="viewer_defaults_toolbar_position" translatable="false">Action bar position</string>
     <string name="viewer_defaults_toolbar_position_top" translatable="false">Top</string>
     <string name="viewer_defaults_toolbar_position_bottom" translatable="false">Bottom</string>
     <string name="viewer_defaults_toolbar_position_top_content_description" translatable="false">Show the action bar at the top</string>
     <string name="viewer_defaults_toolbar_position_bottom_content_description" translatable="false">Show the action bar at the bottom</string>
-    <string name="viewer_defaults_fullscreen" translatable="false">Start in full screen</string>
+    <string name="viewer_defaults_fullscreen" translatable="false">Start in full screen for new documents</string>
     <string name="viewer_defaults_night_mode" translatable="false">Use dark filter</string>
     <string name="viewer_defaults_contrast_overlay" translatable="false">Use night light overlay</string>
     <string name="viewer_defaults_dark_filter_schedule" translatable="false">Dark filter automatic schedule</string>
