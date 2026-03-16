@@ -72,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Close all bookmarks</string>
     <string name="tooltip_get_help">Get help</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Претражи текст…</string>
+    <string name="search_no_results">Нема резултата</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Индексирање странице %1$d од %2$d…</string>
+    <string name="search_ready">Спремно</string>
+    <string name="tooltip_search">Претражи текст у PDF-у</string>
+    <string name="tooltip_search_prev">Претходни резултат</string>
+    <string name="tooltip_search_next">Следећи резултат</string>
+    <string name="tooltip_search_close">Затвори претрагу</string>
+    <string name="tooltip_search_case_sensitive">Осетљиво на величину слова</string>
+    <string name="tooltip_search_whole_word">Цела реч</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Текст странице</string>
+    <string name="copy_all_text">Копирај све</string>
+    <string name="tooltip_select_text">Изабери и копирај текст</string>
+    <string name="select_text_copied">Текст копиран у привремену меморију</string>
+    <string name="select_text_extracting">Издвајање текста…</string>
+    <string name="select_text_no_text">На овој страници није пронађен текст</string>
+    <string name="select_text_page_info">Страница %1$d од %2$d</string>
+    <string name="text_selection_mode_hint">Дуго притисните и превуците да бисте изабрали текст</string>
+    <string name="text_selection_count">Изабрано %1$d речи</string>
+    <string name="text_selection_mode_active">Режим избора текста</string>
+    <string name="tooltip_close_selection_mode">Затвори избор</string>
+    <string name="tooltip_copy_selection">Копирај избор</string>
+    <string name="tooltip_toggle_character_selection">Пребаци режим избора знакова</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Режим избора речи</string>
+    <string name="tooltip_selection_mode_character">Режим избора знакова</string>
+    <string name="text_copied_preview">"%1$s" копирано у привремену меморију</string>
+
+    <string name="button_back">Назад</string>
 </resources>

@@ -97,4 +97,37 @@
     <string name="viewer_defaults_reset_done">Impostazioni predefinite ripristinate</string>
     <string name="home_recent_item_content_description">Apri documento recente %1$s</string>
     <string name="confirmation_open_link">Vuoi aprire <b>{{url}}</b> nel tuo browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Cerca testo…</string>
+    <string name="search_no_results">Nessun risultato trovato</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indicizzazione pagina %1$d di %2$d…</string>
+    <string name="search_ready">Pronto</string>
+    <string name="tooltip_search">Cerca testo nel PDF</string>
+    <string name="tooltip_search_prev">Risultato precedente</string>
+    <string name="tooltip_search_next">Risultato successivo</string>
+    <string name="tooltip_search_close">Chiudi ricerca</string>
+    <string name="tooltip_search_case_sensitive">Maiuscole/minuscole</string>
+    <string name="tooltip_search_whole_word">Parola intera</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Testo della pagina</string>
+    <string name="copy_all_text">Copia tutto</string>
+    <string name="tooltip_select_text">Seleziona e copia testo</string>
+    <string name="select_text_copied">Testo copiato negli appunti</string>
+    <string name="select_text_extracting">Estrazione del testo…</string>
+    <string name="select_text_no_text">Nessun testo trovato in questa pagina</string>
+    <string name="select_text_page_info">Pagina %1$d di %2$d</string>
+    <string name="text_selection_mode_hint">Tieni premuto e trascina per selezionare il testo</string>
+    <string name="text_selection_count">%1$d parole selezionate</string>
+    <string name="text_selection_mode_active">Modalità selezione testo</string>
+    <string name="tooltip_close_selection_mode">Chiudi selezione</string>
+    <string name="tooltip_copy_selection">Copia selezione</string>
+    <string name="tooltip_toggle_character_selection">Attiva/disattiva modalità selezione carattere</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Modalità selezione parola</string>
+    <string name="tooltip_selection_mode_character">Modalità selezione carattere</string>
+    <string name="text_copied_preview">"%1$s" copiato negli appunti</string>
 </resources>

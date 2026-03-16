@@ -72,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Close all bookmarks</string>
     <string name="tooltip_get_help">Get help</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">חיפוש טקסט…</string>
+    <string name="search_no_results">לא נמצאו תוצאות</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">מאנדקס עמוד %1$d מתוך %2$d…</string>
+    <string name="search_ready">מוכן</string>
+    <string name="tooltip_search">חיפוש טקסט ב-PDF</string>
+    <string name="tooltip_search_prev">תוצאה קודמת</string>
+    <string name="tooltip_search_next">תוצאה הבאה</string>
+    <string name="tooltip_search_close">סגור חיפוש</string>
+    <string name="tooltip_search_case_sensitive">תלוי רישיות</string>
+    <string name="tooltip_search_whole_word">מילה שלמה</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">טקסט העמוד</string>
+    <string name="copy_all_text">העתק הכל</string>
+    <string name="tooltip_select_text">בחר והעתק טקסט</string>
+    <string name="select_text_copied">הטקסט הועתק ללוח</string>
+    <string name="select_text_extracting">מחלץ טקסט…</string>
+    <string name="select_text_no_text">לא נמצא טקסט בעמוד זה</string>
+    <string name="select_text_page_info">עמוד %1$d מתוך %2$d</string>
+    <string name="text_selection_mode_hint">לחץ ארוך וגרור כדי לבחור טקסט</string>
+    <string name="text_selection_count">%1$d מילים נבחרו</string>
+    <string name="text_selection_mode_active">מצב בחירת טקסט</string>
+    <string name="tooltip_close_selection_mode">סגור בחירה</string>
+    <string name="tooltip_copy_selection">העתק בחירה</string>
+    <string name="tooltip_toggle_character_selection">החלף מצב בחירת תו</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">מצב בחירת מילה</string>
+    <string name="tooltip_selection_mode_character">מצב בחירת תו</string>
+    <string name="text_copied_preview">"%1$s" הועתק ללוח</string>
+
+    <string name="button_back">חזרה</string>
 </resources>

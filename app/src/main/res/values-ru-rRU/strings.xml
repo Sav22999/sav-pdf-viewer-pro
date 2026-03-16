@@ -72,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Закрыть все закладки</string>
     <string name="tooltip_get_help">Получить помощь</string>
     <string name="confirmation_open_link">Открыть <b>{{url}}</b> в браузере?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Поиск текста…</string>
+    <string name="search_no_results">Результаты не найдены</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Индексация страницы %1$d из %2$d…</string>
+    <string name="search_ready">Готово</string>
+    <string name="tooltip_search">Поиск текста в PDF</string>
+    <string name="tooltip_search_prev">Предыдущий результат</string>
+    <string name="tooltip_search_next">Следующий результат</string>
+    <string name="tooltip_search_close">Закрыть поиск</string>
+    <string name="tooltip_search_case_sensitive">С учётом регистра</string>
+    <string name="tooltip_search_whole_word">Слово целиком</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Текст страницы</string>
+    <string name="copy_all_text">Копировать всё</string>
+    <string name="tooltip_select_text">Выделить и скопировать текст</string>
+    <string name="select_text_copied">Текст скопирован в буфер обмена</string>
+    <string name="select_text_extracting">Извлечение текста…</string>
+    <string name="select_text_no_text">Текст на этой странице не найден</string>
+    <string name="select_text_page_info">Страница %1$d из %2$d</string>
+    <string name="text_selection_mode_hint">Нажмите и удерживайте, затем перетащите для выделения текста</string>
+    <string name="text_selection_count">Выделено слов: %1$d</string>
+    <string name="text_selection_mode_active">Режим выделения текста</string>
+    <string name="tooltip_close_selection_mode">Закрыть выделение</string>
+    <string name="tooltip_copy_selection">Копировать выделение</string>
+    <string name="tooltip_toggle_character_selection">Переключить режим посимвольного выделения</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Режим выделения слов</string>
+    <string name="tooltip_selection_mode_character">Режим посимвольного выделения</string>
+    <string name="text_copied_preview">"%1$s" скопировано в буфер обмена</string>
+
+    <string name="button_back">Назад</string>
 </resources>

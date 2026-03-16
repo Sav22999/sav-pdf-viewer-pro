@@ -72,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Alle Lesezeichen schließen</string>
     <string name="tooltip_get_help">Hilfe erhalten</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Text suchen…</string>
+    <string name="search_no_results">Keine Ergebnisse gefunden</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Seite %1$d von %2$d wird indexiert…</string>
+    <string name="search_ready">Bereit</string>
+    <string name="tooltip_search">Text in PDF suchen</string>
+    <string name="tooltip_search_prev">Vorheriges Ergebnis</string>
+    <string name="tooltip_search_next">Nächstes Ergebnis</string>
+    <string name="tooltip_search_close">Suche schließen</string>
+    <string name="tooltip_search_case_sensitive">Groß-/Kleinschreibung beachten</string>
+    <string name="tooltip_search_whole_word">Ganzes Wort</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Seitentext</string>
+    <string name="copy_all_text">Alles kopieren</string>
+    <string name="tooltip_select_text">Text auswählen und kopieren</string>
+    <string name="select_text_copied">Text in die Zwischenablage kopiert</string>
+    <string name="select_text_extracting">Text wird extrahiert…</string>
+    <string name="select_text_no_text">Kein Text auf dieser Seite gefunden</string>
+    <string name="select_text_page_info">Seite %1$d von %2$d</string>
+    <string name="text_selection_mode_hint">Lange drücken und ziehen, um Text auszuwählen</string>
+    <string name="text_selection_count">%1$d Wörter ausgewählt</string>
+    <string name="text_selection_mode_active">Textauswahlmodus</string>
+    <string name="tooltip_close_selection_mode">Auswahl schließen</string>
+    <string name="tooltip_copy_selection">Auswahl kopieren</string>
+    <string name="tooltip_toggle_character_selection">Zeichenauswahlmodus umschalten</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Wortauswahlmodus</string>
+    <string name="tooltip_selection_mode_character">Zeichenauswahlmodus</string>
+    <string name="text_copied_preview">"%1$s" in die Zwischenablage kopiert</string>
+
+    <string name="button_back">Zurück</string>
 </resources>

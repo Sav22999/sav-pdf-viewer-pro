@@ -72,4 +72,39 @@
     <string name="tooltip_close_bookmarks">إغلاق جميع الإشارات المرجعية</string>
     <string name="tooltip_get_help">الحصول على المساعدة</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">البحث في النص…</string>
+    <string name="search_no_results">لم يتم العثور على نتائج</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">فهرسة الصفحة %1$d من %2$d…</string>
+    <string name="search_ready">جاهز</string>
+    <string name="tooltip_search">البحث في النص في PDF</string>
+    <string name="tooltip_search_prev">النتيجة السابقة</string>
+    <string name="tooltip_search_next">النتيجة التالية</string>
+    <string name="tooltip_search_close">إغلاق البحث</string>
+    <string name="tooltip_search_case_sensitive">حساس لحالة الأحرف</string>
+    <string name="tooltip_search_whole_word">كلمة كاملة</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">نص الصفحة</string>
+    <string name="copy_all_text">نسخ الكل</string>
+    <string name="tooltip_select_text">تحديد ونسخ النص</string>
+    <string name="select_text_copied">تم نسخ النص إلى الحافظة</string>
+    <string name="select_text_extracting">جارٍ استخراج النص…</string>
+    <string name="select_text_no_text">لم يتم العثور على نص في هذه الصفحة</string>
+    <string name="select_text_page_info">صفحة %1$d من %2$d</string>
+    <string name="text_selection_mode_hint">اضغط مطولاً واسحب لتحديد النص</string>
+    <string name="text_selection_count">تم تحديد %1$d كلمة</string>
+    <string name="text_selection_mode_active">وضع تحديد النص</string>
+    <string name="tooltip_close_selection_mode">إغلاق التحديد</string>
+    <string name="tooltip_copy_selection">نسخ التحديد</string>
+    <string name="tooltip_toggle_character_selection">تبديل وضع تحديد الحرف</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">وضع تحديد الكلمة</string>
+    <string name="tooltip_selection_mode_character">وضع تحديد الحرف</string>
+    <string name="text_copied_preview">تم نسخ "%1$s" إلى الحافظة</string>
+
+    <string name="button_back">رجوع</string>
 </resources>

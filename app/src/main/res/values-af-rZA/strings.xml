@@ -72,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Close all bookmarks</string>
     <string name="tooltip_get_help">Get help</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Soek teks…</string>
+    <string name="search_no_results">Geen resultate gevind nie</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indekseer bladsy %1$d van %2$d…</string>
+    <string name="search_ready">Gereed</string>
+    <string name="tooltip_search">Soek teks in PDF</string>
+    <string name="tooltip_search_prev">Vorige resultaat</string>
+    <string name="tooltip_search_next">Volgende resultaat</string>
+    <string name="tooltip_search_close">Sluit soektog</string>
+    <string name="tooltip_search_case_sensitive">Hooflettergevoelig</string>
+    <string name="tooltip_search_whole_word">Hele woord</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Bladsy teks</string>
+    <string name="copy_all_text">Kopieer alles</string>
+    <string name="tooltip_select_text">Kies en kopieer teks</string>
+    <string name="select_text_copied">Teks na knipbord gekopieer</string>
+    <string name="select_text_extracting">Onttrek teks…</string>
+    <string name="select_text_no_text">Geen teks op hierdie bladsy gevind nie</string>
+    <string name="select_text_page_info">Bladsy %1$d van %2$d</string>
+    <string name="text_selection_mode_hint">Hou lank ingedruk en sleep om teks te kies</string>
+    <string name="text_selection_count">%1$d woorde gekies</string>
+    <string name="text_selection_mode_active">Tekskeuringsmodus</string>
+    <string name="tooltip_close_selection_mode">Sluit keuring</string>
+    <string name="tooltip_copy_selection">Kopieer keuring</string>
+    <string name="tooltip_toggle_character_selection">Wissel karakterkeuringsmodus</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Woordkeuringsmodus</string>
+    <string name="tooltip_selection_mode_character">Karakterkeuringsmodus</string>
+    <string name="text_copied_preview">"%1$s" na knipbord gekopieer</string>
+
+    <string name="button_back">Terug</string>
 </resources>

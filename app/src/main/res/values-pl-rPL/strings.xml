@@ -72,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Zamknij wszystkie zakładki</string>
     <string name="tooltip_get_help">Uzyskaj pomoc</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Szukaj tekstu…</string>
+    <string name="search_no_results">Nie znaleziono wyników</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indeksowanie strony %1$d z %2$d…</string>
+    <string name="search_ready">Gotowe</string>
+    <string name="tooltip_search">Szukaj tekstu w PDF</string>
+    <string name="tooltip_search_prev">Poprzedni wynik</string>
+    <string name="tooltip_search_next">Następny wynik</string>
+    <string name="tooltip_search_close">Zamknij wyszukiwanie</string>
+    <string name="tooltip_search_case_sensitive">Rozróżniaj wielkość liter</string>
+    <string name="tooltip_search_whole_word">Całe słowo</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Tekst strony</string>
+    <string name="copy_all_text">Kopiuj wszystko</string>
+    <string name="tooltip_select_text">Zaznacz i kopiuj tekst</string>
+    <string name="select_text_copied">Tekst skopiowany do schowka</string>
+    <string name="select_text_extracting">Wyodrębnianie tekstu…</string>
+    <string name="select_text_no_text">Nie znaleziono tekstu na tej stronie</string>
+    <string name="select_text_page_info">Strona %1$d z %2$d</string>
+    <string name="text_selection_mode_hint">Przytrzymaj i przeciągnij, aby zaznaczyć tekst</string>
+    <string name="text_selection_count">Zaznaczono %1$d słów</string>
+    <string name="text_selection_mode_active">Tryb zaznaczania tekstu</string>
+    <string name="tooltip_close_selection_mode">Zamknij zaznaczenie</string>
+    <string name="tooltip_copy_selection">Kopiuj zaznaczenie</string>
+    <string name="tooltip_toggle_character_selection">Przełącz tryb zaznaczania znaków</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Tryb zaznaczania słów</string>
+    <string name="tooltip_selection_mode_character">Tryb zaznaczania znaków</string>
+    <string name="text_copied_preview">"%1$s" skopiowano do schowka</string>
+
+    <string name="button_back">Wstecz</string>
 </resources>

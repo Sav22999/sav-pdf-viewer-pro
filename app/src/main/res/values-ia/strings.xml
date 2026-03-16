@@ -72,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Clauder tote le marcapaginas</string>
     <string name="tooltip_get_help">Obtener adjuta</string>
     <string name="confirmation_open_link">Vole tu aperir <b>{{url}}</b> in tu navigator?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Cercar texto…</string>
+    <string name="search_no_results">Nulle resultatos trovate</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indexation del pagina %1$d de %2$d…</string>
+    <string name="search_ready">Preste</string>
+    <string name="tooltip_search">Cercar texto in PDF</string>
+    <string name="tooltip_search_prev">Resultato precedente</string>
+    <string name="tooltip_search_next">Resultato sequente</string>
+    <string name="tooltip_search_close">Clauder recerca</string>
+    <string name="tooltip_search_case_sensitive">Distinguer majusculas</string>
+    <string name="tooltip_search_whole_word">Parola integre</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Texto del pagina</string>
+    <string name="copy_all_text">Copiar toto</string>
+    <string name="tooltip_select_text">Seliger e copiar texto</string>
+    <string name="select_text_copied">Texto copiate al area de transferentia</string>
+    <string name="select_text_extracting">Extraction del texto…</string>
+    <string name="select_text_no_text">Nulle texto trovate in iste pagina</string>
+    <string name="select_text_page_info">Pagina %1$d de %2$d</string>
+    <string name="text_selection_mode_hint">Preme longe e trahe pro seliger texto</string>
+    <string name="text_selection_count">%1$d parolas seligite</string>
+    <string name="text_selection_mode_active">Modo de selection de texto</string>
+    <string name="tooltip_close_selection_mode">Clauder selection</string>
+    <string name="tooltip_copy_selection">Copiar selection</string>
+    <string name="tooltip_toggle_character_selection">Alternar modo de selection de character</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Modo de selection de parola</string>
+    <string name="tooltip_selection_mode_character">Modo de selection de character</string>
+    <string name="text_copied_preview">"%1$s" copiate al area de transferentia</string>
+
+    <string name="button_back">Retro</string>
 </resources>

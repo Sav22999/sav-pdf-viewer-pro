@@ -72,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Închide toate marcajele</string>
     <string name="tooltip_get_help">Obțineți ajutor</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Caută text…</string>
+    <string name="search_no_results">Nu s-au găsit rezultate</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indexare pagina %1$d din %2$d…</string>
+    <string name="search_ready">Pregătit</string>
+    <string name="tooltip_search">Caută text în PDF</string>
+    <string name="tooltip_search_prev">Rezultatul anterior</string>
+    <string name="tooltip_search_next">Rezultatul următor</string>
+    <string name="tooltip_search_close">Închide căutarea</string>
+    <string name="tooltip_search_case_sensitive">Sensibil la majuscule</string>
+    <string name="tooltip_search_whole_word">Cuvânt întreg</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Textul paginii</string>
+    <string name="copy_all_text">Copiază tot</string>
+    <string name="tooltip_select_text">Selectează și copiază text</string>
+    <string name="select_text_copied">Text copiat în clipboard</string>
+    <string name="select_text_extracting">Se extrage textul…</string>
+    <string name="select_text_no_text">Nu s-a găsit text pe această pagină</string>
+    <string name="select_text_page_info">Pagina %1$d din %2$d</string>
+    <string name="text_selection_mode_hint">Apăsați lung și trageți pentru a selecta text</string>
+    <string name="text_selection_count">%1$d cuvinte selectate</string>
+    <string name="text_selection_mode_active">Mod selecție text</string>
+    <string name="tooltip_close_selection_mode">Închide selecția</string>
+    <string name="tooltip_copy_selection">Copiază selecția</string>
+    <string name="tooltip_toggle_character_selection">Comută modul de selecție caracter</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Mod selecție cuvânt</string>
+    <string name="tooltip_selection_mode_character">Mod selecție caracter</string>
+    <string name="text_copied_preview">"%1$s" copiat în clipboard</string>
+
+    <string name="button_back">Înapoi</string>
 </resources>
