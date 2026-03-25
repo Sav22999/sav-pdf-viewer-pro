@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Show night light</string>
     <string name="tooltip_night_light_off">Hide night light</string>
     <string name="tooltip_go_to_feature">Open \'Go to\' feature</string>
+    <string name="tooltip_go_to_bottom">Đi đến cuối tệp</string>
     <string name="tooltip_go_to_top">Go to the first page of the file</string>
     <string name="tooltip_open_new_file">Open a new file</string>
-    <string name="tooltip_scroll_horizontally">Scroll horizontally</string>
-    <string name="tooltip_scroll_vertically">Scroll vertically</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Cuộn dọc từ trên xuống dưới</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Cuộn dọc từ dưới lên trên</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Cuộn ngang từ trái sang phải</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Cuộn ngang từ phải sang trái</string>
     <string name="tooltip_force_dark_filter">Enabled the forced-dark filter</string>
     <string name="tooltip_force_dark_filter_disable">Disable the forced-dark filter</string>
     <string name="tooltip_single_page_scroll">Enable single page viewing mode</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Close all bookmarks</string>
     <string name="tooltip_get_help">Get help</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Tìm kiếm văn bản…</string>
+    <string name="search_no_results">Không tìm thấy kết quả</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Đang lập chỉ mục trang %1$d / %2$d…</string>
+    <string name="search_ready">Sẵn sàng</string>
+    <string name="tooltip_search">Tìm kiếm văn bản trong PDF</string>
+    <string name="tooltip_search_prev">Kết quả trước</string>
+    <string name="tooltip_search_next">Kết quả tiếp theo</string>
+    <string name="tooltip_search_close">Đóng tìm kiếm</string>
+    <string name="tooltip_search_case_sensitive">Phân biệt hoa thường</string>
+    <string name="tooltip_search_whole_word">Toàn bộ từ</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Văn bản trang</string>
+    <string name="copy_all_text">Sao chép tất cả</string>
+    <string name="tooltip_select_text">Chọn và sao chép văn bản</string>
+    <string name="select_text_copied">Đã sao chép văn bản vào bộ nhớ tạm</string>
+    <string name="select_text_extracting">Đang trích xuất văn bản…</string>
+    <string name="select_text_no_text">Không tìm thấy văn bản trên trang này</string>
+    <string name="select_text_page_info">Trang %1$d / %2$d</string>
+    <string name="text_selection_mode_hint">Nhấn giữ và kéo để chọn văn bản</string>
+    <string name="text_selection_count">Đã chọn %1$d từ</string>
+    <string name="text_selection_mode_active">Chế độ chọn văn bản</string>
+    <string name="tooltip_close_selection_mode">Đóng lựa chọn</string>
+    <string name="tooltip_copy_selection">Sao chép lựa chọn</string>
+    <string name="tooltip_toggle_character_selection">Chuyển chế độ chọn ký tự</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Chế độ chọn từ</string>
+    <string name="tooltip_selection_mode_character">Chế độ chọn ký tự</string>
+    <string name="text_copied_preview">Đã sao chép "%1$s" vào bộ nhớ tạm</string>
+
+    <string name="button_back">Quay lại</string>
 </resources>

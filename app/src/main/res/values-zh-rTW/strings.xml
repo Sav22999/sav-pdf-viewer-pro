@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Show night light</string>
     <string name="tooltip_night_light_off">Hide night light</string>
     <string name="tooltip_go_to_feature">Open \'Go to\' feature</string>
+    <string name="tooltip_go_to_bottom">前往檔案底部</string>
     <string name="tooltip_go_to_top">Go to the first page of the file</string>
     <string name="tooltip_open_new_file">Open a new file</string>
-    <string name="tooltip_scroll_horizontally">Scroll horizontally</string>
-    <string name="tooltip_scroll_vertically">Scroll vertically</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">由上到下垂直捲動</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">由下到上垂直捲動</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">由左到右水平捲動</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">由右到左水平捲動</string>
     <string name="tooltip_force_dark_filter">Enabled the forced-dark filter</string>
     <string name="tooltip_force_dark_filter_disable">Disable the forced-dark filter</string>
     <string name="tooltip_single_page_scroll">Enable single page viewing mode</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Close all bookmarks</string>
     <string name="tooltip_get_help">Get help</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">搜尋文字…</string>
+    <string name="search_no_results">未找到結果</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">正在索引第 %1$d 頁，共 %2$d 頁…</string>
+    <string name="search_ready">就緒</string>
+    <string name="tooltip_search">在PDF中搜尋文字</string>
+    <string name="tooltip_search_prev">上一個結果</string>
+    <string name="tooltip_search_next">下一個結果</string>
+    <string name="tooltip_search_close">關閉搜尋</string>
+    <string name="tooltip_search_case_sensitive">區分大小寫</string>
+    <string name="tooltip_search_whole_word">全詞比對</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">頁面文字</string>
+    <string name="copy_all_text">複製全部</string>
+    <string name="tooltip_select_text">選取並複製文字</string>
+    <string name="select_text_copied">文字已複製到剪貼簿</string>
+    <string name="select_text_extracting">正在擷取文字…</string>
+    <string name="select_text_no_text">此頁面未找到文字</string>
+    <string name="select_text_page_info">第 %1$d 頁，共 %2$d 頁</string>
+    <string name="text_selection_mode_hint">長按並拖曳以選取文字</string>
+    <string name="text_selection_count">已選取 %1$d 個詞</string>
+    <string name="text_selection_mode_active">文字選取模式</string>
+    <string name="tooltip_close_selection_mode">關閉選取</string>
+    <string name="tooltip_copy_selection">複製選取</string>
+    <string name="tooltip_toggle_character_selection">切換字元選取模式</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">詞語選取模式</string>
+    <string name="tooltip_selection_mode_character">字元選取模式</string>
+    <string name="text_copied_preview">“%1$s”已複製到剪貼簿</string>
+
+    <string name="button_back">返回</string>
 </resources>

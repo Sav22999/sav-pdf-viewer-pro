@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Mostrar luz nocturna</string>
     <string name="tooltip_night_light_off">Ocultar luz nocturna</string>
     <string name="tooltip_go_to_feature">Abrir función \'Ir a\'</string>
+    <string name="tooltip_go_to_bottom">Ir al final del archivo</string>
     <string name="tooltip_go_to_top">Ir a la primera página del archivo</string>
     <string name="tooltip_open_new_file">Abrir un nuevo archivo</string>
-    <string name="tooltip_scroll_horizontally">Desplazar horizontalmente</string>
-    <string name="tooltip_scroll_vertically">Desplazar verticalmente</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Desplazar verticalmente de arriba hacia abajo</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Desplazar verticalmente de abajo hacia arriba</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Desplazar horizontalmente de izquierda a derecha</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Desplazar horizontalmente de derecha a izquierda</string>
     <string name="tooltip_force_dark_filter">Habilitar el filtro forzado oscuro</string>
     <string name="tooltip_force_dark_filter_disable">Desactivar el filtro forzado oscuro</string>
     <string name="tooltip_single_page_scroll">Activar modo de visualización de una página</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Cerrar todos los marcadores</string>
     <string name="tooltip_get_help">Obtener ayuda</string>
     <string name="confirmation_open_link">¿Quieres abrir <b>{{url}}</b> en tu navegador?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Buscar texto…</string>
+    <string name="search_no_results">No se encontraron resultados</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indexando página %1$d de %2$d…</string>
+    <string name="search_ready">Listo</string>
+    <string name="tooltip_search">Buscar texto en PDF</string>
+    <string name="tooltip_search_prev">Resultado anterior</string>
+    <string name="tooltip_search_next">Siguiente resultado</string>
+    <string name="tooltip_search_close">Cerrar búsqueda</string>
+    <string name="tooltip_search_case_sensitive">Distinguir mayúsculas</string>
+    <string name="tooltip_search_whole_word">Palabra completa</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Texto de la página</string>
+    <string name="copy_all_text">Copiar todo</string>
+    <string name="tooltip_select_text">Seleccionar y copiar texto</string>
+    <string name="select_text_copied">Texto copiado al portapapeles</string>
+    <string name="select_text_extracting">Extrayendo texto…</string>
+    <string name="select_text_no_text">No se encontró texto en esta página</string>
+    <string name="select_text_page_info">Página %1$d de %2$d</string>
+    <string name="text_selection_mode_hint">Mantén pulsado y arrastra para seleccionar texto</string>
+    <string name="text_selection_count">%1$d palabras seleccionadas</string>
+    <string name="text_selection_mode_active">Modo de selección de texto</string>
+    <string name="tooltip_close_selection_mode">Cerrar selección</string>
+    <string name="tooltip_copy_selection">Copiar selección</string>
+    <string name="tooltip_toggle_character_selection">Alternar modo de selección de carácter</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Modo de selección de palabra</string>
+    <string name="tooltip_selection_mode_character">Modo de selección de carácter</string>
+    <string name="text_copied_preview">"%1$s" copiado al portapapeles</string>
+
+    <string name="button_back">Atrás</string>
 </resources>

@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Gece lambasını göster</string>
     <string name="tooltip_night_light_off">Gece lambasını gizle</string>
     <string name="tooltip_go_to_feature">\'Git\' özelliğini açın</string>
+    <string name="tooltip_go_to_bottom">Dosyanın sonuna git</string>
     <string name="tooltip_go_to_top">Dosyanın ilk sayfasına git</string>
     <string name="tooltip_open_new_file">Yeni bir dosya aç</string>
-    <string name="tooltip_scroll_horizontally">Yatay olarak kaydır</string>
-    <string name="tooltip_scroll_vertically">Dikey olarak kaydır</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Yukarıdan aşağıya dikey kaydır</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Aşağıdan yukarıya dikey kaydır</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Soldan sağa yatay kaydır</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Sağdan sola yatay kaydır</string>
     <string name="tooltip_force_dark_filter">Zorlanmış karanlık filtresi etkinleştirildi</string>
     <string name="tooltip_force_dark_filter_disable">Zorlanmış karanlık filtresini devre dışı bırak</string>
     <string name="tooltip_single_page_scroll">Tek sayfa görüntüleme modunu etkinleştir</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Tüm yer işaretlerini kapat</string>
     <string name="tooltip_get_help">Yardım alın</string>
     <string name="confirmation_open_link">Açmak istiyor musunuz <b>{{url}}</b> tarayıcınızda mı?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Metin ara…</string>
+    <string name="search_no_results">Sonuç bulunamadı</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Sayfa %1$d / %2$d dizinleniyor…</string>
+    <string name="search_ready">Hazır</string>
+    <string name="tooltip_search">PDF\'de metin ara</string>
+    <string name="tooltip_search_prev">Önceki sonuç</string>
+    <string name="tooltip_search_next">Sonraki sonuç</string>
+    <string name="tooltip_search_close">Aramayı kapat</string>
+    <string name="tooltip_search_case_sensitive">Büyük/küçük harf duyarlı</string>
+    <string name="tooltip_search_whole_word">Tam kelime</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Sayfa metni</string>
+    <string name="copy_all_text">Tümünü kopyala</string>
+    <string name="tooltip_select_text">Metin seç ve kopyala</string>
+    <string name="select_text_copied">Metin panoya kopyalandı</string>
+    <string name="select_text_extracting">Metin çıkarılıyor…</string>
+    <string name="select_text_no_text">Bu sayfada metin bulunamadı</string>
+    <string name="select_text_page_info">Sayfa %1$d / %2$d</string>
+    <string name="text_selection_mode_hint">Metin seçmek için uzun basın ve sürükleyin</string>
+    <string name="text_selection_count">%1$d kelime seçildi</string>
+    <string name="text_selection_mode_active">Metin seçim modu</string>
+    <string name="tooltip_close_selection_mode">Seçimi kapat</string>
+    <string name="tooltip_copy_selection">Seçimi kopyala</string>
+    <string name="tooltip_toggle_character_selection">Karakter seçim modunu değiştir</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Kelime seçim modu</string>
+    <string name="tooltip_selection_mode_character">Karakter seçim modu</string>
+    <string name="text_copied_preview">"%1$s" panoya kopyalandı</string>
+
+    <string name="button_back">Geri</string>
 </resources>

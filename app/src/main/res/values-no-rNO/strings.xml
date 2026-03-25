@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Vis nattlys</string>
     <string name="tooltip_night_light_off">Skjul nattlys</string>
     <string name="tooltip_go_to_feature">Åpne \"Gå til\" funksjonen</string>
+    <string name="tooltip_go_to_bottom">Gå til bunnen av filen</string>
     <string name="tooltip_go_to_top">Gå til den første siden i filen</string>
     <string name="tooltip_open_new_file">Åpne en ny fil</string>
-    <string name="tooltip_scroll_horizontally">Rull horisontalt</string>
-    <string name="tooltip_scroll_vertically">Rull vertikalt</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Rull vertikalt fra topp til bunn</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Rull vertikalt fra bunn til topp</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Rull horisontalt fra venstre til høyre</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Rull horisontalt fra høyre til venstre</string>
     <string name="tooltip_force_dark_filter">Aktiverte det kraftfulle mørke filteret</string>
     <string name="tooltip_force_dark_filter_disable">Deaktiver det kraftede mørke-filteret</string>
     <string name="tooltip_single_page_scroll">Aktiver modus for kun sidevisning</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Lukk alle bokmerker</string>
     <string name="tooltip_get_help">Få hjelp</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Søk tekst…</string>
+    <string name="search_no_results">Ingen resultater funnet</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indekserer side %1$d av %2$d…</string>
+    <string name="search_ready">Klar</string>
+    <string name="tooltip_search">Søk tekst i PDF</string>
+    <string name="tooltip_search_prev">Forrige resultat</string>
+    <string name="tooltip_search_next">Neste resultat</string>
+    <string name="tooltip_search_close">Lukk søk</string>
+    <string name="tooltip_search_case_sensitive">Skille mellom store og små bokstaver</string>
+    <string name="tooltip_search_whole_word">Helt ord</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Sidetekst</string>
+    <string name="copy_all_text">Kopier alt</string>
+    <string name="tooltip_select_text">Velg og kopier tekst</string>
+    <string name="select_text_copied">Tekst kopiert til utklippstavle</string>
+    <string name="select_text_extracting">Trekker ut tekst…</string>
+    <string name="select_text_no_text">Ingen tekst funnet på denne siden</string>
+    <string name="select_text_page_info">Side %1$d av %2$d</string>
+    <string name="text_selection_mode_hint">Langt trykk og dra for å velge tekst</string>
+    <string name="text_selection_count">%1$d ord valgt</string>
+    <string name="text_selection_mode_active">Tekstvalg-modus</string>
+    <string name="tooltip_close_selection_mode">Lukk valg</string>
+    <string name="tooltip_copy_selection">Kopier valg</string>
+    <string name="tooltip_toggle_character_selection">Bytt tegnvalgmodus</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Ordvalgmodus</string>
+    <string name="tooltip_selection_mode_character">Tegnvalgmodus</string>
+    <string name="text_copied_preview">"%1$s" kopiert til utklippstavle</string>
+
+    <string name="button_back">Tilbake</string>
 </resources>

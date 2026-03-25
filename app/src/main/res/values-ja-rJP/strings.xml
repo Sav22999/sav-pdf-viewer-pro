@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">夜間ライトを表示</string>
     <string name="tooltip_night_light_off">夜間ライトを隠す</string>
     <string name="tooltip_go_to_feature">「移動先」機能を開く</string>
+    <string name="tooltip_go_to_bottom">ファイルの末尾へ移動</string>
     <string name="tooltip_go_to_top">ファイルの最初のページに移動</string>
     <string name="tooltip_open_new_file">新しいファイルを開く</string>
-    <string name="tooltip_scroll_horizontally">横にスクロール</string>
-    <string name="tooltip_scroll_vertically">垂直スクロール</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">上から下へ縦にスクロール</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">下から上へ縦にスクロール</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">左から右へ横にスクロール</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">右から左へ横にスクロール</string>
     <string name="tooltip_force_dark_filter">強制ダークフィルタを有効にしました</string>
     <string name="tooltip_force_dark_filter_disable">強制ダークフィルタを無効にする</string>
     <string name="tooltip_single_page_scroll">単一ページ表示モードを有効にする</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">すべてのブックマークを閉じる</string>
     <string name="tooltip_get_help">ヘルプを見る</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">テキストを検索…</string>
+    <string name="search_no_results">結果が見つかりません</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">ページ %1$d / %2$d をインデックス中…</string>
+    <string name="search_ready">準備完了</string>
+    <string name="tooltip_search">PDFのテキストを検索</string>
+    <string name="tooltip_search_prev">前の結果</string>
+    <string name="tooltip_search_next">次の結果</string>
+    <string name="tooltip_search_close">検索を閉じる</string>
+    <string name="tooltip_search_case_sensitive">大文字と小文字を区別</string>
+    <string name="tooltip_search_whole_word">単語全体</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">ページテキスト</string>
+    <string name="copy_all_text">すべてコピー</string>
+    <string name="tooltip_select_text">テキストを選択してコピー</string>
+    <string name="select_text_copied">テキストをクリップボードにコピーしました</string>
+    <string name="select_text_extracting">テキストを抽出中…</string>
+    <string name="select_text_no_text">このページにテキストが見つかりません</string>
+    <string name="select_text_page_info">ページ %1$d / %2$d</string>
+    <string name="text_selection_mode_hint">長押ししてドラッグしてテキストを選択</string>
+    <string name="text_selection_count">%1$d 語選択中</string>
+    <string name="text_selection_mode_active">テキスト選択モード</string>
+    <string name="tooltip_close_selection_mode">選択を閉じる</string>
+    <string name="tooltip_copy_selection">選択をコピー</string>
+    <string name="tooltip_toggle_character_selection">文字選択モードに切り替え</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">単語選択モード</string>
+    <string name="tooltip_selection_mode_character">文字選択モード</string>
+    <string name="text_copied_preview">"%1$s" をクリップボードにコピーしました</string>
+
+    <string name="button_back">戻る</string>
 </resources>

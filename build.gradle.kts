@@ -7,8 +7,8 @@ buildscript {
         mavenCentral() // Replaced jcenter()
     }
     dependencies {
-        classpath ("com.android.tools.build:gradle:7.4.1")
-        classpath ("org.jetbrains.kotlin:kotlin-gradle-plugin:1.8.21")
+        classpath ("com.android.tools.build:gradle:8.8.2")
+        classpath ("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -22,6 +22,12 @@ allprojects {
     }
 }
 
+tasks.register<Exec>("fixNativeAlignment") {
+    group = "alignment"
+    description = "Extracts and aligns native libraries to 16KB page boundaries."
+    commandLine("python3", "fix_elf_alignment.py")
+}
+
 tasks.register("clean",Delete::class.java) {
-    delete(rootProject.buildDir)
+    delete(rootProject.layout.buildDirectory)
 }

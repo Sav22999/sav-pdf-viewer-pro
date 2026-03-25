@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Nachtlicht weergeven</string>
     <string name="tooltip_night_light_off">Nachtlicht verbergen</string>
     <string name="tooltip_go_to_feature">Open \'Ga naar\' functie</string>
+    <string name="tooltip_go_to_bottom">Ga naar het einde van het bestand</string>
     <string name="tooltip_go_to_top">Ga naar de eerste pagina van het bestand</string>
     <string name="tooltip_open_new_file">Open een nieuw bestand</string>
-    <string name="tooltip_scroll_horizontally">Scroll horizontaal</string>
-    <string name="tooltip_scroll_vertically">Scroll verticaal</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Verticaal scrollen van boven naar beneden</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Verticaal scrollen van beneden naar boven</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Horizontaal scrollen van links naar rechts</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Horizontaal scrollen van rechts naar links</string>
     <string name="tooltip_force_dark_filter">Het geforceerde donkere filter ingeschakeld</string>
     <string name="tooltip_force_dark_filter_disable">Schakel het geforceerde donkere filter uit</string>
     <string name="tooltip_single_page_scroll">Schakel één pagina weergavemodus in</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Alle bladwijzers sluiten</string>
     <string name="tooltip_get_help">Hulp vragen</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Tekst zoeken…</string>
+    <string name="search_no_results">Geen resultaten gevonden</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Pagina %1$d van %2$d indexeren…</string>
+    <string name="search_ready">Klaar</string>
+    <string name="tooltip_search">Tekst zoeken in PDF</string>
+    <string name="tooltip_search_prev">Vorig resultaat</string>
+    <string name="tooltip_search_next">Volgend resultaat</string>
+    <string name="tooltip_search_close">Zoekopdracht sluiten</string>
+    <string name="tooltip_search_case_sensitive">Hoofdlettergevoelig</string>
+    <string name="tooltip_search_whole_word">Heel woord</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Paginatekst</string>
+    <string name="copy_all_text">Alles kopiëren</string>
+    <string name="tooltip_select_text">Tekst selecteren en kopiëren</string>
+    <string name="select_text_copied">Tekst gekopieerd naar klembord</string>
+    <string name="select_text_extracting">Tekst extraheren…</string>
+    <string name="select_text_no_text">Geen tekst gevonden op deze pagina</string>
+    <string name="select_text_page_info">Pagina %1$d van %2$d</string>
+    <string name="text_selection_mode_hint">Lang indrukken en slepen om tekst te selecteren</string>
+    <string name="text_selection_count">%1$d woorden geselecteerd</string>
+    <string name="text_selection_mode_active">Tekstselectiemodus</string>
+    <string name="tooltip_close_selection_mode">Selectie sluiten</string>
+    <string name="tooltip_copy_selection">Selectie kopiëren</string>
+    <string name="tooltip_toggle_character_selection">Tekenselectiemodus wisselen</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Woordselectiemodus</string>
+    <string name="tooltip_selection_mode_character">Tekenselectiemodus</string>
+    <string name="text_copied_preview">"%1$s" gekopieerd naar klembord</string>
+
+    <string name="button_back">Terug</string>
 </resources>

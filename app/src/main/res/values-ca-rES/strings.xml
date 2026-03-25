@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Show night light</string>
     <string name="tooltip_night_light_off">Hide night light</string>
     <string name="tooltip_go_to_feature">Open \'Go to\' feature</string>
+    <string name="tooltip_go_to_bottom">Ves al final del fitxer</string>
     <string name="tooltip_go_to_top">Go to the first page of the file</string>
     <string name="tooltip_open_new_file">Open a new file</string>
-    <string name="tooltip_scroll_horizontally">Scroll horizontally</string>
-    <string name="tooltip_scroll_vertically">Scroll vertically</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Desplaça verticalment de dalt a baix</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Desplaça verticalment de baix a dalt</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Desplaça horitzontalment d\'esquerra a dreta</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Desplaça horitzontalment de dreta a esquerra</string>
     <string name="tooltip_force_dark_filter">Enabled the forced-dark filter</string>
     <string name="tooltip_force_dark_filter_disable">Disable the forced-dark filter</string>
     <string name="tooltip_single_page_scroll">Enable single page viewing mode</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Close all bookmarks</string>
     <string name="tooltip_get_help">Get help</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Cercar text…</string>
+    <string name="search_no_results">No s\'han trobat resultats</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indexant pàgina %1$d de %2$d…</string>
+    <string name="search_ready">Preparat</string>
+    <string name="tooltip_search">Cercar text al PDF</string>
+    <string name="tooltip_search_prev">Resultat anterior</string>
+    <string name="tooltip_search_next">Resultat següent</string>
+    <string name="tooltip_search_close">Tancar cerca</string>
+    <string name="tooltip_search_case_sensitive">Distingir majúscules</string>
+    <string name="tooltip_search_whole_word">Paraula sencera</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Text de la pàgina</string>
+    <string name="copy_all_text">Copiar tot</string>
+    <string name="tooltip_select_text">Seleccionar i copiar text</string>
+    <string name="select_text_copied">Text copiat al porta-retalls</string>
+    <string name="select_text_extracting">Extraient text…</string>
+    <string name="select_text_no_text">No s\'ha trobat text en aquesta pàgina</string>
+    <string name="select_text_page_info">Pàgina %1$d de %2$d</string>
+    <string name="text_selection_mode_hint">Manteniu premut i arrossegueu per seleccionar text</string>
+    <string name="text_selection_count">%1$d paraules seleccionades</string>
+    <string name="text_selection_mode_active">Mode de selecció de text</string>
+    <string name="tooltip_close_selection_mode">Tancar selecció</string>
+    <string name="tooltip_copy_selection">Copiar selecció</string>
+    <string name="tooltip_toggle_character_selection">Alternar mode de selecció de caràcter</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Mode de selecció de paraula</string>
+    <string name="tooltip_selection_mode_character">Mode de selecció de caràcter</string>
+    <string name="text_copied_preview">"%1$s" copiat al porta-retalls</string>
+
+    <string name="button_back">Enrere</string>
 </resources>

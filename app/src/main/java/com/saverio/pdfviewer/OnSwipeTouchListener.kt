@@ -35,15 +35,15 @@ abstract class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
         }
 
         override fun onFling(
-            e1: MotionEvent,
+            e1: MotionEvent?,
             e2: MotionEvent,
             velocityX: Float,
             velocityY: Float
         ): Boolean {
             var result = false
             try {
-                val diffY = e2.y - e1.y
-                val diffX = e2.x - e1.x
+                val diffY = e2.y - (e1?.y ?: 0f)
+                val diffX = e2.x - (e1?.x ?: 0f)
                 if (abs(diffX) > abs(diffY)) {
                     if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
@@ -73,14 +73,14 @@ abstract class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
         }
 
         override fun onScroll(
-            e1: MotionEvent,
+            e1: MotionEvent?,
             e2: MotionEvent,
             distanceX: Float,
             distanceY: Float
         ): Boolean {
             var type: String
-            val diffY = e2.y - e1.y
-            val diffX = e2.x - e1.x
+            val diffY = e2.y - (e1?.y ?: 0f)
+            val diffX = e2.x - (e1?.x ?: 0f)
             if (abs(diffX) > abs(diffY)) {
                 if (diffX > 0) {
                     type = "r"//right

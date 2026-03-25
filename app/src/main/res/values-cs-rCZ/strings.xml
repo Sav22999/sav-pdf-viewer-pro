@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Zobrazit noční světlo</string>
     <string name="tooltip_night_light_off">Skrýt noční světlo</string>
     <string name="tooltip_go_to_feature">Otevřít funkci \'Přejít na\'</string>
+    <string name="tooltip_go_to_bottom">Přejít na konec souboru</string>
     <string name="tooltip_go_to_top">Přejít na první stránku souboru</string>
     <string name="tooltip_open_new_file">Otevřít nový soubor</string>
-    <string name="tooltip_scroll_horizontally">Posunout vodorovně</string>
-    <string name="tooltip_scroll_vertically">Posunout svisle</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Posouvat svisle shora dolů</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Posouvat svisle zdola nahoru</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Posouvat vodorovně zleva doprava</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Posouvat vodorovně zprava doleva</string>
     <string name="tooltip_force_dark_filter">Povoleno nucené tmavé filtry</string>
     <string name="tooltip_force_dark_filter_disable">Zakázat vynucený tmavý filtr</string>
     <string name="tooltip_single_page_scroll">Povolit režim prohlížení na jedné stránce</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Zavřít všechny záložky</string>
     <string name="tooltip_get_help">Získat pomoc</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Hledat text…</string>
+    <string name="search_no_results">Nebyly nalezeny žádné výsledky</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indexování stránky %1$d z %2$d…</string>
+    <string name="search_ready">Připraveno</string>
+    <string name="tooltip_search">Hledat text v PDF</string>
+    <string name="tooltip_search_prev">Předchozí výsledek</string>
+    <string name="tooltip_search_next">Další výsledek</string>
+    <string name="tooltip_search_close">Zavřít hledání</string>
+    <string name="tooltip_search_case_sensitive">Rozlišovat velikost písmen</string>
+    <string name="tooltip_search_whole_word">Celé slovo</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Text stránky</string>
+    <string name="copy_all_text">Kopírovat vše</string>
+    <string name="tooltip_select_text">Vybrat a kopírovat text</string>
+    <string name="select_text_copied">Text zkopírován do schránky</string>
+    <string name="select_text_extracting">Extrahování textu…</string>
+    <string name="select_text_no_text">Na této stránce nebyl nalezen žádný text</string>
+    <string name="select_text_page_info">Stránka %1$d z %2$d</string>
+    <string name="text_selection_mode_hint">Dlouze stiskněte a přetáhněte pro výběr textu</string>
+    <string name="text_selection_count">%1$d slov vybráno</string>
+    <string name="text_selection_mode_active">Režim výběru textu</string>
+    <string name="tooltip_close_selection_mode">Zavřít výběr</string>
+    <string name="tooltip_copy_selection">Kopírovat výběr</string>
+    <string name="tooltip_toggle_character_selection">Přepnout režim výběru znaků</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Režim výběru slov</string>
+    <string name="tooltip_selection_mode_character">Režim výběru znaků</string>
+    <string name="text_copied_preview">"%1$s" zkopírováno do schránky</string>
+
+    <string name="button_back">Zpět</string>
 </resources>

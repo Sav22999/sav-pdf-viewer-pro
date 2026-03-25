@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Показувати світловий екран</string>
     <string name="tooltip_night_light_off">Приховати нічну лампу</string>
     <string name="tooltip_go_to_feature">Відкрити функцію \"Перейти до\"</string>
+    <string name="tooltip_go_to_bottom">Перейти в кінець файлу</string>
     <string name="tooltip_go_to_top">Перейти на першу сторінку файлу</string>
     <string name="tooltip_open_new_file">Відкрити новий файл</string>
-    <string name="tooltip_scroll_horizontally">Гортати по горизонталі</string>
-    <string name="tooltip_scroll_vertically">Прокручування по вертикалі</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Прокручувати вертикально зверху вниз</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Прокручувати вертикально знизу вгору</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Прокручувати горизонтально зліва направо</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Прокручувати горизонтально справа наліво</string>
     <string name="tooltip_force_dark_filter">Увімкнено примусово темний фільтр</string>
     <string name="tooltip_force_dark_filter_disable">Вимкнути посилений темний фільтр</string>
     <string name="tooltip_single_page_scroll">Увімкнути режим перегляду однієї сторінки</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Закрити всі закладки</string>
     <string name="tooltip_get_help">Отримати допомогу</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Пошук тексту…</string>
+    <string name="search_no_results">Результатів не знайдено</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Індексація сторінки %1$d з %2$d…</string>
+    <string name="search_ready">Готово</string>
+    <string name="tooltip_search">Пошук тексту в PDF</string>
+    <string name="tooltip_search_prev">Попередній результат</string>
+    <string name="tooltip_search_next">Наступний результат</string>
+    <string name="tooltip_search_close">Закрити пошук</string>
+    <string name="tooltip_search_case_sensitive">З урахуванням регістру</string>
+    <string name="tooltip_search_whole_word">Ціле слово</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Текст сторінки</string>
+    <string name="copy_all_text">Копіювати все</string>
+    <string name="tooltip_select_text">Виділити та скопіювати текст</string>
+    <string name="select_text_copied">Текст скопійовано до буфера обміну</string>
+    <string name="select_text_extracting">Витягування тексту…</string>
+    <string name="select_text_no_text">На цій сторінці не знайдено тексту</string>
+    <string name="select_text_page_info">Сторінка %1$d з %2$d</string>
+    <string name="text_selection_mode_hint">Натисніть і утримуйте, потім перетягніть для виділення тексту</string>
+    <string name="text_selection_count">Виділено слів: %1$d</string>
+    <string name="text_selection_mode_active">Режим виділення тексту</string>
+    <string name="tooltip_close_selection_mode">Закрити виділення</string>
+    <string name="tooltip_copy_selection">Копіювати виділення</string>
+    <string name="tooltip_toggle_character_selection">Перемкнути режим посимвольного виділення</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Режим виділення слів</string>
+    <string name="tooltip_selection_mode_character">Режим посимвольного виділення</string>
+    <string name="text_copied_preview">"%1$s" скопійовано до буфера обміну</string>
+
+    <string name="button_back">Назад</string>
 </resources>

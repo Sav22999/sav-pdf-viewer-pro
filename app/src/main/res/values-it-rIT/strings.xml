@@ -31,6 +31,7 @@
     <string name="text_password_inserted_wrong">Password inserita errata</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Vai</string>
+    <string name="button_back">Indietro</string>
     <string name="button_close">Chiudi</string>
     <string name="button_open">Apri</string>
     <string name="zoom_status_perc">%d %</string>
@@ -39,10 +40,13 @@
     <string name="tooltip_night_light_on">Mostra luce notturna</string>
     <string name="tooltip_night_light_off">Nascondi luce notturna</string>
     <string name="tooltip_go_to_feature">Apri la funzione \'Vai a\'</string>
+    <string name="tooltip_go_to_bottom">Vai in fondo al file</string>
     <string name="tooltip_go_to_top">Va alla prima pagina del documento</string>
     <string name="tooltip_open_new_file">Apre un nuovo documento</string>
-    <string name="tooltip_scroll_horizontally">Scorri orizzontalmente</string>
-    <string name="tooltip_scroll_vertically">Scorri verticalmente</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Scorri verticalmente dall\'alto verso il basso</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Scorri verticalmente dal basso verso l\'alto</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Scorri orizzontalmente da sinistra a destra</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Scorri orizzontalmente da destra a sinistra</string>
     <string name="tooltip_force_dark_filter">Abilitato il filtro forzato-scuro</string>
     <string name="tooltip_force_dark_filter_disable">Disabilita il filtro scuro forzato</string>
     <string name="tooltip_single_page_scroll">Abilita la modalità di visualizzazione a singola pagina</string>
@@ -59,6 +63,7 @@
     <string name="tooltip_close_app">Chiudi app</string>
     <string name="tooltip_go_to_the_page">Va alla pagina inserita</string>
     <string name="tooltip_close_panel">Chiudi questo pannello</string>
+    <string name="tooltip_back_to_home">Torna alla Home</string>
     <string name="tooltip_ok_button">OK, continue</string>
     <string name="tooltip_open_file_password">Apri questo documento</string>
     <string name="tooltip_review_now">Vai al tuo store delle app e recensisci ora</string>
@@ -68,5 +73,61 @@
     <string name="tooltip_see_all_bookmarks">Vedi tutti i segnalibri</string>
     <string name="tooltip_close_bookmarks">Chiudi tutti i segnalibri</string>
     <string name="tooltip_get_help">Ottieni aiuto</string>
+    <string name="viewer_default_zoom_auto_content_description">Usa lo zoom adattivo per i nuovi documenti</string>
+    <string name="viewer_default_zoom_fixed_content_description">Usa uno zoom fisso per i nuovi documenti</string>
+    <string name="viewer_defaults_dark_filter_schedule">Programmazione automatica filtro scuro</string>
+    <string name="viewer_defaults_night_light_schedule">Programmazione automatica luce notturna</string>
+    <string name="viewer_defaults_schedule_on">Programmazione automatica attiva</string>
+    <string name="viewer_defaults_schedule_off">Programmazione automatica disattiva</string>
+    <string name="viewer_defaults_start_time">Ora di inizio</string>
+    <string name="viewer_defaults_end_time">Ora di fine</string>
+    <string name="viewer_defaults_zoom_mode_auto">Auto</string>
+    <string name="viewer_defaults_zoom_mode_fixed">Fisso</string>
+    <string name="viewer_defaults_mode_always_on">Sempre attivo</string>
+    <string name="viewer_defaults_mode_auto">Auto</string>
+    <string name="viewer_defaults_mode_off">Disattivo</string>
+    <string name="viewer_defaults_clear_recents">Cancella tutti i recenti</string>
+    <string name="viewer_defaults_clear_recents_confirm_title">Cancella recenti</string>
+    <string name="viewer_defaults_clear_recents_confirm_message">Vuoi rimuovere tutti i documenti recenti?</string>
+    <string name="viewer_defaults_clear_recents_done">Documenti recenti rimossi</string>
+    <string name="viewer_defaults_reset_confirm_title">Reimposta impostazioni</string>
+    <string name="viewer_defaults_reset_confirm_message">Vuoi reimpostare tutte le impostazioni predefinite?</string>
+    <string name="tooltip_delete_recent_document">Rimuovi questo documento recente</string>
+    <string name="viewer_defaults_reset">Reimposta impostazioni predefinite</string>
+    <string name="viewer_defaults_reset_done">Impostazioni predefinite ripristinate</string>
+    <string name="home_recent_item_content_description">Apri documento recente %1$s</string>
     <string name="confirmation_open_link">Vuoi aprire <b>{{url}}</b> nel tuo browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Cerca testo…</string>
+    <string name="search_no_results">Nessun risultato trovato</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indicizzazione pagina %1$d di %2$d…</string>
+    <string name="search_ready">Pronto</string>
+    <string name="tooltip_search">Cerca testo nel PDF</string>
+    <string name="tooltip_search_prev">Risultato precedente</string>
+    <string name="tooltip_search_next">Risultato successivo</string>
+    <string name="tooltip_search_close">Chiudi ricerca</string>
+    <string name="tooltip_search_case_sensitive">Maiuscole/minuscole</string>
+    <string name="tooltip_search_whole_word">Parola intera</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Testo della pagina</string>
+    <string name="copy_all_text">Copia tutto</string>
+    <string name="tooltip_select_text">Seleziona e copia testo</string>
+    <string name="select_text_copied">Testo copiato negli appunti</string>
+    <string name="select_text_extracting">Estrazione del testo…</string>
+    <string name="select_text_no_text">Nessun testo trovato in questa pagina</string>
+    <string name="select_text_page_info">Pagina %1$d di %2$d</string>
+    <string name="text_selection_mode_hint">Tieni premuto e trascina per selezionare il testo</string>
+    <string name="text_selection_count">%1$d parole selezionate</string>
+    <string name="text_selection_mode_active">Modalità selezione testo</string>
+    <string name="tooltip_close_selection_mode">Chiudi selezione</string>
+    <string name="tooltip_copy_selection">Copia selezione</string>
+    <string name="tooltip_toggle_character_selection">Attiva/disattiva modalità selezione carattere</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Modalità selezione parola</string>
+    <string name="tooltip_selection_mode_character">Modalità selezione carattere</string>
+    <string name="text_copied_preview">"%1$s" copiato negli appunti</string>
 </resources>

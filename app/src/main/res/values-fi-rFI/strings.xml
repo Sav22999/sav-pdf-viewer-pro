@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Näytä yövalo</string>
     <string name="tooltip_night_light_off">Piilota yövalo</string>
     <string name="tooltip_go_to_feature">Avaa \'Mene kohtaan\' -ominaisuus</string>
+    <string name="tooltip_go_to_bottom">Siirry tiedoston loppuun</string>
     <string name="tooltip_go_to_top">Mene tiedoston ensimmäiselle sivulle</string>
     <string name="tooltip_open_new_file">Avaa uusi tiedosto</string>
-    <string name="tooltip_scroll_horizontally">Vieritä vaakasuunnassa</string>
-    <string name="tooltip_scroll_vertically">Vieritä pystysuoraan</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Vieritä pystysuunnassa ylhäältä alas</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Vieritä pystysuunnassa alhaalta ylös</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Vieritä vaakasuunnassa vasemmalta oikealle</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Vieritä vaakasuunnassa oikealta vasemmalle</string>
     <string name="tooltip_force_dark_filter">Käytössä pakko-tumma suodatin</string>
     <string name="tooltip_force_dark_filter_disable">Poista pakko-tumma suodatin käytöstä</string>
     <string name="tooltip_single_page_scroll">Ota yhden sivun katselutila käyttöön</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Sulje kaikki kirjanmerkit</string>
     <string name="tooltip_get_help">Hae apua</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Hae tekstiä…</string>
+    <string name="search_no_results">Tuloksia ei löytynyt</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indeksoidaan sivua %1$d / %2$d…</string>
+    <string name="search_ready">Valmis</string>
+    <string name="tooltip_search">Hae tekstiä PDF:stä</string>
+    <string name="tooltip_search_prev">Edellinen tulos</string>
+    <string name="tooltip_search_next">Seuraava tulos</string>
+    <string name="tooltip_search_close">Sulje haku</string>
+    <string name="tooltip_search_case_sensitive">Kirjainkoko</string>
+    <string name="tooltip_search_whole_word">Koko sana</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Sivun teksti</string>
+    <string name="copy_all_text">Kopioi kaikki</string>
+    <string name="tooltip_select_text">Valitse ja kopioi tekstiä</string>
+    <string name="select_text_copied">Teksti kopioitu leikepöydälle</string>
+    <string name="select_text_extracting">Puretaan tekstiä…</string>
+    <string name="select_text_no_text">Tekstiä ei löytynyt tältä sivulta</string>
+    <string name="select_text_page_info">Sivu %1$d / %2$d</string>
+    <string name="text_selection_mode_hint">Paina pitkään ja vedä valitaksesi tekstiä</string>
+    <string name="text_selection_count">%1$d sanaa valittu</string>
+    <string name="text_selection_mode_active">Tekstinvalintatila</string>
+    <string name="tooltip_close_selection_mode">Sulje valinta</string>
+    <string name="tooltip_copy_selection">Kopioi valinta</string>
+    <string name="tooltip_toggle_character_selection">Vaihda merkinvalintatilaan</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Sananvalintatila</string>
+    <string name="tooltip_selection_mode_character">Merkinvalintatila</string>
+    <string name="text_copied_preview">"%1$s" kopioitu leikepöydälle</string>
+
+    <string name="button_back">Takaisin</string>
 </resources>

@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Visa nattljus</string>
     <string name="tooltip_night_light_off">Dölj nattljus</string>
     <string name="tooltip_go_to_feature">Öppna \'Gå till\' funktionen</string>
+    <string name="tooltip_go_to_bottom">Gå till slutet av filen</string>
     <string name="tooltip_go_to_top">Gå till första sidan i filen</string>
     <string name="tooltip_open_new_file">Öppna en ny fil</string>
-    <string name="tooltip_scroll_horizontally">Rulla horisontellt</string>
-    <string name="tooltip_scroll_vertically">Rulla vertikalt</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Rulla vertikalt uppifrån och ner</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Rulla vertikalt nerifrån och upp</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Rulla horisontellt från vänster till höger</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Rulla horisontellt från höger till vänster</string>
     <string name="tooltip_force_dark_filter">Aktiverade det tvångs-mörka filtret</string>
     <string name="tooltip_force_dark_filter_disable">Inaktivera det tvångs-mörka filtret</string>
     <string name="tooltip_single_page_scroll">Aktivera visningsläge för enstaka sidor</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Stäng alla bokmärken</string>
     <string name="tooltip_get_help">Få hjälp</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Sök text…</string>
+    <string name="search_no_results">Inga resultat hittades</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indexerar sida %1$d av %2$d…</string>
+    <string name="search_ready">Redo</string>
+    <string name="tooltip_search">Sök text i PDF</string>
+    <string name="tooltip_search_prev">Föregående resultat</string>
+    <string name="tooltip_search_next">Nästa resultat</string>
+    <string name="tooltip_search_close">Stäng sökning</string>
+    <string name="tooltip_search_case_sensitive">Skiftlägeskänslig</string>
+    <string name="tooltip_search_whole_word">Helt ord</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Sidtext</string>
+    <string name="copy_all_text">Kopiera allt</string>
+    <string name="tooltip_select_text">Markera och kopiera text</string>
+    <string name="select_text_copied">Text kopierad till urklipp</string>
+    <string name="select_text_extracting">Extraherar text…</string>
+    <string name="select_text_no_text">Ingen text hittades på denna sida</string>
+    <string name="select_text_page_info">Sida %1$d av %2$d</string>
+    <string name="text_selection_mode_hint">Tryck länge och dra för att markera text</string>
+    <string name="text_selection_count">%1$d ord markerade</string>
+    <string name="text_selection_mode_active">Textmarkeringsläge</string>
+    <string name="tooltip_close_selection_mode">Stäng markering</string>
+    <string name="tooltip_copy_selection">Kopiera markering</string>
+    <string name="tooltip_toggle_character_selection">Växla teckenmarkeringsläge</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Ordmarkeringsläge</string>
+    <string name="tooltip_selection_mode_character">Teckenmarkeringsläge</string>
+    <string name="text_copied_preview">"%1$s" kopierad till urklipp</string>
+
+    <string name="button_back">Tillbaka</string>
 </resources>

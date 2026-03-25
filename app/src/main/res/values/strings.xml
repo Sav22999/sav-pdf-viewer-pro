@@ -24,11 +24,11 @@
     <string name="print_file_intent">Print file</string>
     <string name="no_file_to_print">No file to print</string>
 
-    <string name="text_tap_here_to_show_the_top_bar">Tap the transparent red section to show the top bar again, which disappears when you scroll.\nAfter 5 seconds the bar is also hidden and to show it again scroll.</string>
+    <string name="text_tap_here_to_show_the_top_bar">Tap the transparent red section to show the action bar again, which disappears when you scroll.\nAfter 5 seconds the bar is also hidden, and to show it again just scroll.</string>
     <string name="text_tap_here_to_show_go_to_dialog">Tap here to show the \"Go to\" panel, so you can quickly go to a specific page.</string>
     <string name="text_tap_here_to_show_menu_panel">Tap here to show the menu panel, so you can turn on or off some options (night light, fullscreen, etc.).</string>
     <string name="text_tap_here_to_add_or_remove_the_current_page_to_bookmarks">Tap (and release) here to add or remove the current page to bookmarks.\nTap and hold ("long tap") here to see all bookmarks saved for the current PDF file.</string>
-    <string name="text_scroll_to_show_the_top_bar_again">After 5 seconds the top bar is automatically hidden so it\'s easier to read your document. To restore the top bar (so, to show it again) you need just to scroll or to tap in any points.</string>
+    <string name="text_scroll_to_show_the_top_bar_again">After 5 seconds the action bar is automatically hidden so it\'s easier to read your document. To restore the action bar, just scroll or tap anywhere.</string>
     <string name="text_swipe_left_to_remove_tap_to_go_to_the_page_bookmarks">Here you have the list of all the bookmarks for the current PDF file.\nYou can see a preview of the page in the left side.\nSwipe left to remove the bookmark, while tap on it to go to the page of the bookmark.</string>
 
     <string name="toast_bookmark_added">Bookmark added</string>
@@ -42,6 +42,7 @@
 
     <string name="button_ok">OK</string>
     <string name="button_go">Go</string>
+    <string name="button_back">Back</string>
     <string name="button_close">Close</string>
     <string name="button_open">Open</string>
     <string name="zoom_status_perc">%d %</string>
@@ -51,10 +52,13 @@
     <string name="tooltip_night_light_on">Show night light</string>
     <string name="tooltip_night_light_off">Hide night light</string>
     <string name="tooltip_go_to_feature">Open \'Go to\' feature</string>
+    <string name="tooltip_go_to_bottom">Go to the bottom of the file</string>
     <string name="tooltip_go_to_top">Go to the first page of the file</string>
     <string name="tooltip_open_new_file">Open a new file</string>
-    <string name="tooltip_scroll_horizontally">Scroll horizontally</string>
-    <string name="tooltip_scroll_vertically">Scroll vertically</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Scroll vertically from top to bottom</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Scroll vertically from bottom to top</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Scroll horizontally from left to right</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Scroll horizontally from right to left</string>
     <string name="tooltip_force_dark_filter">Enabled the forced-dark filter</string>
     <string name="tooltip_force_dark_filter_disable">Disable the forced-dark filter</string>
     <string name="tooltip_single_page_scroll">Enable single page viewing mode</string>
@@ -71,6 +75,7 @@
     <string name="tooltip_close_app">Close app</string>
     <string name="tooltip_go_to_the_page">Go to the inserted page</string>
     <string name="tooltip_close_panel">Close this panel</string>
+    <string name="tooltip_back_to_home" translatable="false">Back to Home</string>
     <string name="tooltip_ok_button">OK, continue</string>
     <string name="tooltip_open_file_password">Open this file</string>
     <string name="tooltip_review_now">Go to your app store and review now</string>
@@ -80,5 +85,92 @@
     <string name="tooltip_see_all_bookmarks">See all bookmarks</string>
     <string name="tooltip_close_bookmarks">Close all bookmarks</string>
     <string name="tooltip_get_help">Get help</string>
+    <string name="tooltip_open_settings" translatable="false">Open viewer settings</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Search text…</string>
+    <string name="search_no_results">No results found</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Indexing page %1$d of %2$d…</string>
+    <string name="search_ready">Ready</string>
+    <string name="tooltip_search">Search text in PDF</string>
+    <string name="tooltip_search_prev">Previous result</string>
+    <string name="tooltip_search_next">Next result</string>
+    <string name="tooltip_search_close">Close search</string>
+    <string name="tooltip_search_case_sensitive">Case sensitive</string>
+    <string name="tooltip_search_whole_word">Whole word</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Page text</string>
+    <string name="copy_all_text">Copy all</string>
+    <string name="tooltip_select_text">Select and copy text</string>
+    <string name="select_text_copied">Text copied to clipboard</string>
+    <string name="select_text_extracting">Extracting text…</string>
+    <string name="select_text_no_text">No text found on this page</string>
+    <string name="select_text_page_info">Page %1$d of %2$d</string>
+    <string name="text_selection_mode_hint">Long-press and drag to select text</string>
+    <string name="text_selection_count">%1$d words selected</string>
+    <string name="text_selection_mode_active">Text selection mode</string>
+    <string name="tooltip_close_selection_mode">Close selection</string>
+    <string name="tooltip_copy_selection">Copy selection</string>
+    <string name="tooltip_share_selection" translatable="false">Share selection</string>
+    <string name="tooltip_toggle_character_selection">Toggle character selection mode</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Word selection mode</string>
+    <string name="tooltip_selection_mode_character">Character selection mode</string>
+    <string name="text_copied_preview">"%1$s" copied to clipboard</string>
+
+    <string name="viewer_defaults_title" translatable="false">Settings</string>
+    <string name="viewer_defaults_scroll_mode" translatable="false">Default direction for new documents</string>
+    <string name="viewer_defaults_zoom" translatable="false">Default zoom for new documents</string>
+    <string name="viewer_default_zoom_adapt" translatable="false">Adapt automatically</string>
+    <string name="viewer_default_zoom_percent" translatable="false">Use a fixed percentage</string>
+    <string name="viewer_default_zoom_percent_hint" translatable="false">Zoom percent (10-500)</string>
+    <string name="viewer_default_zoom_auto_content_description" translatable="false">Use adaptive zoom for new documents</string>
+    <string name="viewer_default_zoom_fixed_content_description" translatable="false">Use fixed zoom for new documents</string>
+    <string name="viewer_default_direction_v_ttb" translatable="false">Vertical: top to bottom</string>
+    <string name="viewer_default_direction_v_btt" translatable="false">Vertical: bottom to top</string>
+    <string name="viewer_default_direction_h_ltr" translatable="false">Horizontal: left to right</string>
+    <string name="viewer_default_direction_h_rtl" translatable="false">Horizontal: right to left</string>
+    <string name="viewer_defaults_single_page" translatable="false">Single page mode for new documents</string>
+    <string name="viewer_defaults_rotation_locked" translatable="false">Rotation locked for new documents</string>
+    <string name="viewer_defaults_toolbar_position" translatable="false">Action bar position</string>
+    <string name="viewer_defaults_toolbar_position_top" translatable="false">Top</string>
+    <string name="viewer_defaults_toolbar_position_bottom" translatable="false">Bottom</string>
+    <string name="viewer_defaults_toolbar_position_top_content_description" translatable="false">Show the action bar at the top</string>
+    <string name="viewer_defaults_toolbar_position_bottom_content_description" translatable="false">Show the action bar at the bottom</string>
+    <string name="viewer_defaults_fullscreen" translatable="false">Start in full screen for new documents</string>
+    <string name="viewer_defaults_night_mode" translatable="false">Use dark filter</string>
+    <string name="viewer_defaults_contrast_overlay" translatable="false">Use night light overlay</string>
+    <string name="viewer_defaults_dark_filter_schedule" translatable="false">Dark filter automatic schedule</string>
+    <string name="viewer_defaults_night_light_schedule" translatable="false">Night light automatic schedule</string>
+    <string name="viewer_defaults_schedule_on" translatable="false">Automatic schedule enabled</string>
+    <string name="viewer_defaults_schedule_off" translatable="false">Automatic schedule disabled</string>
+    <string name="viewer_defaults_start_time" translatable="false">Start time</string>
+    <string name="viewer_defaults_end_time" translatable="false">End time</string>
+    <string name="viewer_defaults_zoom_mode_auto" translatable="false">Auto</string>
+    <string name="viewer_defaults_zoom_mode_fixed" translatable="false">Fixed</string>
+    <string name="viewer_defaults_mode_always_on" translatable="false">Always on</string>
+    <string name="viewer_defaults_mode_auto" translatable="false">Auto</string>
+    <string name="viewer_defaults_mode_on_short" translatable="false">On</string>
+    <string name="viewer_defaults_mode_off" translatable="false">Off</string>
+    <string name="viewer_defaults_clear_recents" translatable="false">Clear all recents</string>
+    <string name="viewer_defaults_clear_recents_confirm_title" translatable="false">Clear recents</string>
+    <string name="viewer_defaults_clear_recents_confirm_message" translatable="false">Do you want to remove all recent documents?</string>
+    <string name="viewer_defaults_clear_recents_done" translatable="false">Recent documents removed</string>
+    <string name="viewer_defaults_reset_confirm_title" translatable="false">Reset settings</string>
+    <string name="viewer_defaults_reset_confirm_message" translatable="false">Do you want to reset all default settings?</string>
+    <string name="tooltip_delete_recent_document" translatable="false">Remove this recent document</string>
+    <string name="viewer_defaults_reset" translatable="false">Reset default settings</string>
+    <string name="viewer_defaults_reset_done" translatable="false">Default settings reset</string>
+    <string name="viewer_defaults_save" translatable="false">Save settings</string>
+    <string name="viewer_defaults_saved" translatable="false">Viewer defaults saved</string>
+    <string name="viewer_defaults_open_help" translatable="false">Open help</string>
+    <string name="home_no_recents" translatable="false">No recent documents yet.</string>
+    <string name="home_privacy_payoff" translatable="false">Your privacy is important. You are important.</string>
+    <string name="settings_version_label" translatable="false">Version %1$s</string>
+    <string name="home_recent_item_content_description" translatable="false">Open recent document %1$s</string>
+    <string name="toast_recent_document_unreadable" translatable="false">Cannot open this recent document. Please select it again.</string>
 </resources>

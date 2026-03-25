@@ -39,10 +39,13 @@
     <string name="tooltip_night_light_on">Show night light</string>
     <string name="tooltip_night_light_off">Hide night light</string>
     <string name="tooltip_go_to_feature">Open \'Go to\' feature</string>
+    <string name="tooltip_go_to_bottom">Ugrás a fájl végére</string>
     <string name="tooltip_go_to_top">Go to the first page of the file</string>
     <string name="tooltip_open_new_file">Open a new file</string>
-    <string name="tooltip_scroll_horizontally">Scroll horizontally</string>
-    <string name="tooltip_scroll_vertically">Scroll vertically</string>
+    <string name="tooltip_scroll_vertical_top_to_bottom">Görgess függőlegesen felülről lefelé</string>
+    <string name="tooltip_scroll_vertical_bottom_to_top">Görgess függőlegesen alulról felfelé</string>
+    <string name="tooltip_scroll_horizontal_left_to_right">Görgess vízszintesen balról jobbra</string>
+    <string name="tooltip_scroll_horizontal_right_to_left">Görgess vízszintesen jobbról balra</string>
     <string name="tooltip_force_dark_filter">Enabled the forced-dark filter</string>
     <string name="tooltip_force_dark_filter_disable">Disable the forced-dark filter</string>
     <string name="tooltip_single_page_scroll">Enable single page viewing mode</string>
@@ -69,4 +72,39 @@
     <string name="tooltip_close_bookmarks">Close all bookmarks</string>
     <string name="tooltip_get_help">Get help</string>
     <string name="confirmation_open_link">Do you want to open <b>{{url}}</b> in your browser?</string>
+
+    <!-- Search / OCR -->
+    <string name="search_hint">Szöveg keresése…</string>
+    <string name="search_no_results">Nincs találat</string>
+    <string name="search_result_status">%1$d / %2$d</string>
+    <string name="search_indexing">Oldal indexelése: %1$d / %2$d…</string>
+    <string name="search_ready">Kész</string>
+    <string name="tooltip_search">Szöveg keresése a PDF-ben</string>
+    <string name="tooltip_search_prev">Előző találat</string>
+    <string name="tooltip_search_next">Következő találat</string>
+    <string name="tooltip_search_close">Keresés bezárása</string>
+    <string name="tooltip_search_case_sensitive">Kis- és nagybetűérzékeny</string>
+    <string name="tooltip_search_whole_word">Teljes szó</string>
+
+    <!-- Select / Copy text -->
+    <string name="select_text_title">Oldal szövege</string>
+    <string name="copy_all_text">Összes másolása</string>
+    <string name="tooltip_select_text">Szöveg kijelölése és másolása</string>
+    <string name="select_text_copied">Szöveg a vágólapra másolva</string>
+    <string name="select_text_extracting">Szöveg kinyerése…</string>
+    <string name="select_text_no_text">Nem található szöveg ezen az oldalon</string>
+    <string name="select_text_page_info">Oldal %1$d / %2$d</string>
+    <string name="text_selection_mode_hint">Tartsa lenyomva és húzza a szöveg kijelöléséhez</string>
+    <string name="text_selection_count">%1$d szó kijelölve</string>
+    <string name="text_selection_mode_active">Szövegkijelölési mód</string>
+    <string name="tooltip_close_selection_mode">Kijelölés bezárása</string>
+    <string name="tooltip_copy_selection">Kijelölés másolása</string>
+    <string name="tooltip_toggle_character_selection">Karakterkijelölési mód váltása</string>
+    <string name="selection_granularity_word">WORD</string>
+    <string name="selection_granularity_character">CHAR</string>
+    <string name="tooltip_selection_mode_word">Szókijelölési mód</string>
+    <string name="tooltip_selection_mode_character">Karakterkijelölési mód</string>
+    <string name="text_copied_preview">"%1$s" a vágólapra másolva</string>
+
+    <string name="button_back">Vissza</string>
 </resources>
