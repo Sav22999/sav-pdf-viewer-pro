@@ -56,25 +56,29 @@ android {
                 "lib/arm64-v8a/libmodft2.so",
                 "lib/arm64-v8a/libmodpdfium.so",
                 "lib/arm64-v8a/libmodpng.so",
-                "lib/arm64-v8a/libmlkit_google_ocr_pipeline.so",
+                "lib/arm64-v8a/libpdfium.so",
+                "lib/arm64-v8a/libpdfiumandroid.so",
                 "lib/armeabi-v7a/libc++_shared.so",
                 "lib/armeabi-v7a/libjniPdfium.so",
                 "lib/armeabi-v7a/libmodft2.so",
                 "lib/armeabi-v7a/libmodpdfium.so",
                 "lib/armeabi-v7a/libmodpng.so",
-                "lib/armeabi-v7a/libmlkit_google_ocr_pipeline.so",
+                "lib/armeabi-v7a/libpdfium.so",
+                "lib/armeabi-v7a/libpdfiumandroid.so",
                 "lib/x86/libc++_shared.so",
                 "lib/x86/libjniPdfium.so",
                 "lib/x86/libmodft2.so",
                 "lib/x86/libmodpdfium.so",
                 "lib/x86/libmodpng.so",
-                "lib/x86/libmlkit_google_ocr_pipeline.so",
+                "lib/x86/libpdfium.so",
+                "lib/x86/libpdfiumandroid.so",
                 "lib/x86_64/libc++_shared.so",
                 "lib/x86_64/libjniPdfium.so",
                 "lib/x86_64/libmodft2.so",
                 "lib/x86_64/libmodpdfium.so",
                 "lib/x86_64/libmodpng.so",
-                "lib/x86_64/libmlkit_google_ocr_pipeline.so"
+                "lib/x86_64/libpdfium.so",
+                "lib/x86_64/libpdfiumandroid.so"
             )
         }
     }
@@ -104,10 +108,10 @@ dependencies {
 
     implementation("io.github.muthuraj57:AndroidPdfViewer:1.1.0")
 
-    // ML Kit on-device text recognition (OCR) for PDF search
-    implementation("com.google.mlkit:text-recognition:16.0.1")
+    // Pdfium text extraction (FOSS) for PDF search and text selection
+    implementation("io.legere:pdfiumandroid:1.0.20")
 
-    // Kotlin coroutines for background OCR indexing
+    // Kotlin coroutines for background text indexing
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.1")
 }

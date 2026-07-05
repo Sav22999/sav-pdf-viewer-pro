@@ -24,6 +24,7 @@ import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
@@ -42,7 +43,9 @@ import com.saverio.pdfviewer.db.FilesModel
 import com.saverio.pdfviewer.ui.BookmarksItemAdapter
 import com.saverio.pdfviewer.ui.SavPdfViewerLinkHandler
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.net.URLDecoder
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
@@ -53,6 +56,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Looper
 import android.os.SystemClock
+import android.print.PrintAttributes
+import android.print.PrintManager
 import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
 import android.view.ViewGroup
@@ -448,6 +453,17 @@ class PDFViewer : AppCompatActivity() {
         }
         shareButton.setOnLongClickListener {
             showTooltip(R.string.tooltip_share_file)
+            true
+        }
+
+        val printButton: ImageView = findViewById(R.id.buttonPrintToolbar)
+        printButton.setOnClickListener {
+            setPrintButton()
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        printButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_print_file)
             true
         }
 
@@ -1266,7 +1282,12 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun ensureDurableExternalPdfCopy(uri: Uri): String? {
-        if (!openedExternally || uri.scheme != "content") return null
+        // Keep a durable internal copy for every content:// document (both those
+        // opened from another app and those picked via SAF). Recents then point
+        // to this local copy and can always be reopened without relying on
+        // persistable URI permissions (which may be revoked or unavailable),
+        // so the app keeps working without requesting any permission.
+        if (uri.scheme != "content") return null
 
         return try {
             val displayName = sanitizePdfFileName(getDisplayNameForUri(uri))
@@ -1451,6 +1472,7 @@ class PDFViewer : AppCompatActivity() {
                 }
 
                 val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
+                val printButton: ImageView = findViewById(R.id.buttonPrintToolbar)
                 val fullscreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
                 val goTopButton: ImageView = findViewById(R.id.buttonGoTopToolbar)
                 val openButton: ImageView = findViewById(R.id.buttonOpenToolbar)
@@ -1460,6 +1482,7 @@ class PDFViewer : AppCompatActivity() {
                 val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
                 val zoomOutButton: ImageView = findViewById(R.id.buttonZoomOutToolbar)
                 shareButton.isGone = true
+                printButton.isGone = true
                 menuButton.isGone = true
                 fullscreenButton.isGone = true
                 bookmarkButton.isGone = true
@@ -1471,6 +1494,7 @@ class PDFViewer : AppCompatActivity() {
                         //println("!! Exception 01 !!")
                     }
                     shareButton.isGone = false
+                    printButton.isGone = false
                     fullscreenButton.isGone = false
                     if (isSupportedGoTop) goTopButton.isGone = false
                     isSupportedShareFeature = true
@@ -2007,15 +2031,75 @@ class PDFViewer : AppCompatActivity() {
         return if (resolved.lowercase(Locale.ROOT).endsWith(".pdf")) resolved else "$resolved.pdf"
     }
 
+    /**
+     * Opens an [InputStream] for the currently displayed PDF, preferring the
+     * original content URI and falling back to the durable local copy.
+     * Callers own the returned stream and must close it.
+     */
+    private fun openCurrentPdfInputStream(): InputStream? {
+        uriOpened?.let { uri ->
+            try {
+                contentResolver.openInputStream(uri)?.let { return it }
+            } catch (_: Exception) {
+                // fall through to the local copy
+            }
+        }
+        val localPath = fileOpened
+        if (!localPath.isNullOrBlank()) {
+            val file = File(localPath)
+            if (file.exists()) {
+                return try {
+                    FileInputStream(file)
+                } catch (_: Exception) {
+                    null
+                }
+            }
+        }
+        return null
+    }
+
+    /**
+     * Builds a FileProvider URI pointing to a freshly written copy of the
+     * current document that carries the correct display name. Sharing this copy
+     * ensures the receiving app sees a proper "*.pdf" file name instead of the
+     * opaque identifier of the original content URI.
+     */
+    private fun buildShareableUri(documentName: String): Uri? {
+        return try {
+            val shareDir = File(cacheDir, "shared_pdfs")
+            if (!shareDir.exists()) shareDir.mkdirs()
+            // Drop previously shared copies so the cache doesn't grow unbounded.
+            shareDir.listFiles()?.forEach { it.delete() }
+
+            val target = File(shareDir, sanitizePdfFileName(documentName))
+            val input = openCurrentPdfInputStream() ?: return null
+            input.use { source ->
+                FileOutputStream(target).use { output ->
+                    source.copyTo(output)
+                }
+            }
+
+            FileProvider.getUriForFile(this, "$packageName.fileprovider", target)
+        } catch (e: Exception) {
+            println("Exception share copy: ${e.message}")
+            null
+        }
+    }
+
     fun setShareButton() {
         val documentName = getCurrentDocumentDisplayName()
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_STREAM, uriOpened)
+        val shareUri = buildShareableUri(documentName)
+        if (shareUri == null) {
+            Toast.makeText(this, R.string.no_file_to_print, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_STREAM, shareUri)
             putExtra(Intent.EXTRA_TITLE, documentName)
             putExtra(Intent.EXTRA_SUBJECT, documentName)
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            type = "application/pdf"
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
         startActivity(
@@ -2032,7 +2116,31 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun setPrintButton() {
-        //TODO
+        // Verify the document can actually be read before invoking the system UI.
+        val probe = openCurrentPdfInputStream()
+        if (probe == null) {
+            Toast.makeText(this, R.string.no_file_to_print, Toast.LENGTH_SHORT).show()
+            return
+        }
+        try {
+            probe.close()
+        } catch (_: Exception) {
+        }
+
+        val printManager = getSystemService(Context.PRINT_SERVICE) as? PrintManager
+        if (printManager == null) {
+            Toast.makeText(this, R.string.no_file_to_print, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val jobName = getCurrentDocumentDisplayName()
+        val adapter = PdfPrintDocumentAdapter(jobName) { openCurrentPdfInputStream() }
+        try {
+            printManager.print(jobName, adapter, PrintAttributes.Builder().build())
+        } catch (e: Exception) {
+            println("Exception print: ${e.message}")
+            Toast.makeText(this, R.string.no_file_to_print, Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun setRotationLock() {
@@ -2070,6 +2178,7 @@ class PDFViewer : AppCompatActivity() {
             if (keepTopBarVisibleForOpenError) {
                 // In open-error mode keep only the close/back action visible.
                 buttonShare.isGone = true
+                findViewById<ImageView>(R.id.buttonPrintToolbar).isGone = true
                 buttonSearch.isGone = true
                 buttonFullscreen.isGone = true
                 buttonGoTop.isGone = true
@@ -2091,6 +2200,8 @@ class PDFViewer : AppCompatActivity() {
             }
 
             if (isSupportedShareFeature) buttonShare.isGone = false
+            if (isSupportedShareFeature) findViewById<ImageView>(R.id.buttonPrintToolbar).isGone =
+                false
             buttonSearch.isGone = false
             buttonFullscreen.isGone = false
             if (isSupportedGoTop && showGoTop && getCurrentLogicalPage() > 0) buttonGoTop.isGone =
@@ -3672,6 +3783,7 @@ class PDFViewer : AppCompatActivity() {
             R.id.buttonAllBookmarksToolbar,
             R.id.buttonSelectTextToolbar,
             R.id.buttonShareToolbar,
+            R.id.buttonPrintToolbar,
             R.id.buttonSearchToolbar,
             R.id.buttonZoomOutToolbar,
             R.id.buttonZoomInToolbar,

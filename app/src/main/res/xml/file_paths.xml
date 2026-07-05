@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <cache-path
+        name="shared_pdfs"
+        path="shared_pdfs/" />
+    <files-path
+        name="external_recents"
+        path="external_recents/" />
+</paths>
