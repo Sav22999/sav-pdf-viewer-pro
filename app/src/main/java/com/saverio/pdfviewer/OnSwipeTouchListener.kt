@@ -40,10 +40,11 @@ abstract class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
             velocityX: Float,
             velocityY: Float
         ): Boolean {
+            if (e1 == null) return false
             var result = false
             try {
-                val diffY = e2.y - (e1?.y ?: 0f)
-                val diffX = e2.x - (e1?.x ?: 0f)
+                val diffY = e2.y - e1.y
+                val diffX = e2.x - e1.x
                 if (abs(diffX) > abs(diffY)) {
                     if (abs(diffX) > SWIPE_THRESHOLD && abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
                         if (diffX > 0) {
@@ -78,9 +79,10 @@ abstract class OnSwipeTouchListener(ctx: Context) : View.OnTouchListener {
             distanceX: Float,
             distanceY: Float
         ): Boolean {
+            if (e1 == null) return super.onScroll(e1, e2, distanceX, distanceY)
             var type: String
-            val diffY = e2.y - (e1?.y ?: 0f)
-            val diffX = e2.x - (e1?.x ?: 0f)
+            val diffY = e2.y - e1.y
+            val diffX = e2.x - e1.x
             if (abs(diffX) > abs(diffY)) {
                 if (diffX > 0) {
                     type = "r"//right
