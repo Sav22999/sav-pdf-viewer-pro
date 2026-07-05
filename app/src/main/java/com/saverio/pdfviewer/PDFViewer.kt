@@ -42,6 +42,8 @@ import com.saverio.pdfviewer.db.DatabaseHandler
 import com.saverio.pdfviewer.db.FilesModel
 import com.saverio.pdfviewer.ui.BookmarksItemAdapter
 import com.saverio.pdfviewer.ui.SavPdfViewerLinkHandler
+import io.legere.pdfiumandroid.PdfDocument
+import io.legere.pdfiumandroid.PdfiumCore
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -129,6 +131,10 @@ class PDFViewer : AppCompatActivity() {
     private val legacyPdfOptionsPreferenceName = "pdf_options"
     private val legacyMigrationPreferenceName = "legacy_pdf_options_migration"
     private var zoomToRestore = 1.0F
+
+    // Lightweight Pdfium instance used only to count pages before configuring
+    // the viewer, so reversed scroll modes can physically reorder the pages.
+    private val pageOrderPdfiumCore by lazy { PdfiumCore(this) }
 
     var single_page = false
     var night_mode = false
@@ -978,7 +984,7 @@ class PDFViewer : AppCompatActivity() {
             pdfViewer.setMaxZoom(10.0f)
             //Toast.makeText(this, fileId, Toast.LENGTH_LONG).show()
 
-            pdfViewer.fromUri(uri)
+            val pdfConfigurator = pdfViewer.fromUri(uri)
                 .enableSwipe(true) //leave as "true" (it causes a bug with scrolling when zoom is "100%")
                 .swipeHorizontal(horizontal) //horizontal scrolling disabled/enabled
                 .enableDoubletap(true)
@@ -993,6 +999,11 @@ class PDFViewer : AppCompatActivity() {
                 .nightMode(night_mode)
                 .linkHandler(SavPdfViewerLinkHandler(pdfViewer))
 
+            // Physically reverse the page order for the reversed scroll modes so
+            // pages are laid out n, n-1, …, 2, 1 (not just the page number).
+            buildReversedPageOrderIfNeeded(uri)?.let { pdfConfigurator.pages(*it) }
+
+            pdfConfigurator
                 .onTap {
                     showTopBar()
                     true
@@ -3640,6 +3651,45 @@ class PDFViewer : AppCompatActivity() {
             )
             databaseHandler.add(file)
         }
+    }
+
+    /**
+     * Counts the pages of the PDF at [uri] before the viewer is configured.
+     * Returns 0 when the document cannot be opened (e.g. a wrong/absent
+     * password), in which case physical page reordering is skipped.
+     */
+    private fun resolvePdfPageCount(uri: Uri): Int {
+        var document: PdfDocument? = null
+        return try {
+            val pfd = contentResolver.openFileDescriptor(uri, "r") ?: return 0
+            document = if (passwordToUse.isEmpty()) {
+                pageOrderPdfiumCore.newDocument(pfd)
+            } else {
+                pageOrderPdfiumCore.newDocument(pfd, passwordToUse)
+            }
+            document.getPageCount()
+        } catch (e: Exception) {
+            0
+        } finally {
+            try {
+                document?.close()
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    /**
+     * When the current scroll mode is reversed (bottom-to-top or
+     * right-to-left) builds the page order that physically inverts the
+     * document, so page n is shown first and page 1 last. Returns null when
+     * no reordering is required or the page count is unavailable, leaving the
+     * viewer's natural order untouched.
+     */
+    private fun buildReversedPageOrderIfNeeded(uri: Uri?): IntArray? {
+        if (!reverseScroll || uri == null) return null
+        val count = resolvePdfPageCount(uri)
+        if (count <= 1) return null
+        return IntArray(count) { count - 1 - it }
     }
 
     private fun mapViewerPageToLogical(viewerPage: Int): Int {
