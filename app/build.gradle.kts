@@ -7,12 +7,19 @@ android {
     namespace = "com.saverio.pdfviewer"
     compileSdk = 35
 
+    dependenciesInfo {
+        // Disables dependency metadata when building APKs (for IzzyOnDroid/F-Droid)
+        includeInApk = false
+        // Disables dependency metadata when building Android App Bundles (for Google Play)
+        includeInBundle = false
+    }
+
     defaultConfig {
         applicationId = "com.saverio.pdfviewer.beta"
         minSdk = 21
         targetSdk = 35
-        versionCode = 70
-        versionName = "2.0-beta"
+        versionCode = 72
+        versionName = "2.1-beta"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 

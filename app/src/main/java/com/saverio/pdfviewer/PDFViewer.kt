@@ -1115,8 +1115,14 @@ class PDFViewer : AppCompatActivity() {
                             .coerceIn(0, (totalPages - 1).coerceAtLeast(0))
                     pendingRestoredLogicalPage = targetLogicalPage
 
-                    // Notify OCR engine of the newly opened document
-                    if (uri != null) ocrEngine.open(uri, totalPages)
+                    // Notify the text-search engine of the newly opened document
+                    if (uri != null) {
+                        ocrEngine.open(
+                            uri,
+                            totalPages,
+                            if (passwordRequired) passwordToUse else null
+                        )
+                    }
 
                     val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
                     val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)

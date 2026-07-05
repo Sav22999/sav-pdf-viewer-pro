@@ -1,27 +1,20 @@
 package com.saverio.pdfviewer
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.RectF
 import android.net.Uri
-import android.os.ParcelFileDescriptor
 import android.util.Log
-import com.google.android.gms.tasks.Tasks
-import com.google.mlkit.vision.common.InputImage
-import com.google.mlkit.vision.text.TextRecognition
-import com.google.mlkit.vision.text.latin.TextRecognizerOptions
-import com.shockwave.pdfium.PdfDocument
-import com.shockwave.pdfium.PdfiumCore
+import io.legere.pdfiumandroid.PdfDocument
+import io.legere.pdfiumandroid.PdfiumCore
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.TimeUnit
 
 /**
- * PDF text search engine.
+ * PDF text search engine (100% FOSS — no proprietary libraries).
  *
- * For each page it renders a bitmap via PdfiumCore, runs ML Kit OCR
- * **synchronously** (using Tasks.await()), and stores every recognised word
- * with its bounding box.  Search counts every occurrence of the query
+ * For each page it extracts the embedded text layer via Pdfium's native
+ * text APIs (io.legere:pdfiumandroid) and stores every word with its
+ * normalised bounding box.  Search counts every occurrence of the query
  * inside those word-level elements, producing one [SearchResult] per match.
  */
 class PdfOcrEngine(private val context: Context) {
@@ -37,14 +30,12 @@ class PdfOcrEngine(private val context: Context) {
     // ── callbacks ─────────────────────────────────────────────────────────────
     var onResults: ((results: List<SearchResult>, finished: Boolean) -> Unit)? = null
     var onIndexingPage: ((page: Int, total: Int) -> Unit)? = null
-    /** Fired on the main thread when a single page finishes OCR indexing. */
+    /** Fired on the main thread when a single page finishes text indexing. */
     var onPageIndexed: ((page: Int) -> Unit)? = null
 
     // ── internals ─────────────────────────────────────────────────────────────
     private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
-    private val recognizer by lazy {
-        TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
-    }
+    private val pdfiumCore by lazy { PdfiumCore(context) }
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     /** word text + normalised bounding rect (0‥1) */
@@ -55,13 +46,19 @@ class PdfOcrEngine(private val context: Context) {
 
     @Volatile private var pdfUri: Uri? = null
     @Volatile private var pageCount = 0
+    @Volatile private var pdfPassword: String? = null
     private var searchJob: Job? = null
+
+    private val documentLock = Any()
+    private var document: PdfDocument? = null
 
     // ── public API ────────────────────────────────────────────────────────────
 
-    fun open(uri: Uri, totalPages: Int) {
+    fun open(uri: Uri, totalPages: Int, password: String? = null) {
+        closeDocument()
         pdfUri = uri
         pageCount = totalPages
+        pdfPassword = password
         wordsCache.clear()
         Log.d(TAG, "open  uri=$uri  pages=$totalPages")
     }
@@ -70,17 +67,19 @@ class PdfOcrEngine(private val context: Context) {
         searchJob?.cancel()
         pdfUri = null
         pageCount = 0
+        pdfPassword = null
         wordsCache.clear()
+        closeDocument()
     }
 
     /**
      * Get the full text of a page by concatenating all cached words.
-     * If the page hasn't been indexed yet, renders and OCR's it first
+     * If the page hasn't been indexed yet, extracts its text layer first
      * (runs on the calling thread — call from a background thread).
      */
     fun getPageText(pageIndex: Int): String {
-        val uri = pdfUri ?: return ""
-        ensurePageIndexed(uri, pageIndex)
+        if (pdfUri == null) return ""
+        ensurePageIndexed(pageIndex)
         val words = wordsCache[pageIndex] ?: return ""
         if (words.isEmpty()) return ""
         // Reconstruct text: sort words top-to-bottom, left-to-right,
@@ -106,8 +105,8 @@ class PdfOcrEngine(private val context: Context) {
 
     /** Trigger background indexing for the given page so words are ready for selection. */
     fun ensurePageIndexedAsync(pageIndex: Int) {
-        val uri = pdfUri ?: return
-        scope.launch { ensurePageIndexed(uri, pageIndex) }
+        if (pdfUri == null) return
+        scope.launch { ensurePageIndexed(pageIndex) }
     }
 
     /**
@@ -190,7 +189,7 @@ class PdfOcrEngine(private val context: Context) {
             return
         }
         val q = query.trim()
-        val uri = pdfUri ?: run { onResults?.invoke(emptyList(), true); return }
+        if (pdfUri == null) { onResults?.invoke(emptyList(), true); return }
         val total = pageCount
         if (total == 0) { onResults?.invoke(emptyList(), true); return }
 
@@ -203,8 +202,8 @@ class PdfOcrEngine(private val context: Context) {
                 if (!isActive) break
                 withContext(Dispatchers.Main) { onIndexingPage?.invoke(page, total) }
 
-                // Index the page (renders bitmap + OCR, stores words in wordsCache)
-                ensurePageIndexed(uri, page)
+                // Index the page (extracts text layer, stores words in wordsCache)
+                ensurePageIndexed(page)
 
                 // Use getHighlightsForPage — THE SAME function onDraw uses.
                 // Number of rects = number of occurrences on this page.
@@ -234,98 +233,120 @@ class PdfOcrEngine(private val context: Context) {
     // ── page indexing ─────────────────────────────────────────────────────────
 
     /**
-     * Render the page to a bitmap and run ML Kit OCR **synchronously**
-     * (Tasks.await blocks on the IO thread — perfectly safe here).
-     * Stores every recognised word + bounding box in [wordsCache].
+     * Extract the embedded text layer of the page via Pdfium and store
+     * every word + normalised bounding box in [wordsCache].
      */
-    private fun ensurePageIndexed(uri: Uri, page: Int) {
+    private fun ensurePageIndexed(page: Int) {
         if (wordsCache.containsKey(page)) return
 
-        val bitmap = renderPage(uri, page)
-        if (bitmap == null) {
-            Log.w(TAG, "page $page: render failed")
-            wordsCache[page] = emptyList()
-            return
+        val words = try {
+            extractWords(page)
+        } catch (e: Exception) {
+            Log.e(TAG, "page $page text extraction failed: ${e.message}")
+            emptyList()
         }
+        wordsCache[page] = words
+        Log.d(TAG, "page $page: indexed ${words.size} words → [${words.take(20).joinToString { it.text }}]")
+        mainHandler.post { onPageIndexed?.invoke(page) }
+    }
 
-        val bmpW = bitmap.width.toFloat()
-        val bmpH = bitmap.height.toFloat()
+    // ── text extraction ───────────────────────────────────────────────────────
 
-        try {
-            val image = InputImage.fromBitmap(bitmap, 0)
-            // *** blocking await with timeout — no async callback race ***
-            val visionText = Tasks.await(recognizer.process(image), 30, TimeUnit.SECONDS)
-            val words = mutableListOf<WordElement>()
-            for (block in visionText.textBlocks) {
-                for (line in block.lines) {
-                    for (elem in line.elements) {
-                        val b = elem.boundingBox ?: continue
-                        words.add(WordElement(
-                            text = elem.text,
-                            rect = RectF(
-                                b.left / bmpW, b.top / bmpH,
-                                b.right / bmpW, b.bottom / bmpH
+    /**
+     * Builds the word list of a page from Pdfium's character-level data.
+     * Char boxes come in PDF page space (origin bottom-left, y axis up),
+     * so they are converted to normalised top-left coordinates (0‥1).
+     */
+    private fun extractWords(pageIndex: Int): List<WordElement> {
+        val doc = openDocumentIfNeeded() ?: return emptyList()
+        doc.openPage(pageIndex).use { pdfPage ->
+            val pageWidth = pdfPage.getPageWidthPoint().toFloat().coerceAtLeast(1f)
+            val pageHeight = pdfPage.getPageHeightPoint().toFloat().coerceAtLeast(1f)
+            pdfPage.openTextPage().use { textPage ->
+                val charCount = textPage.textPageCountChars()
+                if (charCount <= 0) return emptyList()
+                val text = textPage.textPageGetText(0, charCount) ?: return emptyList()
+
+                val words = mutableListOf<WordElement>()
+                val wordText = StringBuilder()
+                var left = Float.MAX_VALUE
+                var right = -Float.MAX_VALUE
+                var topPage = -Float.MAX_VALUE     // max y in page space
+                var bottomPage = Float.MAX_VALUE   // min y in page space
+
+                fun flushWord() {
+                    if (wordText.isNotEmpty() && left < right && bottomPage < topPage) {
+                        words.add(
+                            WordElement(
+                                text = wordText.toString(),
+                                rect = RectF(
+                                    left / pageWidth,
+                                    1f - (topPage / pageHeight),
+                                    right / pageWidth,
+                                    1f - (bottomPage / pageHeight)
+                                )
                             )
-                        ))
+                        )
                     }
+                    wordText.clear()
+                    left = Float.MAX_VALUE
+                    right = -Float.MAX_VALUE
+                    topPage = -Float.MAX_VALUE
+                    bottomPage = Float.MAX_VALUE
                 }
+
+                val count = minOf(charCount, text.length)
+                for (i in 0 until count) {
+                    val c = text[i]
+                    if (c.isWhitespace()) {
+                        flushWord()
+                        continue
+                    }
+                    wordText.append(c)
+                    val box = textPage.textPageGetCharBox(i) ?: continue
+                    // Note: in page space box.top >= box.bottom (y axis up)
+                    if (box.left < left) left = box.left
+                    if (box.right > right) right = box.right
+                    if (box.top > topPage) topPage = box.top
+                    if (box.bottom < bottomPage) bottomPage = box.bottom
+                }
+                flushWord()
+                return words
             }
-            wordsCache[page] = words
-            Log.d(TAG, "page $page: indexed ${words.size} words → [${words.take(20).joinToString { it.text }}]")
-            mainHandler.post { onPageIndexed?.invoke(page) }
-        } catch (e: Exception) {
-            Log.e(TAG, "page $page OCR failed: ${e.message}")
-            wordsCache[page] = emptyList()
-        } finally {
-            bitmap.recycle()
         }
     }
 
-    // ── bitmap rendering ──────────────────────────────────────────────────────
+    // ── document lifecycle ────────────────────────────────────────────────────
 
-    private fun renderPage(uri: Uri, page: Int): Bitmap? {
-        return renderWithPdfium(uri, page) ?: renderWithPdfRenderer(uri, page)
-    }
-
-    private fun renderWithPdfium(uri: Uri, pageIndex: Int): Bitmap? {
-        var pfd: ParcelFileDescriptor? = null
-        var doc: PdfDocument? = null
-        val core = PdfiumCore(context)
-        return try {
-            pfd = context.contentResolver.openFileDescriptor(uri, "r") ?: return null
-            doc = core.newDocument(pfd)
-            core.openPage(doc, pageIndex)
-            val w = core.getPageWidthPoint(doc, pageIndex)
-            val h = core.getPageHeightPoint(doc, pageIndex)
-            val scale = (1500f / w.coerceAtLeast(1)).coerceIn(1f, 3f).toInt()
-            val bw = w * scale;  val bh = h * scale
-            val bmp = Bitmap.createBitmap(bw, bh, Bitmap.Config.ARGB_8888)
-            core.renderPageBitmap(doc, bmp, pageIndex, 0, 0, bw, bh, true)
-            bmp
-        } catch (e: Exception) {
-            Log.w(TAG, "renderPdfium p$pageIndex: ${e.message}"); null
-        } finally {
-            try { doc?.let { core.closeDocument(it) } } catch (_: Exception) {}
-            try { pfd?.close() } catch (_: Exception) {}
+    private fun openDocumentIfNeeded(): PdfDocument? {
+        val uri = pdfUri ?: return null
+        synchronized(documentLock) {
+            document?.let { return it }
+            return try {
+                val pfd = context.contentResolver.openFileDescriptor(uri, "r") ?: return null
+                val password = pdfPassword
+                val doc = if (password.isNullOrEmpty()) {
+                    pdfiumCore.newDocument(pfd)
+                } else {
+                    pdfiumCore.newDocument(pfd, password)
+                }
+                document = doc
+                doc
+            } catch (e: Exception) {
+                Log.w(TAG, "openDocument failed: ${e.message}")
+                null
+            }
         }
     }
 
-    private fun renderWithPdfRenderer(uri: Uri, pageIndex: Int): Bitmap? {
-        return try {
-            val pfd = context.contentResolver.openFileDescriptor(uri, "r") ?: return null
-            pfd.use { fd ->
-                android.graphics.pdf.PdfRenderer(fd).use { renderer ->
-                    if (pageIndex >= renderer.pageCount) return null
-                    renderer.openPage(pageIndex).use { pg ->
-                        val s = 2
-                        val bmp = Bitmap.createBitmap(pg.width * s, pg.height * s, Bitmap.Config.ARGB_8888)
-                        pg.render(bmp, null, null, android.graphics.pdf.PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                        bmp
-                    }
-                }
+    private fun closeDocument() {
+        synchronized(documentLock) {
+            try {
+                document?.close()
+            } catch (e: Exception) {
+                Log.w(TAG, "closeDocument: ${e.message}")
             }
-        } catch (e: Exception) {
-            Log.w(TAG, "renderPdfRenderer p$pageIndex: ${e.message}"); null
+            document = null
         }
     }
 
