@@ -184,26 +184,27 @@ def main():
         print("ERROR: Could not find pdfium-android-1.9.2.aar in Gradle cache")
         sys.exit(1)
 
-    # Also find ML Kit text-recognition-bundled-common AAR (contains libmlkit_google_ocr_pipeline.so)
-    mlkit_aar_path = None
+    # Also find the pdfiumandroid AAR (contains libpdfium.so / libpdfiumandroid.so
+    # used for FOSS text extraction)
+    pdfiumandroid_aar_path = None
     for root, dirs, files in os.walk(os.path.join(home, ".gradle", "caches", "modules-2")):
         for f in files:
-            if f.startswith("text-recognition-bundled-common-") and f.endswith(".aar"):
+            if f.startswith("pdfiumandroid-") and f.endswith(".aar") and "sources" not in f:
                 candidate = os.path.join(root, f)
                 # Pick the newest version
-                if mlkit_aar_path is None or f > os.path.basename(mlkit_aar_path):
-                    mlkit_aar_path = candidate
+                if pdfiumandroid_aar_path is None or f > os.path.basename(pdfiumandroid_aar_path):
+                    pdfiumandroid_aar_path = candidate
 
     jnilibs = os.path.join(base, "app", "src", "main", "jniLibs")
 
     # Extract .so from AAR(s)
     import zipfile
     aar_list = [aar_path]
-    if mlkit_aar_path:
-        aar_list.append(mlkit_aar_path)
-        print(f"  Found ML Kit AAR: {os.path.basename(mlkit_aar_path)}")
+    if pdfiumandroid_aar_path:
+        aar_list.append(pdfiumandroid_aar_path)
+        print(f"  Found pdfiumandroid AAR: {os.path.basename(pdfiumandroid_aar_path)}")
     else:
-        print("  WARNING: Could not find text-recognition-bundled-common AAR")
+        print("  WARNING: Could not find pdfiumandroid AAR")
 
     for aar in aar_list:
         with zipfile.ZipFile(aar, "r") as zf:

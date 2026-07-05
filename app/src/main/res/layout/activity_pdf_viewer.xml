@@ -769,6 +769,20 @@
                 tools:visibility="visible" />
 
             <ImageView
+                android:id="@+id/buttonPrintToolbar"
+                android:layout_width="56dp"
+                android:layout_height="56dp"
+                android:layout_weight="20"
+                android:background="@color/transparent"
+                android:contentDescription="@string/tooltip_print_file"
+                android:padding="19sp"
+                android:scaleType="centerInside"
+                android:visibility="gone"
+                app:srcCompat="@drawable/ic_print"
+                tools:ignore="VectorDrawableCompat"
+                tools:visibility="visible" />
+
+            <ImageView
                 android:id="@+id/buttonSearchToolbar"
                 android:layout_width="56dp"
                 android:layout_height="56dp"

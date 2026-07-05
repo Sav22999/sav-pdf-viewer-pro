@@ -24,6 +24,7 @@ import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
@@ -41,8 +42,12 @@ import com.saverio.pdfviewer.db.DatabaseHandler
 import com.saverio.pdfviewer.db.FilesModel
 import com.saverio.pdfviewer.ui.BookmarksItemAdapter
 import com.saverio.pdfviewer.ui.SavPdfViewerLinkHandler
+import io.legere.pdfiumandroid.PdfDocument
+import io.legere.pdfiumandroid.PdfiumCore
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.InputStream
 import java.net.URLDecoder
 import java.security.MessageDigest
 import java.text.SimpleDateFormat
@@ -53,6 +58,8 @@ import android.graphics.Canvas
 import android.graphics.Paint
 import android.os.Looper
 import android.os.SystemClock
+import android.print.PrintAttributes
+import android.print.PrintManager
 import android.view.GestureDetector
 import android.view.HapticFeedbackConstants
 import android.view.ViewGroup
@@ -124,6 +131,10 @@ class PDFViewer : AppCompatActivity() {
     private val legacyPdfOptionsPreferenceName = "pdf_options"
     private val legacyMigrationPreferenceName = "legacy_pdf_options_migration"
     private var zoomToRestore = 1.0F
+
+    // Lightweight Pdfium instance used only to count pages before configuring
+    // the viewer, so reversed scroll modes can physically reorder the pages.
+    private val pageOrderPdfiumCore by lazy { PdfiumCore(this) }
 
     var single_page = false
     var night_mode = false
@@ -448,6 +459,17 @@ class PDFViewer : AppCompatActivity() {
         }
         shareButton.setOnLongClickListener {
             showTooltip(R.string.tooltip_share_file)
+            true
+        }
+
+        val printButton: ImageView = findViewById(R.id.buttonPrintToolbar)
+        printButton.setOnClickListener {
+            setPrintButton()
+            resetHideTopBarCounter()
+            hideMenuPanel()
+        }
+        printButton.setOnLongClickListener {
+            showTooltip(R.string.tooltip_print_file)
             true
         }
 
@@ -962,7 +984,7 @@ class PDFViewer : AppCompatActivity() {
             pdfViewer.setMaxZoom(10.0f)
             //Toast.makeText(this, fileId, Toast.LENGTH_LONG).show()
 
-            pdfViewer.fromUri(uri)
+            val pdfConfigurator = pdfViewer.fromUri(uri)
                 .enableSwipe(true) //leave as "true" (it causes a bug with scrolling when zoom is "100%")
                 .swipeHorizontal(horizontal) //horizontal scrolling disabled/enabled
                 .enableDoubletap(true)
@@ -977,6 +999,11 @@ class PDFViewer : AppCompatActivity() {
                 .nightMode(night_mode)
                 .linkHandler(SavPdfViewerLinkHandler(pdfViewer))
 
+            // Physically reverse the page order for the reversed scroll modes so
+            // pages are laid out n, n-1, …, 2, 1 (not just the page number).
+            buildReversedPageOrderIfNeeded(uri)?.let { pdfConfigurator.pages(*it) }
+
+            pdfConfigurator
                 .onTap {
                     showTopBar()
                     true
@@ -1115,8 +1142,14 @@ class PDFViewer : AppCompatActivity() {
                             .coerceIn(0, (totalPages - 1).coerceAtLeast(0))
                     pendingRestoredLogicalPage = targetLogicalPage
 
-                    // Notify OCR engine of the newly opened document
-                    if (uri != null) ocrEngine.open(uri, totalPages)
+                    // Notify the text-search engine of the newly opened document
+                    if (uri != null) {
+                        ocrEngine.open(
+                            uri,
+                            totalPages,
+                            if (passwordRequired) passwordToUse else null
+                        )
+                    }
 
                     val buttonSideScroll: TextView = findViewById(R.id.buttonSideScroll)
                     val buttonBottomScroll: TextView = findViewById(R.id.buttonBottomScroll)
@@ -1260,7 +1293,12 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun ensureDurableExternalPdfCopy(uri: Uri): String? {
-        if (!openedExternally || uri.scheme != "content") return null
+        // Keep a durable internal copy for every content:// document (both those
+        // opened from another app and those picked via SAF). Recents then point
+        // to this local copy and can always be reopened without relying on
+        // persistable URI permissions (which may be revoked or unavailable),
+        // so the app keeps working without requesting any permission.
+        if (uri.scheme != "content") return null
 
         return try {
             val displayName = sanitizePdfFileName(getDisplayNameForUri(uri))
@@ -1445,6 +1483,7 @@ class PDFViewer : AppCompatActivity() {
                 }
 
                 val shareButton: ImageView = findViewById(R.id.buttonShareToolbar)
+                val printButton: ImageView = findViewById(R.id.buttonPrintToolbar)
                 val fullscreenButton: ImageView = findViewById(R.id.buttonFullScreenToolbar)
                 val goTopButton: ImageView = findViewById(R.id.buttonGoTopToolbar)
                 val openButton: ImageView = findViewById(R.id.buttonOpenToolbar)
@@ -1454,6 +1493,7 @@ class PDFViewer : AppCompatActivity() {
                 val resetZoomButton: TextView = findViewById(R.id.buttonResetZoomToolbar)
                 val zoomOutButton: ImageView = findViewById(R.id.buttonZoomOutToolbar)
                 shareButton.isGone = true
+                printButton.isGone = true
                 menuButton.isGone = true
                 fullscreenButton.isGone = true
                 bookmarkButton.isGone = true
@@ -1465,6 +1505,7 @@ class PDFViewer : AppCompatActivity() {
                         //println("!! Exception 01 !!")
                     }
                     shareButton.isGone = false
+                    printButton.isGone = false
                     fullscreenButton.isGone = false
                     if (isSupportedGoTop) goTopButton.isGone = false
                     isSupportedShareFeature = true
@@ -2001,15 +2042,75 @@ class PDFViewer : AppCompatActivity() {
         return if (resolved.lowercase(Locale.ROOT).endsWith(".pdf")) resolved else "$resolved.pdf"
     }
 
+    /**
+     * Opens an [InputStream] for the currently displayed PDF, preferring the
+     * original content URI and falling back to the durable local copy.
+     * Callers own the returned stream and must close it.
+     */
+    private fun openCurrentPdfInputStream(): InputStream? {
+        uriOpened?.let { uri ->
+            try {
+                contentResolver.openInputStream(uri)?.let { return it }
+            } catch (_: Exception) {
+                // fall through to the local copy
+            }
+        }
+        val localPath = fileOpened
+        if (!localPath.isNullOrBlank()) {
+            val file = File(localPath)
+            if (file.exists()) {
+                return try {
+                    FileInputStream(file)
+                } catch (_: Exception) {
+                    null
+                }
+            }
+        }
+        return null
+    }
+
+    /**
+     * Builds a FileProvider URI pointing to a freshly written copy of the
+     * current document that carries the correct display name. Sharing this copy
+     * ensures the receiving app sees a proper "*.pdf" file name instead of the
+     * opaque identifier of the original content URI.
+     */
+    private fun buildShareableUri(documentName: String): Uri? {
+        return try {
+            val shareDir = File(cacheDir, "shared_pdfs")
+            if (!shareDir.exists()) shareDir.mkdirs()
+            // Drop previously shared copies so the cache doesn't grow unbounded.
+            shareDir.listFiles()?.forEach { it.delete() }
+
+            val target = File(shareDir, sanitizePdfFileName(documentName))
+            val input = openCurrentPdfInputStream() ?: return null
+            input.use { source ->
+                FileOutputStream(target).use { output ->
+                    source.copyTo(output)
+                }
+            }
+
+            FileProvider.getUriForFile(this, "$packageName.fileprovider", target)
+        } catch (e: Exception) {
+            println("Exception share copy: ${e.message}")
+            null
+        }
+    }
+
     fun setShareButton() {
         val documentName = getCurrentDocumentDisplayName()
-        val shareIntent = Intent().apply {
-            action = Intent.ACTION_SEND
-            putExtra(Intent.EXTRA_STREAM, uriOpened)
+        val shareUri = buildShareableUri(documentName)
+        if (shareUri == null) {
+            Toast.makeText(this, R.string.no_file_to_print, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "application/pdf"
+            putExtra(Intent.EXTRA_STREAM, shareUri)
             putExtra(Intent.EXTRA_TITLE, documentName)
             putExtra(Intent.EXTRA_SUBJECT, documentName)
-            flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            type = "application/pdf"
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
 
         startActivity(
@@ -2026,7 +2127,31 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun setPrintButton() {
-        //TODO
+        // Verify the document can actually be read before invoking the system UI.
+        val probe = openCurrentPdfInputStream()
+        if (probe == null) {
+            Toast.makeText(this, R.string.no_file_to_print, Toast.LENGTH_SHORT).show()
+            return
+        }
+        try {
+            probe.close()
+        } catch (_: Exception) {
+        }
+
+        val printManager = getSystemService(Context.PRINT_SERVICE) as? PrintManager
+        if (printManager == null) {
+            Toast.makeText(this, R.string.no_file_to_print, Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val jobName = getCurrentDocumentDisplayName()
+        val adapter = PdfPrintDocumentAdapter(jobName) { openCurrentPdfInputStream() }
+        try {
+            printManager.print(jobName, adapter, PrintAttributes.Builder().build())
+        } catch (e: Exception) {
+            println("Exception print: ${e.message}")
+            Toast.makeText(this, R.string.no_file_to_print, Toast.LENGTH_SHORT).show()
+        }
     }
 
     fun setRotationLock() {
@@ -2064,6 +2189,7 @@ class PDFViewer : AppCompatActivity() {
             if (keepTopBarVisibleForOpenError) {
                 // In open-error mode keep only the close/back action visible.
                 buttonShare.isGone = true
+                findViewById<ImageView>(R.id.buttonPrintToolbar).isGone = true
                 buttonSearch.isGone = true
                 buttonFullscreen.isGone = true
                 buttonGoTop.isGone = true
@@ -2085,6 +2211,8 @@ class PDFViewer : AppCompatActivity() {
             }
 
             if (isSupportedShareFeature) buttonShare.isGone = false
+            if (isSupportedShareFeature) findViewById<ImageView>(R.id.buttonPrintToolbar).isGone =
+                false
             buttonSearch.isGone = false
             buttonFullscreen.isGone = false
             if (isSupportedGoTop && showGoTop && getCurrentLogicalPage() > 0) buttonGoTop.isGone =
@@ -3525,6 +3653,45 @@ class PDFViewer : AppCompatActivity() {
         }
     }
 
+    /**
+     * Counts the pages of the PDF at [uri] before the viewer is configured.
+     * Returns 0 when the document cannot be opened (e.g. a wrong/absent
+     * password), in which case physical page reordering is skipped.
+     */
+    private fun resolvePdfPageCount(uri: Uri): Int {
+        var document: PdfDocument? = null
+        return try {
+            val pfd = contentResolver.openFileDescriptor(uri, "r") ?: return 0
+            document = if (passwordToUse.isEmpty()) {
+                pageOrderPdfiumCore.newDocument(pfd)
+            } else {
+                pageOrderPdfiumCore.newDocument(pfd, passwordToUse)
+            }
+            document.getPageCount()
+        } catch (e: Exception) {
+            0
+        } finally {
+            try {
+                document?.close()
+            } catch (_: Exception) {
+            }
+        }
+    }
+
+    /**
+     * When the current scroll mode is reversed (bottom-to-top or
+     * right-to-left) builds the page order that physically inverts the
+     * document, so page n is shown first and page 1 last. Returns null when
+     * no reordering is required or the page count is unavailable, leaving the
+     * viewer's natural order untouched.
+     */
+    private fun buildReversedPageOrderIfNeeded(uri: Uri?): IntArray? {
+        if (!reverseScroll || uri == null) return null
+        val count = resolvePdfPageCount(uri)
+        if (count <= 1) return null
+        return IntArray(count) { count - 1 - it }
+    }
+
     private fun mapViewerPageToLogical(viewerPage: Int): Int {
         if (!reverseScroll || totalPages <= 0) return viewerPage
         return (totalPages - 1 - viewerPage).coerceIn(0, totalPages - 1)
@@ -3666,6 +3833,7 @@ class PDFViewer : AppCompatActivity() {
             R.id.buttonAllBookmarksToolbar,
             R.id.buttonSelectTextToolbar,
             R.id.buttonShareToolbar,
+            R.id.buttonPrintToolbar,
             R.id.buttonSearchToolbar,
             R.id.buttonZoomOutToolbar,
             R.id.buttonZoomInToolbar,

@@ -69,6 +69,7 @@
     <string name="tooltip_open_menu_panel">Open menu panel</string>
     <string name="tooltip_hide_menu_panel">Hide menu panel</string>
     <string name="tooltip_share_file">Share this file</string>
+    <string name="tooltip_print_file">Print this file</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Save this file</string>
