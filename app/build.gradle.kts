@@ -15,11 +15,11 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.saverio.pdfviewer.beta"
+        applicationId = "com.saverio.pdfviewer"
         minSdk = 21
         targetSdk = 35
         versionCode = 72
-        versionName = "2.1-beta"
+        versionName = "2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
