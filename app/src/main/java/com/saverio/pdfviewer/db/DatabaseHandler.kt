@@ -18,6 +18,7 @@ class DatabaseHandler(context: Context) :
                 "  `${COLUMN_LAST_UPDATE_FILES}` TEXT NOT NULL," +
                 "  `${COLUMN_FILE_PATH_FILES}` TEXT NOT NULL," +
                 "  `${COLUMN_LAST_PAGE_FILES}` INTEGER NOT NULL," +
+                "  `${COLUMN_TOTAL_PAGES_FILES}` INTEGER NOT NULL DEFAULT 0," +
                 "  `${COLUMN_SCROLL_MODE_FILES}` TEXT NOT NULL DEFAULT 'VERTICAL_TOP_TO_BOTTOM'," +
                 "  `${COLUMN_SINGLE_PAGE_FILES}` INTEGER NOT NULL DEFAULT 0," +
                 "  `${COLUMN_NIGHT_MODE_FILES}` INTEGER NOT NULL DEFAULT 0," +
@@ -87,6 +88,14 @@ class DatabaseHandler(context: Context) :
                 "INTEGER NOT NULL DEFAULT 0"
             )
         }
+        if (oldVersion < 5) {
+            addColumnIfMissing(
+                database,
+                TABLE_NAME_FILES,
+                COLUMN_TOTAL_PAGES_FILES,
+                "INTEGER NOT NULL DEFAULT 0"
+            )
+        }
     }
 
     private fun addColumnIfMissing(
@@ -122,6 +131,11 @@ class DatabaseHandler(context: Context) :
         }
     }
 
+    private fun hasColumn(cursor: Cursor, columnName: String): Boolean {
+        val index = cursor.getColumnIndex(columnName)
+        return index != -1
+    }
+
 
     //Files
     fun add(file: FilesModel): Long {
@@ -132,6 +146,7 @@ class DatabaseHandler(context: Context) :
         contentValues.put(COLUMN_DATE_FILES, file.date)
         contentValues.put(COLUMN_LAST_UPDATE_FILES, file.lastUpdate)
         contentValues.put(COLUMN_LAST_PAGE_FILES, file.lastPage)
+        contentValues.put(COLUMN_TOTAL_PAGES_FILES, file.totalPages)
         contentValues.put(COLUMN_FILE_PATH_FILES, file.path)
         contentValues.put(COLUMN_SCROLL_MODE_FILES, file.scrollMode)
         contentValues.put(COLUMN_SINGLE_PAGE_FILES, if (file.singlePage) 1 else 0)
@@ -172,6 +187,11 @@ class DatabaseHandler(context: Context) :
                     val lastUpdate = it.getString(it.getColumnIndex(COLUMN_LAST_UPDATE_FILES))
                     val path = it.getString(it.getColumnIndex(COLUMN_FILE_PATH_FILES))
                     val lastPage = it.getInt(it.getColumnIndex(COLUMN_LAST_PAGE_FILES))
+                    val totalPages = if (hasColumn(it, COLUMN_TOTAL_PAGES_FILES)) {
+                        it.getInt(it.getColumnIndex(COLUMN_TOTAL_PAGES_FILES))
+                    } else {
+                        0
+                    }
                     val scrollMode =
                         it.getString(it.getColumnIndex(COLUMN_SCROLL_MODE_FILES))
                             ?: "VERTICAL_TOP_TO_BOTTOM"
@@ -191,6 +211,7 @@ class DatabaseHandler(context: Context) :
                             lastUpdate = lastUpdate,
                             path = path,
                             lastPage = lastPage,
+                            totalPages = totalPages,
                             scrollMode = scrollMode,
                             singlePage = singlePage,
                             nightMode = nightMode,
@@ -217,6 +238,7 @@ class DatabaseHandler(context: Context) :
         contentValues.put(COLUMN_LAST_UPDATE_FILES, file.lastUpdate)
         contentValues.put(COLUMN_FILE_PATH_FILES, file.path)
         contentValues.put(COLUMN_LAST_PAGE_FILES, file.lastPage)
+        contentValues.put(COLUMN_TOTAL_PAGES_FILES, file.totalPages)
         contentValues.put(COLUMN_SCROLL_MODE_FILES, file.scrollMode)
         contentValues.put(COLUMN_SINGLE_PAGE_FILES, if (file.singlePage) 1 else 0)
         contentValues.put(COLUMN_NIGHT_MODE_FILES, if (file.nightMode) 1 else 0)
@@ -451,7 +473,7 @@ class DatabaseHandler(context: Context) :
     companion object {
         //general
         private val DATABASE_NAME = "PDFFiles"
-        private val DATABASE_VERSION = 4 //TODO: change this manually
+        private val DATABASE_VERSION = 5 //TODO: change this manually
 
         //"files" table
         val TABLE_NAME_FILES = "files"
@@ -460,6 +482,7 @@ class DatabaseHandler(context: Context) :
         val COLUMN_DATE_FILES = "date"
         val COLUMN_LAST_UPDATE_FILES = "last_update"
         val COLUMN_LAST_PAGE_FILES = "page"
+        val COLUMN_TOTAL_PAGES_FILES = "total_pages"
         val COLUMN_SCROLL_MODE_FILES = "scroll_mode"
         val COLUMN_SINGLE_PAGE_FILES = "single_page"
         val COLUMN_NIGHT_MODE_FILES = "night_mode"

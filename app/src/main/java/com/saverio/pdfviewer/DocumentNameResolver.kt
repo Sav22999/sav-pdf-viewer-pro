@@ -51,7 +51,7 @@ object DocumentNameResolver {
     }
 
     private fun decodeReadableName(value: String, fallbackId: String): String {
-        val decoded = runCatching { URLDecoder.decode(value, "UTF-8") }.getOrDefault(value)
+        val decoded = runCatching { android.net.Uri.decode(value) }.getOrDefault(value)
         readableDocumentId(decoded)?.let { return it }
         return decoded.substringAfterLast('/').ifBlank {
             fallbackId.ifBlank { decoded }

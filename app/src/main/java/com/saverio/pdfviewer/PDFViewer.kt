@@ -1307,7 +1307,8 @@ class PDFViewer : AppCompatActivity() {
 
     private fun sanitizePdfFileName(name: String): String {
         val trimmed = name.trim().ifBlank { "document.pdf" }
-        val safe = trimmed.replace(Regex("[^A-Za-z0-9._ -]"), "_")
+        // Preserve international characters, only strip common illegal filesystem characters
+        val safe = trimmed.replace(Regex("[\\\\/:*?\"<>|]"), "_")
         return if (safe.lowercase(Locale.ROOT).endsWith(".pdf")) safe else "$safe.pdf"
     }
 
@@ -1326,6 +1327,11 @@ class PDFViewer : AppCompatActivity() {
                 bucketDir.mkdirs()
             }
             val destinationFile = File(bucketDir, displayName)
+
+            // If the file already exists, avoid expensive re-copying.
+            if (destinationFile.exists() && destinationFile.length() > 0) {
+                return destinationFile.absolutePath
+            }
 
             contentResolver.openInputStream(uri)?.use { input ->
                 FileOutputStream(destinationFile).use { output ->
@@ -1742,6 +1748,7 @@ class PDFViewer : AppCompatActivity() {
         val file = findStoredFileRecord(databaseHandler, pathNameTemp, pathName)
         if (file != null) {
             file.lastPage = currentPage
+            file.totalPages = totalPages
             file.lastUpdate = getNow()
             databaseHandler.updateFile(file = file)
         } else {
@@ -1751,6 +1758,7 @@ class PDFViewer : AppCompatActivity() {
                 lastUpdate = getNow(),
                 path = pathName,
                 lastPage = currentPage,
+                totalPages = totalPages,
                 scrollMode = scrollMode.name,
                 singlePage = single_page,
                 // nightMode and contrastOverlay are global – not saved per-document
@@ -2050,37 +2058,26 @@ class PDFViewer : AppCompatActivity() {
     fun getTheFileName(path: String, type: Int = 0): String {
         try {
             var pathTemp = path
-            pathTemp = pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
-
-            var pathName = ""
-            if (pathTemp.contains(":/")) {
-                pathName = pathTemp.split(":/")[1]
-            } else {
-                pathName = pathTemp
+            // For type 0 (ID generation) we MUST maintain the old behavior to avoid breaking MD5-based lookups
+            if (type == 0) {
+                pathTemp = pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
+                var pathName = if (pathTemp.contains(":/")) {
+                    pathTemp.split(":/")[1]
+                } else {
+                    pathTemp
+                }
+                return "/" + pathName
             }
-            val paths = pathName.split("/")
-            val fileName = paths[paths.size - 1]
 
-            when (type) {
-                0 -> {
-                    //path name
-                    return "/" + pathName
-                }
+            // For display purposes, use proper URI decoding
+            val decodedPath = android.net.Uri.decode(path) ?: path
+            val pathName = decodedPath.substringAfter("://").substringAfter(":/")
+            val fileName = pathName.substringAfterLast('/')
 
-                1 -> {
-                    //file name
-                    return fileName
-                }
-
-                2 -> {
-                    //path (also content://)
-                    return "content://" + pathTemp
-                }
-
-                else -> {
-                    //file name without ".pdf"
-                    return fileName.replace(".pdf", "")
-                }
+            return when (type) {
+                1 -> fileName
+                2 -> if (decodedPath.startsWith("content://")) decodedPath else "content://$decodedPath"
+                else -> fileName.replace(".pdf", "", ignoreCase = true)
             }
         } catch (e: Exception) {
             println("Exception 2 : ${e.toString()}")
@@ -3760,7 +3757,19 @@ class PDFViewer : AppCompatActivity() {
      */
     private fun buildReversedPageOrderIfNeeded(uri: Uri?): IntArray? {
         if (!reverseScroll || uri == null) return null
-        val count = resolvePdfPageCount(uri)
+
+        // First try to get total pages from database to avoid opening the PDF just for count.
+        val pathNameTemp = getTheFileName(uri.toString(), 0).toMD5()
+        val databaseHandler = DatabaseHandler(this)
+        val storedFiles = databaseHandler.getFiles(id = pathNameTemp)
+        val storedTotal = if (storedFiles.isNotEmpty()) storedFiles[0].totalPages else 0
+
+        val count = if (storedTotal > 0) {
+            storedTotal
+        } else {
+            resolvePdfPageCount(uri)
+        }
+
         if (count <= 1) return null
         return IntArray(count) { count - 1 - it }
     }
