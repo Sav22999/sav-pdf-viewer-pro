@@ -29,6 +29,7 @@
     <string name="page_number_text">Número de página: %d</string>
     <string name="text_password_required">Contraseña requerida</string>
     <string name="text_password_inserted_wrong">Contraseña insertada incorrecta</string>
+    <string name="error_encryption_not_supported">Lo sentimos, este archivo está protegido con un método de cifrado que el visor no admite.</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Ir</string>
     <string name="button_close">Cerrar</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Abrir panel de menú</string>
     <string name="tooltip_hide_menu_panel">Ocultar panel de menú</string>
     <string name="tooltip_share_file">Compartir este archivo</string>
+    <string name="tooltip_print_file">Imprimir este archivo</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Guardar este archivo</string>

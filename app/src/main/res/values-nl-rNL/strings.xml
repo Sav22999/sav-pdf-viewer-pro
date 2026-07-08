@@ -29,6 +29,7 @@
     <string name="page_number_text">Paginanummer: %d</string>
     <string name="text_password_required">Wachtwoord vereist</string>
     <string name="text_password_inserted_wrong">Onjuist wachtwoord ingevoerd</string>
+    <string name="error_encryption_not_supported">Sorry, dit bestand is beveiligd met een versleutelingsmethode die niet door de viewer wordt ondersteund.</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Gaan</string>
     <string name="button_close">Sluit</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Open menu paneel</string>
     <string name="tooltip_hide_menu_panel">Menu-paneel verbergen</string>
     <string name="tooltip_share_file">Dit bestand delen</string>
+    <string name="tooltip_print_file">Dit bestand afdrukken</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Dit bestand opslaan</string>

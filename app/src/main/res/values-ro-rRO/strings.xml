@@ -29,6 +29,7 @@
     <string name="page_number_text">Număr pagină: %d</string>
     <string name="text_password_required">Parolă necesară</string>
     <string name="text_password_inserted_wrong">Parola introdusă greșit</string>
+    <string name="error_encryption_not_supported">Ne pare rău, acest fișier este protejat cu o metodă de criptare care nu este acceptată de vizualizator.</string>
     <string name="button_ok">Ok</string>
     <string name="button_go">Mergi</string>
     <string name="button_close">Inchide</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Deschide panoul de meniu</string>
     <string name="tooltip_hide_menu_panel">Ascunde panoul de meniu</string>
     <string name="tooltip_share_file">Distribuie acest fișier</string>
+    <string name="tooltip_print_file">Tipărește acest fișier</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Salvează acest fișier</string>

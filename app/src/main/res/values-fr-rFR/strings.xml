@@ -29,6 +29,7 @@
     <string name="page_number_text">Numéro de page : %d</string>
     <string name="text_password_required">Mot de passe requis</string>
     <string name="text_password_inserted_wrong">Mot de passe inséré mal</string>
+    <string name="error_encryption_not_supported">Désolé, ce fichier est protégé par une méthode de chiffrement non prise en charge par la visionneuse.</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Aller</string>
     <string name="button_close">Fermer</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Ouvrir le panneau de menu</string>
     <string name="tooltip_hide_menu_panel">Masquer le panneau de menu</string>
     <string name="tooltip_share_file">Partager ce fichier</string>
+    <string name="tooltip_print_file">Imprimer ce fichier</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Enregistrer ce fichier</string>

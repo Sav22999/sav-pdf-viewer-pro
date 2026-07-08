@@ -29,6 +29,7 @@
     <string name="page_number_text">ページ番号: %d</string>
     <string name="text_password_required">パスワードが必要です</string>
     <string name="text_password_inserted_wrong">パスワードが間違って挿入されました</string>
+    <string name="error_encryption_not_supported">申し訳ありませんが、このファイルはビューアがサポートしていない暗号化方式で保護されています。</string>
     <string name="button_ok">OK</string>
     <string name="button_go">移動</string>
     <string name="button_close">閉じる</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">メニューパネルを開く</string>
     <string name="tooltip_hide_menu_panel">メニューパネルを隠す</string>
     <string name="tooltip_share_file">このファイルを共有</string>
+    <string name="tooltip_print_file">このファイルを印刷</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">このファイルを保存</string>

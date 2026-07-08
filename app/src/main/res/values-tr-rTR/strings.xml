@@ -29,6 +29,7 @@
     <string name="page_number_text">Sayfa numarası: %d</string>
     <string name="text_password_required">Parola gerekli</string>
     <string name="text_password_inserted_wrong">Parola yanlış girildi</string>
+    <string name="error_encryption_not_supported">Üzgünüz, bu dosya görüntüleyici tarafından desteklenmeyen bir şifreleme yöntemiyle korunuyor.</string>
     <string name="button_ok">Tamam</string>
     <string name="button_go">Git</string>
     <string name="button_close">Kapat</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Menü panelini aç</string>
     <string name="tooltip_hide_menu_panel">Menü panelini gizle</string>
     <string name="tooltip_share_file">Bu dosyayı paylaş</string>
+    <string name="tooltip_print_file">Bu dosyayı yazdır</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Bu dosyayı kaydet</string>

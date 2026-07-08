@@ -29,6 +29,7 @@
     <string name="page_number_text">页面号码： %d</string>
     <string name="text_password_required">需要密码</string>
     <string name="text_password_inserted_wrong">密码输入错误</string>
+    <string name="error_encryption_not_supported">抱歉，此文件使用了查看器不支持的加密方式进行保护。</string>
     <string name="button_ok">好的</string>
     <string name="button_go">转至</string>
     <string name="button_close">关闭</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">打开菜单面板</string>
     <string name="tooltip_hide_menu_panel">隐藏菜单面板</string>
     <string name="tooltip_share_file">分享这个文件</string>
+    <string name="tooltip_print_file">打印此文件</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">保存此文件</string>

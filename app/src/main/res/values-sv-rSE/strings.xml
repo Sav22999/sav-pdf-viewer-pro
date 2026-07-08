@@ -29,6 +29,7 @@
     <string name="page_number_text">Sidnummer: %d</string>
     <string name="text_password_required">Lösenord krävs</string>
     <string name="text_password_inserted_wrong">Fel vid insatt lösenord</string>
+    <string name="error_encryption_not_supported">Tyvärr, den här filen är skyddad med en krypteringsmetod som inte stöds av visaren.</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Kör</string>
     <string name="button_close">Stäng</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Öppna menypanelen</string>
     <string name="tooltip_hide_menu_panel">Dölj menypanel</string>
     <string name="tooltip_share_file">Dela denna fil</string>
+    <string name="tooltip_print_file">Skriv ut den här filen</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Spara denna fil</string>
