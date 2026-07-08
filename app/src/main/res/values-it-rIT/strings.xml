@@ -29,6 +29,7 @@
     <string name="page_number_text">Numero pagina: %d</string>
     <string name="text_password_required">Password richiesta</string>
     <string name="text_password_inserted_wrong">Password inserita errata</string>
+    <string name="error_encryption_not_supported">Spiacente, questo file è protetto con un metodo di cifratura non supportato dal visualizzatore.</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Vai</string>
     <string name="button_back">Indietro</string>

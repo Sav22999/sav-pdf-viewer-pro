@@ -39,6 +39,7 @@
 
     <string name="text_password_required">Password required</string>
     <string name="text_password_inserted_wrong">Password inserted wrong</string>
+    <string name="error_encryption_not_supported">Sorry, this file is protected with an encryption method that is not supported by the viewer.</string>
 
     <string name="button_ok">OK</string>
     <string name="button_go">Go</string>
