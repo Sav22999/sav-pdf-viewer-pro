@@ -29,6 +29,7 @@
     <string name="page_number_text">Sidenummer: %d</string>
     <string name="text_password_required">Adgangskode påkrævet</string>
     <string name="text_password_inserted_wrong">Adgangskode indsat forkert</string>
+    <string name="error_encryption_not_supported">Beklager, denne fil er beskyttet med en krypteringsmetode, der ikke understøttes af fremviseren.</string>
     <string name="button_ok">Ok</string>
     <string name="button_go">Gå</string>
     <string name="button_close">Luk</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Åbn menupanel</string>
     <string name="tooltip_hide_menu_panel">Skjul menupanel</string>
     <string name="tooltip_share_file">Del denne fil</string>
+    <string name="tooltip_print_file">Udskriv denne fil</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Gem denne fil</string>

@@ -29,6 +29,7 @@
     <string name="page_number_text">Seitenzahl: %d</string>
     <string name="text_password_required">Passwort erforderlich</string>
     <string name="text_password_inserted_wrong">Passwort falsch eingegeben</string>
+    <string name="error_encryption_not_supported">Entschuldigung, diese Datei ist mit einem Verschlüsselungsverfahren geschützt, das vom Betrachter nicht unterstützt wird.</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Gehe</string>
     <string name="button_close">Schließen</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Menüleiste öffnen</string>
     <string name="tooltip_hide_menu_panel">Menüleiste ausblenden</string>
     <string name="tooltip_share_file">Diese Datei teilen</string>
+    <string name="tooltip_print_file">Diese Datei drucken</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Datei speichern</string>

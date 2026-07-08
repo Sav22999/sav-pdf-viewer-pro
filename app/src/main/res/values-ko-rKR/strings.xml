@@ -29,6 +29,7 @@
     <string name="page_number_text">Page number: %d</string>
     <string name="text_password_required">Password required</string>
     <string name="text_password_inserted_wrong">Password inserted wrong</string>
+    <string name="error_encryption_not_supported">죄송합니다. 이 파일은 뷰어에서 지원하지 않는 암호화 방식으로 보호되어 있습니다.</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Go</string>
     <string name="button_close">Close</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Open menu panel</string>
     <string name="tooltip_hide_menu_panel">Hide menu panel</string>
     <string name="tooltip_share_file">Share this file</string>
+    <string name="tooltip_print_file">이 파일 인쇄</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Save this file</string>

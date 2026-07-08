@@ -29,6 +29,7 @@
     <string name="page_number_text">Αριθμός σελίδας: %d</string>
     <string name="text_password_required">Απαιτείται κωδικός πρόσβασης</string>
     <string name="text_password_inserted_wrong">Ο κωδικός εισήχθη λάθος</string>
+    <string name="error_encryption_not_supported">Λυπούμαστε, αυτό το αρχείο προστατεύεται με μια μέθοδο κρυπτογράφησης που δεν υποστηρίζεται από το πρόγραμμα προβολής.</string>
     <string name="button_ok">Εντάξει</string>
     <string name="button_go">Μετάβαση</string>
     <string name="button_close">Κλείσιμο</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Άνοιγμα πίνακα μενού</string>
     <string name="tooltip_hide_menu_panel">Απόκρυψη πίνακα μενού</string>
     <string name="tooltip_share_file">Κοινοποίηση αυτού του αρχείου</string>
+    <string name="tooltip_print_file">Εκτύπωση αυτού του αρχείου</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Αποθήκευση αυτού του αρχείου</string>

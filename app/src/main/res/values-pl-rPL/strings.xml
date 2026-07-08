@@ -29,6 +29,7 @@
     <string name="page_number_text">Numer strony: %d</string>
     <string name="text_password_required">Wymagane hasło</string>
     <string name="text_password_inserted_wrong">Hasło wstawione niepoprawnie</string>
+    <string name="error_encryption_not_supported">Przepraszamy, ten plik jest chroniony metodą szyfrowania, która nie jest obsługiwana przez przeglądarkę.</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Idź</string>
     <string name="button_close">Zamknij</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Otwórz panel menu</string>
     <string name="tooltip_hide_menu_panel">Ukryj panel menu</string>
     <string name="tooltip_share_file">Udostępnij ten plik</string>
+    <string name="tooltip_print_file">Wydrukuj ten plik</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Zapisz ten plik</string>

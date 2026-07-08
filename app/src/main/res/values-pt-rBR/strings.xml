@@ -29,6 +29,7 @@
     <string name="page_number_text">Número de página: %d</string>
     <string name="text_password_required">Senha requerida</string>
     <string name="text_password_inserted_wrong">Senha inserida incorreta</string>
+    <string name="error_encryption_not_supported">Desculpe, este arquivo está protegido com um método de criptografia não suportado pelo visualizador.</string>
     <string name="button_ok">Certo</string>
     <string name="button_go">OK</string>
     <string name="button_close">FECHAR</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Abrir painel de menu</string>
     <string name="tooltip_hide_menu_panel">Ocultar painel de menu</string>
     <string name="tooltip_share_file">Compartilhar este arquivo</string>
+    <string name="tooltip_print_file">Imprimir este arquivo</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Salvar arquivo</string>

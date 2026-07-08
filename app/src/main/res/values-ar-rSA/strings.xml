@@ -29,6 +29,7 @@
     <string name="page_number_text">رقم الصفحة: %d</string>
     <string name="text_password_required">كلمة المرور مطلوبة</string>
     <string name="text_password_inserted_wrong">كلمة المرور مدرجة خاطئة</string>
+    <string name="error_encryption_not_supported">عذرًا، هذا الملف محمي بطريقة تشفير غير مدعومة من قِبل العارض.</string>
     <string name="button_ok">حسناً</string>
     <string name="button_go">الذهاب</string>
     <string name="button_close">إغلاق</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">فتح لوحة القائمة</string>
     <string name="tooltip_hide_menu_panel">إخفاء لوحة القائمة</string>
     <string name="tooltip_share_file">مشاركة هذا الملف</string>
+    <string name="tooltip_print_file">طباعة هذا الملف</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">حفظ هذا الملف</string>

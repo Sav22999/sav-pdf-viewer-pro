@@ -29,6 +29,7 @@
     <string name="page_number_text">Номер страницы: %d</string>
     <string name="text_password_required">Требуется пароль</string>
     <string name="text_password_inserted_wrong">Неверный пароль</string>
+    <string name="error_encryption_not_supported">Извините, этот файл защищён методом шифрования, который не поддерживается программой просмотра.</string>
     <string name="button_ok">ОК</string>
     <string name="button_go">Идти</string>
     <string name="button_close">Закрыть</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Открыть панель меню</string>
     <string name="tooltip_hide_menu_panel">Скрыть панель меню</string>
     <string name="tooltip_share_file">Поделиться файлом</string>
+    <string name="tooltip_print_file">Печать этого файла</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Сохранить этот файл</string>

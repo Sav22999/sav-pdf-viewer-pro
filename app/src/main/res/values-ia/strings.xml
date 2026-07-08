@@ -29,6 +29,7 @@
     <string name="page_number_text">Numero de pagina: %d</string>
     <string name="text_password_required">Contrasigno requirite</string>
     <string name="text_password_inserted_wrong">Contrasigno inserite errate</string>
+    <string name="error_encryption_not_supported">Nos regretta, iste file es protegite con un methodo de cryptation non supportate per le visor.</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Ir</string>
     <string name="button_close">Clauder</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Aperir pannello de menu</string>
     <string name="tooltip_hide_menu_panel">Celar pannello de menu</string>
     <string name="tooltip_share_file">Compartir iste file</string>
+    <string name="tooltip_print_file">Imprimer iste file</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Salvar iste file</string>

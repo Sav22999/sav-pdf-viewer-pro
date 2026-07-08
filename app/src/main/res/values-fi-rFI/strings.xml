@@ -29,6 +29,7 @@
     <string name="page_number_text">Sivun numero: %d</string>
     <string name="text_password_required">Salasana tarvitaan</string>
     <string name="text_password_inserted_wrong">Salasana syötetty väärin</string>
+    <string name="error_encryption_not_supported">Valitettavasti tämä tiedosto on suojattu salausmenetelmällä, jota katseluohjelma ei tue.</string>
     <string name="button_ok">OK</string>
     <string name="button_go">Mene</string>
     <string name="button_close">Sulje</string>
@@ -56,6 +57,7 @@
     <string name="tooltip_open_menu_panel">Avaa valikkopaneeli</string>
     <string name="tooltip_hide_menu_panel">Piilota valikkopaneeli</string>
     <string name="tooltip_share_file">Jaa tämä tiedosto</string>
+    <string name="tooltip_print_file">Tulosta tämä tiedosto</string>
     <string name="tooltip_lock_rotation">Lock the rotation</string>
     <string name="tooltip_unlock_rotation">Unlock the rotation</string>
     <string name="tooltip_save_file">Tallenna tämä tiedosto</string>
