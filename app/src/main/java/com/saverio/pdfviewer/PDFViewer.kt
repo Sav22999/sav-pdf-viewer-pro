@@ -1225,10 +1225,29 @@ class PDFViewer : AppCompatActivity() {
                     if (it.message.toString()
                             .contains("Password required or incorrect password.")
                     ) {
-                        var passwordWrong = false
-                        if (passwordRequired) passwordWrong = true
-                        passwordRequired = true
-                        askThePassword(uri, passwordWrong)
+                        println("PDF load error (password stage): ${it.message}")
+                        if (passwordRequired && uri != null && passwordToUse.isNotEmpty()) {
+                            // The rendering engine rejected the supplied password.
+                            // Cross-check with the modern Pdfium engine (io.legere),
+                            // which supports recent encryption schemes (AES-256,
+                            // R5/R6), to tell apart a genuinely wrong password from a
+                            // correct password on a document whose encryption the
+                            // renderer cannot handle.
+                            ocrEngine.probeEncryption(uri, passwordToUse) { probe ->
+                                passwordRequired = true
+                                if (probe == PdfOcrEngine.OpenProbeResult.OPENED) {
+                                    // Password is correct but the renderer can't
+                                    // open this encryption → dedicated message.
+                                    showEncryptionNotSupportedMessage()
+                                } else {
+                                    askThePassword(uri, true)
+                                }
+                            }
+                        } else {
+                            val passwordWrong = passwordRequired
+                            passwordRequired = true
+                            askThePassword(uri, passwordWrong)
+                        }
                     } else {
                         keepTopBarVisibleForOpenError = true
                         showTopBar(showGoTop = false)
@@ -1426,9 +1445,63 @@ class PDFViewer : AppCompatActivity() {
     fun hideMessagePassword() {
         val background: View = findViewById(R.id.passwordBackgroundScreen)
         val message: ConstraintLayout = findViewById(R.id.messagePassword)
+        val encryptionMessage: ConstraintLayout =
+            findViewById(R.id.messageEncryptionNotSupported)
 
         background.isGone = true
         message.isGone = true
+        encryptionMessage.isGone = true
+    }
+
+    /**
+     * Shown when a correct password was supplied but the rendering engine
+     * cannot open the document because its encryption scheme is unsupported.
+     * Distinct from the generic "wrong password" flow so the user gets an
+     * accurate explanation instead of being asked for the password again.
+     */
+    private fun showEncryptionNotSupportedMessage() {
+        hideGoToDialog()
+        hideMenuPanel()
+        hideMessageGuide1()
+        hideMessagePassword()
+
+        // Hide the top bar controls the same way the password dialog does, so
+        // the persistent message is shown over a clean, dimmed screen.
+        val toolbar: View = findViewById(R.id.toolbar)
+        val toolbarInvisible: View = findViewById(R.id.toolbarInvisible)
+        val buttonGoBack: ImageView = findViewById(R.id.buttonGoBackToolbar)
+        val buttonGoTop: ImageView = findViewById(R.id.buttonGoTopToolbar)
+        val currentPage: TextView = findViewById(R.id.totalPagesToolbar)
+        val buttonMenu: ImageView = findViewById(R.id.buttonMenuToolbar)
+        val buttonBookmark: ImageView = findViewById(R.id.buttonBookmarkToolbar)
+        toolbar.isGone = true
+        buttonGoBack.isGone = true
+        buttonGoTop.isGone = true
+        currentPage.isGone = true
+        toolbarInvisible.isGone = true
+        buttonMenu.isGone = true
+        buttonBookmark.isGone = true
+
+        val background: View = findViewById(R.id.passwordBackgroundScreen)
+        val message: ConstraintLayout = findViewById(R.id.messageEncryptionNotSupported)
+        background.isGone = false
+        message.isGone = false
+
+        val buttonClose: TextView = findViewById(R.id.buttonCloseEncryptionNotSupported)
+        buttonClose.text =
+            getString(if (openedExternally) R.string.button_close else R.string.button_back)
+        buttonClose.contentDescription = getString(
+            if (openedExternally) R.string.tooltip_close_app else R.string.tooltip_back_to_home
+        )
+        buttonClose.setOnClickListener {
+            navigateBackOrClose()
+            resetHideTopBarCounter()
+        }
+        buttonClose.setOnLongClickListener {
+            showTooltip(if (openedExternally) R.string.tooltip_close_app else R.string.tooltip_back_to_home)
+            resetHideTopBarCounter()
+            true
+        }
     }
 
 

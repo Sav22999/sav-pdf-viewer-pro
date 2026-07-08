@@ -72,6 +72,52 @@ class PdfOcrEngine(private val context: Context) {
         closeDocument()
     }
 
+    /** Outcome of probing a document with the modern (io.legere) Pdfium engine. */
+    enum class OpenProbeResult {
+        /** The document opened successfully (password, if any, is correct). */
+        OPENED,
+        /** A password is required or the supplied password is wrong. */
+        WRONG_PASSWORD,
+        /** The document could not be opened for another reason. */
+        ERROR
+    }
+
+    /**
+     * Tries to open [uri] with the modern Pdfium engine (io.legere), which
+     * supports recent encryption schemes (AES-256, R5/R6). This is used to tell
+     * apart a genuinely wrong password from a correct password on a document
+     * whose encryption the rendering engine cannot handle.
+     *
+     * Runs off the main thread and delivers [callback] back on the main thread.
+     */
+    fun probeEncryption(uri: Uri, password: String?, callback: (OpenProbeResult) -> Unit) {
+        scope.launch {
+            val result = try {
+                val pfd = context.contentResolver.openFileDescriptor(uri, "r")
+                if (pfd == null) {
+                    OpenProbeResult.ERROR
+                } else {
+                    val doc = if (password.isNullOrEmpty()) {
+                        pdfiumCore.newDocument(pfd)
+                    } else {
+                        pdfiumCore.newDocument(pfd, password)
+                    }
+                    doc.close()
+                    OpenProbeResult.OPENED
+                }
+            } catch (e: Exception) {
+                val msg = e.message.orEmpty()
+                if (msg.contains("Password", ignoreCase = true)) {
+                    OpenProbeResult.WRONG_PASSWORD
+                } else {
+                    Log.w(TAG, "probeEncryption failed: $msg")
+                    OpenProbeResult.ERROR
+                }
+            }
+            withContext(Dispatchers.Main) { callback(result) }
+        }
+    }
+
     /**
      * Get the full text of a page by concatenating all cached words.
      * If the page hasn't been indexed yet, extracts its text layer first

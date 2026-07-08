@@ -1,3 +1,5 @@
+import com.android.build.api.variant.FilterConfiguration.FilterType.ABI
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -18,8 +20,8 @@ android {
         applicationId = "com.saverio.pdfviewer"
         minSdk = 21
         targetSdk = 35
-        versionCode = 72
-        versionName = "2.1"
+        versionCode = 73
+        versionName = "2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -44,6 +46,18 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
+    }
+    splits {
+        abi {
+            // Split per-ABI: affects ONLY the APKs (assembleRelease) for IzzyOnDroid.
+            // The App Bundle (bundleRelease) for Google Play ignores this and keeps all ABIs.
+            isEnable = true
+            reset()
+            include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+            // true  = also generate a "universal" APK with all ABIs (fallback for direct distribution)
+            // false = generate only the per-ABI APKs (lighter)
+            isUniversalApk = true
+        }
     }
     packaging {
         jniLibs {
@@ -80,6 +94,26 @@ android {
                 "lib/x86_64/libpdfium.so",
                 "lib/x86_64/libpdfiumandroid.so"
             )
+        }
+    }
+}
+
+// Assign a distinct versionCode to each per-ABI split APK (for IzzyOnDroid updates).
+// The App Bundle / universal APK keep the base versionCode (they have no ABI filter).
+androidComponents {
+    val abiCodes = mapOf(
+        "armeabi-v7a" to 1,
+        "x86" to 2,
+        "arm64-v8a" to 3,
+        "x86_64" to 4
+    )
+    onVariants { variant ->
+        variant.outputs.forEach { output ->
+            val abiName = output.filters.find { it.filterType == ABI }?.identifier
+            if (abiName != null) {
+                val base = output.versionCode.get() ?: 0
+                output.versionCode.set(base * 10 + (abiCodes[abiName] ?: 0))
+            }
         }
     }
 }
