@@ -124,6 +124,8 @@ class PDFViewer : AppCompatActivity() {
     private var toolbarPlacement = ViewerDefaultsStore.TOOLBAR_PLACEMENT_TOP
     private var toolbarSystemTopInset = 0
     private var toolbarSystemBottomInset = 0
+    private var lastPlacedSystemTopInset = -1
+    private var lastPlacedSystemBottomInset = -1
     private var imeBottomInset = 0
 
     private val scrollModePreferenceName = "scroll_mode"
@@ -363,6 +365,16 @@ class PDFViewer : AppCompatActivity() {
             applyToolbarContainerInsets()
             applyBottomPlacementImeOffset()
             applyStatusBarScrimHeight()
+            // System-bar insets arrive after the first layout; when they change
+            // re-run placement so the scrollbars are re-anchored inside the safe
+            // area (they would otherwise sit behind the status/navigation bars).
+            if (toolbarSystemTopInset != lastPlacedSystemTopInset ||
+                toolbarSystemBottomInset != lastPlacedSystemBottomInset
+            ) {
+                lastPlacedSystemTopInset = toolbarSystemTopInset
+                lastPlacedSystemBottomInset = toolbarSystemBottomInset
+                applyToolbarPlacement()
+            }
             insets
         }
 
@@ -943,6 +955,11 @@ class PDFViewer : AppCompatActivity() {
             // Persist latest page before switching to another document.
             flushPendingPagePersistence()
             keepTopBarVisibleForOpenError = false
+            // Remember the URI actually opened, for any scheme (content:// or
+            // file://). Reloads triggered from the toolbar (scroll direction,
+            // single-page, night mode) rely on this; leaving it null for
+            // file:// documents silently skipped those reloads.
+            uriOpened = uri
             if (uri.scheme == "content") {
                 try {
                     contentResolver.takePersistableUriPermission(
@@ -3225,6 +3242,13 @@ class PDFViewer : AppCompatActivity() {
                 ConstraintSet.PARENT_ID,
                 ConstraintSet.TOP
             )
+            // Anchored to the top edge: keep it below the status bar
+            // (edge-to-edge on API 35+; inset is 0 on API <35).
+            constraintSet.setMargin(
+                R.id.buttonSideScroll,
+                ConstraintSet.TOP,
+                dpToPx(10f) + toolbarSystemTopInset
+            )
         } else {
             constraintSet.connect(
                 R.id.buttonSideScroll,
@@ -3232,6 +3256,7 @@ class PDFViewer : AppCompatActivity() {
                 R.id.toolbarContainer,
                 ConstraintSet.BOTTOM
             )
+            constraintSet.setMargin(R.id.buttonSideScroll, ConstraintSet.TOP, dpToPx(10f))
         }
 
         constraintSet.clear(R.id.buttonBottomScroll, ConstraintSet.TOP)
@@ -3255,7 +3280,14 @@ class PDFViewer : AppCompatActivity() {
                 R.id.pdfView,
                 ConstraintSet.BOTTOM
             )
-            constraintSet.setMargin(R.id.buttonBottomScroll, ConstraintSet.BOTTOM, 10)
+            // pdfView spans the whole container, so its bottom sits under the
+            // system navigation bar on API 35+. Lift the horizontal scrollbar
+            // by the bottom inset (0 on API <35, so unchanged there).
+            constraintSet.setMargin(
+                R.id.buttonBottomScroll,
+                ConstraintSet.BOTTOM,
+                dpToPx(10f) + toolbarSystemBottomInset
+            )
         }
 
         val overlayPanelIds = intArrayOf(
@@ -3372,7 +3404,9 @@ class PDFViewer : AppCompatActivity() {
                 verticalTrackStart
             )
         } else {
-            fullH.toFloat()
+            // Keep the thumb above the system navigation bar (edge-to-edge on
+            // API 35+). On API <35 this inset is 0, so behaviour is unchanged.
+            (fullH.toFloat() - toolbarSystemBottomInset).coerceAtLeast(verticalTrackStart)
         }
         val residualH = (verticalTrackBoundary - verticalTrackStart).roundToInt().coerceAtLeast(1)
 
