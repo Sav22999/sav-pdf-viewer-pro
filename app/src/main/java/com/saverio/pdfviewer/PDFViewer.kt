@@ -3110,7 +3110,8 @@ class PDFViewer : AppCompatActivity() {
         // when the keyboard appears, so the toolbar (constrained to the bottom
         // of the parent ConstraintLayout) naturally moves above the keyboard.
         // We still translate floating panels / arrows so they stay attached.
-        val bottomOffset = if (isBottomToolbarPlacement()) imeBottomInset.toFloat() else 0f
+        val bottomPlacement = isBottomToolbarPlacement()
+        val bottomOffset = if (bottomPlacement) imeBottomInset.toFloat() else 0f
 
         val idsToOffset = intArrayOf(
             R.id.messageSearch,
@@ -3122,12 +3123,20 @@ class PDFViewer : AppCompatActivity() {
             R.id.arrowLeft,
             R.id.arrowRight,
             R.id.arrowRight2,
-            R.id.arrowRight3,
-            R.id.textSelectionBar
+            R.id.arrowRight3
         )
         idsToOffset.forEach { id ->
             findViewById<View>(id).translationY = -bottomOffset
         }
+
+        // Overlays anchored to the parent bottom must also clear the system
+        // navigation bar (edge-to-edge on API 35+). In bottom toolbar placement
+        // the selection bar rides above the toolbar, which already reserves the
+        // nav-bar inset, so only the top-placement case needs the extra lift.
+        val navBottomOffset = if (bottomPlacement) 0f else toolbarSystemBottomInset.toFloat()
+        findViewById<View>(R.id.textSelectionBar).translationY = -(bottomOffset + navBottomOffset)
+        findViewById<View>(R.id.messageContainerReview).translationY =
+            -toolbarSystemBottomInset.toFloat()
     }
 
     private fun applyToolbarPlacement(force: Boolean = false) {

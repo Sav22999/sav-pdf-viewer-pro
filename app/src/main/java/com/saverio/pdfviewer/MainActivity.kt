@@ -4,6 +4,9 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.navigation.findNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 
@@ -17,12 +20,24 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Opt out of edge-to-edge enforcement on Android 15+
-        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, true)
+        // Go edge-to-edge explicitly on every API level, then reserve the
+        // system-bar safe area ourselves. On Android 15+ (API 35) edge-to-edge
+        // is enforced anyway; handling insets manually keeps the layout correct
+        // regardless of version (including API 36, where the opt-out is gone).
+        androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
         if (forwardToPdfViewerIfNeeded(intent)) return
 
         setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
+
+        // Keep the bottom navigation above the system navigation bar (and the
+        // gesture pill on the sides in landscape). Insets are not consumed so
+        // the fragments still receive the top inset for the status bar.
+        ViewCompat.setOnApplyWindowInsetsListener(navView) { v, insets ->
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.updatePadding(bottom = bars.bottom, left = bars.left, right = bars.right)
+            insets
+        }
 
         val navController = findNavController(R.id.nav_host_fragment)
         navView.selectedItemId = R.id.navigation_home
