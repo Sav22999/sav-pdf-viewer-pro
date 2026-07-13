@@ -124,6 +124,8 @@ class PDFViewer : AppCompatActivity() {
     private var toolbarPlacement = ViewerDefaultsStore.TOOLBAR_PLACEMENT_TOP
     private var toolbarSystemTopInset = 0
     private var toolbarSystemBottomInset = 0
+    private var lastPlacedSystemTopInset = -1
+    private var lastPlacedSystemBottomInset = -1
     private var imeBottomInset = 0
 
     private val scrollModePreferenceName = "scroll_mode"
@@ -341,6 +343,9 @@ class PDFViewer : AppCompatActivity() {
         // only to the toolbar container so it doesn't overlap the system bar,
         // without affecting fullView / residualView measurement.
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, true)
+        // The status-bar backdrop is the app's dark red: keep the bar icons light.
+        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView)
+            .isAppearanceLightStatusBars = false
 
         setContentView(R.layout.activity_pdf_viewer)
         applySearchHighlightThemeColors()
@@ -359,6 +364,17 @@ class PDFViewer : AppCompatActivity() {
             }
             applyToolbarContainerInsets()
             applyBottomPlacementImeOffset()
+            applyStatusBarScrimHeight()
+            // System-bar insets arrive after the first layout; when they change
+            // re-run placement so the scrollbars are re-anchored inside the safe
+            // area (they would otherwise sit behind the status/navigation bars).
+            if (toolbarSystemTopInset != lastPlacedSystemTopInset ||
+                toolbarSystemBottomInset != lastPlacedSystemBottomInset
+            ) {
+                lastPlacedSystemTopInset = toolbarSystemTopInset
+                lastPlacedSystemBottomInset = toolbarSystemBottomInset
+                applyToolbarPlacement()
+            }
             insets
         }
 
@@ -894,6 +910,7 @@ class PDFViewer : AppCompatActivity() {
             button.contentDescription = getString(R.string.tooltip_full_screen_on)
             isFullscreenEnabled = false
         }
+        applyStatusBarScrimHeight()
 
         if (persist && !applyingPdfOptions) {
             saveCurrentPdfOptions()
@@ -938,6 +955,11 @@ class PDFViewer : AppCompatActivity() {
             // Persist latest page before switching to another document.
             flushPendingPagePersistence()
             keepTopBarVisibleForOpenError = false
+            // Remember the URI actually opened, for any scheme (content:// or
+            // file://). Reloads triggered from the toolbar (scroll direction,
+            // single-page, night mode) rely on this; leaving it null for
+            // file:// documents silently skipped those reloads.
+            uriOpened = uri
             if (uri.scheme == "content") {
                 try {
                     contentResolver.takePersistableUriPermission(
@@ -1307,7 +1329,8 @@ class PDFViewer : AppCompatActivity() {
 
     private fun sanitizePdfFileName(name: String): String {
         val trimmed = name.trim().ifBlank { "document.pdf" }
-        val safe = trimmed.replace(Regex("[^A-Za-z0-9._ -]"), "_")
+        // Preserve international characters, only strip common illegal filesystem characters
+        val safe = trimmed.replace(Regex("[\\\\/:*?\"<>|]"), "_")
         return if (safe.lowercase(Locale.ROOT).endsWith(".pdf")) safe else "$safe.pdf"
     }
 
@@ -1326,6 +1349,11 @@ class PDFViewer : AppCompatActivity() {
                 bucketDir.mkdirs()
             }
             val destinationFile = File(bucketDir, displayName)
+
+            // If the file already exists, avoid expensive re-copying.
+            if (destinationFile.exists() && destinationFile.length() > 0) {
+                return destinationFile.absolutePath
+            }
 
             contentResolver.openInputStream(uri)?.use { input ->
                 FileOutputStream(destinationFile).use { output ->
@@ -1742,6 +1770,7 @@ class PDFViewer : AppCompatActivity() {
         val file = findStoredFileRecord(databaseHandler, pathNameTemp, pathName)
         if (file != null) {
             file.lastPage = currentPage
+            file.totalPages = totalPages
             file.lastUpdate = getNow()
             databaseHandler.updateFile(file = file)
         } else {
@@ -1751,6 +1780,7 @@ class PDFViewer : AppCompatActivity() {
                 lastUpdate = getNow(),
                 path = pathName,
                 lastPage = currentPage,
+                totalPages = totalPages,
                 scrollMode = scrollMode.name,
                 singlePage = single_page,
                 // nightMode and contrastOverlay are global – not saved per-document
@@ -2050,37 +2080,26 @@ class PDFViewer : AppCompatActivity() {
     fun getTheFileName(path: String, type: Int = 0): String {
         try {
             var pathTemp = path
-            pathTemp = pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
-
-            var pathName = ""
-            if (pathTemp.contains(":/")) {
-                pathName = pathTemp.split(":/")[1]
-            } else {
-                pathName = pathTemp
+            // For type 0 (ID generation) we MUST maintain the old behavior to avoid breaking MD5-based lookups
+            if (type == 0) {
+                pathTemp = pathTemp.replace("%3A", ":").replace("%2F", "/").replace("content://", "")
+                var pathName = if (pathTemp.contains(":/")) {
+                    pathTemp.split(":/")[1]
+                } else {
+                    pathTemp
+                }
+                return "/" + pathName
             }
-            val paths = pathName.split("/")
-            val fileName = paths[paths.size - 1]
 
-            when (type) {
-                0 -> {
-                    //path name
-                    return "/" + pathName
-                }
+            // For display purposes, use proper URI decoding
+            val decodedPath = android.net.Uri.decode(path) ?: path
+            val pathName = decodedPath.substringAfter("://").substringAfter(":/")
+            val fileName = pathName.substringAfterLast('/')
 
-                1 -> {
-                    //file name
-                    return fileName
-                }
-
-                2 -> {
-                    //path (also content://)
-                    return "content://" + pathTemp
-                }
-
-                else -> {
-                    //file name without ".pdf"
-                    return fileName.replace(".pdf", "")
-                }
+            return when (type) {
+                1 -> fileName
+                2 -> if (decodedPath.startsWith("content://")) decodedPath else "content://$decodedPath"
+                else -> fileName.replace(".pdf", "", ignoreCase = true)
             }
         } catch (e: Exception) {
             println("Exception 2 : ${e.toString()}")
@@ -3108,12 +3127,30 @@ class PDFViewer : AppCompatActivity() {
         )
     }
 
+    private fun applyStatusBarScrimHeight() {
+        // On API <35 the decor consumes the top inset (and the theme paints the
+        // status bar), so the scrim stays hidden; on API 35+ it covers the
+        // transparent bar. Never leave the height at 0 while visible: in a
+        // ConstraintLayout 0dp means MATCH_CONSTRAINT and the view would
+        // stretch over the whole screen.
+        val scrim: View = findViewById(R.id.statusBarScrim)
+        if (toolbarSystemTopInset > 0 && scrim.layoutParams.height != toolbarSystemTopInset) {
+            scrim.layoutParams = scrim.layoutParams.apply { height = toolbarSystemTopInset }
+        }
+        scrim.visibility = if (isFullscreenEnabled || toolbarSystemTopInset <= 0) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
+    }
+
     private fun applyBottomPlacementImeOffset() {
         // With adjustResize in the manifest, the activity window is resized
         // when the keyboard appears, so the toolbar (constrained to the bottom
         // of the parent ConstraintLayout) naturally moves above the keyboard.
         // We still translate floating panels / arrows so they stay attached.
-        val bottomOffset = if (isBottomToolbarPlacement()) imeBottomInset.toFloat() else 0f
+        val bottomPlacement = isBottomToolbarPlacement()
+        val bottomOffset = if (bottomPlacement) imeBottomInset.toFloat() else 0f
 
         val idsToOffset = intArrayOf(
             R.id.messageSearch,
@@ -3125,12 +3162,20 @@ class PDFViewer : AppCompatActivity() {
             R.id.arrowLeft,
             R.id.arrowRight,
             R.id.arrowRight2,
-            R.id.arrowRight3,
-            R.id.textSelectionBar
+            R.id.arrowRight3
         )
         idsToOffset.forEach { id ->
             findViewById<View>(id).translationY = -bottomOffset
         }
+
+        // Overlays anchored to the parent bottom must also clear the system
+        // navigation bar (edge-to-edge on API 35+). In bottom toolbar placement
+        // the selection bar rides above the toolbar, which already reserves the
+        // nav-bar inset, so only the top-placement case needs the extra lift.
+        val navBottomOffset = if (bottomPlacement) 0f else toolbarSystemBottomInset.toFloat()
+        findViewById<View>(R.id.textSelectionBar).translationY = -(bottomOffset + navBottomOffset)
+        findViewById<View>(R.id.messageContainerReview).translationY =
+            -toolbarSystemBottomInset.toFloat()
     }
 
     private fun applyToolbarPlacement(force: Boolean = false) {
@@ -3197,6 +3242,13 @@ class PDFViewer : AppCompatActivity() {
                 ConstraintSet.PARENT_ID,
                 ConstraintSet.TOP
             )
+            // Anchored to the top edge: keep it below the status bar
+            // (edge-to-edge on API 35+; inset is 0 on API <35).
+            constraintSet.setMargin(
+                R.id.buttonSideScroll,
+                ConstraintSet.TOP,
+                dpToPx(10f) + toolbarSystemTopInset
+            )
         } else {
             constraintSet.connect(
                 R.id.buttonSideScroll,
@@ -3204,6 +3256,7 @@ class PDFViewer : AppCompatActivity() {
                 R.id.toolbarContainer,
                 ConstraintSet.BOTTOM
             )
+            constraintSet.setMargin(R.id.buttonSideScroll, ConstraintSet.TOP, dpToPx(10f))
         }
 
         constraintSet.clear(R.id.buttonBottomScroll, ConstraintSet.TOP)
@@ -3227,7 +3280,14 @@ class PDFViewer : AppCompatActivity() {
                 R.id.pdfView,
                 ConstraintSet.BOTTOM
             )
-            constraintSet.setMargin(R.id.buttonBottomScroll, ConstraintSet.BOTTOM, 10)
+            // pdfView spans the whole container, so its bottom sits under the
+            // system navigation bar on API 35+. Lift the horizontal scrollbar
+            // by the bottom inset (0 on API <35, so unchanged there).
+            constraintSet.setMargin(
+                R.id.buttonBottomScroll,
+                ConstraintSet.BOTTOM,
+                dpToPx(10f) + toolbarSystemBottomInset
+            )
         }
 
         val overlayPanelIds = intArrayOf(
@@ -3344,7 +3404,9 @@ class PDFViewer : AppCompatActivity() {
                 verticalTrackStart
             )
         } else {
-            fullH.toFloat()
+            // Keep the thumb above the system navigation bar (edge-to-edge on
+            // API 35+). On API <35 this inset is 0, so behaviour is unchanged.
+            (fullH.toFloat() - toolbarSystemBottomInset).coerceAtLeast(verticalTrackStart)
         }
         val residualH = (verticalTrackBoundary - verticalTrackStart).roundToInt().coerceAtLeast(1)
 
@@ -3760,7 +3822,19 @@ class PDFViewer : AppCompatActivity() {
      */
     private fun buildReversedPageOrderIfNeeded(uri: Uri?): IntArray? {
         if (!reverseScroll || uri == null) return null
-        val count = resolvePdfPageCount(uri)
+
+        // First try to get total pages from database to avoid opening the PDF just for count.
+        val pathNameTemp = getTheFileName(uri.toString(), 0).toMD5()
+        val databaseHandler = DatabaseHandler(this)
+        val storedFiles = databaseHandler.getFiles(id = pathNameTemp)
+        val storedTotal = if (storedFiles.isNotEmpty()) storedFiles[0].totalPages else 0
+
+        val count = if (storedTotal > 0) {
+            storedTotal
+        } else {
+            resolvePdfPageCount(uri)
+        }
+
         if (count <= 1) return null
         return IntArray(count) { count - 1 - it }
     }

@@ -10,6 +10,9 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.saverio.pdfviewer.R
@@ -37,13 +40,28 @@ class SettingsFragment : Fragment() {
         settingsViewModel = ViewModelProvider(this)[SettingsViewModel::class.java]
         val root = inflater.inflate(R.layout.fragment_settings, container, false)
 
-        val versionName = runCatching {
-            val packageInfo =
-                requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
-            packageInfo.versionName ?: "-"
-        }.getOrDefault("-")
+        // Keep the settings content below the status bar (edge-to-edge).
+        val settingsScroll: View = root.findViewById(R.id.settingsScroll)
+        ViewCompat.setOnApplyWindowInsetsListener(settingsScroll) { v, insets ->
+            val topInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+            v.updatePadding(top = topInset)
+            insets
+        }
+
+        val packageInfo = runCatching {
+            requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
+        }.getOrNull()
+        val versionName = packageInfo?.versionName ?: "-"
+        val versionCode = if (packageInfo == null) {
+            0L
+        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            packageInfo.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            packageInfo.versionCode.toLong()
+        }
         root.findViewById<TextView>(R.id.textAppVersion).text =
-            getString(R.string.settings_version_label, versionName)
+            getString(R.string.settings_version_label, versionName, versionCode)
 
         val buttonScrollVTopToBottom: ImageView =
             root.findViewById(R.id.buttonDefaultScrollVTopToBottom)

@@ -13,7 +13,10 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.isGone
+import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -68,6 +71,16 @@ class HomeFragment : Fragment() {
             ViewModelProvider(this).get(HomeViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_home, container, false)
         payoffText = root.findViewById(R.id.textHomePayoff)
+
+        // Push the red brand bar's content below the status bar (edge-to-edge):
+        // the bar itself keeps drawing behind the status bar, the text does not.
+        val brandBar: View = root.findViewById(R.id.homeTopBrandBar)
+        val brandBarBasePaddingTop = brandBar.paddingTop
+        ViewCompat.setOnApplyWindowInsetsListener(brandBar) { v, insets ->
+            val topInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+            v.updatePadding(top = brandBarBasePaddingTop + topInset)
+            insets
+        }
 
         val main = activity as MainActivity
         val recentsList: RecyclerView = root.findViewById(R.id.recentsList)
