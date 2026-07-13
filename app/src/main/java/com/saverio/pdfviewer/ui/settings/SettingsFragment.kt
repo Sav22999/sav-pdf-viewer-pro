@@ -48,13 +48,20 @@ class SettingsFragment : Fragment() {
             insets
         }
 
-        val versionName = runCatching {
-            val packageInfo =
-                requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
-            packageInfo.versionName ?: "-"
-        }.getOrDefault("-")
+        val packageInfo = runCatching {
+            requireContext().packageManager.getPackageInfo(requireContext().packageName, 0)
+        }.getOrNull()
+        val versionName = packageInfo?.versionName ?: "-"
+        val versionCode = if (packageInfo == null) {
+            0L
+        } else if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P) {
+            packageInfo.longVersionCode
+        } else {
+            @Suppress("DEPRECATION")
+            packageInfo.versionCode.toLong()
+        }
         root.findViewById<TextView>(R.id.textAppVersion).text =
-            getString(R.string.settings_version_label, versionName)
+            getString(R.string.settings_version_label, versionName, versionCode)
 
         val buttonScrollVTopToBottom: ImageView =
             root.findViewById(R.id.buttonDefaultScrollVTopToBottom)

@@ -9,6 +9,21 @@
     android:fitsSystemWindows="true"
     tools:context=".PDFViewer">
 
+    <!-- Opaque backdrop for the status bar: on API 35+ edge-to-edge is enforced
+         and android:statusBarColor is ignored, so the bar would be transparent
+         over the PDF. Height is set at runtime to the top system-bar inset. -->
+    <View
+        android:id="@+id/statusBarScrim"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:background="?attr/colorPrimaryVariant"
+        android:elevation="6dp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="gone" />
+
     <com.github.barteksc.pdfviewer.PDFView
         android:id="@+id/pdfView"
         android:layout_width="match_parent"

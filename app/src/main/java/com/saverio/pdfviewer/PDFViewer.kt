@@ -341,6 +341,9 @@ class PDFViewer : AppCompatActivity() {
         // only to the toolbar container so it doesn't overlap the system bar,
         // without affecting fullView / residualView measurement.
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, true)
+        // The status-bar backdrop is the app's dark red: keep the bar icons light.
+        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView)
+            .isAppearanceLightStatusBars = false
 
         setContentView(R.layout.activity_pdf_viewer)
         applySearchHighlightThemeColors()
@@ -359,6 +362,7 @@ class PDFViewer : AppCompatActivity() {
             }
             applyToolbarContainerInsets()
             applyBottomPlacementImeOffset()
+            applyStatusBarScrimHeight()
             insets
         }
 
@@ -894,6 +898,7 @@ class PDFViewer : AppCompatActivity() {
             button.contentDescription = getString(R.string.tooltip_full_screen_on)
             isFullscreenEnabled = false
         }
+        applyStatusBarScrimHeight()
 
         if (persist && !applyingPdfOptions) {
             saveCurrentPdfOptions()
@@ -3103,6 +3108,23 @@ class PDFViewer : AppCompatActivity() {
             toolbarContainer.paddingRight,
             bottomInset
         )
+    }
+
+    private fun applyStatusBarScrimHeight() {
+        // On API <35 the decor consumes the top inset (and the theme paints the
+        // status bar), so the scrim stays hidden; on API 35+ it covers the
+        // transparent bar. Never leave the height at 0 while visible: in a
+        // ConstraintLayout 0dp means MATCH_CONSTRAINT and the view would
+        // stretch over the whole screen.
+        val scrim: View = findViewById(R.id.statusBarScrim)
+        if (toolbarSystemTopInset > 0 && scrim.layoutParams.height != toolbarSystemTopInset) {
+            scrim.layoutParams = scrim.layoutParams.apply { height = toolbarSystemTopInset }
+        }
+        scrim.visibility = if (isFullscreenEnabled || toolbarSystemTopInset <= 0) {
+            View.GONE
+        } else {
+            View.VISIBLE
+        }
     }
 
     private fun applyBottomPlacementImeOffset() {

@@ -25,10 +25,28 @@ class MainActivity : AppCompatActivity() {
         // is enforced anyway; handling insets manually keeps the layout correct
         // regardless of version (including API 36, where the opt-out is gone).
         androidx.core.view.WindowCompat.setDecorFitsSystemWindows(window, false)
+        // The status-bar backdrop is the app's dark red: keep the bar icons light.
+        androidx.core.view.WindowInsetsControllerCompat(window, window.decorView)
+            .isAppearanceLightStatusBars = false
         if (forwardToPdfViewerIfNeeded(intent)) return
 
         setContentView(R.layout.activity_main)
         val navView: BottomNavigationView = findViewById(R.id.nav_view)
+
+        // Opaque backdrop behind the status bar: on API 35+ the bar is forced
+        // transparent (statusBarColor is ignored), so scrolling content would
+        // otherwise show through under the clock and system icons.
+        val statusBarScrim = findViewById<android.view.View>(R.id.statusBarScrimMain)
+        ViewCompat.setOnApplyWindowInsetsListener(statusBarScrim) { v, insets ->
+            val topInset = insets.getInsets(WindowInsetsCompat.Type.systemBars()).top
+            // Keep hidden while the inset is 0: at 0dp height a ConstraintLayout
+            // child means MATCH_CONSTRAINT and would stretch over the screen.
+            if (topInset > 0 && v.layoutParams.height != topInset) {
+                v.layoutParams = v.layoutParams.apply { height = topInset }
+            }
+            v.visibility = if (topInset > 0) android.view.View.VISIBLE else android.view.View.GONE
+            insets
+        }
 
         // Keep the bottom navigation above the system navigation bar (and the
         // gesture pill on the sides in landscape). Insets are not consumed so
