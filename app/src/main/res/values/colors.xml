@@ -33,4 +33,7 @@
 
     <color name="dark_red_night">#781414</color>
     <color name="dark_dark_red_night">#5C1010</color>
+
+    <!-- Translucent white pill behind the selected navigation item (Material 3). -->
+    <color name="nav_active_indicator">#33FFFFFF</color>
 </resources>

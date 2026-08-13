@@ -11,3 +11,4 @@ local.properties
 .gitattributes
 *.log
 /app/release
+app/release/output-metadata.json
