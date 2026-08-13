@@ -330,6 +330,8 @@ class PDFViewer : AppCompatActivity() {
     private var lastLogicalScrollProgress = 0F
     private val scrollbarSafetyMarginPx by lazy { dpToPx(6F).toFloat() }
     private val scrollbarMinimumLengthPx by lazy { dpToPx(50F) }
+    // Base content padding of the PDFView, matching android:padding in the layout.
+    private val pdfViewBasePaddingPx by lazy { dpToPx(10F) }
 
     private var applyingPdfOptions = false
     private val selectedOptionAlpha = 1.0F
@@ -365,6 +367,7 @@ class PDFViewer : AppCompatActivity() {
             applyToolbarContainerInsets()
             applyBottomPlacementImeOffset()
             applyStatusBarScrimHeight()
+            applyPdfViewSafeAreaInsets()
             // System-bar insets arrive after the first layout; when they change
             // re-run placement so the scrollbars are re-anchored inside the safe
             // area (they would otherwise sit behind the status/navigation bars).
@@ -911,6 +914,7 @@ class PDFViewer : AppCompatActivity() {
             isFullscreenEnabled = false
         }
         applyStatusBarScrimHeight()
+        applyPdfViewSafeAreaInsets()
 
         if (persist && !applyingPdfOptions) {
             saveCurrentPdfOptions()
@@ -3143,6 +3147,24 @@ class PDFViewer : AppCompatActivity() {
             View.GONE
         } else {
             View.VISIBLE
+        }
+    }
+
+    // On API 35+ edge-to-edge is enforced, so the PDFView (anchored to the top
+    // of the parent) would render its content underneath the transparent status
+    // bar. Inset the content by the top system-bar height so the first page is
+    // never hidden behind the notification bar (most visible with the toolbar
+    // placed at the bottom, where nothing else reserves that space).
+    private fun applyPdfViewSafeAreaInsets() {
+        val pdfView: View = findViewById(R.id.pdfView)
+        val base = pdfViewBasePaddingPx
+        val topPadding = base + if (isFullscreenEnabled) 0 else toolbarSystemTopInset
+        if (pdfView.paddingTop != topPadding ||
+            pdfView.paddingLeft != base ||
+            pdfView.paddingRight != base ||
+            pdfView.paddingBottom != base
+        ) {
+            pdfView.setPadding(base, topPadding, base, base)
         }
     }
 
