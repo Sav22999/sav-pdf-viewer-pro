@@ -156,15 +156,21 @@ class PdfOcrEngine(private val context: Context) {
     }
 
     /**
-     * Returns normalised highlight rects for every occurrence of [query]
-     * on [pageIndex].  Called from the UI thread (onDraw) at render time,
-     * so it must be fast and non-blocking.
+     * Returns the highlights for every occurrence of [query] on [pageIndex].
+     * Each occurrence is represented as a list of normalised [RectF]s: usually
+     * a single rect, but a multi-word match that wraps across lines yields one
+     * rect per line so only the matched words are highlighted (not whole
+     * lines). The outer list therefore has one element per match, preserving
+     * the "one match == one result" contract used by the search UI.
+     *
+     * Called from the UI thread (onDraw) at render time, so it must be fast and
+     * non-blocking.
      */
     fun getHighlightsForPage(
         pageIndex: Int,
         query: String,
         options: SearchOptions = SearchOptions()
-    ): List<RectF> {
+    ): List<List<RectF>> {
         if (query.isBlank()) return emptyList()
         val q = query.trim()
         val words = wordsCache[pageIndex]
@@ -176,7 +182,17 @@ class PdfOcrEngine(private val context: Context) {
             TAG,
             "getHighlightsForPage($pageIndex): ${words.size} words in cache, searching '$q' cs=${options.caseSensitive} ww=${options.wholeWord}"
         )
-        val rects = mutableListOf<RectF>()
+        // Multi-word / sentence queries can span several WordElements, so they
+        // cannot be matched inside a single word. Handle them with a dedicated
+        // path that matches against the whole page text and highlights the
+        // matched words grouped by line.
+        if (q.any { it.isWhitespace() }) {
+            val matches = getSentenceHighlights(words, q, options)
+            Log.d(TAG, "getHighlightsForPage($pageIndex): found ${matches.size} sentence matches")
+            return matches
+        }
+
+        val matches = mutableListOf<List<RectF>>()
         for (w in words) {
             val matchRanges = findMatchRanges(w.text, q, options)
             for (range in matchRanges) {
@@ -184,16 +200,113 @@ class PdfOcrEngine(private val context: Context) {
                 val frac0 = range.first.toFloat() / len
                 val frac1 = range.lastExclusive.toFloat() / len
                 val width = w.rect.right - w.rect.left
-                rects.add(RectF(
+                matches.add(listOf(RectF(
                     w.rect.left + width * frac0,
                     w.rect.top,
                     w.rect.left + width * frac1,
                     w.rect.bottom
-                ))
+                )))
             }
         }
-        Log.d(TAG, "getHighlightsForPage($pageIndex): found ${rects.size} rects")
-        return rects
+        Log.d(TAG, "getHighlightsForPage($pageIndex): found ${matches.size} matches")
+        return matches
+    }
+
+    /**
+     * Matches a multi-word [query] across [words]. The word texts are joined
+     * into a single string (separated by single spaces) so a phrase that spans
+     * several words can be found. Each match produces a list of [RectF]s: the
+     * matched words are grouped by line and one bounding rect is emitted per
+     * line. This way a phrase that wraps across lines highlights only the
+     * matched words on each line instead of the whole lines, while still
+     * counting as a single match (one entry in the returned list).
+     */
+    private fun getSentenceHighlights(
+        words: List<WordElement>,
+        query: String,
+        options: SearchOptions
+    ): List<List<RectF>> {
+        if (words.isEmpty()) return emptyList()
+
+        val joined = StringBuilder()
+        val charToWord = ArrayList<Int>()
+        for ((wi, w) in words.withIndex()) {
+            if (joined.isNotEmpty()) {
+                joined.append(' ')
+                charToWord.add(-1)
+            }
+            for (c in w.text) {
+                joined.append(c)
+                charToWord.add(wi)
+            }
+        }
+
+        // Collapse any run of whitespace in the query to a single space so it
+        // lines up with the single-space separators used in [joined].
+        val needle = query.trim().replace(Regex("\\s+"), " ")
+        if (needle.isBlank()) return emptyList()
+
+        // Words within this vertical distance are considered to be on the same
+        // line (matches the threshold used by [getPageText]).
+        val lineThreshold = 0.01f
+
+        val matches = findMatchRanges(joined.toString(), needle, options)
+        val result = mutableListOf<List<RectF>>()
+        for (m in matches) {
+            var minWi = Int.MAX_VALUE
+            var maxWi = -1
+            for (ci in m.first until m.lastExclusive) {
+                val wi = charToWord.getOrElse(ci) { -1 }
+                if (wi >= 0) {
+                    if (wi < minWi) minWi = wi
+                    if (wi > maxWi) maxWi = wi
+                }
+            }
+            if (maxWi < 0) continue
+
+            // Group the matched words (in reading order) into lines and emit one
+            // union rect per line, so only the matched words are highlighted.
+            val lineRects = mutableListOf<RectF>()
+            var left = Float.MAX_VALUE
+            var top = Float.MAX_VALUE
+            var right = -Float.MAX_VALUE
+            var bottom = -Float.MAX_VALUE
+            var lineTop = Float.NaN
+            var hasLine = false
+
+            fun flushLine() {
+                if (hasLine && right > left && bottom > top) {
+                    lineRects.add(RectF(left, top, right, bottom))
+                }
+                left = Float.MAX_VALUE
+                top = Float.MAX_VALUE
+                right = -Float.MAX_VALUE
+                bottom = -Float.MAX_VALUE
+                hasLine = false
+            }
+
+            for (wi in minWi..maxWi) {
+                val r = words[wi].rect
+                if (!hasLine) {
+                    lineTop = r.top
+                } else if (kotlin.math.abs(r.top - lineTop) > lineThreshold) {
+                    // New line: close the current one and start a fresh group.
+                    flushLine()
+                    lineTop = r.top
+                }
+                hasLine = true
+                if (r.left < left) left = r.left
+                if (r.top < top) top = r.top
+                if (r.right > right) right = r.right
+                if (r.bottom > bottom) bottom = r.bottom
+            }
+            flushLine()
+
+            if (lineRects.isNotEmpty()) {
+                result.add(lineRects)
+            }
+        }
+        return result
     }
 
     private data class MatchRange(val first: Int, val lastExclusive: Int)

@@ -1101,7 +1101,9 @@ class PDFViewer : AppCompatActivity() {
                     // Draw search highlight rectangles on this page
                     if (currentSearchQuery.isNotBlank() && searchResults.isNotEmpty()) {
                         val logicalDisplayedPage = mapViewerPageToLogical(displayedPage)
-                        val rects =
+                        // One entry per match; each match is a list of rects
+                        // (multiple when a phrase wraps across lines).
+                        val matches =
                             ocrEngine.getHighlightsForPage(
                                 logicalDisplayedPage,
                                 currentSearchQuery,
@@ -1111,7 +1113,7 @@ class PDFViewer : AppCompatActivity() {
                         val activeResult = searchResults.getOrNull(searchResultIndex)
                         val activeOnThisPage =
                             activeResult != null && activeResult.pageIndex == logicalDisplayedPage
-                        // Find which local rect index corresponds to the active global index
+                        // Find which local match index corresponds to the active global index
                         var activeLocalIdx = -1
                         if (activeOnThisPage) {
                             // Count how many results before searchResultIndex are on this same page
@@ -1121,16 +1123,16 @@ class PDFViewer : AppCompatActivity() {
                             }
                             activeLocalIdx = localIdx
                         }
-                        for ((localIdx, r) in rects.withIndex()) {
-                            val left = (r.left * pageWidth) - highlightInsetPx
-                            val top = (r.top * pageHeight) - highlightInsetPx
-                            val right = (r.right * pageWidth) + highlightInsetPx
-                            val bottom = (r.bottom * pageHeight) + highlightInsetPx
-                            if (right <= left || bottom <= top) continue
-                            if (localIdx == activeLocalIdx) {
-                                canvas.drawRect(left, top, right, bottom, activeHighlightPaint)
-                            } else {
-                                canvas.drawRect(left, top, right, bottom, highlightPaint)
+                        for ((localIdx, rectsForMatch) in matches.withIndex()) {
+                            val paint =
+                                if (localIdx == activeLocalIdx) activeHighlightPaint else highlightPaint
+                            for (r in rectsForMatch) {
+                                val left = (r.left * pageWidth) - highlightInsetPx
+                                val top = (r.top * pageHeight) - highlightInsetPx
+                                val right = (r.right * pageWidth) + highlightInsetPx
+                                val bottom = (r.bottom * pageHeight) + highlightInsetPx
+                                if (right <= left || bottom <= top) continue
+                                canvas.drawRect(left, top, right, bottom, paint)
                             }
                         }
                     }
