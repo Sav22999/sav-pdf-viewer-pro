@@ -2702,19 +2702,50 @@ class PDFViewer : AppCompatActivity() {
     }
 
     fun openOnGooglePlay(): Boolean {
-        var valueToReturn = true
-        try {
-            startActivity(
-                Intent(
-                    Intent.ACTION_VIEW, Uri.parse("market://details?id=com.saverio.pdfviewer")
+        val appId = "com.saverio.pdfviewer"
+        val playStorePackage = "com.android.vending"
+        val webUrl = "https://play.google.com/store/apps/details?id=$appId"
+
+        // Try to open the Play Store app only if it is installed AND enabled.
+        // On devices where Google Play is present but disabled, launching the
+        // "market://" intent makes the Play Store show the confusing message
+        // "Something went wrong: check that Google Play is enabled on your device".
+        // To avoid that, we detect this case and fall back to the web page instead.
+        if (isPlayStoreAvailable(playStorePackage)) {
+            try {
+                startActivity(
+                    Intent(
+                        Intent.ACTION_VIEW, Uri.parse("market://details?id=$appId")
+                    ).setPackage(playStorePackage)
                 )
-            )
-        } catch (e: Exception) {
-            println("Exception 3: " + e.toString())
-            valueToReturn = false
+                return true
+            } catch (e: Exception) {
+                println("Exception 3: " + e.toString())
+                // Fall through to the web fallback below.
+            }
         }
 
-        return valueToReturn
+        // Fallback: open the Play Store web page in a browser.
+        return try {
+            startActivity(
+                Intent(Intent.ACTION_VIEW, Uri.parse(webUrl))
+            )
+            true
+        } catch (e: Exception) {
+            println("Exception 3b: " + e.toString())
+            false
+        }
+    }
+
+    private fun isPlayStoreAvailable(playStorePackage: String): Boolean {
+        return try {
+            val applicationInfo = packageManager.getApplicationInfo(playStorePackage, 0)
+            applicationInfo.enabled
+        } catch (e: PackageManager.NameNotFoundException) {
+            false
+        } catch (e: Exception) {
+            false
+        }
     }
 
     fun openLiberaPay(): Boolean {
