@@ -59,6 +59,19 @@ class MainActivity : AppCompatActivity() {
 
         val navController = findNavController(R.id.nav_host_fragment)
         navView.selectedItemId = R.id.navigation_home
+        // Keep the bottom navigation selection in sync with the current
+        // destination, so that navigating back (e.g. from Settings to Home via
+        // the system back button) also updates the highlighted navbar item.
+        navController.addOnDestinationChangedListener { _, destination, _ ->
+            val targetItemId = when (destination.id) {
+                R.id.navigation_settings -> R.id.navigation_settings
+                R.id.navigation_home -> R.id.navigation_home
+                else -> null
+            }
+            if (targetItemId != null && navView.selectedItemId != targetItemId) {
+                navView.menu.findItem(targetItemId).isChecked = true
+            }
+        }
         navView.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_open -> {
