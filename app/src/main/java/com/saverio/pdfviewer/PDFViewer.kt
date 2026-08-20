@@ -1031,7 +1031,13 @@ class PDFViewer : AppCompatActivity() {
 
             pdfConfigurator
                 .onTap {
-                    showTopBar()
+                    // Toggle the toolbar: hide it if it's currently visible,
+                    // otherwise show it.
+                    if (showingTopBar) {
+                        hideTopBar(fullHiding = true)
+                    } else {
+                        showTopBar()
+                    }
                     true
                 }
                 //.onPageError { page, t -> println(page) }
