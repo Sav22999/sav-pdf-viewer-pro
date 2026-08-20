@@ -20,8 +20,8 @@ android {
         applicationId = "com.saverio.pdfviewer"
         minSdk = 21
         targetSdk = 35
-        versionCode = 76
-        versionName = "2.3"
+        versionCode = 77
+        versionName = "2.4"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
