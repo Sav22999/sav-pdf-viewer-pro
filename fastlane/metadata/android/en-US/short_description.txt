@@ -1,1 +1,1 @@
-The simplest PDF viewer
+The simplest PDF viewer. No permissions required.

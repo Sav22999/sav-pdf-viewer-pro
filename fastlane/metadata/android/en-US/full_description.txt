@@ -1,9 +1,20 @@
-📚📖 View all PDF files in a simple way
-🔒 The app is safe, in fact it <b>doesn't require any permissions</b>!
-📌 It saves automatically saves the last position for each file
-🔖 You can create <b>bookmarks</b> and manage them
-🔐 The app <b>can</b> open PDFs protected by password
-🌙 The <i>Night light</i> <b>to protect your eyes</b> is available
-👐‍‍ The app is open-source and available on <a href="https://github.com/Sav22999/sav-pdf-viewer-pro">GitHub</a>
+Sav PDF Viewer Pro is a simple, lightweight and privacy-focused PDF reader for Android, built to open your PDF files quickly without compromising your privacy.
 
-❌ You can't select or copy text. You can't open links.
+Key features:
+
+📚 View all your PDF files in a simple way
+🔒 Safe and private — the app doesn't require any permissions*
+📌 Automatically resumes the last position for each file
+🔖 Create and manage bookmarks
+🔐 Open PDF files protected by a password
+🌙 Night mode to protect your eyes
+🔗 Open links within documents
+🔍 Search text
+🔤 Select and copy text
+↔️ Share files easily
+👐 Open-source — the code is available on GitHub
+
+*You can verify this yourself under "App details > Permissions" on this Play Store listing.
+
+––
+The app is not a pdf editor, it's a viewer
