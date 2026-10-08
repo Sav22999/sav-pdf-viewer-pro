@@ -339,6 +339,7 @@ class PDFViewer : AppCompatActivity() {
     private var pendingSinglePageCenterLogicalPage: Int? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ViewerDefaultsStore.applyAccentTheme(this)
         super.onCreate(savedInstanceState)
 
         // On Android 15+ (edge-to-edge enforced), apply the status-bar inset

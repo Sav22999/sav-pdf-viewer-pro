@@ -15,13 +15,13 @@
         android:layout_margin="10dp"
         android:contentDescription="@string/tooltip_close_bookmarks"
         android:src="@drawable/border_rounded"
-        android:tint="@color/light_red" />
+        android:tint="?attr/colorSecondary" />
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraintMessageGuide"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/dark_red"
+        android:background="?attr/colorPrimary"
         android:visibility="gone">
 
         <androidx.constraintlayout.widget.ConstraintLayout

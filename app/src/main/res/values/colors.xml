@@ -36,4 +36,25 @@
 
     <!-- Translucent white pill behind the selected navigation item (Material 3). -->
     <color name="nav_active_indicator">#33FFFFFF</color>
+
+    <!-- Selectable accent color palettes (Settings > Accent color). -->
+    <color name="accent_green">#388E3C</color>
+    <color name="accent_green_dark">#2E7D32</color>
+    <color name="accent_green_light">#A5D6A7</color>
+
+    <color name="accent_orange">#F57C00</color>
+    <color name="accent_orange_dark">#E65100</color>
+    <color name="accent_orange_light">#FFCC80</color>
+
+    <color name="accent_blue">#1976D2</color>
+    <color name="accent_blue_dark">#0D47A1</color>
+    <color name="accent_blue_light">#90CAF9</color>
+
+    <color name="accent_purple">#7B1FA2</color>
+    <color name="accent_purple_dark">#4A148C</color>
+    <color name="accent_purple_light">#CE93D8</color>
+
+    <color name="accent_black">#212121</color>
+    <color name="accent_black_dark">#000000</color>
+    <color name="accent_black_light">#757575</color>
 </resources>

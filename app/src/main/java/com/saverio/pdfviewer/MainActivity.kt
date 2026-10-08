@@ -19,6 +19,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        ViewerDefaultsStore.applyAccentTheme(this)
         super.onCreate(savedInstanceState)
         // Go edge-to-edge explicitly on every API level, then reserve the
         // system-bar safe area ourselves. On Android 15+ (API 35) edge-to-edge

@@ -11,22 +11,9 @@
       "type": "UNIVERSAL",
       "filters": [],
       "attributes": [],
-      "versionCode": 75,
-      "versionName": "2.2.2",
+      "versionCode": 79,
+      "versionName": "2.4.0.1",
       "outputFile": "app-universal-release.apk"
-    },
-    {
-      "type": "ONE_OF_MANY",
-      "filters": [
-        {
-          "filterType": "ABI",
-          "value": "x86_64"
-        }
-      ],
-      "attributes": [],
-      "versionCode": 754,
-      "versionName": "2.2.2",
-      "outputFile": "app-x86_64-release.apk"
     },
     {
       "type": "ONE_OF_MANY",
@@ -37,8 +24,8 @@
         }
       ],
       "attributes": [],
-      "versionCode": 751,
-      "versionName": "2.2.2",
+      "versionCode": 791,
+      "versionName": "2.4.0.1",
       "outputFile": "app-armeabi-v7a-release.apk"
     },
     {
@@ -50,9 +37,22 @@
         }
       ],
       "attributes": [],
-      "versionCode": 752,
-      "versionName": "2.2.2",
+      "versionCode": 792,
+      "versionName": "2.4.0.1",
       "outputFile": "app-x86-release.apk"
+    },
+    {
+      "type": "ONE_OF_MANY",
+      "filters": [
+        {
+          "filterType": "ABI",
+          "value": "x86_64"
+        }
+      ],
+      "attributes": [],
+      "versionCode": 794,
+      "versionName": "2.4.0.1",
+      "outputFile": "app-x86_64-release.apk"
     },
     {
       "type": "ONE_OF_MANY",
@@ -63,8 +63,8 @@
         }
       ],
       "attributes": [],
-      "versionCode": 753,
-      "versionName": "2.2.2",
+      "versionCode": 793,
+      "versionName": "2.4.0.1",
       "outputFile": "app-arm64-v8a-release.apk"
     }
   ],
@@ -75,9 +75,9 @@
       "maxApi": 30,
       "baselineProfiles": [
         "baselineProfiles/1/app-universal-release.dm",
-        "baselineProfiles/1/app-x86_64-release.dm",
         "baselineProfiles/1/app-armeabi-v7a-release.dm",
         "baselineProfiles/1/app-x86-release.dm",
+        "baselineProfiles/1/app-x86_64-release.dm",
         "baselineProfiles/1/app-arm64-v8a-release.dm"
       ]
     },
@@ -86,9 +86,9 @@
       "maxApi": 2147483647,
       "baselineProfiles": [
         "baselineProfiles/0/app-universal-release.dm",
-        "baselineProfiles/0/app-x86_64-release.dm",
         "baselineProfiles/0/app-armeabi-v7a-release.dm",
         "baselineProfiles/0/app-x86-release.dm",
+        "baselineProfiles/0/app-x86_64-release.dm",
         "baselineProfiles/0/app-arm64-v8a-release.dm"
       ]
     }
