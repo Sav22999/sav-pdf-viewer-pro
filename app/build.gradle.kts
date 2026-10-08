@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.saverio.pdfviewer"
-    compileSdk = 35
+    compileSdk = 36
 
     dependenciesInfo {
         // Disables dependency metadata when building APKs (for IzzyOnDroid/F-Droid)
@@ -19,7 +19,7 @@ android {
     defaultConfig {
         applicationId = "com.saverio.pdfviewer"
         minSdk = 24
-        targetSdk = 35
+        targetSdk = 36
         versionCode = 80
         versionName = "2.4.0.2"
 
