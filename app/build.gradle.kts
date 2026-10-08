@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId = "com.saverio.pdfviewer"
-        minSdk = 21
+        minSdk = 24
         targetSdk = 35
         versionCode = 80
         versionName = "2.4.0.2"
