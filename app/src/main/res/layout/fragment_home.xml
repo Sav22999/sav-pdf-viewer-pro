@@ -72,7 +72,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:srcCompat="@drawable/ic_get_help"
-                    app:tint="@color/dark_red" />
+                    app:tint="?attr/colorPrimary" />
 
                 <TextView
                     android:id="@+id/titleRecents"
@@ -81,7 +81,7 @@
                     android:layout_marginStart="12dp"
                     android:layout_marginEnd="8dp"
                     android:text="@string/title_recents"
-                    android:textColor="@color/dark_red"
+                    android:textColor="?attr/colorPrimary"
                     android:textSize="28sp"
                     android:textStyle="bold"
                     app:layout_constraintBottom_toBottomOf="@+id/buttonHomeHelp"

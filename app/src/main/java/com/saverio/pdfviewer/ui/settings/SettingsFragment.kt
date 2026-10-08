@@ -111,6 +111,35 @@ class SettingsFragment : Fragment() {
         val resetButton: View = root.findViewById(R.id.buttonResetViewerDefaults)
         val clearRecentsButton: View = root.findViewById(R.id.buttonClearRecents)
 
+        val accentSwatches = linkedMapOf(
+            ViewerDefaultsStore.ACCENT_RED to root.findViewById<View>(R.id.buttonAccentRed),
+            ViewerDefaultsStore.ACCENT_GREEN to root.findViewById<View>(R.id.buttonAccentGreen),
+            ViewerDefaultsStore.ACCENT_ORANGE to root.findViewById<View>(R.id.buttonAccentOrange),
+            ViewerDefaultsStore.ACCENT_BLUE to root.findViewById<View>(R.id.buttonAccentBlue),
+            ViewerDefaultsStore.ACCENT_PURPLE to root.findViewById<View>(R.id.buttonAccentPurple),
+            ViewerDefaultsStore.ACCENT_BLACK to root.findViewById<View>(R.id.buttonAccentBlack)
+        )
+
+        val accentChecks = mapOf(
+            ViewerDefaultsStore.ACCENT_RED to root.findViewById<View>(R.id.checkAccentRed),
+            ViewerDefaultsStore.ACCENT_GREEN to root.findViewById<View>(R.id.checkAccentGreen),
+            ViewerDefaultsStore.ACCENT_ORANGE to root.findViewById<View>(R.id.checkAccentOrange),
+            ViewerDefaultsStore.ACCENT_BLUE to root.findViewById<View>(R.id.checkAccentBlue),
+            ViewerDefaultsStore.ACCENT_PURPLE to root.findViewById<View>(R.id.checkAccentPurple),
+            ViewerDefaultsStore.ACCENT_BLACK to root.findViewById<View>(R.id.checkAccentBlack)
+        )
+
+        val accentNames = mapOf(
+            ViewerDefaultsStore.ACCENT_RED to R.string.viewer_defaults_accent_color_red,
+            ViewerDefaultsStore.ACCENT_GREEN to R.string.viewer_defaults_accent_color_green,
+            ViewerDefaultsStore.ACCENT_ORANGE to R.string.viewer_defaults_accent_color_orange,
+            ViewerDefaultsStore.ACCENT_BLUE to R.string.viewer_defaults_accent_color_blue,
+            ViewerDefaultsStore.ACCENT_PURPLE to R.string.viewer_defaults_accent_color_purple,
+            ViewerDefaultsStore.ACCENT_BLACK to R.string.viewer_defaults_accent_color_black
+        )
+
+        val accentColorName: TextView = root.findViewById(R.id.textAccentColorName)
+
         var selectedScrollMode = ViewerDefaultsStore.Defaults().scrollMode
         var selectedZoomMode = ViewerDefaultsStore.ZOOM_MODE_ADAPT
         var selectedZoomPercent = 100
@@ -267,6 +296,26 @@ class SettingsFragment : Fragment() {
         }
 
         applyDefaults(ViewerDefaultsStore.load(requireContext()))
+
+        fun refreshAccentUi(selectedAccent: String) {
+            accentSwatches.keys.forEach { key ->
+                val isSelected = key == selectedAccent
+                accentChecks[key]?.visibility = if (isSelected) View.VISIBLE else View.INVISIBLE
+            }
+            accentNames[selectedAccent]?.let { accentColorName.setText(it) }
+        }
+
+        refreshAccentUi(ViewerDefaultsStore.loadAccentColor(requireContext()))
+
+        accentSwatches.forEach { (key, view) ->
+            view.setOnClickListener {
+                if (ViewerDefaultsStore.loadAccentColor(requireContext()) == key) return@setOnClickListener
+                ViewerDefaultsStore.saveAccentColor(requireContext(), key)
+                refreshAccentUi(key)
+                // Recreate the activity so the new accent theme is applied everywhere.
+                requireActivity().recreate()
+            }
+        }
 
         buttonScrollVTopToBottom.setOnClickListener {
             selectedScrollMode = "VERTICAL_TOP_TO_BOTTOM"

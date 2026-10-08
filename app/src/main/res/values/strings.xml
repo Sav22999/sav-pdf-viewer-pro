@@ -138,6 +138,13 @@
     <string name="viewer_default_direction_h_rtl">Horizontal: right to left</string>
     <string name="viewer_defaults_single_page">Single page mode for new documents</string>
     <string name="viewer_defaults_rotation_locked">Rotation locked for new documents</string>
+    <string name="viewer_defaults_accent_color">Accent color</string>
+    <string name="viewer_defaults_accent_color_red">Red</string>
+    <string name="viewer_defaults_accent_color_green">Green</string>
+    <string name="viewer_defaults_accent_color_orange">Orange</string>
+    <string name="viewer_defaults_accent_color_blue">Blue</string>
+    <string name="viewer_defaults_accent_color_purple">Purple</string>
+    <string name="viewer_defaults_accent_color_black">Black</string>
     <string name="viewer_defaults_toolbar_position">Action bar position</string>
     <string name="viewer_defaults_toolbar_position_top">Top</string>
     <string name="viewer_defaults_toolbar_position_bottom">Bottom</string>

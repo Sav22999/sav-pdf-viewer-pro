@@ -14,16 +14,16 @@
         android:layout_marginEnd="24dp"
         android:text="@string/button_open"
         android:textAllCaps="false"
-        android:textColor="@color/light_red"
+        android:textColor="?attr/colorSecondary"
         app:backgroundTint="@color/transparent"
         app:icon="@drawable/ic_open_file"
         app:iconGravity="textStart"
-        app:iconTint="@color/light_red"
+        app:iconTint="?attr/colorSecondary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:strokeColor="@color/light_red"
+        app:strokeColor="?attr/colorSecondary"
         app:strokeWidth="1dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

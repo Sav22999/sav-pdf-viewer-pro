@@ -20,4 +20,41 @@
         <item name="itemTextColor">@color/dark_white</item>
         <item name="android:state_selected">@color/white</item>
     </style>
+
+    <!-- Accent color variants. Each overrides only the brand colors, inheriting
+         everything else (including the night overrides) from the base theme. -->
+    <style name="Theme.SavPDFViewer.Green" parent="Theme.SavPDFViewer">
+        <item name="colorPrimary">@color/accent_green</item>
+        <item name="colorPrimaryVariant">@color/accent_green_dark</item>
+        <item name="colorSecondary">@color/accent_green_light</item>
+        <item name="colorSecondaryVariant">@color/accent_green</item>
+    </style>
+
+    <style name="Theme.SavPDFViewer.Orange" parent="Theme.SavPDFViewer">
+        <item name="colorPrimary">@color/accent_orange</item>
+        <item name="colorPrimaryVariant">@color/accent_orange_dark</item>
+        <item name="colorSecondary">@color/accent_orange_light</item>
+        <item name="colorSecondaryVariant">@color/accent_orange</item>
+    </style>
+
+    <style name="Theme.SavPDFViewer.Blue" parent="Theme.SavPDFViewer">
+        <item name="colorPrimary">@color/accent_blue</item>
+        <item name="colorPrimaryVariant">@color/accent_blue_dark</item>
+        <item name="colorSecondary">@color/accent_blue_light</item>
+        <item name="colorSecondaryVariant">@color/accent_blue</item>
+    </style>
+
+    <style name="Theme.SavPDFViewer.Purple" parent="Theme.SavPDFViewer">
+        <item name="colorPrimary">@color/accent_purple</item>
+        <item name="colorPrimaryVariant">@color/accent_purple_dark</item>
+        <item name="colorSecondary">@color/accent_purple_light</item>
+        <item name="colorSecondaryVariant">@color/accent_purple</item>
+    </style>
+
+    <style name="Theme.SavPDFViewer.Black" parent="Theme.SavPDFViewer">
+        <item name="colorPrimary">@color/accent_black</item>
+        <item name="colorPrimaryVariant">@color/accent_black_dark</item>
+        <item name="colorSecondary">@color/accent_black_light</item>
+        <item name="colorSecondaryVariant">@color/accent_black</item>
+    </style>
 </resources>

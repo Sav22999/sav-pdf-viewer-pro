@@ -21,10 +21,20 @@ object ViewerDefaultsStore {
     private const val KEY_NIGHT_LIGHT_START_MINUTE = "night_light_start_minute"
     private const val KEY_NIGHT_LIGHT_END_MINUTE = "night_light_end_minute"
 
+    private const val KEY_ACCENT_COLOR = "accent_color"
+
     const val ZOOM_MODE_ADAPT = "ADAPT"
     const val ZOOM_MODE_PERCENT = "PERCENT"
     const val TOOLBAR_PLACEMENT_TOP = "TOP"
     const val TOOLBAR_PLACEMENT_BOTTOM = "BOTTOM"
+
+    const val ACCENT_RED = "RED"
+    const val ACCENT_GREEN = "GREEN"
+    const val ACCENT_ORANGE = "ORANGE"
+    const val ACCENT_BLUE = "BLUE"
+    const val ACCENT_PURPLE = "PURPLE"
+    const val ACCENT_BLACK = "BLACK"
+    const val DEFAULT_ACCENT_COLOR = ACCENT_RED
     const val DEFAULT_DARK_FILTER_START_MINUTE = 21 * 60
     const val DEFAULT_DARK_FILTER_END_MINUTE = 7 * 60
     const val DEFAULT_NIGHT_LIGHT_START_MINUTE = 21 * 60
@@ -119,6 +129,48 @@ object ViewerDefaultsStore {
     fun saveContrastOverlay(context: Context, enabled: Boolean) {
         val current = load(context)
         save(context, current.copy(contrastOverlay = enabled, nightLightAuto = false))
+    }
+
+    private fun sanitizeAccentColor(value: String?): String {
+        return when (value) {
+            ACCENT_GREEN -> ACCENT_GREEN
+            ACCENT_ORANGE -> ACCENT_ORANGE
+            ACCENT_BLUE -> ACCENT_BLUE
+            ACCENT_PURPLE -> ACCENT_PURPLE
+            ACCENT_BLACK -> ACCENT_BLACK
+            else -> ACCENT_RED
+        }
+    }
+
+    /** Load the user-selected accent color key (defaults to red). */
+    fun loadAccentColor(context: Context): String {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return sanitizeAccentColor(prefs.getString(KEY_ACCENT_COLOR, DEFAULT_ACCENT_COLOR))
+    }
+
+    /** Persist the user-selected accent color key. */
+    fun saveAccentColor(context: Context, value: String) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putString(KEY_ACCENT_COLOR, sanitizeAccentColor(value))
+            .apply()
+    }
+
+    /** Resolve the theme style resource for the given accent color key. */
+    fun accentThemeStyle(value: String): Int {
+        return when (sanitizeAccentColor(value)) {
+            ACCENT_GREEN -> R.style.Theme_SavPDFViewer_Green
+            ACCENT_ORANGE -> R.style.Theme_SavPDFViewer_Orange
+            ACCENT_BLUE -> R.style.Theme_SavPDFViewer_Blue
+            ACCENT_PURPLE -> R.style.Theme_SavPDFViewer_Purple
+            ACCENT_BLACK -> R.style.Theme_SavPDFViewer_Black
+            else -> R.style.Theme_SavPDFViewer
+        }
+    }
+
+    /** Apply the stored accent theme to an activity. Call before setContentView. */
+    fun applyAccentTheme(activity: android.app.Activity) {
+        activity.setTheme(accentThemeStyle(loadAccentColor(activity)))
     }
 }
 
