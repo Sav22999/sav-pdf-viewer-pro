@@ -10,6 +10,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.updatePadding
@@ -88,6 +89,9 @@ class SettingsFragment : Fragment() {
         val buttonFullscreenOn: ImageView = root.findViewById(R.id.buttonDefaultFullscreenOn)
         val buttonFullscreenOff: ImageView = root.findViewById(R.id.buttonDefaultFullscreenOff)
 
+        val buttonHighContrastOn: ImageView = root.findViewById(R.id.buttonDefaultHighContrastOn)
+        val buttonHighContrastOff: ImageView = root.findViewById(R.id.buttonDefaultHighContrastOff)
+
         val buttonDarkFilterOn: ImageView = root.findViewById(R.id.buttonDefaultNightModeOn)
         val buttonDarkFilterAuto: TextView = root.findViewById(R.id.buttonDefaultNightModeAuto)
         val buttonDarkFilterOff: ImageView = root.findViewById(R.id.buttonDefaultNightModeOff)
@@ -139,6 +143,8 @@ class SettingsFragment : Fragment() {
         )
 
         val accentColorName: TextView = root.findViewById(R.id.textAccentColorName)
+        val accentColorLabel: TextView = root.findViewById(R.id.labelAccentColor)
+        val accentColorContainer: View = root.findViewById(R.id.containerAccentColor)
 
         var selectedScrollMode = ViewerDefaultsStore.Defaults().scrollMode
         var selectedZoomMode = ViewerDefaultsStore.ZOOM_MODE_ADAPT
@@ -147,6 +153,7 @@ class SettingsFragment : Fragment() {
         var selectedRotationLocked = false
         var selectedToolbarPlacement = ViewerDefaultsStore.TOOLBAR_PLACEMENT_TOP
         var selectedFullscreen = false
+        var selectedHighContrast = false
 
         var darkFilterMode = ThreeStateMode.OFF
         var nightLightMode = ThreeStateMode.OFF
@@ -159,7 +166,19 @@ class SettingsFragment : Fragment() {
         var suppressSave = false
 
         fun setSelected(view: View, selected: Boolean) {
-            view.alpha = if (selected) selectedAlpha else unselectedAlpha
+            if (selectedHighContrast) {
+                // In high-contrast mode don't rely on opacity: keep every item
+                // fully opaque and mark the selected one with a visible outline.
+                view.alpha = selectedAlpha
+                view.background = if (selected) {
+                    ContextCompat.getDrawable(requireContext(), R.drawable.settings_option_selected)
+                } else {
+                    null
+                }
+            } else {
+                view.alpha = if (selected) selectedAlpha else unselectedAlpha
+                view.background = null
+            }
         }
 
         fun formatMinuteOfDay(totalMinutes: Int): String {
@@ -188,7 +207,8 @@ class SettingsFragment : Fragment() {
                     darkFilterEndMinute = selectedDarkFilterEnd,
                     nightLightAuto = nightLightMode == ThreeStateMode.AUTO,
                     nightLightStartMinute = selectedNightLightStart,
-                    nightLightEndMinute = selectedNightLightEnd
+                    nightLightEndMinute = selectedNightLightEnd,
+                    highContrast = selectedHighContrast
                 )
             )
         }
@@ -229,6 +249,9 @@ class SettingsFragment : Fragment() {
 
             setSelected(buttonFullscreenOn.parent as View, selectedFullscreen)
             setSelected(buttonFullscreenOff.parent as View, !selectedFullscreen)
+
+            setSelected(buttonHighContrastOn.parent as View, selectedHighContrast)
+            setSelected(buttonHighContrastOff.parent as View, !selectedHighContrast)
         }
 
         fun refreshDarkFilterUi() {
@@ -261,6 +284,7 @@ class SettingsFragment : Fragment() {
             selectedRotationLocked = defaults.rotationLocked
             selectedToolbarPlacement = defaults.toolbarPlacement
             selectedFullscreen = defaults.fullscreen
+            selectedHighContrast = defaults.highContrast
 
             darkFilterMode = when {
                 defaults.darkFilterAuto -> ThreeStateMode.AUTO
@@ -305,7 +329,17 @@ class SettingsFragment : Fragment() {
             accentNames[selectedAccent]?.let { accentColorName.setText(it) }
         }
 
+        fun refreshAccentSectionVisibility() {
+            // When high-contrast mode is enabled the accent color is forced to
+            // black, so hiding the picker avoids a misleading choice.
+            val visibility = if (selectedHighContrast) View.GONE else View.VISIBLE
+            accentColorLabel.visibility = visibility
+            accentColorContainer.visibility = visibility
+            accentColorName.visibility = visibility
+        }
+
         refreshAccentUi(ViewerDefaultsStore.loadAccentColor(requireContext()))
+        refreshAccentSectionVisibility()
 
         accentSwatches.forEach { (key, view) ->
             view.setOnClickListener {
@@ -412,6 +446,17 @@ class SettingsFragment : Fragment() {
             refreshToggleUi()
             persist()
         }
+
+        fun applyHighContrast(enabled: Boolean) {
+            if (selectedHighContrast == enabled) return
+            selectedHighContrast = enabled
+            refreshToggleUi()
+            persist()
+            // Recreate the activity so the high-contrast theme is applied everywhere.
+            requireActivity().recreate()
+        }
+        buttonHighContrastOn.setOnClickListener { applyHighContrast(true) }
+        buttonHighContrastOff.setOnClickListener { applyHighContrast(false) }
 
         buttonDarkFilterOn.setOnClickListener {
             darkFilterMode = ThreeStateMode.ALWAYS_ON

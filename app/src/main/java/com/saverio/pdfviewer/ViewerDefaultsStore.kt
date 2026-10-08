@@ -22,6 +22,7 @@ object ViewerDefaultsStore {
     private const val KEY_NIGHT_LIGHT_END_MINUTE = "night_light_end_minute"
 
     private const val KEY_ACCENT_COLOR = "accent_color"
+    private const val KEY_HIGH_CONTRAST = "high_contrast"
 
     const val ZOOM_MODE_ADAPT = "ADAPT"
     const val ZOOM_MODE_PERCENT = "PERCENT"
@@ -55,7 +56,8 @@ object ViewerDefaultsStore {
         val darkFilterEndMinute: Int = DEFAULT_DARK_FILTER_END_MINUTE,
         val nightLightAuto: Boolean = true,
         val nightLightStartMinute: Int = DEFAULT_NIGHT_LIGHT_START_MINUTE,
-        val nightLightEndMinute: Int = DEFAULT_NIGHT_LIGHT_END_MINUTE
+        val nightLightEndMinute: Int = DEFAULT_NIGHT_LIGHT_END_MINUTE,
+        val highContrast: Boolean = false
     )
 
     fun defaultDefaults(): Defaults = Defaults()
@@ -90,7 +92,8 @@ object ViewerDefaultsStore {
             nightLightStartMinute = prefs.getInt(KEY_NIGHT_LIGHT_START_MINUTE, DEFAULT_NIGHT_LIGHT_START_MINUTE)
                 .coerceIn(0, 24 * 60 - 1),
             nightLightEndMinute = prefs.getInt(KEY_NIGHT_LIGHT_END_MINUTE, DEFAULT_NIGHT_LIGHT_END_MINUTE)
-                .coerceIn(0, 24 * 60 - 1)
+                .coerceIn(0, 24 * 60 - 1),
+            highContrast = prefs.getBoolean(KEY_HIGH_CONTRAST, false)
         )
     }
 
@@ -112,6 +115,7 @@ object ViewerDefaultsStore {
             .putBoolean(KEY_NIGHT_LIGHT_AUTO, defaults.nightLightAuto)
             .putInt(KEY_NIGHT_LIGHT_START_MINUTE, defaults.nightLightStartMinute.coerceIn(0, 24 * 60 - 1))
             .putInt(KEY_NIGHT_LIGHT_END_MINUTE, defaults.nightLightEndMinute.coerceIn(0, 24 * 60 - 1))
+            .putBoolean(KEY_HIGH_CONTRAST, defaults.highContrast)
             .apply()
     }
 
@@ -156,6 +160,20 @@ object ViewerDefaultsStore {
             .apply()
     }
 
+    /** Load the high-contrast mode flag (defaults to disabled). */
+    fun loadHighContrast(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_HIGH_CONTRAST, false)
+    }
+
+    /** Persist the high-contrast mode flag. */
+    fun saveHighContrast(context: Context, enabled: Boolean) {
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            .edit()
+            .putBoolean(KEY_HIGH_CONTRAST, enabled)
+            .apply()
+    }
+
     /** Resolve the theme style resource for the given accent color key. */
     fun accentThemeStyle(value: String): Int {
         return when (sanitizeAccentColor(value)) {
@@ -171,6 +189,9 @@ object ViewerDefaultsStore {
     /** Apply the stored accent theme to an activity. Call before setContentView. */
     fun applyAccentTheme(activity: android.app.Activity) {
         activity.setTheme(accentThemeStyle(loadAccentColor(activity)))
+        if (loadHighContrast(activity)) {
+            activity.theme.applyStyle(R.style.ThemeOverlay_SavPDFViewer_HighContrast, true)
+        }
     }
 }
 

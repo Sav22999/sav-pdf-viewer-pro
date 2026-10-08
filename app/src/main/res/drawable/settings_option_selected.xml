@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Selection indicator used in high-contrast mode: a clearly visible white
+     outline around the selected option (no opacity dimming). -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:inset="3dp">
+    <shape android:shape="rectangle">
+        <corners android:radius="9dp" />
+        <stroke
+            android:width="3dp"
+            android:color="@color/white" />
+        <solid android:color="@color/transparent" />
+    </shape>
+</inset>

@@ -57,4 +57,16 @@
         <item name="colorSecondary">@color/accent_black_light</item>
         <item name="colorSecondaryVariant">@color/accent_black</item>
     </style>
+
+    <!-- High contrast overlay. Applied on top of any accent theme to maximize
+         contrast: brand colors become pure black on white. -->
+    <style name="ThemeOverlay.SavPDFViewer.HighContrast" parent="">
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/black</item>
+        <item name="colorSecondaryVariant">@color/black</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@color/black</item>
+    </style>
 </resources>
