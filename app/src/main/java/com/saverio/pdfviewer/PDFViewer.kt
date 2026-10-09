@@ -3034,14 +3034,22 @@ class PDFViewer : AppCompatActivity() {
         val horizontalLeftToRight: ImageView = findViewById(R.id.buttonScrollHorizontalLeftToRight)
         val horizontalRightToLeft: ImageView = findViewById(R.id.buttonScrollHorizontalRightToLeft)
 
-        verticalTopToBottom.alpha =
-            if (scrollMode == ScrollMode.VERTICAL_TOP_TO_BOTTOM) selectedOptionAlpha else unselectedOptionAlpha
-        verticalBottomToTop.alpha =
-            if (scrollMode == ScrollMode.VERTICAL_BOTTOM_TO_TOP) selectedOptionAlpha else unselectedOptionAlpha
-        horizontalLeftToRight.alpha =
-            if (scrollMode == ScrollMode.HORIZONTAL_LEFT_TO_RIGHT) selectedOptionAlpha else unselectedOptionAlpha
-        horizontalRightToLeft.alpha =
-            if (scrollMode == ScrollMode.HORIZONTAL_RIGHT_TO_LEFT) selectedOptionAlpha else unselectedOptionAlpha
+        applyOptionSelectionStyle(
+            verticalTopToBottom,
+            scrollMode == ScrollMode.VERTICAL_TOP_TO_BOTTOM
+        )
+        applyOptionSelectionStyle(
+            verticalBottomToTop,
+            scrollMode == ScrollMode.VERTICAL_BOTTOM_TO_TOP
+        )
+        applyOptionSelectionStyle(
+            horizontalLeftToRight,
+            scrollMode == ScrollMode.HORIZONTAL_LEFT_TO_RIGHT
+        )
+        applyOptionSelectionStyle(
+            horizontalRightToLeft,
+            scrollMode == ScrollMode.HORIZONTAL_RIGHT_TO_LEFT
+        )
     }
 
     private fun setSinglePageMode(enabled: Boolean) {
@@ -3072,8 +3080,8 @@ class PDFViewer : AppCompatActivity() {
         val singlePageButton: ImageView = findViewById(R.id.buttonSinglePage)
         val continuousPageButton: ImageView = findViewById(R.id.buttonContinuousPage)
 
-        singlePageButton.alpha = if (single_page) selectedOptionAlpha else unselectedOptionAlpha
-        continuousPageButton.alpha = if (single_page) unselectedOptionAlpha else selectedOptionAlpha
+        applyOptionSelectionStyle(singlePageButton, single_page)
+        applyOptionSelectionStyle(continuousPageButton, !single_page)
 
         singlePageButton.contentDescription = getString(R.string.tooltip_single_page_scroll)
         continuousPageButton.contentDescription =
@@ -3097,11 +3105,33 @@ class PDFViewer : AppCompatActivity() {
         val lockButton: ImageView = findViewById(R.id.buttonRotationToolbar)
         val unlockButton: ImageView = findViewById(R.id.buttonRotationUnlockedMode)
 
-        lockButton.alpha = if (rotation_locked) selectedOptionAlpha else unselectedOptionAlpha
-        unlockButton.alpha = if (rotation_locked) unselectedOptionAlpha else selectedOptionAlpha
+        applyOptionSelectionStyle(lockButton, rotation_locked)
+        applyOptionSelectionStyle(unlockButton, !rotation_locked)
 
         lockButton.contentDescription = getString(R.string.tooltip_lock_rotation)
         unlockButton.contentDescription = getString(R.string.tooltip_unlock_rotation)
+    }
+
+    /**
+     * Highlights a toolbar-panel option button according to its selected state.
+     *
+     * In high-contrast mode the usual opacity dimming is hard to perceive, so
+     * the selected option is marked with a clearly visible outline (the same
+     * "activated button" style used in the Settings screen) while every button
+     * stays fully opaque. Otherwise the standard opacity dimming is used.
+     */
+    private fun applyOptionSelectionStyle(view: View, selected: Boolean) {
+        if (ViewerDefaultsStore.loadHighContrast(this)) {
+            view.alpha = selectedOptionAlpha
+            view.background = if (selected) {
+                ContextCompat.getDrawable(this, R.drawable.settings_option_selected)
+            } else {
+                null
+            }
+        } else {
+            view.alpha = if (selected) selectedOptionAlpha else unselectedOptionAlpha
+            view.background = null
+        }
     }
 
     private fun isVerticalBottomToTopMode(): Boolean {
