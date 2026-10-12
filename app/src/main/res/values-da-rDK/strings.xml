@@ -163,4 +163,19 @@
     <string name="settings_version_label">Version %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">Åbn seneste dokument %1$s</string>
     <string name="toast_recent_document_unreadable">Kan ikke åbne dette seneste dokument. Vælg det venligst igen.</string>
+    <string name="home_recents_disabled">Seneste filer er slået fra.</string>
+    <string name="home_recents_disabled_cta">Gå til indstillinger</string>
+    <string name="settings_disable_recents">Deaktiver seneste filer</string>
+    <string name="viewer_default_direction_label_down">Ned</string>
+    <string name="viewer_default_direction_label_up">Op</string>
+    <string name="viewer_default_direction_label_left">Venstre</string>
+    <string name="viewer_default_direction_label_right">Højre</string>
+    <string name="viewer_defaults_accent_color">Accentfarve</string>
+    <string name="viewer_defaults_accent_color_red">Rød</string>
+    <string name="viewer_defaults_accent_color_green">Grøn</string>
+    <string name="viewer_defaults_accent_color_orange">Orange</string>
+    <string name="viewer_defaults_accent_color_blue">Blå</string>
+    <string name="viewer_defaults_accent_color_purple">Lilla</string>
+    <string name="viewer_defaults_accent_color_black">Sort</string>
+    <string name="viewer_defaults_high_contrast">Høj kontrast-tilstand</string>
 </resources>

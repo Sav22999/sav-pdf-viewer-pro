@@ -163,4 +163,19 @@
     <string name="settings_version_label">Verzija %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">Otvori nedavni dokument %1$s</string>
     <string name="toast_recent_document_unreadable">Nije moguće otvoriti ovaj nedavni dokument. Izaberite ga ponovo.</string>
+    <string name="home_recents_disabled">Недавне датотеке су искључене.</string>
+    <string name="home_recents_disabled_cta">Иди на подешавања</string>
+    <string name="settings_disable_recents">Онемогући недавне датотеке</string>
+    <string name="viewer_default_direction_label_down">Доле</string>
+    <string name="viewer_default_direction_label_up">Горе</string>
+    <string name="viewer_default_direction_label_left">Лево</string>
+    <string name="viewer_default_direction_label_right">Десно</string>
+    <string name="viewer_defaults_accent_color">Боја нагласка</string>
+    <string name="viewer_defaults_accent_color_red">Црвена</string>
+    <string name="viewer_defaults_accent_color_green">Зелена</string>
+    <string name="viewer_defaults_accent_color_orange">Наранџаста</string>
+    <string name="viewer_defaults_accent_color_blue">Плава</string>
+    <string name="viewer_defaults_accent_color_purple">Љубичаста</string>
+    <string name="viewer_defaults_accent_color_black">Црна</string>
+    <string name="viewer_defaults_high_contrast">Режим високог контраста</string>
 </resources>

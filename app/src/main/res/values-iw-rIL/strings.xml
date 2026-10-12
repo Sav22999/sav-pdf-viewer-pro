@@ -163,4 +163,19 @@
     <string name="settings_version_label">גרסה %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">פתיחת מסמך אחרון %1$s</string>
     <string name="toast_recent_document_unreadable">לא ניתן לפתוח מסמך אחרון זה. יש לבחור אותו שוב.</string>
+    <string name="home_recents_disabled">הקבצים האחרונים מושבתים.</string>
+    <string name="home_recents_disabled_cta">מעבר להגדרות</string>
+    <string name="settings_disable_recents">השבתת קבצים אחרונים</string>
+    <string name="viewer_default_direction_label_down">למטה</string>
+    <string name="viewer_default_direction_label_up">למעלה</string>
+    <string name="viewer_default_direction_label_left">שמאלה</string>
+    <string name="viewer_default_direction_label_right">ימינה</string>
+    <string name="viewer_defaults_accent_color">צבע הדגשה</string>
+    <string name="viewer_defaults_accent_color_red">אדום</string>
+    <string name="viewer_defaults_accent_color_green">ירוק</string>
+    <string name="viewer_defaults_accent_color_orange">כתום</string>
+    <string name="viewer_defaults_accent_color_blue">כחול</string>
+    <string name="viewer_defaults_accent_color_purple">סגול</string>
+    <string name="viewer_defaults_accent_color_black">שחור</string>
+    <string name="viewer_defaults_high_contrast">מצב ניגודיות גבוהה</string>
 </resources>

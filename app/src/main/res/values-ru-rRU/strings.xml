@@ -163,4 +163,19 @@
     <string name="settings_version_label">Версия %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">Открыть недавний документ %1$s</string>
     <string name="toast_recent_document_unreadable">Не удалось открыть этот недавний документ. Выберите его снова.</string>
+    <string name="home_recents_disabled">Недавние файлы отключены.</string>
+    <string name="home_recents_disabled_cta">Перейти к настройкам</string>
+    <string name="settings_disable_recents">Отключить недавние файлы</string>
+    <string name="viewer_default_direction_label_down">Вниз</string>
+    <string name="viewer_default_direction_label_up">Вверх</string>
+    <string name="viewer_default_direction_label_left">Влево</string>
+    <string name="viewer_default_direction_label_right">Вправо</string>
+    <string name="viewer_defaults_accent_color">Цвет акцента</string>
+    <string name="viewer_defaults_accent_color_red">Красный</string>
+    <string name="viewer_defaults_accent_color_green">Зелёный</string>
+    <string name="viewer_defaults_accent_color_orange">Оранжевый</string>
+    <string name="viewer_defaults_accent_color_blue">Синий</string>
+    <string name="viewer_defaults_accent_color_purple">Фиолетовый</string>
+    <string name="viewer_defaults_accent_color_black">Чёрный</string>
+    <string name="viewer_defaults_high_contrast">Режим высокой контрастности</string>
 </resources>

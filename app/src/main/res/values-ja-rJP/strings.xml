@@ -163,4 +163,19 @@
     <string name="settings_version_label">バージョン %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">最近のドキュメント %1$s を開く</string>
     <string name="toast_recent_document_unreadable">この最近のドキュメントを開けません。もう一度選択してください。</string>
+    <string name="home_recents_disabled">最近のファイルは無効になっています。</string>
+    <string name="home_recents_disabled_cta">設定に移動</string>
+    <string name="settings_disable_recents">最近のファイルを無効にする</string>
+    <string name="viewer_default_direction_label_down">下</string>
+    <string name="viewer_default_direction_label_up">上</string>
+    <string name="viewer_default_direction_label_left">左</string>
+    <string name="viewer_default_direction_label_right">右</string>
+    <string name="viewer_defaults_accent_color">アクセントカラー</string>
+    <string name="viewer_defaults_accent_color_red">赤</string>
+    <string name="viewer_defaults_accent_color_green">緑</string>
+    <string name="viewer_defaults_accent_color_orange">オレンジ</string>
+    <string name="viewer_defaults_accent_color_blue">青</string>
+    <string name="viewer_defaults_accent_color_purple">紫</string>
+    <string name="viewer_defaults_accent_color_black">黒</string>
+    <string name="viewer_defaults_high_contrast">ハイコントラストモード</string>
 </resources>

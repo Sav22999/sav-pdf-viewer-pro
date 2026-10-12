@@ -163,4 +163,19 @@
     <string name="settings_version_label">Versio %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">Avaa viimeisin asiakirja %1$s</string>
     <string name="toast_recent_document_unreadable">Tätä viimeisintä asiakirjaa ei voi avata. Valitse se uudelleen.</string>
+    <string name="home_recents_disabled">Viimeisimmät tiedostot on poistettu käytöstä.</string>
+    <string name="home_recents_disabled_cta">Siirry asetuksiin</string>
+    <string name="settings_disable_recents">Poista viimeisimmät tiedostot käytöstä</string>
+    <string name="viewer_default_direction_label_down">Alas</string>
+    <string name="viewer_default_direction_label_up">Ylös</string>
+    <string name="viewer_default_direction_label_left">Vasemmalle</string>
+    <string name="viewer_default_direction_label_right">Oikealle</string>
+    <string name="viewer_defaults_accent_color">Korostusväri</string>
+    <string name="viewer_defaults_accent_color_red">Punainen</string>
+    <string name="viewer_defaults_accent_color_green">Vihreä</string>
+    <string name="viewer_defaults_accent_color_orange">Oranssi</string>
+    <string name="viewer_defaults_accent_color_blue">Sininen</string>
+    <string name="viewer_defaults_accent_color_purple">Violetti</string>
+    <string name="viewer_defaults_accent_color_black">Musta</string>
+    <string name="viewer_defaults_high_contrast">Suuren kontrastin tila</string>
 </resources>

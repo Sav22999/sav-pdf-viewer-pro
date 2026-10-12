@@ -163,4 +163,19 @@
     <string name="settings_version_label">Versie %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">Recent document %1$s openen</string>
     <string name="toast_recent_document_unreadable">Kan dit recente document niet openen. Selecteer het opnieuw.</string>
+    <string name="home_recents_disabled">Recente bestanden zijn uitgeschakeld.</string>
+    <string name="home_recents_disabled_cta">Ga naar instellingen</string>
+    <string name="settings_disable_recents">Recente bestanden uitschakelen</string>
+    <string name="viewer_default_direction_label_down">Omlaag</string>
+    <string name="viewer_default_direction_label_up">Omhoog</string>
+    <string name="viewer_default_direction_label_left">Links</string>
+    <string name="viewer_default_direction_label_right">Rechts</string>
+    <string name="viewer_defaults_accent_color">Accentkleur</string>
+    <string name="viewer_defaults_accent_color_red">Rood</string>
+    <string name="viewer_defaults_accent_color_green">Groen</string>
+    <string name="viewer_defaults_accent_color_orange">Oranje</string>
+    <string name="viewer_defaults_accent_color_blue">Blauw</string>
+    <string name="viewer_defaults_accent_color_purple">Paars</string>
+    <string name="viewer_defaults_accent_color_black">Zwart</string>
+    <string name="viewer_defaults_high_contrast">Modus hoog contrast</string>
 </resources>
