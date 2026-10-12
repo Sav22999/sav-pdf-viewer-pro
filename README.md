@@ -12,9 +12,20 @@ This app is developed by Saverio Morelli, using the Android Studio IDE.
 
 If you have any questions, please open an issue (you can add the label `question` there).
 
-The app permits to open all PDF files, in the simplest way you ever seen. The app doesn't require any permissions!
+The app lets you open any PDF file in the simplest way you have ever seen. It is **100% open-source** and **requires no permissions**.
 
-I've created an [Instagram account](https://www.instagram.com/savpdfviewer/) where you can find tips, curiosity or something else about the app. Follow it now!
+Main features:
+
+- Open any PDF file (also as the default PDF viewer)
+- Full-text search and text selection (copy)
+- Bookmarks: add, remove and manage them
+- Remembers the last read page for each document
+- Scroll modes (vertical/horizontal, both directions) and single-page mode
+- Zoom controls, rotation lock and full-screen mode
+- Night (dark) filter and night-light overlay, with optional automatic scheduling
+- Accent color themes and a high-contrast mode
+- Recent files list (which you can disable)
+- Share and print PDFs
 
 Go to the <a href="https://savpdfviewer.com">official website of the app</a>
 
@@ -36,7 +47,7 @@ To support me, you can do a donation :smile: with **PayPal** or **LiberaPay**:
 
 ### How contribute
 
-If you want to help to develop this app, you can open an `Issue` an send feedback about the features or report bugs.
+If you want to help to develop this app, you can open an `Issue` and send feedback about the features or report bugs.
 
 You can improve this project translating it in your language on Crowdin, follow [this link](https://crowdin.com/project/sav-pdf-viewer).
 

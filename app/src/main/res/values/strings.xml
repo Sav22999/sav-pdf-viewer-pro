@@ -4,6 +4,9 @@
     <string name="title_home">Home</string>
     <string name="title_open">Open</string>
     <string name="title_settings">Settings</string>
+    <string name="settings_disable_recents">Disable recent files</string>
+    <string name="home_recents_disabled">Recent files are turned off.</string>
+    <string name="home_recents_disabled_cta">Go to settings</string>
 
     <string name="title_recents">Recents</string>
     <string name="title_favourites">Favourites</string>
@@ -136,6 +139,10 @@
     <string name="viewer_default_direction_v_btt">Vertical: bottom to top</string>
     <string name="viewer_default_direction_h_ltr">Horizontal: left to right</string>
     <string name="viewer_default_direction_h_rtl">Horizontal: right to left</string>
+    <string name="viewer_default_direction_label_down">Down</string>
+    <string name="viewer_default_direction_label_up">Up</string>
+    <string name="viewer_default_direction_label_right">Right</string>
+    <string name="viewer_default_direction_label_left">Left</string>
     <string name="viewer_defaults_single_page">Single page mode for new documents</string>
     <string name="viewer_defaults_rotation_locked">Rotation locked for new documents</string>
     <string name="viewer_defaults_accent_color">Accent color</string>

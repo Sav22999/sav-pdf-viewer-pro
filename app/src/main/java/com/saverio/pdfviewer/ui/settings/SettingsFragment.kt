@@ -92,6 +92,9 @@ class SettingsFragment : Fragment() {
         val buttonHighContrastOn: ImageView = root.findViewById(R.id.buttonDefaultHighContrastOn)
         val buttonHighContrastOff: ImageView = root.findViewById(R.id.buttonDefaultHighContrastOff)
 
+        val buttonRecentsOn: ImageView = root.findViewById(R.id.buttonDefaultRecentsOn)
+        val buttonRecentsOff: ImageView = root.findViewById(R.id.buttonDefaultRecentsOff)
+
         val buttonDarkFilterOn: ImageView = root.findViewById(R.id.buttonDefaultNightModeOn)
         val buttonDarkFilterAuto: TextView = root.findViewById(R.id.buttonDefaultNightModeAuto)
         val buttonDarkFilterOff: ImageView = root.findViewById(R.id.buttonDefaultNightModeOff)
@@ -154,6 +157,7 @@ class SettingsFragment : Fragment() {
         var selectedToolbarPlacement = ViewerDefaultsStore.TOOLBAR_PLACEMENT_TOP
         var selectedFullscreen = false
         var selectedHighContrast = false
+        var selectedDisableRecents = false
 
         var darkFilterMode = ThreeStateMode.OFF
         var nightLightMode = ThreeStateMode.OFF
@@ -169,15 +173,21 @@ class SettingsFragment : Fragment() {
             if (selectedHighContrast) {
                 // In high-contrast mode don't rely on opacity: keep every item
                 // fully opaque and mark the selected one with a visible outline.
+                // The outline is drawn as a FOREGROUND, not a background: an
+                // inset/stroke background reports padding (= the inset), which
+                // the view would apply and thereby shrink the icon. A foreground
+                // is painted over the bounds and never changes the measured size.
                 view.alpha = selectedAlpha
-                view.background = if (selected) {
+                view.foreground = if (selected) {
                     ContextCompat.getDrawable(requireContext(), R.drawable.settings_option_selected)
                 } else {
                     null
                 }
+                view.background = null
             } else {
                 view.alpha = if (selected) selectedAlpha else unselectedAlpha
                 view.background = null
+                view.foreground = null
             }
         }
 
@@ -208,16 +218,17 @@ class SettingsFragment : Fragment() {
                     nightLightAuto = nightLightMode == ThreeStateMode.AUTO,
                     nightLightStartMinute = selectedNightLightStart,
                     nightLightEndMinute = selectedNightLightEnd,
-                    highContrast = selectedHighContrast
+                    highContrast = selectedHighContrast,
+                    disableRecentFiles = selectedDisableRecents
                 )
             )
         }
 
         fun refreshDirectionUi() {
-            setSelected(buttonScrollVTopToBottom, selectedScrollMode == "VERTICAL_TOP_TO_BOTTOM")
-            setSelected(buttonScrollVBottomToTop, selectedScrollMode == "VERTICAL_BOTTOM_TO_TOP")
-            setSelected(buttonScrollHLeftToRight, selectedScrollMode == "HORIZONTAL_LEFT_TO_RIGHT")
-            setSelected(buttonScrollHRightToLeft, selectedScrollMode == "HORIZONTAL_RIGHT_TO_LEFT")
+            setSelected(buttonScrollVTopToBottom.parent as View, selectedScrollMode == "VERTICAL_TOP_TO_BOTTOM")
+            setSelected(buttonScrollVBottomToTop.parent as View, selectedScrollMode == "VERTICAL_BOTTOM_TO_TOP")
+            setSelected(buttonScrollHLeftToRight.parent as View, selectedScrollMode == "HORIZONTAL_LEFT_TO_RIGHT")
+            setSelected(buttonScrollHRightToLeft.parent as View, selectedScrollMode == "HORIZONTAL_RIGHT_TO_LEFT")
         }
 
         fun refreshZoomUi() {
@@ -227,8 +238,12 @@ class SettingsFragment : Fragment() {
             } else {
                 getString(R.string.zoom_status_perc).replace("%d", selectedZoomPercent.toString())
             }
-            buttonZoomDecrease.alpha = if (isAuto) 0.45f else 1.0f
-            buttonZoomIncrease.alpha = if (isAuto) 0.45f else 1.0f
+            // Dim the whole column (icon + "Zoom in/out" label together) when the
+            // stepper is inactive in Auto mode. In high-contrast mode keep full
+            // opacity like every other control, which never relies on dimming.
+            val zoomAlpha = if (selectedHighContrast || !isAuto) 1.0f else 0.45f
+            (buttonZoomDecrease.parent as View).alpha = zoomAlpha
+            (buttonZoomIncrease.parent as View).alpha = zoomAlpha
         }
 
         fun refreshToggleUi() {
@@ -252,6 +267,9 @@ class SettingsFragment : Fragment() {
 
             setSelected(buttonHighContrastOn.parent as View, selectedHighContrast)
             setSelected(buttonHighContrastOff.parent as View, !selectedHighContrast)
+
+            setSelected(buttonRecentsOn.parent as View, selectedDisableRecents)
+            setSelected(buttonRecentsOff.parent as View, !selectedDisableRecents)
         }
 
         fun refreshDarkFilterUi() {
@@ -285,6 +303,7 @@ class SettingsFragment : Fragment() {
             selectedToolbarPlacement = defaults.toolbarPlacement
             selectedFullscreen = defaults.fullscreen
             selectedHighContrast = defaults.highContrast
+            selectedDisableRecents = defaults.disableRecentFiles
 
             darkFilterMode = when {
                 defaults.darkFilterAuto -> ThreeStateMode.AUTO
@@ -351,22 +370,22 @@ class SettingsFragment : Fragment() {
             }
         }
 
-        buttonScrollVTopToBottom.setOnClickListener {
+        (buttonScrollVTopToBottom.parent as View).setOnClickListener {
             selectedScrollMode = "VERTICAL_TOP_TO_BOTTOM"
             refreshDirectionUi()
             persist()
         }
-        buttonScrollVBottomToTop.setOnClickListener {
+        (buttonScrollVBottomToTop.parent as View).setOnClickListener {
             selectedScrollMode = "VERTICAL_BOTTOM_TO_TOP"
             refreshDirectionUi()
             persist()
         }
-        buttonScrollHLeftToRight.setOnClickListener {
+        (buttonScrollHLeftToRight.parent as View).setOnClickListener {
             selectedScrollMode = "HORIZONTAL_LEFT_TO_RIGHT"
             refreshDirectionUi()
             persist()
         }
-        buttonScrollHRightToLeft.setOnClickListener {
+        (buttonScrollHRightToLeft.parent as View).setOnClickListener {
             selectedScrollMode = "HORIZONTAL_RIGHT_TO_LEFT"
             refreshDirectionUi()
             persist()
@@ -457,6 +476,17 @@ class SettingsFragment : Fragment() {
         }
         buttonHighContrastOn.setOnClickListener { applyHighContrast(true) }
         buttonHighContrastOff.setOnClickListener { applyHighContrast(false) }
+
+        buttonRecentsOn.setOnClickListener {
+            selectedDisableRecents = true
+            refreshToggleUi()
+            persist()
+        }
+        buttonRecentsOff.setOnClickListener {
+            selectedDisableRecents = false
+            refreshToggleUi()
+            persist()
+        }
 
         buttonDarkFilterOn.setOnClickListener {
             darkFilterMode = ThreeStateMode.ALWAYS_ON

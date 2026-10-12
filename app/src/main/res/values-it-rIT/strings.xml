@@ -3,6 +3,9 @@
     <string name="title_home">Home</string>
     <string name="title_open">Apri</string>
     <string name="title_settings">Impostazioni</string>
+    <string name="settings_disable_recents">Disattiva file recenti</string>
+    <string name="home_recents_disabled">I file recenti sono disattivati.</string>
+    <string name="home_recents_disabled_cta">Vai alle impostazioni</string>
     <string name="title_recents">Recenti</string>
     <string name="title_favourites">Preferiti</string>
     <string name="text_review_the_app">Ti piace questa app?\nPer favore, lascia una recensione ⭐ su Google Play.\nÈ solo qualche secondo per te 😊</string>
@@ -144,6 +147,10 @@
     <string name="viewer_default_direction_v_btt">Verticale: dal basso verso l\'alto</string>
     <string name="viewer_default_direction_h_ltr">Orizzontale: da sinistra a destra</string>
     <string name="viewer_default_direction_h_rtl">Orizzontale: da destra a sinistra</string>
+    <string name="viewer_default_direction_label_down">Giù</string>
+    <string name="viewer_default_direction_label_up">Su</string>
+    <string name="viewer_default_direction_label_right">Destra</string>
+    <string name="viewer_default_direction_label_left">Sinistra</string>
     <string name="viewer_defaults_single_page">Modalità pagina singola per i nuovi documenti</string>
     <string name="viewer_defaults_rotation_locked">Rotazione bloccata per i nuovi documenti</string>
     <string name="viewer_defaults_accent_color">Colore accent</string>

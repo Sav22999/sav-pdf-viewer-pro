@@ -101,6 +101,52 @@
                 android:textColor="?attr/colorAccent"
                 android:textSize="16sp" />
 
+            <LinearLayout
+                android:id="@+id/recentsDisabledState"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="12dp"
+                android:gravity="center_horizontal"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <ImageView
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:layout_marginBottom="12dp"
+                    android:alpha="0.9"
+                    android:contentDescription="@string/home_recents_disabled"
+                    app:srcCompat="@drawable/ic_history_off"
+                    app:tint="?attr/colorAccent" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:text="@string/home_recents_disabled"
+                    android:textColor="?attr/colorAccent"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/buttonEnableRecents"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    android:background="@drawable/button_rounded_no_border"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:gravity="center"
+                    android:minHeight="48dp"
+                    android:paddingStart="24dp"
+                    android:paddingEnd="24dp"
+                    android:text="@string/home_recents_disabled_cta"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recentsList"
                 android:layout_width="match_parent"

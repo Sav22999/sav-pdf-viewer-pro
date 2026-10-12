@@ -19,11 +19,13 @@ import androidx.core.view.isGone
 import androidx.core.view.updatePadding
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.saverio.pdfviewer.MainActivity
 import com.saverio.pdfviewer.R
+import com.saverio.pdfviewer.ViewerDefaultsStore
 import com.saverio.pdfviewer.db.DatabaseHandler
 import com.saverio.pdfviewer.db.FilesModel
 import java.io.File
@@ -234,6 +236,10 @@ class HomeFragment : Fragment() {
             startActivity(Intent(Intent.ACTION_VIEW, Uri.parse("https://www.savpdfviewer.com/help/")))
         }
 
+        root.findViewById<View>(R.id.buttonEnableRecents).setOnClickListener {
+            findNavController().navigate(R.id.navigation_settings)
+        }
+
         renderRecents(root)
         resetAndSchedulePayoffHide()
 
@@ -271,17 +277,30 @@ class HomeFragment : Fragment() {
 
     private fun renderRecents(root: View) {
         val emptyText: TextView = root.findViewById(R.id.textNoRecents)
+        val disabledState: View = root.findViewById(R.id.recentsDisabledState)
 
         if (isRecentSwipeActive) {
             hasPendingRecentsRefresh = true
             return
         }
 
+        if (ViewerDefaultsStore.loadDisableRecentFiles(requireContext())) {
+            // Dedicated empty state with an explanatory icon and a shortcut to
+            // the settings screen, instead of a bare line of text.
+            emptyText.isGone = true
+            disabledState.isGone = false
+            recentsAdapter.submitList(emptyList())
+            return
+        }
+
+        disabledState.isGone = true
+
         val database = DatabaseHandler(requireContext())
         val recentFiles = database
             .getFiles()
             .sortedByDescending { it.lastUpdate.ifBlank { it.date } }
 
+        emptyText.setText(R.string.home_no_recents)
         emptyText.isGone = recentFiles.isNotEmpty()
         recentsAdapter.submitList(recentFiles)
     }

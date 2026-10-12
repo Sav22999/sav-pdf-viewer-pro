@@ -20,6 +20,7 @@ object ViewerDefaultsStore {
     private const val KEY_NIGHT_LIGHT_AUTO = "night_light_auto"
     private const val KEY_NIGHT_LIGHT_START_MINUTE = "night_light_start_minute"
     private const val KEY_NIGHT_LIGHT_END_MINUTE = "night_light_end_minute"
+    private const val KEY_DISABLE_RECENT_FILES = "disable_recent_files"
 
     private const val KEY_ACCENT_COLOR = "accent_color"
     private const val KEY_HIGH_CONTRAST = "high_contrast"
@@ -57,7 +58,8 @@ object ViewerDefaultsStore {
         val nightLightAuto: Boolean = true,
         val nightLightStartMinute: Int = DEFAULT_NIGHT_LIGHT_START_MINUTE,
         val nightLightEndMinute: Int = DEFAULT_NIGHT_LIGHT_END_MINUTE,
-        val highContrast: Boolean = false
+        val highContrast: Boolean = false,
+        val disableRecentFiles: Boolean = false
     )
 
     fun defaultDefaults(): Defaults = Defaults()
@@ -93,7 +95,8 @@ object ViewerDefaultsStore {
                 .coerceIn(0, 24 * 60 - 1),
             nightLightEndMinute = prefs.getInt(KEY_NIGHT_LIGHT_END_MINUTE, DEFAULT_NIGHT_LIGHT_END_MINUTE)
                 .coerceIn(0, 24 * 60 - 1),
-            highContrast = prefs.getBoolean(KEY_HIGH_CONTRAST, false)
+            highContrast = prefs.getBoolean(KEY_HIGH_CONTRAST, false),
+            disableRecentFiles = prefs.getBoolean(KEY_DISABLE_RECENT_FILES, false)
         )
     }
 
@@ -116,6 +119,7 @@ object ViewerDefaultsStore {
             .putInt(KEY_NIGHT_LIGHT_START_MINUTE, defaults.nightLightStartMinute.coerceIn(0, 24 * 60 - 1))
             .putInt(KEY_NIGHT_LIGHT_END_MINUTE, defaults.nightLightEndMinute.coerceIn(0, 24 * 60 - 1))
             .putBoolean(KEY_HIGH_CONTRAST, defaults.highContrast)
+            .putBoolean(KEY_DISABLE_RECENT_FILES, defaults.disableRecentFiles)
             .apply()
     }
 
@@ -172,6 +176,12 @@ object ViewerDefaultsStore {
             .edit()
             .putBoolean(KEY_HIGH_CONTRAST, enabled)
             .apply()
+    }
+
+    /** Load the "disable recent files" flag (defaults to disabled). */
+    fun loadDisableRecentFiles(context: Context): Boolean {
+        val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+        return prefs.getBoolean(KEY_DISABLE_RECENT_FILES, false)
     }
 
     /** Resolve the theme style resource for the given accent color key. */
