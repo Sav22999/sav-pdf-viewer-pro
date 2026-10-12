@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="?android:attr/colorBackground"
     tools:context=".ui.settings.SettingsFragment">
 
     <ScrollView
@@ -244,14 +244,14 @@
                         android:layout_weight="1"
                         android:background="@color/transparent"
                         android:contentDescription="@string/viewer_defaults_mode_off"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         app:srcCompat="@drawable/ic_contrast_off"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="4dp"
                         android:text="@string/viewer_defaults_mode_off"
                         android:textColor="@color/white"
                         android:textSize="11sp"
@@ -272,14 +272,14 @@
                         android:layout_weight="1"
                         android:background="@color/transparent"
                         android:contentDescription="@string/viewer_defaults_mode_always_on"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         app:srcCompat="@drawable/ic_contrast_on"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="4dp"
                         android:text="@string/viewer_defaults_mode_on_short"
                         android:textColor="@color/white"
                         android:textSize="11sp"
@@ -318,14 +318,14 @@
                         android:layout_weight="1"
                         android:background="@color/transparent"
                         android:contentDescription="@string/viewer_defaults_toolbar_position_top_content_description"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         app:srcCompat="@drawable/ic_menubar_top"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="4dp"
                         android:text="@string/viewer_defaults_toolbar_position_top"
                         android:textColor="@color/white"
                         android:textSize="11sp"
@@ -346,14 +346,14 @@
                         android:layout_weight="1"
                         android:background="@color/transparent"
                         android:contentDescription="@string/viewer_defaults_toolbar_position_bottom_content_description"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         app:srcCompat="@drawable/ic_menubar_bottom"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="4dp"
                         android:text="@string/viewer_defaults_toolbar_position_bottom"
                         android:textColor="@color/white"
                         android:textSize="11sp"
@@ -624,14 +624,14 @@
                         android:layout_weight="1"
                         android:background="@color/transparent"
                         android:contentDescription="@string/tooltip_full_screen_off"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         app:srcCompat="@drawable/ic_exit_fullscreen"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="4dp"
                         android:text="@string/viewer_defaults_mode_off"
                         android:textColor="@color/white"
                         android:textSize="11sp"
@@ -652,14 +652,14 @@
                         android:layout_weight="1"
                         android:background="@color/transparent"
                         android:contentDescription="@string/tooltip_full_screen_on"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         app:srcCompat="@drawable/ic_fullscreen"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="4dp"
                         android:text="@string/viewer_defaults_mode_on_short"
                         android:textColor="@color/white"
                         android:textSize="11sp"
@@ -684,17 +684,33 @@
                 android:orientation="horizontal"
                 android:weightSum="100">
 
-                <ImageView
-                    android:id="@+id/buttonDefaultZoomDecrease"
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="64dp"
                     android:layout_weight="30"
-                    android:background="@color/transparent"
-                    android:contentDescription="@string/tooltip_zoom_out"
-                    android:padding="18dp"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/ic_zoom_out"
-                    app:tint="@color/white" />
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/buttonDefaultZoomDecrease"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/tooltip_zoom_out"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_zoom_out"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="@string/tooltip_zoom_out"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/buttonDefaultZoomValue"
@@ -708,17 +724,33 @@
                     android:textStyle="bold"
                     tools:text="Auto" />
 
-                <ImageView
-                    android:id="@+id/buttonDefaultZoomIncrease"
+                <LinearLayout
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="64dp"
                     android:layout_weight="30"
-                    android:background="@color/transparent"
-                    android:contentDescription="@string/tooltip_zoom_in"
-                    android:padding="18dp"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/ic_zoom_in"
-                    app:tint="@color/white" />
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/buttonDefaultZoomIncrease"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/tooltip_zoom_in"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_zoom_in"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="@string/tooltip_zoom_in"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
 
             <TextView
@@ -737,53 +769,121 @@
                 android:orientation="horizontal"
                 android:weightSum="120">
 
-                <ImageView
-                    android:id="@+id/buttonDefaultScrollVTopToBottom"
+                <LinearLayout
+                    android:id="@+id/buttonDefaultScrollVTopToBottomParent"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="64dp"
                     android:layout_weight="30"
-                    android:background="@color/transparent"
-                    android:contentDescription="@string/viewer_default_direction_v_ttb"
-                    android:padding="18dp"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/ic_scroll_vertically_top2bottom"
-                    app:tint="@color/white" />
+                    android:gravity="center"
+                    android:orientation="vertical">
 
-                <ImageView
-                    android:id="@+id/buttonDefaultScrollVBottomToTop"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="30"
-                    android:background="@color/transparent"
-                    android:contentDescription="@string/viewer_default_direction_v_btt"
-                    android:padding="18dp"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/ic_scroll_vertically_bottom2top"
-                    app:tint="@color/white" />
+                    <ImageView
+                        android:id="@+id/buttonDefaultScrollVTopToBottom"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/viewer_default_direction_v_ttb"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_scroll_vertically_top2bottom"
+                        app:tint="@color/white" />
 
-                <ImageView
-                    android:id="@+id/buttonDefaultScrollHLeftToRight"
-                    android:layout_width="0dp"
-                    android:layout_height="56dp"
-                    android:layout_weight="30"
-                    android:background="@color/transparent"
-                    android:contentDescription="@string/viewer_default_direction_h_ltr"
-                    android:padding="18dp"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/ic_scroll_horizontally_left2right"
-                    app:tint="@color/white" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="@string/viewer_default_direction_label_down"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
 
-                <ImageView
-                    android:id="@+id/buttonDefaultScrollHRightToLeft"
+                <LinearLayout
+                    android:id="@+id/buttonDefaultScrollVBottomToTopParent"
                     android:layout_width="0dp"
-                    android:layout_height="56dp"
+                    android:layout_height="64dp"
                     android:layout_weight="30"
-                    android:background="@color/transparent"
-                    android:contentDescription="@string/viewer_default_direction_h_rtl"
-                    android:padding="18dp"
-                    android:scaleType="centerInside"
-                    app:srcCompat="@drawable/ic_scroll_horizontally_right2left"
-                    app:tint="@color/white" />
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/buttonDefaultScrollVBottomToTop"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/viewer_default_direction_v_btt"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_scroll_vertically_bottom2top"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="@string/viewer_default_direction_label_up"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/buttonDefaultScrollHLeftToRightParent"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_weight="30"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/buttonDefaultScrollHLeftToRight"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/viewer_default_direction_h_ltr"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_scroll_horizontally_left2right"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="@string/viewer_default_direction_label_right"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/buttonDefaultScrollHRightToLeftParent"
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_weight="30"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/buttonDefaultScrollHRightToLeft"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/viewer_default_direction_h_rtl"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_scroll_horizontally_right2left"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="@string/viewer_default_direction_label_left"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
             </LinearLayout>
 
             <TextView
@@ -816,14 +916,14 @@
                         android:layout_weight="1"
                         android:background="@color/transparent"
                         android:contentDescription="@string/tooltip_single_page_scroll_disabled"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         app:srcCompat="@drawable/ic_single_page_disabled"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="4dp"
                         android:text="@string/viewer_defaults_mode_off"
                         android:textColor="@color/white"
                         android:textSize="11sp"
@@ -844,14 +944,14 @@
                         android:layout_weight="1"
                         android:background="@color/transparent"
                         android:contentDescription="@string/tooltip_single_page_scroll"
-                        android:padding="12dp"
+                        android:padding="10dp"
                         app:srcCompat="@drawable/ic_single_page"
                         app:tint="@color/white" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="4dp"
                         android:text="@string/viewer_defaults_mode_on_short"
                         android:textColor="@color/white"
                         android:textSize="11sp"
@@ -896,7 +996,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="4dp"
                         android:text="@string/viewer_defaults_mode_off"
                         android:textColor="@color/white"
                         android:textSize="11sp"
@@ -924,7 +1024,7 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginBottom="5dp"
+                        android:layout_marginBottom="4dp"
                         android:text="@string/viewer_defaults_mode_on_short"
                         android:textColor="@color/white"
                         android:textSize="11sp"
@@ -939,6 +1039,79 @@
                 android:layout_height="1dp"
                 android:layout_marginTop="16dp"
                 android:background="?attr/colorSecondary" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="14dp"
+                android:text="@string/settings_disable_recents"
+                android:textColor="?attr/colorPrimary"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/border_rounded"
+                android:orientation="horizontal"
+                android:weightSum="100">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_weight="50"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/buttonDefaultRecentsOff"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/viewer_defaults_mode_off"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_history"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="@string/viewer_defaults_mode_off"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="64dp"
+                    android:layout_weight="50"
+                    android:gravity="center"
+                    android:orientation="vertical">
+
+                    <ImageView
+                        android:id="@+id/buttonDefaultRecentsOn"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:background="@color/transparent"
+                        android:contentDescription="@string/viewer_defaults_mode_on_short"
+                        android:padding="10dp"
+                        app:srcCompat="@drawable/ic_history_off"
+                        app:tint="@color/white" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="4dp"
+                        android:text="@string/viewer_defaults_mode_on_short"
+                        android:textColor="@color/white"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
 
             <TextView
                 android:id="@+id/buttonResetViewerDefaults"

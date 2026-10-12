@@ -1787,6 +1787,8 @@ class PDFViewer : AppCompatActivity() {
             file.lastUpdate = getNow()
             databaseHandler.updateFile(file = file)
         } else {
+            // Don't record new documents in the recent files list when the user disabled it.
+            if (ViewerDefaultsStore.loadDisableRecentFiles(this)) return
             val file = FilesModel(
                 id = pathNameTemp,
                 date = getNow(),
@@ -3122,15 +3124,20 @@ class PDFViewer : AppCompatActivity() {
      */
     private fun applyOptionSelectionStyle(view: View, selected: Boolean) {
         if (ViewerDefaultsStore.loadHighContrast(this)) {
+            // Draw the selection outline as a FOREGROUND, not a background: an
+            // inset/stroke background reports padding (= the inset) that the view
+            // applies, shrinking the icon. A foreground leaves the size untouched.
             view.alpha = selectedOptionAlpha
-            view.background = if (selected) {
+            view.foreground = if (selected) {
                 ContextCompat.getDrawable(this, R.drawable.settings_option_selected)
             } else {
                 null
             }
+            view.background = null
         } else {
             view.alpha = if (selected) selectedOptionAlpha else unselectedOptionAlpha
             view.background = null
+            view.foreground = null
         }
     }
 
