@@ -1,0 +1,5 @@
+- Settings: all option icons now share one consistent, larger and clearer size, so they are easier to see
+- Default zoom: the zoom-out and zoom-in buttons now show "Zoom out" and "Zoom in" labels
+- Fixed high-contrast mode: the selection border no longer changes the size of the icons
+- Redesigned the "recent files turned off" screen with a clear icon and a quick "Go to settings" shortcut
+- Still 100% open-source and with no permissions required
