@@ -31,9 +31,22 @@ Go to the <a href="https://savpdfviewer.com">official website of the app</a>
 
 ### Where download the app
 
-[<img src="images/googlePlayBadge.png" width="200px"></img>](https://play.google.com/store/apps/details?id=com.saverio.pdfviewer)
+<table>
+  <tr>
+    <td valign="top">
+      <a href="https://play.google.com/store/apps/details?id=com.saverio.pdfviewer"><img src="images/googlePlayBadge.png" height="80"></a>
+    </td>
+    <td valign="middle">
+      <a href="https://apt.izzysoft.de/fdroid/index/apk/com.saverio.pdfviewer"><img src="https://gitlab.com/IzzyOnDroid/repo/-/raw/master/assets/IzzyOnDroidButtonGreyBorder_nofont.png" height="54"></a>
+    </td>
+    </td>
+    <td valign="top">
+      <a href="https://github.com/Sav22999/sav-pdf-viewer-pro/releases/latest"><img src="https://raw.githubusercontent.com/Kunzisoft/Github-badge/main/get-it-on-github.png" height="80"></a>
+    </td>
+  </tr>
+</table>
 
-You can download the app from the Google Play Store, GitHub or IzzyDroid. The versions on Amazon AppStore and Huawei AppGallery are obsolete and may not receive updates.
+You can download the app from the Google Play Store, GitHub or IzzyOnDroid. The versions on Amazon AppStore and Huawei AppGallery are obsolete and may not receive updates.
 
 ### Support me and my work
 
