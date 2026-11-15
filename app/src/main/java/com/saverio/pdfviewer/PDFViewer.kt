@@ -106,6 +106,9 @@ class PDFViewer : AppCompatActivity() {
     var showingTopBar = true
     var menuOpened = false
     private var compactTopBarVisible = false
+    // True while applyPdfViewSafeAreaInsets() resizes the PDF view: the
+    // resulting programmatic scroll must not show/hide the toolbar again.
+    private var suppressToolbarToggleOnScroll = false
 
     var isSupportedShareFeature = false
     var isSupportedGoTop = true
@@ -383,6 +386,24 @@ class PDFViewer : AppCompatActivity() {
         }
 
         pdfViewer = findViewById(R.id.pdfView)
+        // Re-evaluate the top reserve whenever the toolbar is shown or hidden,
+        // whatever code path toggled it (see applyPdfViewSafeAreaInsets).
+        val toolbarView: View = findViewById(R.id.toolbar)
+        var lastToolbarVisible = toolbarView.visibility == View.VISIBLE
+        toolbarView.viewTreeObserver.addOnGlobalLayoutListener {
+            applyPdfViewSafeAreaInsets()
+            // The side scrollbar is anchored below the toolbar, so its track
+            // moves when the toolbar is shown/hidden. Its cached track metrics
+            // (and the page label next to the thumb) must follow, otherwise the
+            // thumb is drawn at the old offset.
+            val visible = toolbarView.visibility == View.VISIBLE
+            if (visible != lastToolbarVisible) {
+                lastToolbarVisible = visible
+                findViewById<View>(R.id.buttonSideScroll).post {
+                    if (refreshResidualViewMetrics()) updateScrollbarThumbFromCurrentProgress()
+                }
+            }
+        }
         applyToolbarPlacement(force = true)
         loadScrollModePreference()
         var uriToUse: String? = ""
@@ -1064,7 +1085,7 @@ class PDFViewer : AppCompatActivity() {
                             pendingRestoredLogicalPage = null
                         }
                         updatePdfPage(fileId, logicalPage)
-                        if (logicalPage == 0) {
+                        if (logicalPage == 0 && !suppressToolbarToggleOnScroll) {
                             showTopBar(showGoTop = false)
                         }
                         updateGoToEdgeButtonVisibility()
@@ -1083,7 +1104,9 @@ class PDFViewer : AppCompatActivity() {
                         rememberLogicalScrollProgressFromViewerPosition(page + positionOffset)
                     }
                     updateScrollbarThumbFromCurrentProgress()
-                    if (skipNextInitialPageScrollHide) {
+                    if (suppressToolbarToggleOnScroll) {
+                        // Scroll caused by the top-reserve resize, not by the user.
+                    } else if (skipNextInitialPageScrollHide) {
                         skipNextInitialPageScrollHide = false
                     } else if (getCurrentLogicalPage() == 0) {
                         // At first page always keep the classic top bar.
@@ -3069,6 +3092,9 @@ class PDFViewer : AppCompatActivity() {
         pdfViewer.setPageSnap(single_page)
         pdfViewer.setPageFling(single_page)
         updateSinglePageModeButtons()
+        // Continuous vs single-page changes how much top area must be reserved
+        // for the overlay toolbar (see applyPdfViewSafeAreaInsets / issue #80).
+        applyPdfViewSafeAreaInsets()
 
         if (!applyingPdfOptions) {
             saveCurrentPdfOptions()
@@ -3233,13 +3259,61 @@ class PDFViewer : AppCompatActivity() {
     private fun applyPdfViewSafeAreaInsets() {
         val pdfView: View = findViewById(R.id.pdfView)
         val base = pdfViewBasePaddingPx
-        val topPadding = base + if (isFullscreenEnabled) 0 else toolbarSystemTopInset
-        if (pdfView.paddingTop != topPadding ||
+        // Keep a constant padding on every side and reserve the status-bar area
+        // with a top MARGIN rather than top padding. System-bar insets arrive
+        // after the PDF has already loaded; a padding change does not make the
+        // underlying renderer recompute page positions, so in continuous
+        // (non single-page) scroll the first page's top stayed clipped under
+        // the status bar and could not be scrolled to (issue #80). Changing the
+        // margin resizes the view, which triggers onSizeChanged and a layout
+        // recompute, so the first page is fully visible and reachable.
+        if (pdfView.paddingTop != base ||
             pdfView.paddingLeft != base ||
             pdfView.paddingRight != base ||
             pdfView.paddingBottom != base
         ) {
-            pdfView.setPadding(base, topPadding, base, base)
+            pdfView.setPadding(base, base, base, base)
+        }
+        // While the full TOP toolbar is shown in continuous (non single-page)
+        // scroll, also reserve its height. The toolbar is an overlay anchored to
+        // the top and the renderer clamps the first page to scroll offset 0 of
+        // the view (it ignores padding), so the top of page 1 would stay hidden
+        // behind the toolbar with no way to scroll it into view (issue #80).
+        // This applies in fullscreen too, where the toolbar still appears. The
+        // reserve follows the toolbar visibility, so a hidden toolbar gives the
+        // whole screen back to the document. Single-page mode centres each page
+        // (autoSpacing) and the compact page counter is a small translucent
+        // badge, so neither needs a reserve. The toolbar content is 56dp.
+        val fullToolbarShown = findViewById<View>(R.id.toolbar).visibility == View.VISIBLE
+        val reserveToolbar = fullToolbarShown && !single_page && !isBottomToolbarPlacement()
+        val statusInset = if (isFullscreenEnabled) 0 else toolbarSystemTopInset
+        val topMargin = statusInset + (if (reserveToolbar) dpToPx(56f) else 0)
+        val lp = pdfView.layoutParams as? ViewGroup.MarginLayoutParams
+        if (lp != null && lp.topMargin != topMargin) {
+            // The renderer keeps the view's centre point on resize, which makes
+            // the content jump. Instead, after the resize either keep the content
+            // still on screen (mid-document: the toolbar simply covers it, as
+            // before) or, when the top of page 1 would end up hidden, snap to the
+            // very top of the document. Only once a document is loaded
+            // (pageCount is 0 before), otherwise moveTo() crashes on a null PdfFile.
+            val delta = topMargin - lp.topMargin
+            val canAdjust = ::pdfViewer.isInitialized && pdfViewer.pageCount > 0 &&
+                pdfViewer.isSwipeVertical
+            val oldYOffset = if (canAdjust) pdfViewer.currentYOffset else 0f
+            suppressToolbarToggleOnScroll = true
+            lp.topMargin = topMargin
+            pdfView.layoutParams = lp
+            pdfView.post {
+                if (canAdjust && pdfViewer.pageCount > 0) {
+                    pdfViewer.stopFling()
+                    val stillOffset = oldYOffset - delta
+                    // Top of page 1 was within the band the toolbar now covers.
+                    val targetY = if (delta > 0 && oldYOffset > -delta) 0f else stillOffset
+                    pdfViewer.moveTo(pdfViewer.currentXOffset, targetY)
+                    pdfViewer.loadPages()
+                }
+                pdfView.post { suppressToolbarToggleOnScroll = false }
+            }
         }
     }
 
@@ -3465,6 +3539,9 @@ class PDFViewer : AppCompatActivity() {
 
         constraintSet.applyTo(root)
         applyToolbarContainerInsets()
+        // Top vs bottom toolbar placement changes the top area reserved for the
+        // overlay toolbar in continuous scroll (see applyPdfViewSafeAreaInsets).
+        applyPdfViewSafeAreaInsets()
         applyBottomPlacementImeOffset()
 
         arrowIds.forEach { arrowId ->

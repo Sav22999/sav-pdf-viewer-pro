@@ -65,7 +65,7 @@ You can improve this project translating it in your language on Crowdin, follow 
 
 ### Screenshots
 
-<img src="images/screenshots/1.png" width="200px"></img><img src="images/screenshots/2.png" width="200px"></img><img src="images/screenshots/3.png" width="200px"></img><img src="images/screenshots/4.png" width="200px"></img>
+<img src="images/screenshots/screenshot1.png" width="200px"></img><img src="images/screenshots/screenshot2.png" width="200px"></img><img src="images/screenshots/screenshot3.png" width="200px"></img><img src="images/screenshots/screenshot4.png" width="200px"></img><img src="images/screenshots/screenshot5.png" width="200px"></img>
 
 
 ![Generic badge](https://img.shields.io/badge/built%20in-Android%20Studio-green.svg) ![Generic badge](https://img.shields.io/badge/developed%20in-Kotlin-blue.svg) ![GitHub last commit](https://img.shields.io/github/last-commit/Sav22999/sav-pdf-viewer-pro)
