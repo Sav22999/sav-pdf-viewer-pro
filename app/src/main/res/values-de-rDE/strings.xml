@@ -163,4 +163,19 @@
     <string name="settings_version_label">Version %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">Zuletzt verwendetes Dokument %1$s öffnen</string>
     <string name="toast_recent_document_unreadable">Dieses zuletzt verwendete Dokument kann nicht geöffnet werden. Bitte wähle es erneut aus.</string>
+    <string name="home_recents_disabled">Zuletzt verwendete Dateien sind deaktiviert.</string>
+    <string name="home_recents_disabled_cta">Zu den Einstellungen</string>
+    <string name="settings_disable_recents">Zuletzt verwendete Dateien deaktivieren</string>
+    <string name="viewer_default_direction_label_down">Nach unten</string>
+    <string name="viewer_default_direction_label_up">Nach oben</string>
+    <string name="viewer_default_direction_label_left">Links</string>
+    <string name="viewer_default_direction_label_right">Rechts</string>
+    <string name="viewer_defaults_accent_color">Akzentfarbe</string>
+    <string name="viewer_defaults_accent_color_red">Rot</string>
+    <string name="viewer_defaults_accent_color_green">Grün</string>
+    <string name="viewer_defaults_accent_color_orange">Orange</string>
+    <string name="viewer_defaults_accent_color_blue">Blau</string>
+    <string name="viewer_defaults_accent_color_purple">Lila</string>
+    <string name="viewer_defaults_accent_color_black">Schwarz</string>
+    <string name="viewer_defaults_high_contrast">Modus mit hohem Kontrast</string>
 </resources>

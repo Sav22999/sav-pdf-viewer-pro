@@ -163,4 +163,19 @@
     <string name="settings_version_label">Versiunea %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">Deschide documentul recent %1$s</string>
     <string name="toast_recent_document_unreadable">Nu se poate deschide acest document recent. Te rugăm să îl selectezi din nou.</string>
+    <string name="home_recents_disabled">Fișierele recente sunt dezactivate.</string>
+    <string name="home_recents_disabled_cta">Mergi la setări</string>
+    <string name="settings_disable_recents">Dezactivează fișierele recente</string>
+    <string name="viewer_default_direction_label_down">Jos</string>
+    <string name="viewer_default_direction_label_up">Sus</string>
+    <string name="viewer_default_direction_label_left">Stânga</string>
+    <string name="viewer_default_direction_label_right">Dreapta</string>
+    <string name="viewer_defaults_accent_color">Culoare de accent</string>
+    <string name="viewer_defaults_accent_color_red">Roșu</string>
+    <string name="viewer_defaults_accent_color_green">Verde</string>
+    <string name="viewer_defaults_accent_color_orange">Portocaliu</string>
+    <string name="viewer_defaults_accent_color_blue">Albastru</string>
+    <string name="viewer_defaults_accent_color_purple">Mov</string>
+    <string name="viewer_defaults_accent_color_black">Negru</string>
+    <string name="viewer_defaults_high_contrast">Mod contrast ridicat</string>
 </resources>

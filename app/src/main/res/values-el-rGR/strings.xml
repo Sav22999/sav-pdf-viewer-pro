@@ -163,4 +163,19 @@
     <string name="settings_version_label">Έκδοση %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">Άνοιγμα πρόσφατου εγγράφου %1$s</string>
     <string name="toast_recent_document_unreadable">Δεν είναι δυνατό το άνοιγμα αυτού του πρόσφατου εγγράφου. Επιλέξτε το ξανά.</string>
+    <string name="home_recents_disabled">Τα πρόσφατα αρχεία είναι απενεργοποιημένα.</string>
+    <string name="home_recents_disabled_cta">Μετάβαση στις ρυθμίσεις</string>
+    <string name="settings_disable_recents">Απενεργοποίηση πρόσφατων αρχείων</string>
+    <string name="viewer_default_direction_label_down">Κάτω</string>
+    <string name="viewer_default_direction_label_up">Πάνω</string>
+    <string name="viewer_default_direction_label_left">Αριστερά</string>
+    <string name="viewer_default_direction_label_right">Δεξιά</string>
+    <string name="viewer_defaults_accent_color">Χρώμα τονισμού</string>
+    <string name="viewer_defaults_accent_color_red">Κόκκινο</string>
+    <string name="viewer_defaults_accent_color_green">Πράσινο</string>
+    <string name="viewer_defaults_accent_color_orange">Πορτοκαλί</string>
+    <string name="viewer_defaults_accent_color_blue">Μπλε</string>
+    <string name="viewer_defaults_accent_color_purple">Μωβ</string>
+    <string name="viewer_defaults_accent_color_black">Μαύρο</string>
+    <string name="viewer_defaults_high_contrast">Λειτουργία υψηλής αντίθεσης</string>
 </resources>

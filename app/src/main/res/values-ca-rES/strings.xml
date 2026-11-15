@@ -163,4 +163,19 @@
     <string name="settings_version_label">Versió %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">Obre el document recent %1$s</string>
     <string name="toast_recent_document_unreadable">No es pot obrir aquest document recent. Torneu a seleccionar-lo.</string>
+    <string name="home_recents_disabled">Els fitxers recents estan desactivats.</string>
+    <string name="home_recents_disabled_cta">Ves a la configuració</string>
+    <string name="settings_disable_recents">Desactiva els fitxers recents</string>
+    <string name="viewer_default_direction_label_down">Avall</string>
+    <string name="viewer_default_direction_label_up">Amunt</string>
+    <string name="viewer_default_direction_label_left">Esquerra</string>
+    <string name="viewer_default_direction_label_right">Dreta</string>
+    <string name="viewer_defaults_accent_color">Color d\'accent</string>
+    <string name="viewer_defaults_accent_color_red">Vermell</string>
+    <string name="viewer_defaults_accent_color_green">Verd</string>
+    <string name="viewer_defaults_accent_color_orange">Taronja</string>
+    <string name="viewer_defaults_accent_color_blue">Blau</string>
+    <string name="viewer_defaults_accent_color_purple">Lila</string>
+    <string name="viewer_defaults_accent_color_black">Negre</string>
+    <string name="viewer_defaults_high_contrast">Mode d\'alt contrast</string>
 </resources>

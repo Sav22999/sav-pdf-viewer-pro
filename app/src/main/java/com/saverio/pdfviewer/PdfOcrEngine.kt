@@ -36,7 +36,13 @@ class PdfOcrEngine(private val context: Context) {
     // ── internals ─────────────────────────────────────────────────────────────
     private val mainHandler = android.os.Handler(android.os.Looper.getMainLooper())
     private val pdfiumCore by lazy { PdfiumCore(context) }
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    // Last-resort safety net: a failure deep inside the native Pdfium bindings
+    // (including Errors such as UnsatisfiedLinkError) must never bring the whole
+    // app down just because the user searched. It is logged and swallowed here.
+    private val ocrExceptionHandler = CoroutineExceptionHandler { _, t ->
+        Log.e(TAG, "OCR coroutine failed: ${t.message}", t)
+    }
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob() + ocrExceptionHandler)
 
     /** word text + normalised bounding rect (0‥1) */
     data class WordElement(val text: String, val rect: RectF)
@@ -105,8 +111,8 @@ class PdfOcrEngine(private val context: Context) {
                     doc.close()
                     OpenProbeResult.OPENED
                 }
-            } catch (e: Exception) {
-                val msg = e.message.orEmpty()
+            } catch (t: Throwable) {
+                val msg = t.message.orEmpty()
                 if (msg.contains("Password", ignoreCase = true)) {
                     OpenProbeResult.WRONG_PASSWORD
                 } else {
@@ -400,8 +406,10 @@ class PdfOcrEngine(private val context: Context) {
 
         val words = try {
             extractWords(page)
-        } catch (e: Exception) {
-            Log.e(TAG, "page $page text extraction failed: ${e.message}")
+        } catch (t: Throwable) {
+            // Catch Throwable (not just Exception): native Pdfium failures can
+            // surface as Errors, which must not crash the app during a search.
+            Log.e(TAG, "page $page text extraction failed: ${t.message}")
             emptyList()
         }
         wordsCache[page] = words
@@ -416,7 +424,15 @@ class PdfOcrEngine(private val context: Context) {
      * Char boxes come in PDF page space (origin bottom-left, y axis up),
      * so they are converted to normalised top-left coordinates (0‥1).
      */
-    private fun extractWords(pageIndex: Int): List<WordElement> {
+    private fun extractWords(pageIndex: Int): List<WordElement> = synchronized(documentLock) {
+        // Pdfium is NOT thread-safe for concurrent access to the same document.
+        // Search indexing and text-selection pre-indexing both run on this
+        // engine's scope, and the search auto-navigates to the first hit, which
+        // triggers selection pre-indexing of the shown page. Without this lock
+        // two coroutines could open/read pages of the same native document at
+        // once, which crashes the process. Holding documentLock for the whole
+        // native section serialises all page/text access. (synchronized is
+        // reentrant, so the nested lock in openDocumentIfNeeded is fine.)
         val doc = openDocumentIfNeeded() ?: return emptyList()
         doc.openPage(pageIndex).use { pdfPage ->
             val pageWidth = pdfPage.getPageWidthPoint().toFloat().coerceAtLeast(1f)
@@ -491,8 +507,8 @@ class PdfOcrEngine(private val context: Context) {
                 }
                 document = doc
                 doc
-            } catch (e: Exception) {
-                Log.w(TAG, "openDocument failed: ${e.message}")
+            } catch (t: Throwable) {
+                Log.w(TAG, "openDocument failed: ${t.message}")
                 null
             }
         }

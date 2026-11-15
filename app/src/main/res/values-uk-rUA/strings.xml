@@ -163,4 +163,19 @@
     <string name="settings_version_label">Версія %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">Відкрити недавній документ %1$s</string>
     <string name="toast_recent_document_unreadable">Не вдалося відкрити цей недавній документ. Спробуйте вибрати його ще раз.</string>
+    <string name="home_recents_disabled">Останні файли вимкнено.</string>
+    <string name="home_recents_disabled_cta">Перейти до налаштувань</string>
+    <string name="settings_disable_recents">Вимкнути останні файли</string>
+    <string name="viewer_default_direction_label_down">Вниз</string>
+    <string name="viewer_default_direction_label_up">Вгору</string>
+    <string name="viewer_default_direction_label_left">Ліворуч</string>
+    <string name="viewer_default_direction_label_right">Праворуч</string>
+    <string name="viewer_defaults_accent_color">Колір акценту</string>
+    <string name="viewer_defaults_accent_color_red">Червоний</string>
+    <string name="viewer_defaults_accent_color_green">Зелений</string>
+    <string name="viewer_defaults_accent_color_orange">Помаранчевий</string>
+    <string name="viewer_defaults_accent_color_blue">Синій</string>
+    <string name="viewer_defaults_accent_color_purple">Фіолетовий</string>
+    <string name="viewer_defaults_accent_color_black">Чорний</string>
+    <string name="viewer_defaults_high_contrast">Режим високої контрастності</string>
 </resources>

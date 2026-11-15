@@ -163,4 +163,19 @@
     <string name="settings_version_label">الإصدار %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">فتح المستند الأخير %1$s</string>
     <string name="toast_recent_document_unreadable">تعذّر فتح هذا المستند الأخير. يُرجى تحديده مرة أخرى.</string>
+    <string name="home_recents_disabled">تم إيقاف الملفات الأخيرة.</string>
+    <string name="home_recents_disabled_cta">الانتقال إلى الإعدادات</string>
+    <string name="settings_disable_recents">تعطيل الملفات الأخيرة</string>
+    <string name="viewer_default_direction_label_down">لأسفل</string>
+    <string name="viewer_default_direction_label_up">لأعلى</string>
+    <string name="viewer_default_direction_label_left">لليسار</string>
+    <string name="viewer_default_direction_label_right">لليمين</string>
+    <string name="viewer_defaults_accent_color">لون التمييز</string>
+    <string name="viewer_defaults_accent_color_red">أحمر</string>
+    <string name="viewer_defaults_accent_color_green">أخضر</string>
+    <string name="viewer_defaults_accent_color_orange">برتقالي</string>
+    <string name="viewer_defaults_accent_color_blue">أزرق</string>
+    <string name="viewer_defaults_accent_color_purple">بنفسجي</string>
+    <string name="viewer_defaults_accent_color_black">أسود</string>
+    <string name="viewer_defaults_high_contrast">وضع التباين العالي</string>
 </resources>

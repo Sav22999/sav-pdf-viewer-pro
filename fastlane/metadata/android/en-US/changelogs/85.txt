@@ -1,0 +1,3 @@
+- Fixed a crash that could happen when searching inside a PDF
+- Fixed the top of the first page being cut off and unreachable in continuous (multi-page) scrolling
+- Minor stability improvements

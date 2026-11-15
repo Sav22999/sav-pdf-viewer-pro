@@ -163,4 +163,19 @@
     <string name="settings_version_label">Versão %1$s (#%2$d)</string>
     <string name="home_recent_item_content_description">Abrir documento recente %1$s</string>
     <string name="toast_recent_document_unreadable">Não é possível abrir este documento recente. Selecione-o novamente.</string>
+    <string name="home_recents_disabled">Os ficheiros recentes estão desativados.</string>
+    <string name="home_recents_disabled_cta">Ir para as definições</string>
+    <string name="settings_disable_recents">Desativar ficheiros recentes</string>
+    <string name="viewer_default_direction_label_down">Baixo</string>
+    <string name="viewer_default_direction_label_up">Cima</string>
+    <string name="viewer_default_direction_label_left">Esquerda</string>
+    <string name="viewer_default_direction_label_right">Direita</string>
+    <string name="viewer_defaults_accent_color">Cor de destaque</string>
+    <string name="viewer_defaults_accent_color_red">Vermelho</string>
+    <string name="viewer_defaults_accent_color_green">Verde</string>
+    <string name="viewer_defaults_accent_color_orange">Laranja</string>
+    <string name="viewer_defaults_accent_color_blue">Azul</string>
+    <string name="viewer_defaults_accent_color_purple">Roxo</string>
+    <string name="viewer_defaults_accent_color_black">Preto</string>
+    <string name="viewer_defaults_high_contrast">Modo de alto contraste</string>
 </resources>
