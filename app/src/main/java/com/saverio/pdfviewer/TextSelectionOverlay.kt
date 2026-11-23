@@ -320,6 +320,7 @@ class TextSelectionManager(private val context: Context) {
                 ocrEngine?.ensurePageIndexedAsync(logicalPage)
                 continue
             }
+            if (words.isEmpty()) continue
 
             val startIndex = when {
                 logicalPage == from.logicalPage -> from.wordIndex.coerceIn(0, words.lastIndex)
