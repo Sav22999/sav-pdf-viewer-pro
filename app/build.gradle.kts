@@ -21,8 +21,8 @@ android {
         applicationId = "com.saverio.pdfviewer"
         minSdk = 24
         targetSdk = 36
-        versionCode = 86
-        versionName = "2.5.4"
+        versionCode = 87
+        versionName = "2.5.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
@@ -123,7 +123,7 @@ androidComponents {
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.24")
+    implementation(kotlin("stdlib"))
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.12.0")

@@ -16,6 +16,7 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.FrameLayout
@@ -206,6 +207,7 @@ class PDFViewer : AppCompatActivity() {
     private val ocrEngine: PdfOcrEngine by lazy { PdfOcrEngine(this) }
     private var searchResults: List<PdfOcrEngine.SearchResult> = emptyList()
     private var searchResultIndex: Int = 0
+    private var hasAutoNavigatedToFirstSearchResult: Boolean = false
     private var searchPanelVisible: Boolean = false
     private var currentSearchQuery: String = ""
     private var searchCaseSensitive: Boolean = false
@@ -3970,21 +3972,28 @@ class PDFViewer : AppCompatActivity() {
      * password), in which case physical page reordering is skipped.
      */
     private fun resolvePdfPageCount(uri: Uri): Int {
+        if (!PdfOcrEngine.ensureNativeLibrariesLoaded()) return 0
         var document: PdfDocument? = null
+        var pfd: android.os.ParcelFileDescriptor? = null
         return try {
-            val pfd = contentResolver.openFileDescriptor(uri, "r") ?: return 0
+            pfd = contentResolver.openFileDescriptor(uri, "r") ?: return 0
             document = if (passwordToUse.isEmpty()) {
                 pageOrderPdfiumCore.newDocument(pfd)
             } else {
                 pageOrderPdfiumCore.newDocument(pfd, passwordToUse)
             }
+            pfd = null // owned and closed by document.close()
             document.getPageCount()
-        } catch (e: Exception) {
+        } catch (t: Throwable) {
+            try {
+                pfd?.close()
+            } catch (_: Throwable) {
+            }
             0
         } finally {
             try {
                 document?.close()
-            } catch (_: Exception) {
+            } catch (_: Throwable) {
             }
         }
     }
@@ -4846,31 +4855,47 @@ class PDFViewer : AppCompatActivity() {
         updateSearchOptionButtonsUi()
 
         val textbox: EditText = findViewById(R.id.textboxSearch)
-        textbox.setOnEditorActionListener { _, _, _ ->
-            triggerSearch()
-            true
-        }
-        textbox.setOnKeyListener { _, keyCode, event ->
-            if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
-                triggerSearch()
-                true
-            } else false
+        textbox.setOnEditorActionListener { _, actionId, event ->
+            val isImeAction =
+                actionId == EditorInfo.IME_ACTION_SEARCH ||
+                    actionId == EditorInfo.IME_ACTION_DONE ||
+                    actionId == EditorInfo.IME_ACTION_GO
+            val isEnterKey = event != null && event.keyCode == KeyEvent.KEYCODE_ENTER
+            when {
+                isEnterKey && event.action == KeyEvent.ACTION_DOWN -> {
+                    triggerSearch()
+                    true
+                }
+                isEnterKey && event.action == KeyEvent.ACTION_UP -> true
+                isImeAction && event == null -> {
+                    triggerSearch()
+                    true
+                }
+                else -> false
+            }
         }
 
         // Wire OCR engine callbacks
         ocrEngine.onIndexingPage = { page, total ->
-            val status: TextView = findViewById(R.id.textSearchStatus)
-            status.text = String.format(getString(R.string.search_indexing), page + 1, total)
+            if (!isFinishing && !isDestroyed && searchPanelVisible && currentSearchQuery.isNotBlank()) {
+                val status: TextView = findViewById(R.id.textSearchStatus)
+                if (searchResults.isEmpty()) {
+                    status.text = String.format(getString(R.string.search_indexing), page + 1, total)
+                }
+            }
         }
         ocrEngine.onResults = { results, finished ->
-            searchResults = results
-            updateSearchStatus(finished)
-            // Always redraw so old highlights are cleared when filters change/no results.
-            pdfViewer.invalidate()
-            // Navigate to first result automatically
-            if (results.isNotEmpty() && searchResultIndex == 0) {
-                if (getCurrentLogicalPage() != results[0].pageIndex) {
-                    goToPage(results[0].pageIndex, true)
+            if (!isFinishing && !isDestroyed && currentSearchQuery.isNotBlank()) {
+                searchResults = results
+                updateSearchStatus(finished)
+                // Always redraw so old highlights are cleared when filters change/no results.
+                pdfViewer.invalidate()
+                // Navigate to first result automatically once per search.
+                if (results.isNotEmpty() && !hasAutoNavigatedToFirstSearchResult) {
+                    hasAutoNavigatedToFirstSearchResult = true
+                    if (getCurrentLogicalPage() != results[0].pageIndex) {
+                        goToPage(results[0].pageIndex, true)
+                    }
                 }
             }
         }
@@ -4881,11 +4906,19 @@ class PDFViewer : AppCompatActivity() {
         hideKeyboard(textbox)
         searchResults = emptyList()
         searchResultIndex = 0
+        hasAutoNavigatedToFirstSearchResult = false
         currentSearchQuery = textbox.text.toString().trim()
         // Clear previous highlights immediately before running a filtered search.
         pdfViewer.invalidate()
         val status: TextView = findViewById(R.id.textSearchStatus)
-        status.text = String.format(getString(R.string.search_indexing), 0, totalPages)
+        if (currentSearchQuery.isEmpty()) {
+            ocrEngine.cancelSearch()
+            status.text = ""
+            return
+        }
+        if (totalPages > 0) {
+            status.text = String.format(getString(R.string.search_indexing), 1, totalPages)
+        }
         ocrEngine.search(currentSearchQuery, currentSearchOptions())
     }
 
@@ -4896,6 +4929,9 @@ class PDFViewer : AppCompatActivity() {
                 status.text = getString(R.string.search_no_results)
 
             searchResults.isNotEmpty() -> {
+                if (searchResultIndex !in searchResults.indices) {
+                    searchResultIndex = 0
+                }
                 val display = searchResultIndex + 1
                 status.text = String.format(
                     getString(R.string.search_result_status),
@@ -4911,6 +4947,9 @@ class PDFViewer : AppCompatActivity() {
 
     private fun navigateSearchResult(forward: Boolean) {
         if (searchResults.isEmpty()) return
+        if (searchResultIndex !in searchResults.indices) {
+            searchResultIndex = 0
+        }
         if (forward) {
             searchResultIndex = (searchResultIndex + 1) % searchResults.size
         } else {
@@ -4934,9 +4973,12 @@ class PDFViewer : AppCompatActivity() {
     }
 
     private fun clearSearchState() {
+        ocrEngine.cancelSearch()
         currentSearchQuery = ""
         searchResults = emptyList()
         searchResultIndex = 0
+        hasAutoNavigatedToFirstSearchResult = false
+        findViewById<TextView>(R.id.textSearchStatus).text = ""
         pdfViewer.invalidate() // remove highlights
     }
 

@@ -8,6 +8,7 @@ import io.legere.pdfiumandroid.PdfDocument
 import io.legere.pdfiumandroid.PdfiumCore
 import kotlinx.coroutines.*
 import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.atomic.AtomicLong
 
 /**
  * PDF text search engine (100% FOSS — no proprietary libraries).
@@ -54,6 +55,8 @@ class PdfOcrEngine(private val context: Context) {
     @Volatile private var pageCount = 0
     @Volatile private var pdfPassword: String? = null
     private var searchJob: Job? = null
+    private val searchGeneration = AtomicLong(0L)
+    private val documentGeneration = AtomicLong(0L)
 
     private val documentLock = Any()
     private var document: PdfDocument? = null
@@ -61,6 +64,9 @@ class PdfOcrEngine(private val context: Context) {
     // ── public API ────────────────────────────────────────────────────────────
 
     fun open(uri: Uri, totalPages: Int, password: String? = null) {
+        searchJob?.cancel()
+        searchGeneration.incrementAndGet()
+        documentGeneration.incrementAndGet()
         closeDocument()
         pdfUri = uri
         pageCount = totalPages
@@ -69,8 +75,15 @@ class PdfOcrEngine(private val context: Context) {
         Log.d(TAG, "open  uri=$uri  pages=$totalPages")
     }
 
-    fun close() {
+    fun cancelSearch() {
+        searchGeneration.incrementAndGet()
         searchJob?.cancel()
+        searchJob = null
+    }
+
+    fun close() {
+        cancelSearch()
+        documentGeneration.incrementAndGet()
         pdfUri = null
         pageCount = 0
         pdfPassword = null
@@ -98,20 +111,27 @@ class PdfOcrEngine(private val context: Context) {
      */
     fun probeEncryption(uri: Uri, password: String?, callback: (OpenProbeResult) -> Unit) {
         scope.launch {
+            var pfd: android.os.ParcelFileDescriptor? = null
             val result = try {
-                val pfd = context.contentResolver.openFileDescriptor(uri, "r")
-                if (pfd == null) {
+                if (!ensureNativeLibrariesLoaded()) {
                     OpenProbeResult.ERROR
                 } else {
-                    val doc = if (password.isNullOrEmpty()) {
-                        pdfiumCore.newDocument(pfd)
+                    pfd = context.contentResolver.openFileDescriptor(uri, "r")
+                    if (pfd == null) {
+                        OpenProbeResult.ERROR
                     } else {
-                        pdfiumCore.newDocument(pfd, password)
+                        val doc = if (password.isNullOrEmpty()) {
+                            pdfiumCore.newDocument(pfd)
+                        } else {
+                            pdfiumCore.newDocument(pfd, password)
+                        }
+                        pfd = null // owned and closed by doc.close()
+                        doc.close()
+                        OpenProbeResult.OPENED
                     }
-                    doc.close()
-                    OpenProbeResult.OPENED
                 }
             } catch (t: Throwable) {
+                try { pfd?.close() } catch (_: Throwable) {}
                 val msg = t.message.orEmpty()
                 if (msg.contains("Password", ignoreCase = true)) {
                     OpenProbeResult.WRONG_PASSWORD
@@ -348,6 +368,7 @@ class PdfOcrEngine(private val context: Context) {
      * — the exact same function that onDraw uses to paint highlights.
      */
     fun search(query: String, options: SearchOptions = SearchOptions()) {
+        val generation = searchGeneration.incrementAndGet()
         searchJob?.cancel()
         if (query.isBlank()) {
             onResults?.invoke(emptyList(), true)
@@ -363,33 +384,50 @@ class PdfOcrEngine(private val context: Context) {
         searchJob = scope.launch {
             val all = mutableListOf<SearchResult>()
 
-            for (page in 0 until total) {
-                if (!isActive) break
-                withContext(Dispatchers.Main) { onIndexingPage?.invoke(page, total) }
+            try {
+                for (page in 0 until total) {
+                    if (!isActive || generation != searchGeneration.get()) break
+                    withContext(Dispatchers.Main) {
+                        if (generation == searchGeneration.get()) {
+                            onIndexingPage?.invoke(page, total)
+                        }
+                    }
 
-                // Index the page (extracts text layer, stores words in wordsCache)
-                ensurePageIndexed(page)
+                    // Index the page (extracts text layer, stores words in wordsCache)
+                    ensurePageIndexed(page)
+                    if (!isActive || generation != searchGeneration.get()) break
 
-                // Use getHighlightsForPage — THE SAME function onDraw uses.
-                // Number of rects = number of occurrences on this page.
-                val rects = getHighlightsForPage(page, q, options)
-                val pageHits = rects.size
+                    // Use getHighlightsForPage — THE SAME function onDraw uses.
+                    // Number of rects = number of occurrences on this page.
+                    val rects = getHighlightsForPage(page, q, options)
+                    val pageHits = rects.size
 
-                if (pageHits > 0) {
-                    Log.d(TAG, "  page $page → $pageHits hits")
-                    repeat(pageHits) { all.add(SearchResult(page)) }
+                    if (pageHits > 0) {
+                        Log.d(TAG, "  page $page → $pageHits hits")
+                        repeat(pageHits) { all.add(SearchResult(page)) }
+                    }
+
+                    // Emit a progressive snapshot for every indexed page so the UI can react early.
+                    val snap = all.toList()
+                    withContext(Dispatchers.Main) {
+                        if (generation == searchGeneration.get()) {
+                            onResults?.invoke(snap, false)
+                        }
+                    }
                 }
-
-                // Emit a progressive snapshot for every indexed page so the UI can react early.
-                val snap = all.toList()
-                withContext(Dispatchers.Main) { onResults?.invoke(snap, false) }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (t: Throwable) {
+                Log.e(TAG, "search failed unexpectedly: ${t.message}", t)
             }
 
-            if (isActive) {
+            if (isActive && generation == searchGeneration.get()) {
                 val snap = all.toList()
                 withContext(Dispatchers.Main) {
-                    Log.d(TAG, "search done: ${snap.size} total hits")
-                    onResults?.invoke(snap, true)
+                    if (generation == searchGeneration.get()) {
+                        Log.d(TAG, "search done: ${snap.size} total hits")
+                        onResults?.invoke(snap, true)
+                    }
                 }
             }
         }
@@ -403,18 +441,24 @@ class PdfOcrEngine(private val context: Context) {
      */
     private fun ensurePageIndexed(page: Int) {
         if (wordsCache.containsKey(page)) return
+        val docGen = documentGeneration.get()
 
         val words = try {
             extractWords(page)
         } catch (t: Throwable) {
             // Catch Throwable (not just Exception): native Pdfium failures can
             // surface as Errors, which must not crash the app during a search.
-            Log.e(TAG, "page $page text extraction failed: ${t.message}")
+            Log.e(TAG, "page $page text extraction failed: ${t.message}", t)
             emptyList()
         }
+        if (docGen != documentGeneration.get() || pdfUri == null) return
         wordsCache[page] = words
         Log.d(TAG, "page $page: indexed ${words.size} words → [${words.take(20).joinToString { it.text }}]")
-        mainHandler.post { onPageIndexed?.invoke(page) }
+        mainHandler.post {
+            if (docGen == documentGeneration.get()) {
+                onPageIndexed?.invoke(page)
+            }
+        }
     }
 
     // ── text extraction ───────────────────────────────────────────────────────
@@ -433,14 +477,19 @@ class PdfOcrEngine(private val context: Context) {
         // once, which crashes the process. Holding documentLock for the whole
         // native section serialises all page/text access. (synchronized is
         // reentrant, so the nested lock in openDocumentIfNeeded is fine.)
+        if (pdfUri == null) return emptyList()
         val doc = openDocumentIfNeeded() ?: return emptyList()
+        if (doc.isClosed) return emptyList()
+        val docPageCount = doc.getPageCount()
+        if (pageIndex < 0 || pageIndex >= docPageCount) return emptyList()
         doc.openPage(pageIndex).use { pdfPage ->
+            if (pdfPage.pagePtr == 0L || pdfPage.pagePtr == -1L) return emptyList()
             val pageWidth = pdfPage.getPageWidthPoint().toFloat().coerceAtLeast(1f)
             val pageHeight = pdfPage.getPageHeightPoint().toFloat().coerceAtLeast(1f)
             pdfPage.openTextPage().use { textPage ->
+                if (textPage.pagePtr == 0L || textPage.pagePtr == -1L) return emptyList()
                 val charCount = textPage.textPageCountChars()
                 if (charCount <= 0) return emptyList()
-                val text = textPage.textPageGetText(0, charCount) ?: return emptyList()
 
                 val words = mutableListOf<WordElement>()
                 val wordText = StringBuilder()
@@ -470,10 +519,15 @@ class PdfOcrEngine(private val context: Context) {
                     bottomPage = Float.MAX_VALUE
                 }
 
-                val count = minOf(charCount, text.length)
-                for (i in 0 until count) {
-                    val c = text[i]
-                    if (c.isWhitespace()) {
+                // Read characters individually via FPDFText_GetUnicode instead of
+                // textPageGetText(): in pdfiumandroid 1.0.20, nativeTextGetTextByteArray
+                // allocates a C99 VLA of size `count` into which FPDFText_GetText writes
+                // `count + 1` shorts (stack buffer overflow / SIGABRT) and leaks pinned
+                // JNI byte arrays. textPageGetUnicode avoids both bugs and stays 1:1
+                // index-aligned with textPageGetCharBox(i).
+                for (i in 0 until charCount) {
+                    val c = textPage.textPageGetUnicode(i)
+                    if (c == '\u0000' || c == '\uFFFE' || c == '\uFFFF' || c.isWhitespace()) {
                         flushWord()
                         continue
                     }
@@ -495,19 +549,26 @@ class PdfOcrEngine(private val context: Context) {
 
     private fun openDocumentIfNeeded(): PdfDocument? {
         val uri = pdfUri ?: return null
+        if (!ensureNativeLibrariesLoaded()) return null
         synchronized(documentLock) {
-            document?.let { return it }
+            document?.let {
+                if (!it.isClosed) return it
+                document = null
+            }
+            var pfd: android.os.ParcelFileDescriptor? = null
             return try {
-                val pfd = context.contentResolver.openFileDescriptor(uri, "r") ?: return null
+                pfd = context.contentResolver.openFileDescriptor(uri, "r") ?: return null
                 val password = pdfPassword
                 val doc = if (password.isNullOrEmpty()) {
                     pdfiumCore.newDocument(pfd)
                 } else {
                     pdfiumCore.newDocument(pfd, password)
                 }
+                pfd = null // owned and closed by doc.close()
                 document = doc
                 doc
             } catch (t: Throwable) {
+                try { pfd?.close() } catch (_: Throwable) {}
                 Log.w(TAG, "openDocument failed: ${t.message}")
                 null
             }
@@ -518,8 +579,8 @@ class PdfOcrEngine(private val context: Context) {
         synchronized(documentLock) {
             try {
                 document?.close()
-            } catch (e: Exception) {
-                Log.w(TAG, "closeDocument: ${e.message}")
+            } catch (t: Throwable) {
+                Log.w(TAG, "closeDocument: ${t.message}")
             }
             document = null
         }
@@ -527,5 +588,33 @@ class PdfOcrEngine(private val context: Context) {
 
     companion object {
         private const val TAG = "PdfOcrEngine"
+        private val nativeLibLock = Any()
+        @Volatile private var nativeLibsLoaded = false
+        @Volatile private var nativeLibsLoadFailed = false
+
+        /**
+         * Pre-loads Pdfium's native libraries before touching [PdfiumCore].
+         * In pdfiumandroid 1.0.20, a failed `System.loadLibrary` inside
+         * `PdfiumCore`'s companion init leaves `InitLock` un-signalled forever,
+         * which would deadlock callers waiting in `PdfiumCore(context)`.
+         */
+        internal fun ensureNativeLibrariesLoaded(): Boolean {
+            if (nativeLibsLoaded) return true
+            if (nativeLibsLoadFailed) return false
+            synchronized(nativeLibLock) {
+                if (nativeLibsLoaded) return true
+                if (nativeLibsLoadFailed) return false
+                return try {
+                    System.loadLibrary("pdfium")
+                    System.loadLibrary("pdfiumandroid")
+                    nativeLibsLoaded = true
+                    true
+                } catch (t: Throwable) {
+                    nativeLibsLoadFailed = true
+                    Log.e(TAG, "Failed to load native Pdfium libraries: ${t.message}", t)
+                    false
+                }
+            }
+        }
     }
 }
